@@ -1,39 +1,40 @@
-#include "common/foo.h"
-
-#include <iostream>
 #include <exception>
+#include <fstream>
+#include <iostream>
 
-#include <SDL2pp/SDL2pp.hh>
-#include <SDL2/SDL.h>
+#include "../common/constants.h"
 
-using namespace SDL2pp;
+#include "client.h"
+#include "protocol_client.h"
 
-int main() try {
-	// Initialize SDL library
-	SDL sdl(SDL_INIT_VIDEO);
+#define HOST_NAME argv[1]
+#define SERVICIO argv[2]
+#define CANTIDAD_ARG 3
 
-	// Create main window: 640x480 dimensions, resizable, "SDL2pp demo" title
-	Window window("SDL2pp demo",
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			640, 480,
-			SDL_WINDOW_RESIZABLE);
+/*
+./client <hostname o IP> <servicename o puerto>
 
-	// Create accelerated video renderer with default driver
-	Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
+Ejemplo ./client 127.0.0.1 8080
+*/
+int main(int argc, char* argv[]) {
+    try {
+        if (argc != CANTIDAD_ARG) {
+            throw std::invalid_argument("Bad program call. Expected " + std::string(argv[0]) +
+                                        " <hostname o IP> <servicename o puerto>");
+        }
 
-	// Clear screen
-	renderer.Clear();
+        Socket skt(HOST_NAME, SERVICIO);
 
-	// Show rendered frame
-	renderer.Present();
+        Client client(std::move(skt));
 
-	// 5 second delay
-	SDL_Delay(5000);
+        client.procesar_actiones();
 
-	// Here all resources are automatically released and library deinitialized
-	return 0;
-} catch (std::exception& e) {
-	// If case of error, print it and exit with error
-	std::cerr << e.what() << std::endl;
-	return 1;
+        return EXITO;
+    } catch (const std::exception& err) {
+        std::cerr << "Something went wrong and an exception was caught: " << err.what() << "\n";
+        return ERROR;
+    } catch (...) {
+        std::cerr << "Something went wrong and an unknown exception was caught.\n";
+        return ERROR;
+    }
 }

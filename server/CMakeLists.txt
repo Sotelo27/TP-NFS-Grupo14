@@ -2,6 +2,25 @@ target_sources(taller_server
     PRIVATE
     # .cpp files
     main.cpp
+    acceptor.cpp
+    client_handler.cpp
+    client_thread_recv.cpp
+    client_thread_send.cpp
+    client_list.cpp
+    gameloop.cpp
+    game.cpp
+    protocol_server.cpp
+    server.cpp
     PUBLIC
     # .h files
+    acceptor.h
+    client_action.h
+    client_handler.h
+    client_thread_recv.h
+    client_thread_send.h
+    client_list.h
+    gameloop.h
+    game.h
+    protocol_server.h
+    server.h
     )

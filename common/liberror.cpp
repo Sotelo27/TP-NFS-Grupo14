@@ -24,7 +24,6 @@
 #include <cstring>
 
 #include <errno.h>
-#include <string.h>
 
 LibError::LibError(int error_code, const char* fmt, ...) noexcept {
     /* Aquí empieza la magia arcana proveniente de C.
@@ -85,7 +84,6 @@ LibError::LibError(int error_code, const char* fmt, ...) noexcept {
          * Por lo tanto, si nosotros escribimos artificialmente `"??? \0"`
          * debemos indicar 4 bytes y no 5 ya que no debemos contar el `\0`
          * */
-        // cppcheck-suppress unreadVariable
         s = 4;
     } else if (s == sizeof(msg_error)) {
         /* Esto también técnicamente es un error ya que el mensaje formateado
@@ -107,7 +105,7 @@ LibError::LibError(int error_code, const char* fmt, ...) noexcept {
      * y es exactamente lo que queremos: queremos escribir a continuación
      * de lo escrito por `vsnprintf` pisándole el `\0`.
      * */
-    // strerror_r(error_code, msg_error+s, sizeof(msg_error)-s);
+    strerror_r(error_code, msg_error + s, sizeof(msg_error) - s);
 
     /*
      * `strerror_r` garantiza que el string termina siempre en un `\0`

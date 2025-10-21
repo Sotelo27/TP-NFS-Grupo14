@@ -22,7 +22,7 @@ Resolver::Resolver(const char* hostname, const char* servname, bool is_passive) 
      * `getaddrinfo` nos resuelve el nombre de una máquina (host) y de un
      * servicio a una dirección.
      * Nos puede retornar múltiples direcciones incluso de
-     * protocolos/tecnologías que no nos interesan.
+     * protocols/tecnologías que no nos interesan.
      * Para pre-seleccionar que direcciones nos interesan le pasamos
      * un hint, una estructura con algunos campos completados (no todos)
      * que le indicaran que tipo de direcciones queremos.
