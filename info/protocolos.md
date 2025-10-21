@@ -27,6 +27,8 @@
         - MAP un string con el nombre del mapa 
         - ROUTE un byte que indica el recorrido elegido.
 
+- **Movimiento del jugador**
+
 - 0x05 <MOVE>
     - MOVE es un byte que indica la dirección:
         - 0x01: Arriba
