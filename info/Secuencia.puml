@@ -1,0 +1,44 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor usuario
+participant client
+participant server
+
+client --> usuario : Pedir nombre
+usuario --> client : nombre
+client --> server : Nombre de usuario
+
+server --> client : Todas las salas disponibles
+client --> usuario : Mostrar salas
+usuario --> client : Crear o elegir sala
+
+client --> server : conexión
+server --> client : Todos los autos disponibles
+client --> usuario : Mostrar autos
+usuario --> client : Elige auto
+client --> server : Auto elegido
+
+usuario --> client : Arrancar partida (creador de la sala)
+client --> server : Iniciar partida (n carreras, mapa elegidos)
+
+server --> client : Arranque de carrera (mapa, checkpoints)
+server --> client : Info del mapa
+usuario --> client : Tecla
+client --> server : Movimiento
+server --> client : Info del mapa
+server --> client : Info del mapa
+server --> client : Info del resultado de la carrera
+
+server --> client : Arranque de carrera (mapa, checkpoints)
+server --> client : Info del mapa
+server --> client : Info del mapa
+server --> client : Info del mapa
+usuario --> client : Teclas raras
+client --> server : Cheat
+server --> client : Info del resultado de la carrera
+server --> client : Fin de la partida
+
+@enduml
