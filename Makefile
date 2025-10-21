@@ -8,6 +8,12 @@ compile-debug:
 run-tests: compile-debug
 	./build/taller_tests
 
+run-server: compile-debug
+	./build/taller_server 8080
+
+run-client: compile-debug
+	./build/taller_client 127.0.0.1 8080
+
 all: clean run-tests
 
 clean:
