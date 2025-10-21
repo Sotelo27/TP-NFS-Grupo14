@@ -1,0 +1,264 @@
+@startuml GameDominio
+title Dominio Servidor – Need For Speed
+hide FinishStatus
+hide MatchState
+hide PlayerRaceState
+hide RaceState
+'ENUMS ----------------------------------------------------------------
+enum FinishStatus {
+  Finished
+  Disqualified
+  DNF
+}
+
+enum MatchState {
+  Waiting
+  Racing
+  Upgrades
+  Finished
+}
+
+enum PlayerRaceState {
+  NotReady
+  Ready
+  Racing
+  Finished
+  Disqualified
+}
+
+enum RaceState {
+  NotStarted
+  Running
+  Finished
+}
+
+'CLASES ---------------------------------------------------------------
+
+class GameNeedForSpeed {
+  - partida: Partida
+  - config: ConfiguracionYML
+  '- cheats: CheatManager
+  - loop: GameLoop
+  + start(config): void
+  + tick(): void
+}
+
+
+class Partida {
+  - estado: MatchState
+  - jugadores: Map<idJugador, Jugador>
+  - carreras: List<Carrera>
+  - indiceCarreraActual: int
+  - tablaAcumulada: ScoreTable
+  - maxJugadores: 8
+  - registroDepenalizacionesMs: Map<idJugador, uint32>
+  '- upgradesDeadlineMs: uint64  (Esto lo dejo por el momento comentado, porque capaz nos servira en un futuro) no entendi:V
+  
+  + agregarJugador(p: Jugador): void
+  + iniciar(): void
+  + finalizar(): void
+  + avanzarCarrera(): void
+  ' Congela penalizacionesPendientes de cada Jugador para la carrera que inicia
+  ' y limpia el valor en Jugador; se usarán al construir ResultadoCarrera.penalizacionAplicadaMs :3
+  + fijarPenalizacionesParaCarrera(): void
+
+  ' Esto va de la mano con lo de upgradesDeadlineMs
+  '+ startUpgradesWindow(duracionMs: uint32): void
+  '+ isUpgradesOpen(nowMs: uint64): bool
+}
+
+class ScoreTable {
+    ' Mapeo de idJugador a ResultadoAcumulado
+  - filas: Map<idJugador, ResultadoAcumulado>
+  + agregarResultado(resultados: Map<idJugador, ResultadoCarrera>): void
+  + getClasificacion(): List<ResultadoAcumulado>
+}
+
+class ResultadoCarrera {
+  - JugadorId: uint16
+  - tiempoCarreraMs: uint32
+  - penalizacionAplicadaMs: uint32
+  - status: FinishStatus
+  - cause: string
+
+  + getTiempoEfectivoMs(): uint32
+}
+
+class ResultadoAcumulado {
+  - acumuladoMs: uint32
+  - carrerasCompletadas: uint8
+  - ultimaCarreraMs: uint32
+  - statusUltima: FinishStatus
+  - causeUltima: string
+
+  + agregarResultado(r: ResultadoCarrera): void
+  + getAcumuladoMs(): uint32
+}
+
+class Jugador {
+  - id : uint16
+  - nombre : string
+  - auto : Auto
+  - estado : PlayerRaceState
+  - tiempoActualMs : uint32
+  - penalizacionPendienteMs : uint32
+  - nextCheckpointIdx : uint16
+  - cheats : Cheats
+
+  ' finalizar() No aplica penalizacionPendienteMs.
+  ' La penalización aplicada en ResultadoCarrera la setea Partida usando la congelada al inicio.
+  + escogerAuto(auto: Auto) : void
+  + aplicarMejora(mejora: UpgradeOption) : void
+  + agregarPenalizacion(penalizacionMs: uint32) : void
+  + limpiarPenalizacionPendiente() : void
+  + isFinished() : bool
+  + marcarCheckpoint(idCheckpoint: uint16) : void
+  + finalizar(tiempoMs: uint32) : ResultadoCarrera
+  + descalificar(causa: string) : ResultadoCarrera
+  + reposicionParaCarrera(puntoDeInicio: Spawn) : void
+}
+
+class Auto {
+  - modelo : string
+  - velocidadBase : uint16
+  - aceleracionBase : uint16
+  - masaBase: uint16
+  - controlBase : uint16
+  - saludMax : uint16
+  - saludActual : uint16
+  - upgrades : Upgrades
+}
+
+class Penalizaciones {
+  
+}
+
+class Recorrido {
+
+}
+
+class Ciudad {
+  - nombre : string
+}
+
+class Cheats {
+  - vidaInfinita: bool
+  - autoGanar: bool
+  - autoPerder: bool
+}
+
+
+
+' CARRERA --------------------------------------------------------------
+class Carrera {
+  - id : uint32
+  - estado : RaceState
+  - fisicas : PhysicsWorld
+  - recorrido : Recorrido
+  - reglas : RaceRules
+  - jugadores : Map<idJugador, Jugador>
+  - progresos : Map<idJugador, ProgresoJugadorCarrera>
+  - resultados : Map<idJugador, ResultadoCarrera>
+  - npcs : List<NPC>
+  - tiempoInicioMs : uint64
+  ' Aqui claramente es 10 minutos en ms
+  - duracionMaxMs : uint32
+  - countdownMs : uint32
+  + iniciarCarrera(nowMs: uint64) : void
+  + actualizar(dtMs: uint32, nowMs: uint64) : void
+  + registrarPasoPorCheckpoint(idJugador: uint16, idxCheckpoint: uint16) : void
+  + registrarChoqueFatal(idJugador: uint16, causa: string) : void
+  + verificarTimeout(nowMs: uint64) : void
+  + finalizarCarrera(registroDePenalizaciones: Map<idJugador,uint32>) : Map<idJugador, ResultadoCarrera>
+}
+
+
+' RELACIONES -----------------------------------------------------------
+GameNeedForSpeed *-- Partida : compone
+GameNeedForSpeed --> ConfiguracionYML : usa
+
+Partida o-- Jugador : contiene
+Partida *-- ScoreTable : compone
+
+ScoreTable *-- ResultadoAcumulado : contiene
+ScoreTable ..> ResultadoCarrera : usa
+
+Jugador *-- Cheats : compone
+Jugador ..> ResultadoCarrera : produce
+Jugador --> Auto : tiene
+Partida ..> ResultadoCarrera : ensambla
+
+' Carrera recolecta resultados de los jugadores y usa componentes del mundo
+Carrera o-- Jugador : contiene
+Carrera ..> ResultadoCarrera : recolecta
+Carrera --> Recorrido : usa
+Carrera --> RaceRules : usa
+Carrera --> PhysicsWorld : usa
+
+Recorrido --> Ciudad : usa
+
+/'
+note bottom of Carrera
+  iniciarCarrera(nowMs): fija tiempoInicioMs, 
+  inicializa progresos y cuerpos en fisicas,
+  deja estado en Running 
+  (o maneja countdown antes de habilitar movimiento).
+
+  actualizar(dtMs, nowMs): 
+  si countdownMs > 0 decrementa; si estado=Running, 
+  avanza fisicas,detecta checkpoints/colisiones y, 
+  cuando corresponde, pide a cada Jugador
+  finalizar(t) o descalificar(causa) para 
+  recolectar su ResultadoCarrera.
+  Si todos cerrados, invoca finalizarCarrera(...).
+
+  verificarTimeout(nowMs): 
+  si nowMs - tiempoInicioMs >= duracionMaxMs, 
+  marca DNF a restantes
+  y llama finalizarCarrera(...).
+
+  finalizarCarrera(registroDePenalizaciones): 
+  aplica penalizaciones del map (congeladas por Partida),
+  es idempotente (repetidas llamadas devuelven el mismo resultado) y retorna Map<JugadorId, ResultadoCarrera>.
+  No actualiza ScoreTable: Partida entrega el lote a ScoreTable.agregarResultado(...).
+end note
+'/
+
+'NOTAS---------------------------------------------------------------
+skinparam noteFontSize 10
+note bottom of Partida
+    Podemos agregarle un ID a 
+    cada partida para diferenciarlas.
+end note
+
+note top of Partida
+  Sobre las penalizaciones: se congelan al 
+  iniciar la carrera y se aplican en
+  ResultadoCarrera.penalizacionAplicadaMs;
+  Jugador.finalizar() no las aplica.
+end note
+
+note bottom of ResultadoCarrera
+  getTiempoEfectivoMs() devuelve 
+  tiempoCarreraMs + penalizacionAplicadaMs
+end note
+
+note bottom of ResultadoAcumulado
+  getAcumuladoMs() devuelve la suma de 
+  todos los tiempos efectivos de las carreras 
+  completadas.
+  agregarResultado(r : ResultadoCarrera) 
+  Suma un nuevo resultado a los acumulados
+end note
+
+note bottom of ScoreTable
+  agregarResultado(resultados):
+    for (idJugador, row) in resultados:
+        if idJugador no existe -> crear ResultadoAcumulado()
+        filas[idJugador].agregarResultado(row)
+  
+  Actualiza el acumulado total de cada jugador
+  segun los ResultadoCarrera de la carrera.
+end note
+
+@enduml
