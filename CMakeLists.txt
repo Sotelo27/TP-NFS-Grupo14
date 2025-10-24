@@ -111,11 +111,13 @@ if(TALLER_CLIENT)
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
     add_subdirectory(client)
+    add_subdirectory(client/sdl_wrappers)
 
     set_project_warnings(taller_client ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
     # add libSDL2pp's headers
     target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR})
+    target_include_directories(taller_client PRIVATE sdl_wrappers)
 
     # define ASSETS_PATH assets path
     target_compile_definitions(taller_client PRIVATE
