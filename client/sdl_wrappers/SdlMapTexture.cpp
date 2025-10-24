@@ -1,18 +1,19 @@
 #include "SdlMapTexture.h"
+
 #include <SDL2/SDL_image.h>
+
 #include "SdlException.h"
 
 
-SdlMapTexture::SdlMapTexture(const std::string &filename, const SdlWindow& window)
-        : SdlBaseTexture(window) {
+SdlMapTexture::SdlMapTexture(const std::string& filename, const SdlWindow& window):
+        SdlBaseTexture(window) {
     this->texture = loadTexture(filename);
 }
 
-SDL_Texture* SdlMapTexture::loadTexture(const std::string &filename) {
-    SDL_Texture* texture = IMG_LoadTexture(this->renderer,
-                                           filename.c_str());
+SDL_Texture* SdlMapTexture::loadTexture(const std::string& filename) {
+    SDL_Texture* texture = IMG_LoadTexture(this->renderer, filename.c_str());
     if (!texture) {
-        throw SdlException("Error al cargar la textura", SDL_GetError());
+        throw SdlException("Error loading texture", SDL_GetError());
     }
     return texture;
 }

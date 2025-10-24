@@ -1,6 +1,6 @@
 #ifndef __SDL_WINDOW_H__
 #define __SDL_WINDOW_H__
-#include "../Area.h"
+#include "../utils/Area.h"
 
 class SDL_Window;
 class SDL_Renderer;
@@ -12,6 +12,7 @@ private:
     int height;
     SDL_Window* window;
     SDL_Renderer* renderer;
+
 public:
     /**
      * Ctor standalone
