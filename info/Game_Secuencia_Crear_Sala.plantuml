@@ -1,0 +1,71 @@
+@startuml
+title Flujo de creación y arranque de una Partida (GameId visible)
+
+actor ClienteCreador as C1
+actor ClienteInvitado as C2
+
+participant Acceptor
+participant Server
+participant MonitorLobby as ML
+participant "partidas (Map<GameId, PartidaRuntime>)" as MAP
+participant GameLoop
+
+'----------------- Conexión y pedido de creación -----------------
+C1 -> Acceptor : conectar()
+Acceptor -> Server : nuevaSesion(s1)
+
+C1 -> Server : CreateLobby(cfg)
+Server -> ML : crearPartida(cfg)
+activate ML
+ML -> MAP : id = nextId++\npartidas[id] = { game=Game(cfg), loop=null }
+ML <-- MAP : GameId
+ML --> Server : GameId
+deactivate ML
+Server --> C1 : GameCreated{ gameId }
+
+'----------------- Otro cliente se conecta y se une -----------------
+C2 -> Acceptor : conectar()
+Acceptor -> Server : nuevaSesion(s2)
+
+C2 -> Server : JoinLobby{ gameId }
+Server -> ML : asignarJugador(gameId, s2/jugador)
+ML -> MAP : partidas[gameId].game.agregarJugador(...)
+
+'----------------- El creador inicia la partida -----------------
+C1 -> Server : StartGame{ gameId }
+Server -> ML : iniciarPartida(gameId)
+activate ML
+ML -> MAP : pr = partidas[gameId]
+ML -> MAP : pr.game.iniciar()
+
+' Crear y lanzar el hilo del loop (pasa ref a Game)
+ML -> GameLoop : construir con ref a pr.game
+create GameLoop
+ML -> GameLoop : start()  <<spawn thread>>
+deactivate ML
+
+'----------------- Hilo del GameLoop -----------------
+par Thread GameLoop
+  GameLoop -> GameLoop : run()\nwhile(running){...}
+  loop Game tick
+    GameLoop -> GameLoop : dt, now = clock()
+    GameLoop -> GameLoop : procesarAcciones()
+    GameLoop -> MAP : pr.game.actualizarSimulacion(dt, now)
+  end
+end
+
+'----------------- Enrutado de inputs usando GameId -----------------
+C2 -> Server : PlayerInput{ gameId, payload }
+Server -> ML : encolarAccion(gameId, act)
+ML -> MAP : pr = partidas[gameId]
+ML -> GameLoop : pr.loop.colaAcciones.push(act)
+
+'----------------- Finalización (esquemático) -----------------
+... tiempo después ...
+GameLoop -> ML : requestFinish(gameId)
+ML -> GameLoop : request_stop()
+GameLoop --> ML : join() (thread termina)
+destroy GameLoop
+ML -> MAP : partidas.erase(gameId)  ' o reciclar lobby
+
+@enduml

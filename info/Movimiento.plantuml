@@ -1,0 +1,55 @@
+@startuml Secuencia_Movimiento_Arriba_MVP
+title Flujo: Cliente envía Movimiento{avanzar=true} → Server mueve → Snapshot (x,y)
+
+actor ClienteSDL
+participant "Protocolo" as Net
+participant Server
+participant GameLoop
+participant Game
+participant Carrera
+participant Jugador
+participant Auto
+
+== llegada de la intención de movimiento ==
+ClienteSDL -> Net : enviar AccionMovimiento{playerId, Movimiento{avanzar=true}}
+Net -> Server : AccionMovimiento{playerId, Movimiento{avanzar=true}}
+Server -> GameLoop : encolar ClientAction(playerId, Movimiento)
+
+== despacho de la acción a dominio ==
+GameLoop -> Game : aplicarAccion(playerId, Movimiento{avanzar=true})
+Game -> Carrera : aplicarAccion(playerId, Movimiento{avanzar=true})
+Carrera -> Jugador : aplicarMovimiento(Movimiento{avanzar=true})
+Jugador -> Auto : moverse(Movimiento{avanzar=true})
+note right of Auto
+moverse() solo actualiza la dirección actual:
+direccionY = +1 (arriba), X/Y sin cambiar todavía.
+end note
+
+== integración del movimiento en cada tick del servidor ==
+loop cada tick (dt = 1/60 s)
+  GameLoop -> Game : actualizarSimulacion(dtMs, nowMs)
+  Game -> Carrera : actualizar(dtMs, nowMs)
+
+  Carrera -> Jugador : update(dt)
+  Jugador -> Auto : actualizar(dt)\nposX += direccionX * velocidad * dt\nposY += direccionY * velocidad * dt
+
+  Carrera -> Game : snapshotPoses() → {playerId → Posicion{x,y}}
+  Game --> GameLoop : SnapshotPoses
+  GameLoop -> Net : enviar Snapshot{playerId, Posicion{x,y}}
+  Net -> ClienteSDL : Snapshot{playerId, x, y}
+  ClienteSDL -> ClienteSDL : render(x,y)
+end
+
+== soltar la tecla (detener avance) ==
+ClienteSDL -> Net : AccionMovimiento{playerId, Movimiento{avanzar=false}}
+Net -> Server : AccionMovimiento{playerId, Movimiento{avanzar=false}}
+Server -> GameLoop : encolar ClientAction(...)
+GameLoop -> Game : aplicarAccion(playerId, Movimiento{avanzar=false})
+Game -> Carrera : aplicarAccion(playerId, Movimiento{avanzar=false})
+Carrera -> Jugador : aplicarMovimiento(Movimiento{avanzar=false})
+Jugador -> Auto : moverse(Movimiento{avanzar=false})
+note right of Auto
+ahora direccionY = 0; en los siguientes ticks
+actualizar(dt) ya no cambia posY (se detiene).
+end note
+@enduml
