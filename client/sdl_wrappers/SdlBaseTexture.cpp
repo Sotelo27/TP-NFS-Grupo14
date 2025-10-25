@@ -4,6 +4,8 @@
 
 #include <SDL2/SDL_image.h>
 
+#include "../utils/Area.h"
+
 #include "SdlException.h"
 #include "SdlWindow.h"
 

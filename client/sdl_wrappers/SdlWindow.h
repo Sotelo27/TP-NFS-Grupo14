@@ -1,6 +1,5 @@
 #ifndef __SDL_WINDOW_H__
 #define __SDL_WINDOW_H__
-#include "../utils/Area.h"
 
 class SDL_Window;
 class SDL_Renderer;
