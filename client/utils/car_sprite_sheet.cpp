@@ -2,16 +2,25 @@
 
 #include <utility>
 
-#include "Area.h"
+#include "../constants.h"
 
 CarSpriteSheet::CarSpriteSheet() {
-    sprites.emplace(CarSpriteID::CommonGreenCar, Area(0, 0, 32, 32));
-    sprites.emplace(CarSpriteID::RedCar, Area(0, 64, 40, 40));
-    sprites.emplace(CarSpriteID::RedSportsCar, Area(0, 144, 40, 40));
-    sprites.emplace(CarSpriteID::SpecialCar, Area(0, 224, 40, 40));
-    sprites.emplace(CarSpriteID::FourByFourConvertible, Area(0, 304, 40, 40));
-    sprites.emplace(CarSpriteID::PickupTruck, Area(0, 384, 40, 40));
-    sprites.emplace(CarSpriteID::Limousine, Area(0, 464, 48, 48));
+    sprites.emplace(CarSpriteID::CommonGreenCar,
+                    CarData{Area(0, 0, 32, 32), CAR_WIDTH_SMALL, CAR_HEIGHT_SMALL});
+    sprites.emplace(CarSpriteID::RedCar,
+                    CarData{Area(0, 64, 40, 40), CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM});
+    sprites.emplace(CarSpriteID::RedSportsCar,
+                    CarData{Area(0, 144, 40, 40), CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM});
+    sprites.emplace(CarSpriteID::SpecialCar,
+                    CarData{Area(0, 224, 40, 40), CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM});
+    sprites.emplace(CarSpriteID::FourByFourConvertible,
+                    CarData{Area(0, 304, 40, 40), CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM});
+    sprites.emplace(CarSpriteID::PickupTruck,
+                    CarData{Area(0, 384, 40, 40), CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM});
+    sprites.emplace(CarSpriteID::Limousine,
+                    CarData{Area(0, 464, 48, 48), CAR_WIDTH_LARGE, CAR_HEIGHT_LARGE});
 }
 
-const Area& CarSpriteSheet::get(CarSpriteID id) const { return this->sprites.at(id); }
+const CarData& CarSpriteSheet::get(CarSpriteID id) const { return this->sprites.at(id); }
+
+const Area& CarSpriteSheet::getArea(CarSpriteID id) const { return this->sprites.at(id).area; }

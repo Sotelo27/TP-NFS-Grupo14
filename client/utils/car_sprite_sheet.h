@@ -4,7 +4,12 @@
 #include <string>
 #include <unordered_map>
 
-class Area;
+#include "Area.h"
+struct CarData {
+    Area area;
+    int width_scale_screen;
+    int height_scale_screen;
+};
 
 enum class CarSpriteID {
     CommonGreenCar,
@@ -18,12 +23,13 @@ enum class CarSpriteID {
 
 class CarSpriteSheet {
 private:
-    std::unordered_map<CarSpriteID, Area> sprites;
+    std::unordered_map<CarSpriteID, CarData> sprites;
 
 public:
     CarSpriteSheet();
 
-    const Area& get(CarSpriteID id) const;
+    const Area& getArea(CarSpriteID id) const;
+    const CarData& get(CarSpriteID id) const;
 };
 
 #endif  // CAR_SPRITE_SHEET_H
