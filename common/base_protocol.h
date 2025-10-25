@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-enum class Movement : uint8_t {
+enum Movement : uint8_t {
     Up = 0x01,
     Down = 0x02,
     Left = 0x03,
