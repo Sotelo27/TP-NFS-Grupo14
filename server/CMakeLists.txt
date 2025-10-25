@@ -11,6 +11,8 @@ target_sources(taller_server
     game.cpp
     protocol_server.cpp
     server.cpp
+    base_protocol_server.cpp
+    server_protocol.cpp
     PUBLIC
     # .h files
     acceptor.h
@@ -23,4 +25,6 @@ target_sources(taller_server
     game.h
     protocol_server.h
     server.h
+    base_protocol_server.h
+    server_protocol.h
     )

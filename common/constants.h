@@ -13,6 +13,14 @@ constexpr uint8_t CODE_SERVER_MSG = 0x10;
 constexpr uint8_t CODE_NITRO_ACTIVATED = 0x07;
 constexpr uint8_t CODE_NITRO_EXPIRED = 0x08;
 
+// Base protocol: Client -> Server
+constexpr uint8_t CODE_C2S_NAME = 0x01;
+constexpr uint8_t CODE_C2S_MOVE = 0x02;
+
+// Base protocol: Server -> Client
+constexpr uint8_t CODE_S2C_OK  = 0x30;
+constexpr uint8_t CODE_S2C_POS = 0x31;
+
 constexpr std::string_view HIT_NITRO = "A car hit the nitro!";
 constexpr std::string_view OUT_NITRO = "A car is out of juice.";
 
