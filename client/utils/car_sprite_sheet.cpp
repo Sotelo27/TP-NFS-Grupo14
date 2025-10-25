@@ -1,7 +1,8 @@
 #include "car_sprite_sheet.h"
 
-#include "Area.h"
 #include <utility>
+
+#include "Area.h"
 
 CarSpriteSheet::CarSpriteSheet() {
     sprites.emplace(CarSpriteID::CommonGreenCar, Area(0, 0, 32, 32));
@@ -13,6 +14,4 @@ CarSpriteSheet::CarSpriteSheet() {
     sprites.emplace(CarSpriteID::Limousine, Area(0, 464, 48, 48));
 }
 
-const Area& CarSpriteSheet::get(CarSpriteID id) const {
-    return this->sprites.at(id);
-}
+const Area& CarSpriteSheet::get(CarSpriteID id) const { return this->sprites.at(id); }
