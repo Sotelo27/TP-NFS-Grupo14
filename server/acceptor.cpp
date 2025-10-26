@@ -19,7 +19,7 @@ void Acceptor::run() {
                 break;
             }
 
-            size_t id = game.jugador_agregar();
+            size_t id = game.add_player();
             auto* c = new ClientHandler(std::move(skt_client), id, actions_clients);
             reap();
 
@@ -38,7 +38,7 @@ void Acceptor::run() {
 void Acceptor::limpiar_jugadores(const std::vector<size_t>& ids) {
     for (size_t id: ids) {
         try {
-            game.jugador_eliminar(id);
+            game.remove_player(id);
         } catch (const std::exception& e) {
             std::cerr << "Something went wrong and an exception was caught: " << e.what() << "\n";
         }

@@ -44,6 +44,9 @@ void Car::update(float dt) noexcept {
 
     pos_X += dx * (float)(base_speed) * dt;
     pos_Y += dy * (float)(base_speed) * dt;
+
+    direction_X = 0;
+    direction_Y = 0;
 }
 
 Position Car::get_Pose() const noexcept {

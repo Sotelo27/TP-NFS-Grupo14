@@ -4,6 +4,13 @@
 Player::Player(size_t id, std::string name, Car car)
     : id(id), name(std::move(name)), car(std::move(car)) {}
 
+Player::Player(size_t id)
+    : id(id),
+      name("Player N° " + std::to_string(id)),
+      car("Model " + std::to_string(id), 200, 0, 0, 0, 100) {
+    car.set_Pose(0.f, 0.f); // posicion inicial
+}
+
 void Player::execute_movement(Movement move) {
     car.move(move);
 }

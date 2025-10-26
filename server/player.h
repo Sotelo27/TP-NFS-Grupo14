@@ -14,6 +14,7 @@ private:
 
 public:
     explicit Player(size_t id, std::string name, Car car);
+    Player(size_t id);
 
     void execute_movement(Movement mv);
     void update(float dt) noexcept;
