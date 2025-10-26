@@ -6,8 +6,8 @@
 #include "../common/constants.h"
 
 ClientHandler::ClientHandler(Socket&& skt_client, size_t id,
-                               Queue<ClientAction>& actiones_clients):
-        protocol(ProtocolServer(std::move(skt_client))),
+                   Queue<ClientAction>& actiones_clients):
+    protocol(ServerProtocol(std::move(skt_client))),
         id(id),
         mensajes_a_enviar{},
         recv(protocol, id, actiones_clients),
@@ -36,14 +36,16 @@ bool ClientHandler::is_alive() {
 void ClientHandler::hard_kill() {
     recv.stop();
     send.stop();
-    if (!protocol.canal_recibir_cerrado()) {
+    if (!protocol.is_recv_closed()) {
         protocol.shutdown(SHUT_BOTH_CLOSED);
     }
 }
 
 size_t ClientHandler::get_id() { return id; }
 
-void ClientHandler::server_enviar(uint16_t cantidad_nitros_activos, uint8_t mensaje) {
-    server_msg msg{cantidad_nitros_activos, mensaje};
+void ClientHandler::server_enviar_pos(int16_t x, int16_t y) {
+    server_msg_pos msg{};
+    msg.x = x;
+    msg.y = y;
     mensajes_a_enviar.try_push(std::move(msg));
 }

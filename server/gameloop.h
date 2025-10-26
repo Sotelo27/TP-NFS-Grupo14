@@ -13,7 +13,7 @@
 #include "client_handler.h"
 #include "client_list.h"
 #include "game.h"
-#include "protocol_server.h"
+#include "server_protocol.h"
 
 class Gameloop: public Thread {
 private:

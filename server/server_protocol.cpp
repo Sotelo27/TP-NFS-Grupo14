@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <cstdint>
 #include <string>
+#include <cstring>
 #include <vector>
 
 void ServerProtocol::send_ok() {
@@ -22,6 +23,39 @@ void ServerProtocol::send_pos(int16_t x, int16_t y) {
     buf.insert(buf.end(), (char*)&y_be, (char*)&y_be + 2);
 
     skt.sendall(buf.data(), buf.size());
+}
+
+void ServerProtocol::enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje) {
+    uint8_t codigo = CODE_SERVER_MSG;
+
+    uint16_t cantidad_be = htons(cantidad_nitros_activos);
+
+    std::vector<char> paquete(sizeof(codigo) + sizeof(cantidad_be) + sizeof(mensaje));
+    size_t offset = 0;
+    std::memcpy(paquete.data() + offset, &codigo, sizeof(codigo));
+    offset += sizeof(codigo);
+    std::memcpy(paquete.data() + offset, &cantidad_be, sizeof(cantidad_be));
+    offset += sizeof(cantidad_be);
+    std::memcpy(paquete.data() + offset, &mensaje, sizeof(mensaje));
+
+    skt.sendall(paquete.data(), paquete.size());
+}
+
+void ServerProtocol::enviar_rooms_default() {
+    // Implementación por defecto: enviar un mensaje de tipo SERVER_MSG con 0 nitro y código 0
+    uint8_t codigo = CODE_SERVER_MSG;
+    uint16_t cantidad_be = htons((uint16_t)0);
+    uint8_t mensaje = (uint8_t)ERROR_MESSAGE;
+
+    std::vector<char> paquete(sizeof(codigo) + sizeof(cantidad_be) + sizeof(mensaje));
+    size_t offset = 0;
+    std::memcpy(paquete.data() + offset, &codigo, sizeof(codigo));
+    offset += sizeof(codigo);
+    std::memcpy(paquete.data() + offset, &cantidad_be, sizeof(cantidad_be));
+    offset += sizeof(cantidad_be);
+    std::memcpy(paquete.data() + offset, &mensaje, sizeof(mensaje));
+
+    skt.sendall(paquete.data(), paquete.size());
 }
 
 ClientMessage ServerProtocol::receive() {

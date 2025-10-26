@@ -9,13 +9,13 @@
 #include "client_action.h"
 #include "client_thread_recv.h"
 #include "client_thread_send.h"
-#include "protocol_server.h"
+#include "server_protocol.h"
 
 class ClientHandler {
 private:
-    ProtocolServer protocol;
+    ServerProtocol protocol;
     size_t id = 0;
-    Queue<server_msg> mensajes_a_enviar;
+    Queue<server_msg_pos> mensajes_a_enviar;
     ClientThreadRecv recv;
     ClientThreadSend send;
 
@@ -56,10 +56,9 @@ public:
     size_t get_id();
 
     /*
-     * Con `ClientHandler::server_enviar` se puede enviar un mensaje
-     * al client.
+     * Encola el envío de una posición (x,y) al cliente (Pair A: CODE_S2C_POS).
      */
-    void server_enviar(uint16_t cantidad_nitros_activos, uint8_t mensaje);
+    void server_enviar_pos(int16_t x, int16_t y);
 
     ClientHandler(const ClientHandler&) = delete;
     ClientHandler& operator=(const ClientHandler&) = delete;

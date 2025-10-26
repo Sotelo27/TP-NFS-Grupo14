@@ -4,18 +4,18 @@
 #include "../common/queue.h"
 #include "../common/thread.h"
 
-#include "protocol_server.h"
+#include "server_protocol.h"
 
-struct server_msg {
-    uint16_t cantidad_nitros_activos;
-    uint8_t mensaje;
+struct server_msg_pos {
+    int16_t x{0};
+    int16_t y{0};
 };
 
 class ClientThreadSend: public Thread {
 private:
-    ProtocolServer& protocol;
+    ServerProtocol& protocol;
     size_t id = 0;
-    Queue<server_msg>& mensajes_a_enviar;
+    Queue<server_msg_pos>& mensajes_a_enviar;
 
 public:
     /*
@@ -23,8 +23,8 @@ public:
      * protocol del client, el id del client y una referencia a la
      * cola de mensajes a enviar.
      */
-    explicit ClientThreadSend(ProtocolServer& protocol, size_t id,
-                             Queue<server_msg>& mensajes_a_enviar);
+    explicit ClientThreadSend(ServerProtocol& protocol, size_t id,
+                             Queue<server_msg_pos>& mensajes_a_enviar);
 
     void run() override;
 

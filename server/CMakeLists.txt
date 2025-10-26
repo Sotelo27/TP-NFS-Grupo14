@@ -9,9 +9,7 @@ target_sources(taller_server
     client_list.cpp
     gameloop.cpp
     game.cpp
-    protocol_server.cpp
     server.cpp
-    base_protocol_server.cpp
     server_protocol.cpp
     PUBLIC
     # .h files
@@ -23,8 +21,6 @@ target_sources(taller_server
     client_list.h
     gameloop.h
     game.h
-    protocol_server.h
     server.h
-    base_protocol_server.h
     server_protocol.h
     )

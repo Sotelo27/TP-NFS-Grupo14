@@ -5,12 +5,12 @@
 #include "../common/thread.h"
 
 #include "client_action.h"
-#include "protocol_server.h"
+#include "server_protocol.h"
 
 
 class ClientThreadRecv: public Thread {
 private:
-    ProtocolServer& protocol;
+    ServerProtocol& protocol;
     size_t id = 0;
     Queue<ClientAction>& actiones_clients;
 
@@ -21,7 +21,7 @@ public:
      * cola de actiones de clients, donde se pushearán las peticiones
      * recibidas.
      */
-    explicit ClientThreadRecv(ProtocolServer& protocol, size_t id,
+    explicit ClientThreadRecv(ServerProtocol& protocol, size_t id,
                              Queue<ClientAction>& actiones_clients);
 
     void run() override;

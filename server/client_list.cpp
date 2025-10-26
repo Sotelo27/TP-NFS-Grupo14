@@ -37,19 +37,14 @@ void ClientListProtected::clear(std::vector<size_t>& clients_eliminados) {
     clients.clear();
 }
 
-void ClientListProtected::broadcast_nitro_activado(uint16_t cantidad_nitros_activos) {
+void ClientListProtected::send_pos_to(size_t id, int16_t x, int16_t y) {
     std::lock_guard<std::mutex> lock(m);
 
-    for (auto& c: clients) {
-        c->server_enviar(cantidad_nitros_activos, CODE_NITRO_ACTIVATED);
-    }
-}
-
-void ClientListProtected::broadcast_nitro_desactivado(uint16_t cantidad_nitros_activos) {
-    std::lock_guard<std::mutex> lock(m);
-
-    for (auto& c: clients) {
-        c->server_enviar(cantidad_nitros_activos, CODE_NITRO_EXPIRED);
+    for (auto& c : clients) {
+        if (c->get_id() == id) {
+            c->server_enviar_pos(x, y);
+            break;
+        }
     }
 }
 

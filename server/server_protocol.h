@@ -24,6 +24,17 @@ public:
     // Server: receive() returns ClientMessage (base)
     ClientMessage receive();
 
+    /*
+     * Enviar mensaje genérico (nitro / mensajes) en el formato legacy.
+     * Compatibilidad con la antigua API de ProtocolServer.
+     */
+    void enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje);
+
+    /*
+     * Enviar lista/paquete de rooms por defecto (compatibilidad).
+     */
+    void enviar_rooms_default();
+
     bool is_recv_closed() const { return skt.is_stream_recv_closed(); }
     void shutdown(int mode) { skt.shutdown(mode); }
 

@@ -40,16 +40,9 @@ public:
     void clear(std::vector<size_t>& clients_eliminados);
 
     /*
-     * Envía a todos los clients un mensaje informando que se ha activado
-     * un nitro, junto con la cantidad de nitros activos.
+     * Enviar una posición (x,y) a un cliente específico por id.
      */
-    void broadcast_nitro_activado(uint16_t cantidad_nitros_activos);
-
-    /*
-     * Envía a todos los clients un mensaje informando que se ha desactivado
-     * un nitro, junto con la cantidad de nitros activos.
-     */
-    void broadcast_nitro_desactivado(uint16_t cantidad_nitros_activos);
+    void send_pos_to(size_t id, int16_t x, int16_t y);
 
     ClientListProtected(const ClientListProtected&) = delete;
     ClientListProtected& operator=(const ClientListProtected&) = delete;

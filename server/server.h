@@ -15,7 +15,7 @@
 #include "client_list.h"
 #include "gameloop.h"
 #include "game.h"
-#include "protocol_server.h"
+#include "server_protocol.h"
 
 class Server {
 private:

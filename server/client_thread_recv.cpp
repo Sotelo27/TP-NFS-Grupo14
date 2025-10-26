@@ -2,20 +2,24 @@
 
 #include <utility>
 
-ClientThreadRecv::ClientThreadRecv(ProtocolServer& protocol, size_t id,
-                                 Queue<ClientAction>& actiones_clients):
-        protocol(protocol), id(id), actiones_clients(actiones_clients) {}
+ClientThreadRecv::ClientThreadRecv(ServerProtocol& protocol, size_t id,
+                 Queue<ClientAction>& actiones_clients):
+    protocol(protocol), id(id), actiones_clients(actiones_clients) {}
 
 void ClientThreadRecv::run() {
     while (should_keep_running()) {
         try {
-            uint8_t action = protocol.recibir();
-            if (protocol.canal_recibir_cerrado()) {
+            ClientMessage received = protocol.receive();
+            if (protocol.is_recv_closed()) {
                 break;
             }
 
-            ClientAction msg = {id, action};
-            actiones_clients.push(std::move(msg));
+            if (received.type == ClientMessage::Type::Move) {
+                ClientAction msg = {id, static_cast<uint8_t>(received.movement)};
+                actiones_clients.push(std::move(msg));
+            } else {
+                // para name o unknown no hacemos nada, por ahora
+            }
         } catch (const std::exception& e) {
             if (!should_keep_running()) {
                 break;
