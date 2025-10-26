@@ -59,6 +59,17 @@ std::pair<int16_t, int16_t> Game::get_player_position(size_t id) {
     return {(int16_t)(p.x), (int16_t)(p.y)};
 }
 
+std::vector<PlayerPos> Game::players_positions() {
+    std::lock_guard<std::mutex> lock(m);
+    std::vector<PlayerPos> player_positions;
+    player_positions.reserve(players.size());
+    for (const auto& [id, player] : players) {
+        auto pos = player.get_Pose();
+        player_positions.push_back(PlayerPos{(uint32_t)id, (int16_t)(pos.x), (int16_t)(pos.y)});
+    }
+    return player_positions;
+}
+
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
     for (auto& [id, j] : players) {

@@ -19,10 +19,9 @@ void Gameloop::procesar_actiones() {
     ClientAction action;
     while (actiones_clients.try_pop(action)) {
         try {
-            // Aplicar movimiento en el dominio y enviar posición al cliente
+            // Aplicar movimiento en el dominio
             game.apply_player_move(action.id, static_cast<Movement>(action.action));
-            auto [x, y] = game.get_player_position(action.id);
-            clients.send_pos_to(action.id, x, y); // solo le paso al cliente que hizo la accion, luego lo cambio a un broadcast
+            
         } catch (const std::exception& err) {
             std::cerr << "Error processing action from client " << action.id << ": " << err.what()
                       << "\n";
@@ -33,7 +32,8 @@ void Gameloop::procesar_actiones() {
 void Gameloop::iteracion_game() {
     const float dt = 0.25f; // 250 ms
     game.update(dt);
-    // llamaria a un broadcast de posiciones a todos los clientes
+    auto positions = game.players_positions();
+    clients.broadcast_player_positions(positions);
 }
 
 void Gameloop::run() {

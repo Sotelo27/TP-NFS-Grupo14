@@ -44,6 +44,11 @@ public:
      */
     void send_pos_to(size_t id, int16_t x, int16_t y);
 
+    /*
+     * Envia las posiciones de todos los jugadores a todos los clientes.
+     */
+    void broadcast_player_positions(const std::vector<PlayerPos>& positions);
+
     ClientListProtected(const ClientListProtected&) = delete;
     ClientListProtected& operator=(const ClientListProtected&) = delete;
 

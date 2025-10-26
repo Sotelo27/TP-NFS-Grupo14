@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "../common/base_protocol.h"
+#include "../common/player_aux.h"
+
 #include "player.h"
 
 class Game {
@@ -64,6 +66,11 @@ public:
      * Obtiene la posición actual del jugador
     */
     std::pair<int16_t, int16_t> get_player_position(size_t id);
+
+    /*
+     * Devuelve Player {(id, position)} de todos los jugadores
+     */
+    std::vector<PlayerPos> players_positions();
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;

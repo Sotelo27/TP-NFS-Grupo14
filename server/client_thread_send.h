@@ -7,6 +7,7 @@
 #include "server_protocol.h"
 
 struct server_msg_pos {
+    uint32_t id; 
     int16_t x{0};
     int16_t y{0};
 };

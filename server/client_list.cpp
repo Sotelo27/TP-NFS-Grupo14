@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "../common/constants.h"
+#include "../common/player_aux.h"
 
 void ClientListProtected::agregar_client(std::unique_ptr<ClientHandler> client) {
     std::lock_guard<std::mutex> lock(m);
@@ -42,11 +43,20 @@ void ClientListProtected::send_pos_to(size_t id, int16_t x, int16_t y) {
 
     for (auto& c : clients) {
         if (c->get_id() == id) {
-            c->server_enviar_pos(x, y);
+            c->server_enviar_pos(id, x, y);
             break;
         }
     }
 }
+
+void ClientListProtected::broadcast_player_positions(const std::vector<PlayerPos>& positions) {
+    std::lock_guard<std::mutex> lock(m);
+    for (auto& client : clients) {
+        if (!client) continue;
+        client->send_positions_to_all(positions);
+    }
+}
+
 
 ClientListProtected::~ClientListProtected() {
     for (auto& c: clients) {

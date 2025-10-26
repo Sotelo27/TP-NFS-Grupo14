@@ -5,6 +5,7 @@
 
 #include "../common/queue.h"
 #include "../common/thread.h"
+#include "../common/player_aux.h"
 
 #include "client_action.h"
 #include "client_thread_recv.h"
@@ -56,9 +57,14 @@ public:
     size_t get_id();
 
     /*
-     * Encola el envío de una posición (x,y) al cliente (Pair A: CODE_S2C_POS).
+     * Encola el envío de una posición (id,x,y) al cliente
      */
-    void server_enviar_pos(int16_t x, int16_t y);
+    void server_enviar_pos(uint32_t id, int16_t x, int16_t y);
+
+    /*
+     * Envia las posiciones de todos los jugadores al cliente. 
+     */
+    void send_positions_to_all(const std::vector<PlayerPos>& positions);
 
     ClientHandler(const ClientHandler&) = delete;
     ClientHandler& operator=(const ClientHandler&) = delete;
