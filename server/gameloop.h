@@ -20,7 +20,6 @@ private:
     Game& game;
     ClientListProtected& clients;
     Queue<ClientAction>& actiones_clients;
-
     void procesar_actiones();
     void iteracion_game();
 

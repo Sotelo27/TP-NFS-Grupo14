@@ -5,23 +5,16 @@
 #include <map>
 #include <mutex>
 #include <string>
+#include <utility>
 #include <vector>
 
-struct data_jugador {
-    size_t id;
-    float nitro_tiempo_restante;
-};
-
-struct jugador_info {
-    size_t id;
-    bool nitro_activo = false;
-};
+#include "../common/base_protocol.h"
+#include "player.h"
 
 class Game {
 private:
     float nitro_tiempo;
-    std::map<int, jugador_info> jugadores;
-    std::list<data_jugador> nitros_activo;
+    std::map<size_t, Player> players;
     size_t id_indice = 0;
     std::mutex m;
 
@@ -40,53 +33,37 @@ public:
      *
      * Retorna true si existe, false en caso contrario.
      */
-    bool jugador_existe(size_t id);
+    bool player_exists(size_t id);
 
     /*
      * Agrega un jugador al game.
      *
      * Retorna el ID del jugador agregado.
      */
-    size_t jugador_agregar();
+    size_t add_player();
 
     /*
      * Elimina un jugador del game.
      *
      * Lanza invalid_argument si el jugador no existe.
      */
-    void jugador_eliminar(size_t id);
+    void remove_player(size_t id);
 
     /*
-     * Activa el nitro de un jugador.
-     * Lanza invalid_argument si el jugador no existe.
-     *
-     * No hace nada si el jugador ya tiene el nitro activo y retorna false.
-     * Retorna true si el nitro se activo correctamente.
+     * Aplica un movimiento discreto al jugador
      */
-    bool jugador_activar_nitro(size_t id);
+    void apply_player_move(size_t id, Movement movimiento);
 
     /*
-     * Verifica si un jugador tiene el nitro activo.
-     * Lanza invalid_argument si el jugador no existe.
-     *
-     * Retorna true si el jugador tiene el nitro activo, false en caso contrario.
+     * Actualiza el estado del juego, avanzando el tiempo en dt segundos
+     * Por el momento solo actualiza los jugadores
      */
-    bool jugador_tiene_nitro_activo(size_t id);
+    void update(float dt);
 
     /*
-     * Actualiza el estado del game con el tiempo transcurrido.
-     * Disminuye el tiempo de nitro activo de los jugadores.
-     *
-     * Si el tiempo de nitro de un jugador llega a 0, se desactiva su nitro.
-     * Retorna un vector con los IDs de los jugadores cuyo nitro se desactivo.
-     */
-    std::vector<size_t> tiempo_trascurrido(float tiempo);
-
-    /*
-     * Retorna la cantidad de jugadores que tienen el nitro activo.
-     */
-    int cantidad_nitros_activos();
-
+     * Obtiene la posición actual del jugador
+    */
+    std::pair<int16_t, int16_t> get_player_position(size_t id);
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;

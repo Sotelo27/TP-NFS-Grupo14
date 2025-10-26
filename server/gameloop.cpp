@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "../common/constants.h"
+#include "../common/base_protocol.h"
 
 Gameloop::Gameloop(Game& game, ClientListProtected& clients,
                    Queue<ClientAction>& actiones_clients):
@@ -18,14 +19,10 @@ void Gameloop::procesar_actiones() {
     ClientAction action;
     while (actiones_clients.try_pop(action)) {
         try {
-            if (action.action == CODE_CLIENT_NITRO) {
-                if (game.jugador_activar_nitro(action.id)) {
-                    clients.broadcast_nitro_activado(game.cantidad_nitros_activos());
-                    std::cout << HIT_NITRO << std::endl;
-                }
-            } else {
-                throw std::runtime_error("Unknown action code received from client.");
-            }
+            // Aplicar movimiento en el dominio y enviar posición al cliente
+            game.apply_player_move(action.id, static_cast<Movement>(action.action));
+            auto [x, y] = game.get_player_position(action.id);
+            clients.send_pos_to(action.id, x, y);
         } catch (const std::exception& err) {
             std::cerr << "Error processing action from client " << action.id << ": " << err.what()
                       << "\n";
@@ -34,13 +31,8 @@ void Gameloop::procesar_actiones() {
 }
 
 void Gameloop::iteracion_game() {
-    size_t cantidad_nitros = game.cantidad_nitros_activos();
-    std::vector<size_t> ids = game.tiempo_trascurrido(0.25f);
-    for (size_t i = ids.size(); i > 0; i--) {
-        cantidad_nitros--;
-        clients.broadcast_nitro_desactivado(cantidad_nitros);
-        std::cout << OUT_NITRO << std::endl;
-    }
+    const float dt = 0.25f; // 250 ms
+    game.update(dt);
 }
 
 void Gameloop::run() {

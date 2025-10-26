@@ -16,7 +16,8 @@ public:
     explicit Player(size_t id, std::string name, Car car);
 
     void execute_movement(Movement mv);
-    
+    void update(float dt) noexcept;
+
     size_t get_Id() const;
     const std::string& get_name() const;
     Position get_Pose() const;

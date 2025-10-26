@@ -4,16 +4,20 @@
 Player::Player(size_t id, std::string name, Car car)
     : id(id), name(std::move(name)), car(std::move(car)) {}
 
+void Player::execute_movement(Movement move) {
+    car.move(move);
+}
+
+void Player::update(float dt) noexcept {
+    car.update(dt);
+}
+
 size_t Player::get_Id() const {
     return id;
 }
 
 const std::string& Player::get_name() const {
     return name;
-}
-
-void Player::execute_movement(Movement move) {
-    car.move(move);
 }
 
 Position Player::get_Pose() const {
