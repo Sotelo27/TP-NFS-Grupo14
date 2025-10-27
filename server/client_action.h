@@ -6,7 +6,7 @@
 
 struct ClientAction {
     size_t id;
-    uint8_t action;
+    Movement action;
 };
 
 #endif

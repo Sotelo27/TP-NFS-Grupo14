@@ -9,7 +9,7 @@ target_sources(taller_server
     client_list.cpp
     gameloop.cpp
     game.cpp
-    auto.cpp
+    car.cpp
     player.cpp
     server.cpp
     server_protocol.cpp
@@ -23,7 +23,7 @@ target_sources(taller_server
     client_list.h
     gameloop.h
     game.h
-    auto.h
+    car.h
     player.h
     server.h
     server_protocol.h

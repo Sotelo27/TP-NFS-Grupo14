@@ -18,8 +18,8 @@ public:
     // Server: send OK
     void send_ok();
 
-    // Server: send position (x,y)
-    void send_pos(int16_t x, int16_t y);
+    // Server: send position (id,x,y)
+    void send_pos(uint32_t id, int16_t x, int16_t y);
 
     // Server: receive() returns ClientMessage (base)
     ClientMessage receive();

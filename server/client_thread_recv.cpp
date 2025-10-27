@@ -15,7 +15,7 @@ void ClientThreadRecv::run() {
             }
 
             if (received.type == ClientMessage::Type::Move) {
-                ClientAction msg = {id, static_cast<uint8_t>(received.movement)};
+                ClientAction msg = {id, received.movement};
                 actiones_clients.push(std::move(msg));
             } else {
                 // para name o unknown no hacemos nada, por ahora

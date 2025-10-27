@@ -20,8 +20,8 @@ void Gameloop::procesar_actiones() {
     while (actiones_clients.try_pop(action)) {
         try {
             // Aplicar movimiento en el dominio
-            game.apply_player_move(action.id, static_cast<Movement>(action.action));
-            
+            game.apply_player_move(action.id,(action.action));
+
         } catch (const std::exception& err) {
             std::cerr << "Error processing action from client " << action.id << ": " << err.what()
                       << "\n";
