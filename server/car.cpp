@@ -52,3 +52,8 @@ void Car::update(float dt) noexcept {
 Position Car::get_Pose() const noexcept {
     return Position{pos_X, pos_Y};
 }
+
+void Car::set_Pose(float x, float y) noexcept {
+    pos_X = x;
+    pos_Y = y;
+}

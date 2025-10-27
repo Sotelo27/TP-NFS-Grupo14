@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "../common/base_protocol.h"
 
 struct ClientAction {
     size_t id;
