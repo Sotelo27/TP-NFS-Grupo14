@@ -1,13 +1,15 @@
 #include "client_protocol.h"
-#include <arpa/inet.h>
+
 #include <cstdint>
 #include <vector>
+
+#include <arpa/inet.h>
 
 #define MOVE_BUF 2
 
 void ClientProtocol::send_name(const std::string& username) {
     uint8_t code = CODE_C2S_NAME;
-    uint16_t len = username.size(); 
+    uint16_t len = username.size();
     uint16_t len_be = htons(len);
 
     std::vector<char> buf;
@@ -24,27 +26,24 @@ void ClientProtocol::send_name(const std::string& username) {
 
 void ClientProtocol::send_move(Movement mov) {
     uint8_t code = CODE_C2S_MOVE;
-    uint8_t mv = mov; 
-    char buf[MOVE_BUF] = {(char)code, (char)mv};  
+    uint8_t mv = mov;
+    char buf[MOVE_BUF] = {(char)code, (char)mv};
     skt.sendall(buf, sizeof(buf));
 }
 
 ServerMessage ClientProtocol::receive() {
     ServerMessage dto;
+    dto.type = ServerMessage::Type::Unknown;
 
     uint8_t code = 0;
     int r = skt.recvall(&code, sizeof(code));
-    if (r == ERROR) {
-        dto.type = ServerMessage::Type::Unknown;
+    if (r == 0) {
         return dto;
     }
 
     if (code == CODE_S2C_OK) {
         dto.type = ServerMessage::Type::Ok;
-        return dto;
-    }
-
-    if (code == CODE_S2C_POS) {
+    } else if (code == CODE_S2C_POS) {
         dto.type = ServerMessage::Type::Pos;
 
         uint32_t id_be = 0;
@@ -57,10 +56,7 @@ ServerMessage ClientProtocol::receive() {
         dto.id = ntohl(id_be);
         dto.x = ntohs(x_be);
         dto.y = ntohs(y_be);
-        return dto;
     }
 
-    dto.type = ServerMessage::Type::Unknown;
     return dto;
 }
-
