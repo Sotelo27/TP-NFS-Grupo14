@@ -47,11 +47,15 @@ ServerMessage ClientProtocol::receive() {
     if (code == CODE_S2C_POS) {
         dto.type = ServerMessage::Type::Pos;
 
+        uint32_t id_be = 0;
         uint16_t x_be = 0, y_be = 0;
+
+        skt.recvall(&id_be, sizeof(id_be));
         skt.recvall(&x_be, sizeof(x_be));
         skt.recvall(&y_be, sizeof(y_be));
 
-        dto.x = ntohs(x_be); 
+        dto.id = ntohl(id_be);
+        dto.x = ntohs(x_be);
         dto.y = ntohs(y_be);
         return dto;
     }
