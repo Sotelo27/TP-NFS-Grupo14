@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "../common/constants.h"
+#include <QApplication>
+#include "QT/login_window.h"
 
 #include "client.h"
 
@@ -22,10 +24,11 @@ int main(int argc, char* argv[]) {
                                         " <hostname o IP> <servicename o puerto>");
         }
 
-        Client client(HOST_NAME, SERVICENAME);
-        client.start();
+        QApplication app(argc, argv);
+        LoginWindow login(HOST_NAME, SERVICENAME);
+        login.show();
+        return app.exec();
 
-        return EXITO;
     } catch (const std::exception& err) {
         std::cerr << "Something went wrong and an exception was caught: " << err.what() << "\n";
         return ERROR;

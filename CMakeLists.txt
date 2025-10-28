@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 
 if (POLICY CMP0135)
     cmake_policy(SET CMP0135 NEW)
@@ -49,7 +49,8 @@ target_include_directories(taller_common PUBLIC .)
 #
 # sudo apt-get install libopus-dev libopusfile-dev libxmp-dev libfluidsynth-dev fluidsynth libwavpack1 libwavpack-dev libfreetype-dev wavpack
 #
-
+find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets)
+include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
 # Install libSDL2 and libSDL2pp (for client or editor)
 # HEY!! TODO XXX: add more dependendies (either for client, server or editor)
 if(TALLER_CLIENT OR TALLER_EDITOR)
@@ -102,6 +103,7 @@ endif()
 # Program section
 # ---------------
 if(TALLER_CLIENT)
+    set(CMAKE_AUTOMOC ON)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_client)
 
@@ -113,6 +115,7 @@ if(TALLER_CLIENT)
     add_subdirectory(client)
     add_subdirectory(client/sdl_wrappers)
     add_subdirectory(client/utils)
+    add_subdirectory(client/QT)
 
     set_project_warnings(taller_client ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
@@ -120,6 +123,7 @@ if(TALLER_CLIENT)
     target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR})
     target_include_directories(taller_client PRIVATE sdl_wrappers)
     target_include_directories(taller_client PRIVATE utils)
+    target_include_directories(taller_client PRIVATE QT)
 
     # define ASSETS_PATH assets path
     target_compile_definitions(taller_client PRIVATE
@@ -127,7 +131,15 @@ if(TALLER_CLIENT)
     )
 
     # Link the taller_common lib target
-    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp SDL2_image::SDL2_image)
+    target_link_libraries(taller_client
+            taller_common
+            SDL2pp::SDL2pp
+            SDL2_image::SDL2_image
+            taller_common
+            Qt5::Core
+            Qt5::Gui
+            Qt5::Widgets
+    )
 endif()
 
 if(TALLER_SERVER)
@@ -148,6 +160,10 @@ if(TALLER_SERVER)
 endif()
 
 if(TALLER_EDITOR)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTOMOC ON)
+
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_editor)
 
@@ -165,6 +181,7 @@ if(TALLER_EDITOR)
 
     # Link the taller_common lib target
     target_link_libraries(taller_editor taller_common SDL2pp::SDL2pp)
+    target_link_libraries(taller_editor Qt5::Core Qt5::Gui Qt5::Widgets)
 endif()
 
 
