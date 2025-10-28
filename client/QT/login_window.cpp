@@ -12,14 +12,9 @@ LoginWindow::LoginWindow(const char* host,
 {
     setWindowTitle("Login");
     setFixedSize(640, 360);
-    this->setStyleSheet(
-        "LoginWindow {"
-        "   background-image: url(images/nfs_most_wanted.png);"
-        "}"
-    );
     QLabel* background = new QLabel(this);
     background->setPixmap(
-        QPixmap("images/nfs_most_wanted.png").scaled(
+        QPixmap("assets/images/nfs_most_wanted.png").scaled(
             size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
         )
     );
