@@ -101,6 +101,10 @@ endif()
 # Program section
 # ---------------
 if(TALLER_CLIENT)
+    find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets)
+    include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
+    file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
+    set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOMOC ON)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_client)
@@ -158,11 +162,6 @@ if(TALLER_SERVER)
 endif()
 
 if(TALLER_EDITOR)
-    find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets)
-    include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
-    file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
-    set(CMAKE_AUTOMOC ON)
-    set(CMAKE_AUTOMOC ON)
 
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_editor)
