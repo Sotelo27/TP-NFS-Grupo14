@@ -30,3 +30,7 @@ const std::string& Player::get_name() const {
 Position Player::get_Pose() const {
     return car.get_Pose();
 }
+
+void Player::set_name(std::string name) {
+    this->name = std::move(name);
+}

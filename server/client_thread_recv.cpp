@@ -17,8 +17,11 @@ void ClientThreadRecv::run() {
             if (received.type == ClientMessage::Type::Move) {
                 ClientAction msg = {id, received.movement};
                 actiones_clients.push(std::move(msg));
+            } else if (received.type == ClientMessage::Type::Name) {
+                ClientAction msg = {id, std::move(received.username)};
+                actiones_clients.push(std::move(msg));
             } else {
-                // para name o unknown no hacemos nada, por ahora
+                // Otros comandos que ser vera despues :P
             }
         } catch (const std::exception& e) {
             if (!should_keep_running()) {

@@ -72,6 +72,11 @@ public:
      */
     std::vector<PlayerPos> players_positions();
 
+    /*
+     * Setea el nombre del jugador
+     */
+    void set_player_name(size_t id, std::string name);
+
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
 

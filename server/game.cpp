@@ -76,3 +76,11 @@ void Game::update(float dt) {
         j.update(dt);
     }
 }
+
+void Game::set_player_name(size_t id, std::string name) {
+    std::lock_guard<std::mutex> lock(m);
+    if (!jugador_existe_auxiliar(id)) {
+        throw_jugador_no_existe(id);
+    }
+    players.at(id).set_name(std::move(name));
+}

@@ -19,8 +19,16 @@ void Gameloop::procesar_actiones() {
     ClientAction action;
     while (actiones_clients.try_pop(action)) {
         try {
-            // Aplicar movimiento en el dominio
-            game.apply_player_move(action.id,(action.action));
+            if (action.type == ClientAction::Type::Move) {
+                // Aplicar movimiento en el dominio
+                game.apply_player_move(action.id, action.movement);
+            } else if (action.type == ClientAction::Type::Name) {
+                std::cout << "Bienvenido " << action.username << " (id " << action.id << ")\n";
+                game.set_player_name(action.id, std::move(action.username));
+
+                // Aqui faltaria lo de enviar OK al cliente por su hilo de envio
+                // asi el cliente sabe que se logeeo correctamente
+            }
 
         } catch (const std::exception& err) {
             std::cerr << "Error processing action from client " << action.id << ": " << err.what()
