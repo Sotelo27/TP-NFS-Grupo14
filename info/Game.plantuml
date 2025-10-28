@@ -58,7 +58,6 @@ class Server {
   - monitorLobby: MonitorLobby
   - acceptorClientes: Acceptor
   - config: ConfiguracionYML
-  '- cheats: CheatManager
   + start(config): void
   + tick(): void
 }
@@ -260,11 +259,15 @@ Carrera o-- Jugador : contiene
 Carrera ..> ResultadoCarrera : recolecta
 Carrera --> Recorrido : usa
 Carrera --> RaceRules : usa
-Carrera --> PhysicsWorld : usa
+Carrera *-- PhysicsWorld : contiene
 
 Recorrido --> Ciudad : usa
 
 'NOTAS---------------------------------------------------------------
+show Server members
+show Server attributes
+show Server methods
+
 skinparam noteFontSize 10
 note bottom of Game
     Podemos agregarle un ID a 
@@ -278,7 +281,7 @@ note left of Game
   Jugador.finalizar() no las aplica.
 end note
 
-note right of MonitorLobby
+note top of MonitorLobby
   Crea y administra múltiples partidas (Game).
   iniciarPartida(GameId) crea GameLoop asociado.
   GameID solo es un identificador int
