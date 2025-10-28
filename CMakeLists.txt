@@ -117,6 +117,7 @@ if(TALLER_CLIENT)
     add_subdirectory(client)
     add_subdirectory(client/sdl_wrappers)
     add_subdirectory(client/utils)
+    add_subdirectory(client/connection)
     add_subdirectory(client/QT)
 
     set_project_warnings(taller_client ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
@@ -125,6 +126,7 @@ if(TALLER_CLIENT)
     target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR})
     target_include_directories(taller_client PRIVATE sdl_wrappers)
     target_include_directories(taller_client PRIVATE utils)
+    target_include_directories(taller_client PRIVATE connection)
     target_include_directories(taller_client PRIVATE QT)
 
     # define ASSETS_PATH assets path

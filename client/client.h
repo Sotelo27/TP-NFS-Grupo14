@@ -4,11 +4,12 @@
 #include <optional>
 #include <string>
 
-#include "protocol_client.h"
+#include "client_protocol.h"
 
 class Client {
 private:
-    ProtocolClient protocol;
+    const char* host;
+    const char* service;
 
 public:
     explicit Client(const char* host, const char* service);
