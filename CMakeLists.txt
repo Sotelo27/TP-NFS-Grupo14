@@ -49,9 +49,6 @@ target_include_directories(taller_common PUBLIC .)
 #
 # sudo apt-get install libopus-dev libopusfile-dev libxmp-dev libfluidsynth-dev fluidsynth libwavpack1 libwavpack-dev libfreetype-dev wavpack
 #
-find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets)
-include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
-file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
 # Install libSDL2 and libSDL2pp (for client or editor)
 # HEY!! TODO XXX: add more dependendies (either for client, server or editor)
 if(TALLER_CLIENT OR TALLER_EDITOR)
@@ -161,7 +158,9 @@ if(TALLER_SERVER)
 endif()
 
 if(TALLER_EDITOR)
-    set(CMAKE_AUTOMOC ON)
+    find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets)
+    include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
+    file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOMOC ON)
 
