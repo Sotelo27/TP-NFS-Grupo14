@@ -24,10 +24,10 @@ Car::Car(std::string modelo,
 
 void Car::move(Movement mv) noexcept {
     switch (mv) {
-        case Movement::Left:  direction_X = -1; direction_Y = 0;  break;
-        case Movement::Right: direction_X = 1;  direction_Y = 0;  break;
-        case Movement::Up:    direction_X = 0;  direction_Y = -1; break;
-        case Movement::Down:  direction_X = 0;  direction_Y = 1;  break;
+        case Movement::Left:  direction_X = -10; direction_Y = 0;  break;
+        case Movement::Right: direction_X = 10;  direction_Y = 0;  break;
+        case Movement::Up:    direction_X = 0;  direction_Y = -10; break;
+        case Movement::Down:  direction_X = 0;  direction_Y = 10;  break;
         default:              direction_X = 0;  direction_Y = 0;  break;
     }
 }
