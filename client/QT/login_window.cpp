@@ -10,15 +10,36 @@ LoginWindow::LoginWindow(const char* host,
                         QWidget* parent)
     : QWidget(parent), client(host, service)
 {
+    setWindowTitle("Login");
+    setFixedSize(640, 360);
+    this->setStyleSheet(
+        "LoginWindow {"
+        "   background-image: url(images/nfs_most_wanted.png);"
+        "}"
+    );
+    QLabel* background = new QLabel(this);
+    background->setPixmap(
+        QPixmap("images/nfs_most_wanted.png").scaled(
+            size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+        )
+    );
+    background->setGeometry(0, 0, width(), height());
+    background->lower();
 
-    QLabel *title = new QLabel("Log In", this);
-    title->setAlignment(Qt::AlignCenter);
-    title->setStyleSheet("font-size: 24px; font-weight: bold;");
+    QLabel *title = new QLabel("Need For Speed\nLog In", this);
+    title->setAlignment(Qt::AlignLeft|Qt::AlignTop);
+    title->setStyleSheet("font-size: 40px; font-weight: bold; color: red;");
+    title->setMinimumHeight(50);
 
     QLabel *usernameLabel = new QLabel("Username:", this);
+    usernameLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
     usernameInput = new QLineEdit(this);
     usernameInput->setPlaceholderText("Enter your username");
+    usernameInput->setStyleSheet("font-size: 16px; padding: 5px; color: white; background-color: #1F2C4D; border: 1px solid white;");
+    usernameInput->setMinimumHeight(30);
+
     loginButton = new QPushButton("Ingresar", this);
+    loginButton->setStyleSheet("font-size: 16px; font-weight: bold; color: green; background-color: #2E3A5D; padding: 5px;");
 
     QHBoxLayout *userLayout = new QHBoxLayout();
     userLayout->addWidget(usernameLabel);
@@ -27,15 +48,18 @@ LoginWindow::LoginWindow(const char* host,
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addStretch();
     mainLayout->addWidget(title);
-    mainLayout->addSpacing(10);
+    mainLayout->addSpacing(100);
     mainLayout->addLayout(userLayout);
     mainLayout->addSpacing(10);
     mainLayout->addWidget(loginButton, 0, Qt::AlignCenter);
     mainLayout->addStretch();
 
     setLayout(mainLayout);
-    setWindowTitle("Login");
-    resize(300, 200);
+
+    title->raise();
+    usernameLabel->raise();
+    usernameInput->raise();
+    loginButton->raise();
 
     connect(loginButton, &QPushButton::clicked, this, &LoginWindow::onLoginClicked);
 }
@@ -48,6 +72,6 @@ void LoginWindow::onLoginClicked() {
         return;
     }
 
-    QMessageBox::information(this, "Bienvenido", "Has ingresado como: " + username);
+    this->close();
     client.start();
 }
