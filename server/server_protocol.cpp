@@ -1,10 +1,11 @@
 #include "server_protocol.h"
 
-#include <arpa/inet.h>
 #include <cstdint>
-#include <string>
 #include <cstring>
+#include <string>
 #include <vector>
+
+#include <arpa/inet.h>
 
 void ServerProtocol::send_ok() {
     uint8_t code = CODE_S2C_OK;
@@ -72,11 +73,11 @@ void ServerProtocol::enviar_rooms_default() {
 
 ClientMessage ServerProtocol::receive() {
     ClientMessage dto;
+    dto.type = ClientMessage::Type::Unknown;
 
     uint8_t code = 0;
     int r = skt.recvall(&code, sizeof(code));
-    if (r == ERROR) {
-        dto.type = ClientMessage::Type::Unknown;
+    if (r == 0) {
         return dto;
     }
 
@@ -93,18 +94,13 @@ ClientMessage ServerProtocol::receive() {
 
         dto.type = ClientMessage::Type::Name;
         dto.username = std::move(username);
-        return dto;
-    }
-
-    if (code == CODE_C2S_MOVE) {
+    } else if (code == CODE_C2S_MOVE) {
         uint8_t mv = 0;
         skt.recvall(&mv, sizeof(mv));
 
         dto.type = ClientMessage::Type::Move;
-        dto.movement = (Movement)mv;  
-        return dto;
+        dto.movement = (Movement)mv;
     }
 
-    dto.type = ClientMessage::Type::Unknown;
     return dto;
 }
