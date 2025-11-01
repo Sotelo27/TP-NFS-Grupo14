@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "../common/base_protocol.h"
+#include "../common/dto/movement.h"
 #include "../common/player_aux.h"
 
 #include "player.h"

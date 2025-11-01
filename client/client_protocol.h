@@ -6,7 +6,8 @@
 
 #include "../common/constants.h"
 #include "../common/socket.h"
-#include "../common/base_protocol.h"
+#include "../common/dto/movement.h"
+#include "../common/dto/server_msg.h"
 
 class ClientProtocol {
 private:

@@ -7,7 +7,8 @@
 
 #include "../common/constants.h"
 #include "../common/socket.h"
-#include "../common/base_protocol.h"
+#include "../common/dto/client_msg.h"
+#include "../common/dto/room_info.h"
 
 class ServerProtocol {
 private:

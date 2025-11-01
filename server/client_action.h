@@ -3,7 +3,9 @@
 
 #include <cstddef>
 #include <cstdint>
-#include "../common/base_protocol.h"
+#include <string>
+
+#include "../common/dto/movement.h"
 
 struct ClientAction {
     enum class Type { Name, Move, Room } type;
