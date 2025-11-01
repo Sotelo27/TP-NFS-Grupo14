@@ -11,19 +11,12 @@
 #include "../common/thread.h"
 
 #include "acceptor.h"
-#include "client_handler.h"
-#include "client_list.h"
-#include "gameloop.h"
-#include "game.h"
-#include "server_protocol.h"
+#include "monitor_lobby.h"
 
 class Server {
 private:
-    Game game;
-    ClientListProtected clients;
-    Queue<ClientAction> actiones_clients;
+    MonitorLobby lobby;
     Acceptor acceptor;
-    Gameloop gameloop;
 
 public:
     /*
