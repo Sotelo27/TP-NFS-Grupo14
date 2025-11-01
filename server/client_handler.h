@@ -2,10 +2,12 @@
 #define CLIENT_HANDLER_H
 
 #include <utility>
+#include <vector>
 
 #include "../common/queue.h"
 #include "../common/thread.h"
 #include "../common/player_aux.h"
+#include "../common/base_protocol.h"
 
 #include "client_action.h"
 #include "client_thread_recv.h"
@@ -55,6 +57,12 @@ public:
      * manejado por este handler.
      */
     size_t get_id();
+
+    // Enviar listado de salas a este cliente
+    void send_rooms_to_client(const std::vector<RoomInfo>& rooms);
+
+    // Enviar OK a este cliente
+    void send_ok_to_client();
 
     /*
      * Encola el envío de una posición (id,x,y) al cliente

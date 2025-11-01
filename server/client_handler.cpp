@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <utility>
-#include <vector>
 
 #include "../common/constants.h"
 #include "../common/base_protocol.h"
@@ -23,9 +22,6 @@ ClientHandler::~ClientHandler() {
 }
 
 void ClientHandler::ejecutar() {
-    std::vector<RoomInfo> rooms; 
-    protocol.send_rooms(rooms);
-
     recv.start();
     send.start();
 }
@@ -59,6 +55,22 @@ void ClientHandler::server_enviar_pos(uint32_t id, int16_t x, int16_t y) {
 void ClientHandler::send_positions_to_all(const std::vector<PlayerPos>& positions) {
     for (const auto& pp : positions) {
         server_enviar_pos(pp.id, pp.x, pp.y);
+    }
+}
+
+void ClientHandler::send_rooms_to_client(const std::vector<RoomInfo>& rooms) {
+    try {
+        protocol.send_rooms(rooms);
+    } catch (const std::exception& e) {
+        std::cerr << "Error sending rooms to client " << id << ": " << e.what() << "\n";
+    }
+}
+
+void ClientHandler::send_ok_to_client() {
+    try {
+        protocol.send_ok();
+    } catch (const std::exception& e) {
+        std::cerr << "Error sending OK to client " << id << ": " << e.what() << "\n";
     }
 }
 

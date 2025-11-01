@@ -13,8 +13,8 @@ struct ClientAction {
     Movement movement;
 
     // Acciones de sala
-    uint8_t room_cmd{0}; // ROOM_CREATE | ROOM_JOIN
-    uint8_t room_id{0};  // válido si ROOM_JOIN
+    uint8_t room_cmd{0};
+    uint8_t room_id{0};
 
     ClientAction(size_t id, Movement mv)
         : type(Type::Move), id(id), movement(mv) {}
