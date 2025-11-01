@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <utility>
+#include <vector>
 
 #include "../common/constants.h"
 #include "../common/socket.h"
@@ -20,6 +21,9 @@ public:
 
     // Server: send position (id,x,y)
     void send_pos(uint32_t id, int16_t x, int16_t y);
+
+    // Server: send listado de salas (id, current, max)
+    void send_rooms(const std::vector<RoomInfo>& rooms);
 
     // Server: receive() returns ClientMessage (base)
     ClientMessage receive();
