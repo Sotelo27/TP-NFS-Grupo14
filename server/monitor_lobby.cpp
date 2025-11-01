@@ -1,6 +1,8 @@
 #include "monitor_lobby.h"
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 MonitorLobby::MonitorLobby(float nitro_duracion)
     : actions_in(), nitro_duracion(nitro_duracion) {}
@@ -10,7 +12,7 @@ size_t MonitorLobby::reserve_connection_id() {
     return next_conn_id++;
 }
 
-void MonitorLobby::add_pending_connection(std::unique_ptr<ClientHandler> ch, size_t conn_id) {
+void MonitorLobby::add_pending_connection(std::shared_ptr<ClientHandler> ch, size_t conn_id) {
     std::lock_guard<std::mutex> lk(m);
     pending.emplace(conn_id, std::move(ch));
     // Enviar listado de salas actual al cliente que acaba de entrar
@@ -24,10 +26,7 @@ std::vector<RoomInfo> MonitorLobby::list_rooms_locked() const {
     std::vector<RoomInfo> out;
     out.reserve(rooms.size());
     for (const auto& [rid, partida] : rooms) {
-        // Estimación: cantidad de clientes activos en la sala
         uint8_t current = 0;
-        // Aquí simplemente no contamos, o podríamos mantener un contador si hiciera falta.
-        // Para mantenerlo simple, use el tamaño de bindings por room.
         for (const auto& [conn, bind] : bindings) {
             if (bind.first == rid) current++;
         }
@@ -45,17 +44,27 @@ void MonitorLobby::broadcast_rooms_to_pending_locked() {
     }
 }
 
+void MonitorLobby::start_room_loop_locked(Partida& p) {
+    if (!p.loop.has_value()) {
+        p.loop.emplace(p.game, p.clients, p.actions);
+        p.loop->start();
+    }
+}
+
+void MonitorLobby::stop_room_loop_locked(Partida& p) {
+    if (p.loop.has_value()) {
+        p.loop->stop();
+        p.loop->join();
+        p.loop.reset();
+    }
+}
+
 uint8_t MonitorLobby::create_room_locked(uint8_t max_players) {
-    // Evitar colisión simple
     while (rooms.count(next_room_id)) ++next_room_id;
     uint8_t rid = next_room_id++;
 
-    auto [it, _] = rooms.emplace(
-        rid, Partida{rid, nitro_duracion, max_players}
-    );
-    // Crear y lanzar gameloop de la sala
-    it->second.loop = std::make_unique<Gameloop>(it->second.game, it->second.clients, it->second.actions);
-    it->second.loop->start();
+    auto [it, _] = rooms.emplace(rid, Partida{rid, nitro_duracion, max_players});
+    start_room_loop_locked(it->second);
     return rid;
 }
 
@@ -73,9 +82,10 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     }
     if (current >= itr->second.max_players) return false;
 
-    // Mover handler a la sala
-    std::unique_ptr<ClientHandler> handler = std::move(itp->second);
+    // Tomar el handler y quitarlo de 'pending'
+    std::shared_ptr<ClientHandler> handler = itp->second;
     pending.erase(itp);
+
     size_t player_id = itr->second.game.add_player();
     bindings[conn_id] = std::make_pair(room_id, player_id);
 
@@ -86,18 +96,17 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
         pending_names.erase(pn);
     }
 
-    // Agregar handler a la lista de clientes de la sala y arrancar (ya estaba ejecutando)
-    itr->second.clients.agregar_client(std::move(handler));
+    // Agregar handler a la lista de clientes de la sala
+    itr->second.clients.agregar_client(handler);
 
-    // Opcional: avisar OK al cliente
-    // NOTA: no tenemos referencia directa tras mover. Para enviar algo inmediato,
-    // hubiéramos enviado antes de mover. Lo omitimos.
+    // Arrancar hilos del handler ya dentro de la sala
+    handler->ejecutar();
 
     return true;
 }
 
 void MonitorLobby::reap_locked() {
-    // Reap de cada sala: eliminar clientes muertos y remover jugadores del Game
+    // Reap de cada sala
     for (auto it = rooms.begin(); it != rooms.end();) {
         auto& pr = it->second;
         std::vector<size_t> removed_conn_ids;
@@ -121,10 +130,7 @@ void MonitorLobby::reap_locked() {
             if (bind.first == pr.room_id) { empty_room = false; break; }
         }
         if (empty_room) {
-            if (pr.loop) {
-                pr.loop->stop();
-                pr.loop->join();
-            }
+            stop_room_loop_locked(pr);
             it = rooms.erase(it);
         } else {
             ++it;
@@ -153,21 +159,18 @@ void MonitorLobby::run() {
                         uint8_t rid = create_room_locked(/*max_players=*/8);
                         (void)rid;
                         broadcast_rooms_to_pending_locked();
-                        // Unir automáticamente al cliente creador a su sala recién creada
+                        // Unir automáticamente al creador
                         join_room_locked(act.id, rid);
                         broadcast_rooms_to_pending_locked();
                     } else if (act.room_cmd == ROOM_JOIN) {
                         if (join_room_locked(act.id, act.room_id)) {
                             broadcast_rooms_to_pending_locked();
-                        } else {
-                            // TODO: opcional, enviar mensaje de error al cliente
                         }
                     }
                 } else if (act.type == ClientAction::Type::Name) {
                     std::lock_guard<std::mutex> lk(m);
                     auto itb = bindings.find(act.id);
                     if (itb == bindings.end()) {
-                        // Guardar para aplicar al unir
                         pending_names[act.id] = act.username;
                     } else {
                         auto rid = itb->second.first;
@@ -180,17 +183,14 @@ void MonitorLobby::run() {
                 } else if (act.type == ClientAction::Type::Move) {
                     std::lock_guard<std::mutex> lk(m);
                     auto itb = bindings.find(act.id);
-                    if (itb != bindings.end()) {
+                    if (itb != std::end(bindings)) {
                         auto rid = itb->second.first;
                         auto pid = itb->second.second;
                         auto itr = rooms.find((uint8_t)rid);
                         if (itr != rooms.end()) {
-                            // Reescribir id por id de Player y encolar en la sala
                             ClientAction routed(pid, act.movement);
                             itr->second.actions.push(routed);
                         }
-                    } else {
-                        // Ignorar movimientos si aún no eligió sala
                     }
                 }
             }
@@ -208,11 +208,11 @@ void MonitorLobby::run() {
         }
     }
 
-    // Apagar salas
+    // Apagar salas y limpiar pendientes
     {
         std::lock_guard<std::mutex> lk(m);
         for (auto& [rid, pr] : rooms) {
-            if (pr.loop) { pr.loop->stop(); pr.loop->join(); }
+            stop_room_loop_locked(pr);
         }
         rooms.clear();
         pending.clear();

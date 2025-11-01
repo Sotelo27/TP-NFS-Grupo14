@@ -27,18 +27,18 @@ private:
         Game game;
         ClientListProtected clients;
         Queue<ClientAction> actions;
-        std::unique_ptr<Gameloop> loop;
+        std::optional<Gameloop> loop;
         uint8_t max_players{8};
 
         explicit Partida(uint8_t id, float nitro_duracion, uint8_t max_players)
-            : room_id(id), game(nitro_duracion), actions(), loop(nullptr), max_players(max_players) {}
+            : room_id(id), game(nitro_duracion), actions(), loop(std::nullopt), max_players(max_players) {}
     };
 
     // Acciones entrantes (global, previo a conocer sala)
     Queue<ClientAction> actions_in;
 
-    // Conexiones en estado "pendiente" (aún no eligieron sala)
-    std::map<size_t, std::unique_ptr<ClientHandler>> pending;
+    // Conexiones en estado "pendiente"
+    std::map<size_t, std::shared_ptr<ClientHandler>> pending;
 
     // Salas activas
     std::map<uint8_t, Partida> rooms;
@@ -46,7 +46,7 @@ private:
     // Vinculación connId -> (room_id, player_id en Game)
     std::unordered_map<size_t, std::pair<uint8_t, size_t>> bindings;
 
-    // Nombres pendientes (antes de entrar a sala)
+    // Nombres pendientes
     std::unordered_map<size_t, std::string> pending_names;
 
     // Generadores de ids
@@ -61,6 +61,8 @@ private:
     void broadcast_rooms_to_pending_locked();
     uint8_t create_room_locked(uint8_t max_players);
     bool join_room_locked(size_t conn_id, uint8_t room_id);
+    void start_room_loop_locked(Partida& p);
+    void stop_room_loop_locked(Partida& p);
     void reap_locked();
 
 public:
@@ -72,8 +74,8 @@ public:
     // Reservar id para nueva conexión
     size_t reserve_connection_id();
 
-    // Registrar conexión pendiente (toma ownership del handler)
-    void add_pending_connection(std::unique_ptr<ClientHandler> ch, size_t conn_id);
+    // Registrar conexión pendiente (toma ownership moviendo el objeto)
+    void add_pending_connection(std::shared_ptr<ClientHandler> ch, size_t conn_id);
 
     void run() override;
 
