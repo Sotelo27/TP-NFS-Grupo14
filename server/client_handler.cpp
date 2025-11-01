@@ -2,8 +2,10 @@
 
 #include <iostream>
 #include <utility>
+#include <vector>
 
 #include "../common/constants.h"
+#include "../common/base_protocol.h"
 
 ClientHandler::ClientHandler(Socket&& skt_client, size_t id,
                    Queue<ClientAction>& actiones_clients):
@@ -21,6 +23,9 @@ ClientHandler::~ClientHandler() {
 }
 
 void ClientHandler::ejecutar() {
+    std::vector<RoomInfo> rooms; 
+    protocol.send_rooms(rooms);
+
     recv.start();
     send.start();
 }
