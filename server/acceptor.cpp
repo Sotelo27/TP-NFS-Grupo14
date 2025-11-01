@@ -4,12 +4,8 @@
 
 #include "../common/constants.h"
 
-Acceptor::Acceptor(const char* puerto, Game& game, ClientListProtected& clients,
-                   Queue<ClientAction>& actions_clients):
-        skt_server(Socket(puerto)),
-        game(game),
-        clients(clients),
-        actions_clients(actions_clients) {}
+Acceptor::Acceptor(const char* puerto, MonitorLobby& lobby)
+    : skt_server(Socket(puerto)), lobby(lobby) {}
 
 void Acceptor::run() {
     while (should_keep_running()) {
@@ -19,42 +15,15 @@ void Acceptor::run() {
                 break;
             }
 
-            size_t id = game.add_player();
-            auto* c = new ClientHandler(std::move(skt_client), id, actions_clients);
-            reap();
-
-            clients.agregar_client(std::unique_ptr<ClientHandler>(c));
-            c->ejecutar();
+            size_t conn_id = lobby.reserve_connection_id();
+            auto handler = std::make_shared<ClientHandler>(std::move(skt_client), conn_id, lobby.incoming_actions());
+            // No iniciar hilos aún: se iniciarán al unirse a una sala
+            lobby.add_pending_connection(std::move(handler), conn_id);
         } catch (const std::exception& e) {
-            if (!should_keep_running()) {
-                break;
-            }
-
+            if (!should_keep_running()) break;
             std::cerr << "Something went wrong and an exception was caught: " << e.what() << "\n";
         }
     }
-}
-
-void Acceptor::limpiar_jugadores(const std::vector<size_t>& ids) {
-    for (size_t id: ids) {
-        try {
-            game.remove_player(id);
-        } catch (const std::exception& e) {
-            std::cerr << "Something went wrong and an exception was caught: " << e.what() << "\n";
-        }
-    }
-}
-
-void Acceptor::reap() {
-    std::vector<size_t> ids;
-    clients.reap(ids);
-    limpiar_jugadores(ids);
-}
-
-void Acceptor::clear() {
-    std::vector<size_t> ids;
-    clients.clear(ids);
-    limpiar_jugadores(ids);
 }
 
 void Acceptor::stop_acceptor() {
@@ -62,4 +31,9 @@ void Acceptor::stop_acceptor() {
     skt_server.shutdown(SHUT_BOTH_CLOSED);
 }
 
-Acceptor::~Acceptor() { clear(); }
+Acceptor::~Acceptor() {
+    // MonitorLobby se encarga de limpiar
+}
+Acceptor::~Acceptor() {
+    // MonitorLobby limpia pendientes/salas
+}

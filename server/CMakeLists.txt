@@ -13,6 +13,7 @@ target_sources(taller_server
     player.cpp
     server.cpp
     server_protocol.cpp
+    monitor_lobby.cpp
     PUBLIC
     # .h files
     acceptor.h
@@ -27,4 +28,5 @@ target_sources(taller_server
     player.h
     server.h
     server_protocol.h
+    monitor_lobby.h
     )
