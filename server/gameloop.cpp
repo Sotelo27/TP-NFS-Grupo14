@@ -42,11 +42,11 @@ void Gameloop::procesar_actiones() {
 }
 
 void Gameloop::iteracion_game() {
-    const float dt = 0.25f;  // 250 ms
+    const float dt = 0.016f;
     game.update(dt);
     auto positions = game.players_positions();
     clients.broadcast_player_positions(positions);
-    std::cout << "Broadcasted positions of " << positions.size() << " players.\n";
+    //std::cout << "Broadcasted positions of " << positions.size() << " players.\n";
 }
 
 void Gameloop::run() {
@@ -54,7 +54,7 @@ void Gameloop::run() {
         try {
             procesar_actiones();
             iteracion_game();
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
         } catch (const std::exception& err) {
             std::cerr << "Something went wrong and an exception was caught: " << err.what() << "\n";
         }

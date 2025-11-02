@@ -9,7 +9,9 @@ target_sources(taller_server
     client_list.cpp
     gameloop.cpp
     game.cpp
-    car.cpp
+    race.cpp
+    physics_world.cpp
+    # headers-only or inline headers can be listed under PUBLIC
     player.cpp
     server.cpp
     server_protocol.cpp
@@ -23,8 +25,16 @@ target_sources(taller_server
     client_list.h
     gameloop.h
     game.h
-    car.h
+    race.h
+    physics_world.h
+    race_participant.h
     player.h
     server.h
     server_protocol.h
     )
+
+# Headers del sistema (Box2D está en /usr/include/box2d)
+target_include_directories(taller_server PRIVATE /usr/include)
+
+# Linkea la lib (libbox2d.so => "box2d")
+target_link_libraries(taller_server box2d)

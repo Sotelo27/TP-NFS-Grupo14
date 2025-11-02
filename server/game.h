@@ -12,6 +12,7 @@
 #include "../common/player_aux.h"
 
 #include "player.h"
+#include "race.h"
 
 class Game {
 private:
@@ -19,6 +20,9 @@ private:
     std::map<size_t, Player> players;
     size_t id_indice = 0;
     std::mutex m;
+    Race race{1}; // Carrera única mínima (id=1)
+    // Inputs acumulados por tick (OR de todos los mensajes recibidos en el frame)
+    std::map<size_t, InputState> pending_inputs;
 
 
     void throw_jugador_no_existe(size_t id) const;
@@ -61,11 +65,6 @@ public:
      * Por el momento solo actualiza los jugadores
      */
     void update(float dt);
-
-    /*
-     * Obtiene la posición actual del jugador
-    */
-    std::pair<int16_t, int16_t> get_player_position(size_t id);
 
     /*
      * Devuelve Player {(id, position)} de todos los jugadores

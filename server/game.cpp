@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <utility>
+#include "../common/input_state.h"
 
 Game::Game(float nitro_duracion): nitro_tiempo(nitro_duracion) {}
 
@@ -28,6 +29,11 @@ size_t Game::add_player() { // Luego necesito que reciba un player o el  nombre 
 
     players.emplace(id_indice, Player{id_indice});
 
+    // Agregar jugador a la race minima con su CarModel y una posición inicial segura lejos de bordes
+    // El CarModel se obtiene del player recién creado
+    const CarModel& model = players.at(id_indice).get_car_model();
+    race.add_player(id_indice, model, 1000.0f, 1000.0f);
+
     return id_indice;
 }
 
@@ -37,6 +43,7 @@ void Game::remove_player(size_t id) {
         throw_jugador_no_existe(id);
     }
     players.erase(id);
+    race.remove_player(id);
 }
 
 void Game::apply_player_move(size_t id, Movement movimiento) {
@@ -44,37 +51,34 @@ void Game::apply_player_move(size_t id, Movement movimiento) {
     if (!jugador_existe_auxiliar(id)) {
         throw_jugador_no_existe(id);
     }
-
-    auto& j = players.at(id);
-    j.execute_movement(movimiento);
-}
-
-std::pair<int16_t, int16_t> Game::get_player_position(size_t id) {
-    std::lock_guard<std::mutex> lock(m);
-    if (!jugador_existe_auxiliar(id)) {
-        throw_jugador_no_existe(id);
+    // Acumular inputs para este tick (OR de todos los mensajes recibidos)
+    InputState& in = pending_inputs[id];
+    switch (movimiento) {
+        case Movement::Up:    in.up = true;    break;
+        case Movement::Down:  in.down = true;  break;
+        case Movement::Left:  in.left = true;  break;
+        case Movement::Right: in.right = true; break;
+        default: break;
     }
-    const auto& j = players.at(id);
-    Position p = j.get_Pose();
-    return {(int16_t)(p.x), (int16_t)(p.y)};
 }
 
 std::vector<PlayerPos> Game::players_positions() {
     std::lock_guard<std::mutex> lock(m);
-    std::vector<PlayerPos> player_positions;
-    player_positions.reserve(players.size());
-    for (const auto& [id, player] : players) {
-        auto pos = player.get_Pose();
-        player_positions.push_back(PlayerPos{(uint32_t)id, (int16_t)(pos.x), (int16_t)(pos.y)});
-    }
-    return player_positions;
+    return race.snapshot_poses();
 }
 
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
-    for (auto& [id, j] : players) {
-        j.update(dt);
+    // Aplicar inputs acumulados de todos los jugadores una sola vez por tick
+    for (const auto& kv : pending_inputs) {
+        const size_t pid = kv.first;
+        const InputState& in = kv.second;
+        race.apply_input(pid, in);
     }
+    pending_inputs.clear();
+
+    const uint32_t dtMs = (uint32_t)std::lround(dt * 1000.0f);
+    race.update(dtMs);
 }
 
 void Game::set_player_name(size_t id, std::string name) {
