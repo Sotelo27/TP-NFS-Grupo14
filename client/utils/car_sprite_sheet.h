@@ -4,6 +4,9 @@
 #include <string>
 #include <unordered_map>
 
+#include "../sdl_wrappers/SdlObjTexture.h"
+#include "../sdl_wrappers/SdlWindow.h"
+
 #include "Area.h"
 struct CarData {
     Area area;
@@ -23,13 +26,14 @@ enum class CarSpriteID {
 
 class CarSpriteSheet {
 private:
+    SdlObjTexture texture_cars;
     std::unordered_map<CarSpriteID, CarData> sprites;
 
 public:
-    CarSpriteSheet();
+    explicit CarSpriteSheet(const SdlWindow& window);
 
-    const Area& getArea(CarSpriteID id) const;
-    const CarData& get(CarSpriteID id) const;
+    const CarData& getCarData(CarSpriteID id) const;
+    void render(const Area& src, const Area& dest) const;
 };
 
 #endif  // CAR_SPRITE_SHEET_H

@@ -19,42 +19,75 @@ ClientGame::ClientGame(CarSpriteID car, const char* host, const char* service):
         current_car(car),
         server_actions{},
         server_handler(std::move(Socket(host, service)), server_actions),
-        running(false) {}
+        running(false),
+        positions() {}
 
 void ClientGame::start() {
     server_handler.start();
 
     this->running = true;
     // init resources
-    Rgb background_color(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B);
-    CarSpriteSheet car_sprites;
-    const CarData& car_data = car_sprites.get(this->current_car);
-
     SdlWindow window(WINDOW_WIDTH, WINDOW_HEIGHT);
     window.fill();
 
+    CarSpriteSheet car_sprites(window);
+    const CarData& car_data = car_sprites.getCarData(this->current_car);
+
     SdlMapTexture im(ASSETS + "/cities/Liberty City.png", window);
-    SdlObjTexture auto1(ASSETS + "/cars/Cars.png", window, background_color);
 
-    positions.x_car_map = 1900;
-    positions.y_car_map = 1900;
+    int real_width, real_height;
+    SDL_QueryTexture(im.getTexture(), NULL, NULL, &real_width, &real_height);
+    std::cout << "Tamaño real del mapa: " << real_width << "x" << real_height << std::endl;
 
-    positions.x_car_screen = WINDOW_WIDTH / 2 - car_data.width_scale_screen / 2;
-    positions.y_car_screen = WINDOW_HEIGHT / 2 - car_data.height_scale_screen / 2;
+    const float MAP_TO_VIEWPORT_SCALE_X =
+            static_cast<float>(WINDOW_WIDTH) / MAP_WIDTH_SIZE;  // 2.6667
+    const float MAP_TO_VIEWPORT_SCALE_Y =
+            static_cast<float>(WINDOW_HEIGHT) / MAP_HEIGHT_SIZE;  // 2.6667
+
     while (this->running) {
         update_position();
+        window.fill();
 
-        window.fill();  // Repinto el fondo gris
+        // Calcular la región del mapa a mostrar (centrada en el auto)
+        int x_map = positions.x_car_map - MAP_WIDTH_SIZE / 2;
+        int y_map = positions.y_car_map - MAP_HEIGHT_SIZE / 2;
 
-        Area srcArea(positions.x_car_map - MAP_WIDTH_SIZE / 2,
-                     positions.y_car_map - MAP_HEIGHT_SIZE / 2, MAP_WIDTH_SIZE, MAP_HEIGHT_SIZE);
+        // Por defecto, el auto está en el centro de la pantalla
+        int x_car_screen = WINDOW_WIDTH / 2;
+        int y_car_screen = WINDOW_HEIGHT / 2;
+
+        // Ajustar cuando llegamos al borde izquierdo
+        if (x_map < 0) {
+            x_car_screen = positions.x_car_map * MAP_TO_VIEWPORT_SCALE_X;
+            x_map = 0;
+        }
+
+        // Ajustar cuando llegamos al borde superior
+        if (y_map < 0) {
+            y_car_screen = positions.y_car_map * MAP_TO_VIEWPORT_SCALE_Y;
+            y_map = 0;
+        }
+
+        // Ajustar cuando llegamos al borde derecho
+        if (x_map > real_width - MAP_WIDTH_SIZE) {
+            x_map = real_width - MAP_WIDTH_SIZE;
+            x_car_screen = (positions.x_car_map - x_map) * MAP_TO_VIEWPORT_SCALE_X;
+        }
+
+        // Ajustar cuando llegamos al borde inferior
+        if (y_map > real_height - MAP_HEIGHT_SIZE) {
+            y_map = real_height - MAP_HEIGHT_SIZE;
+            y_car_screen = (positions.y_car_map - y_map) * MAP_TO_VIEWPORT_SCALE_Y;
+        }
+
+        Area srcArea(x_map, y_map, MAP_WIDTH_SIZE, MAP_HEIGHT_SIZE);
         Area destArea(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        Area destAreaCar(positions.x_car_screen, positions.y_car_screen,
+        Area destAreaCar(x_car_screen - car_data.width_scale_screen / 2,
+                         y_car_screen - car_data.height_scale_screen / 2,
                          car_data.width_scale_screen, car_data.height_scale_screen);
 
         im.render(srcArea, destArea);
-        auto1.render(car_data.area, destAreaCar);
-
+        car_sprites.render(car_data.area, destAreaCar);
         window.render();
     }
 }
