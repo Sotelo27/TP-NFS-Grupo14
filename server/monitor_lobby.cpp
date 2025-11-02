@@ -18,6 +18,9 @@ void MonitorLobby::add_pending_connection(std::shared_ptr<ClientHandler> ch, siz
     auto it = pending.find(conn_id);
     if (it != pending.end() && it->second) {
         it->second->send_rooms_to_client(list_rooms_locked());
+        // iniciar solo recepcion para procesar NAME/ROOM y luego de ahi entrar a sala
+        // practicamente sera posponer el hilo de envio hasta que el cliente cree o entre a  una sala >:3
+        it->second->start_recv_only();
     }
 }
 
@@ -104,8 +107,8 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     // Agregar handler a la lista de clientes de la sala
     itr->second.clients.agregar_client(handler);
 
-    // Arrancar hilos del handler ya dentro de la sala
-    handler->ejecutar();
+    // Arrancar hilo de envio ahora que esta en sala ya que recv en este caso ya estaria activo
+    handler->start_send_only();
 
     return true;
 }
@@ -191,14 +194,21 @@ void MonitorLobby::run() {
                 } else if (act.type == ClientAction::Type::Move) {
                     std::lock_guard<std::mutex> lk(m);
                     auto itb = bindings.find(act.id);
-                    if (itb != std::end(bindings)) {
-                        auto rid = itb->second.first;
-                        auto pid = itb->second.second;
-                        auto itr = rooms.find((uint8_t)rid);
-                        if (itr != rooms.end()) {
-                            ClientAction routed(pid, act.movement);
-                            itr->second.actions.push(routed);
+                    if (itb == std::end(bindings)) {
+                        // si no esta en sala, Vamos a ignorar todo lo demas coomo el MOVE y reenviar rooms
+                        // solo a ese cliente para que elija
+                        auto itp = pending.find(act.id);
+                        if (itp != pending.end() && itp->second) {
+                            itp->second->send_rooms_to_client(list_rooms_locked());
                         }
+                        continue;
+                    }
+                    auto rid = itb->second.first;
+                    auto pid = itb->second.second;
+                    auto itr = rooms.find((uint8_t)rid);
+                    if (itr != rooms.end()) {
+                        ClientAction routed(pid, act.movement);
+                        itr->second.actions.push(routed);
                     }
                 }
             }

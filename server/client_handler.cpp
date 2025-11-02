@@ -11,18 +11,38 @@ ClientHandler::ClientHandler(Socket&& skt_client, size_t id, Queue<ClientAction>
         id(id),
         mensajes_a_enviar{},
         recv(protocol, id, actiones_clients),
-        send(protocol, id, mensajes_a_enviar) {}
+    send(protocol, id, mensajes_a_enviar),
+    recv_started(false),
+    send_started(false) {}
 
 ClientHandler::~ClientHandler() {
     hard_kill();
     mensajes_a_enviar.close();
-    recv.join();
-    send.join();
+    if (recv_started) {
+        try { recv.join(); } catch (...) {}
+    }
+    if (send_started) {
+        try { send.join(); } catch (...) {}
+    }
 }
 
 void ClientHandler::ejecutar() {
-    recv.start();
-    send.start();
+    start_recv_only();
+    start_send_only();
+}
+
+void ClientHandler::start_recv_only() {
+    if (!recv_started) {
+        recv.start();
+        recv_started = true;
+    }
+}
+
+void ClientHandler::start_send_only() {
+    if (!send_started) {
+        send.start();
+        send_started = true;
+    }
 }
 
 bool ClientHandler::is_alive() {

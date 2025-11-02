@@ -21,6 +21,8 @@ private:
     Queue<server_msg_pos> mensajes_a_enviar;
     ClientThreadRecv recv;
     ClientThreadSend send;
+    bool recv_started{false};
+    bool send_started{false};
 
 public:
     /*
@@ -35,6 +37,16 @@ public:
      * y envío de mensajes.
      */
     void ejecutar();
+
+    /*
+     * Inicia solo el hilo de recepcion (para estado pendiente en lobby)
+     */
+    void start_recv_only();
+
+    /*
+     * Inicia solo el hilo de envio (al entrar a una sala)
+     */
+    void start_send_only();
 
     /*
      * Con `ClientHandler::is_alive` se puede consultar si ambos hilos
