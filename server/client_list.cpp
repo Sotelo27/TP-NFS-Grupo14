@@ -38,12 +38,12 @@ void ClientListProtected::clear(std::vector<size_t>& clients_eliminados) {
     clients.clear();
 }
 
-void ClientListProtected::send_pos_to(size_t id, int16_t x, int16_t y) {
+void ClientListProtected::send_pos_to(size_t id, int16_t x, int16_t y, float angle) {
     std::lock_guard<std::mutex> lock(m);
 
     for (auto& c : clients) {
         if (c->get_id() == id) {
-            c->server_enviar_pos(id, x, y);
+            c->server_enviar_pos(id, x, y, angle);
             break;
         }
     }

@@ -17,4 +17,6 @@ target_sources(taller_common
     thread.h
     foo.h
     base_protocol.h
+    car_model.h
+    input_state.h
     )

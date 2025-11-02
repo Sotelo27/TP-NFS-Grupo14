@@ -19,10 +19,11 @@ struct ClientMessage {
 };
 
 struct ServerMessage {
-    enum class Type { Ok, Pos, Unknown } type = Type::Unknown;
+    enum class Type { Ok, Pos, YourId, Unknown } type = Type::Unknown;
     uint32_t id = 0;
     int16_t x = 0;
     int16_t y = 0;
+    float angle = 0.f;
 };
 
 #endif

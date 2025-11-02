@@ -20,6 +20,7 @@ constexpr uint8_t CODE_C2S_MOVE = 0x02;
 // Base protocol: Server -> Client
 constexpr uint8_t CODE_S2C_OK  = 0x30;
 constexpr uint8_t CODE_S2C_POS = 0x31;
+constexpr uint8_t CODE_S2C_YOUR_ID = 0x32;
 
 constexpr std::string_view HIT_NITRO = "A car hit the nitro!";
 constexpr std::string_view OUT_NITRO = "A car is out of juice.";

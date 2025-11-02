@@ -12,15 +12,22 @@ void ServerProtocol::send_ok() {
     skt.sendall(&code, sizeof(code));
 }
 
-void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y) {
+static inline uint32_t htonf32(float f) {
+    uint32_t u;
+    std::memcpy(&u, &f, sizeof(u));
+    return htonl(u);
+}
+
+void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y, float angle) {
     uint8_t code = CODE_S2C_POS;
 
     uint32_t id_be = htonl(id);
     uint16_t x_be = htons((uint16_t)x);
     uint16_t y_be = htons((uint16_t)y);
+    uint32_t ang_be = htonf32(angle);
 
     std::vector<char> buf;
-    buf.reserve(1 + 4 + 2 + 2);
+    buf.reserve(1 + 4 + 2 + 2 + 4);
     buf.push_back((char)(code));
 
     size_t offset = buf.size();
@@ -35,7 +42,21 @@ void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y) {
     buf.resize(offset + 2);
     std::memcpy(buf.data() + offset, &y_be, 2);
 
+    offset = buf.size();
+    buf.resize(offset + 4);
+    std::memcpy(buf.data() + offset, &ang_be, 4);
+
     skt.sendall(buf.data(), buf.size());
+}
+
+void ServerProtocol::send_your_id(uint32_t id) {
+    uint8_t code = CODE_S2C_YOUR_ID;
+    uint32_t id_be = htonl(id);
+
+    char buf[1 + 4];
+    buf[0] = (char)code;
+    std::memcpy(buf + 1, &id_be, 4);
+    skt.sendall(buf, sizeof(buf));
 }
 
 void ServerProtocol::enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje) {

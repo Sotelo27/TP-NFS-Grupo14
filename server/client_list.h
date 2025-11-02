@@ -40,9 +40,9 @@ public:
     void clear(std::vector<size_t>& clients_eliminados);
 
     /*
-     * Enviar una posición (x,y) a un cliente específico por id.
+     * Enviar una posición (x,y,angle) a un cliente específico por id.
      */
-    void send_pos_to(size_t id, int16_t x, int16_t y);
+    void send_pos_to(size_t id, int16_t x, int16_t y, float angle);
 
     /*
      * Envia las posiciones de todos los jugadores a todos los clientes.

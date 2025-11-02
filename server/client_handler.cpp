@@ -21,6 +21,8 @@ ClientHandler::~ClientHandler() {
 }
 
 void ClientHandler::ejecutar() {
+    // Enviar el id al cliente apenas inicia la sesión
+    protocol.send_your_id((uint32_t)id);
     recv.start();
     send.start();
 }
@@ -43,17 +45,19 @@ void ClientHandler::hard_kill() {
 
 size_t ClientHandler::get_id() { return id; }
 
-void ClientHandler::server_enviar_pos(uint32_t id, int16_t x, int16_t y) {
+void ClientHandler::server_enviar_pos(uint32_t id, int16_t x, int16_t y, float angle) {
     server_msg_pos msg{};
     msg.id = id;
     msg.x = x;
     msg.y = y;
+    msg.angle = angle;
     mensajes_a_enviar.try_push(std::move(msg));
 }
 
 void ClientHandler::send_positions_to_all(const std::vector<PlayerPos>& positions) {
+    // Volver a enviar todas las posiciones; el cliente ya filtra por su id para cámara.
     for (const auto& pp : positions) {
-        server_enviar_pos(pp.id, pp.x, pp.y);
+        server_enviar_pos(pp.id, pp.x, pp.y, pp.angle);
     }
 }
 

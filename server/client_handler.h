@@ -57,9 +57,9 @@ public:
     size_t get_id();
 
     /*
-     * Encola el envío de una posición (id,x,y) al cliente
+     * Encola el envío de una posición (id,x,y,angle) al cliente
      */
-    void server_enviar_pos(uint32_t id, int16_t x, int16_t y);
+    void server_enviar_pos(uint32_t id, int16_t x, int16_t y, float angle);
 
     /*
      * Envia las posiciones de todos los jugadores al cliente. 
