@@ -23,6 +23,7 @@ void ClientGame::start() {
     server_handler.start();
 
     this->running = true;
+
     // init resources
     SdlWindow window(WINDOW_WIDTH, WINDOW_HEIGHT);
     window.fill();
@@ -37,13 +38,9 @@ void ClientGame::start() {
     std::cout << "Tamaño real del mapa: " << map_data.width_scale_screen << "x"
               << map_data.height_scale_screen << std::endl;
 
-    const float MAP_TO_VIEWPORT_SCALE_X =
-            static_cast<float>(WINDOW_WIDTH) / MAP_WIDTH_SIZE;  // 2.6667
-    const float MAP_TO_VIEWPORT_SCALE_Y =
-            static_cast<float>(WINDOW_HEIGHT) / MAP_HEIGHT_SIZE;  // 2.6667
-
     while (this->running) {
-        update_position();
+        update_state_from_position();
+        //Clear display
         window.fill();
 
         // Calcular la región del mapa a mostrar (centrada en el auto)
@@ -90,7 +87,7 @@ void ClientGame::start() {
     }
 }
 
-void ClientGame::update_position() {
+void ClientGame::update_state_from_position() {
     SDL_Event event;
 
     // Para el alumno: Buscar diferencia entre waitEvent y pollEvent

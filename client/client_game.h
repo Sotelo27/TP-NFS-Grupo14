@@ -23,7 +23,7 @@ private:
     Positions positions;
 
 
-    void update_position();
+    void update_state_from_position();
 
 public:
     explicit ClientGame(CarSpriteID current_car, const char* host, const char* service);
