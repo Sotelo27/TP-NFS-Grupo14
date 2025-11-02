@@ -1,6 +1,7 @@
 #ifndef __AREA_H__
 #define __AREA_H_
 
+#pragma once
 class Area {
 private:
     int x, y;
