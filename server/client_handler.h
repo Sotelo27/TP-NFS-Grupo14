@@ -7,7 +7,7 @@
 #include "../common/queue.h"
 #include "../common/thread.h"
 #include "../common/player_aux.h"
-#include "../common/base_protocol.h"
+#include "../common/dto/room_info.h"
 
 #include "client_action.h"
 #include "client_thread_recv.h"

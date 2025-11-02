@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "../common/base_protocol.h"
+#include "../common/dto/movement.h"
 
 struct Position {
     float x;

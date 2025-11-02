@@ -16,9 +16,4 @@ target_sources(taller_common
     socket.h
     thread.h
     foo.h
-    # DTOs (reemplazan base_protocol.h)
-    dto/movement.h
-    dto/room_info.h
-    dto/client_msg.h
-    dto/server_msg.h
     )

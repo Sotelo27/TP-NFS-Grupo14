@@ -32,8 +32,5 @@ void Acceptor::stop_acceptor() {
 }
 
 Acceptor::~Acceptor() {
-    // MonitorLobby se encarga de limpiar
-}
-Acceptor::~Acceptor() {
     // MonitorLobby limpia pendientes/salas
 }

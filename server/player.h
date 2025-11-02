@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "../common/base_protocol.h"
+#include "../common/dto/movement.h"
 #include "car.h"
 
 class Player {

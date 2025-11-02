@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "../common/constants.h"
-#include "../common/base_protocol.h"
+#include "../common/dto/server_msg.h"
 
 ClientHandler::ClientHandler(Socket&& skt_client, size_t id,
                    Queue<ClientAction>& actiones_clients):

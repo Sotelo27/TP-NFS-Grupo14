@@ -61,12 +61,6 @@ void ClientListProtected::broadcast_player_positions(const std::vector<PlayerPos
 
 ClientListProtected::~ClientListProtected() {
     for (auto& c: clients) {
-        if (c) c->hard_kill();
-    }
-    clients.clear();
-}
-ClientListProtected::~ClientListProtected() {
-    for (auto& c: clients) {
         c->hard_kill();
     }
 

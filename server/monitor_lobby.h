@@ -11,7 +11,6 @@
 
 #include "../common/queue.h"
 #include "../common/thread.h"
-#include "../common/base_protocol.h"
 #include "../common/constants.h"
 #include "../common/player_aux.h"
 
@@ -31,7 +30,7 @@ private:
         uint8_t max_players{8};
 
         explicit Partida(uint8_t id, float nitro_duracion, uint8_t max_players)
-            : room_id(id), game(nitro_duracion), actions(), loop(std::nullopt), max_players(max_players) {}
+            : room_id(id), game(nitro_duracion), clients(), actions(), loop(std::nullopt), max_players(max_players) {}
     };
 
     // Acciones entrantes (global, previo a conocer sala)

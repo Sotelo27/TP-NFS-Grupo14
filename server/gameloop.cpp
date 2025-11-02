@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include "../common/base_protocol.h"
 #include "../common/constants.h"
 
 Gameloop::Gameloop(Game& game, ClientListProtected& clients, Queue<ClientAction>& actiones_clients):

@@ -63,7 +63,8 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players) {
     while (rooms.count(next_room_id)) ++next_room_id;
     uint8_t rid = next_room_id++;
 
-    auto [it, _] = rooms.emplace(rid, Partida{rid, nitro_duracion, max_players});
+    auto [it, _] = rooms.try_emplace(rid, rid, nitro_duracion, max_players);
+    
     start_room_loop_locked(it->second);
     return rid;
 }
