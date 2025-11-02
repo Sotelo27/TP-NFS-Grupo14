@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <utility>
-#include "../common/input_state.h"
+#include "../common/dto/input_state.h"
 
 Game::Game(float nitro_duracion): nitro_tiempo(nitro_duracion) {}
 

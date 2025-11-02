@@ -8,7 +8,7 @@
 #include <box2d/box2d.h>
 
 #include "../common/car_model.h"
-#include "../common/pose.h"
+#include "../common/dto/pose.h"
 
 
 class PhysicsWorld {

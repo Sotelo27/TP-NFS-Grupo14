@@ -8,7 +8,7 @@
 #include "../common/player_aux.h"
 #include "physics_world.h"
 #include "race_participant.h"
-#include "../common/input_state.h"
+#include "../common/dto/input_state.h"
 #include "../common/car_model.h"
 
 class Race {

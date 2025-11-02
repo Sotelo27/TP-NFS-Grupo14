@@ -7,4 +7,6 @@ target_sources(taller_common
     room_info.h
     client_msg.h
     server_msg.h
+    input_state.h
+    pose.h
     )
