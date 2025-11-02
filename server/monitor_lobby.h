@@ -5,21 +5,22 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "../common/queue.h"
-#include "../common/thread.h"
 #include "../common/constants.h"
 #include "../common/player_aux.h"
+#include "../common/queue.h"
+#include "../common/thread.h"
 
 #include "client_handler.h"
 #include "client_list.h"
-#include "gameloop.h"
 #include "game.h"
+#include "gameloop.h"
 
-class MonitorLobby : public Thread {
+class MonitorLobby: public Thread {
 private:
     struct Partida {
         uint8_t room_id{0};
@@ -29,8 +30,13 @@ private:
         std::optional<Gameloop> loop;
         uint8_t max_players{8};
 
-        explicit Partida(uint8_t id, float nitro_duracion, uint8_t max_players)
-            : room_id(id), game(nitro_duracion), clients(), actions(), loop(std::nullopt), max_players(max_players) {}
+        explicit Partida(uint8_t id, float nitro_duracion, uint8_t max_players):
+                room_id(id),
+                game(nitro_duracion),
+                clients(),
+                actions(),
+                loop(std::nullopt),
+                max_players(max_players) {}
     };
 
     // Acciones entrantes (global, previo a conocer sala)
@@ -78,7 +84,10 @@ public:
 
     void run() override;
 
-    void stop() override { Thread::stop(); actions_in.close(); }
+    void stop() override {
+        Thread::stop();
+        actions_in.close();
+    }
 };
 
 #endif

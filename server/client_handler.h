@@ -4,10 +4,10 @@
 #include <utility>
 #include <vector>
 
+#include "../common/dto/room_info.h"
+#include "../common/player_aux.h"
 #include "../common/queue.h"
 #include "../common/thread.h"
-#include "../common/player_aux.h"
-#include "../common/dto/room_info.h"
 
 #include "client_action.h"
 #include "client_thread_recv.h"
@@ -28,8 +28,7 @@ public:
      * con el client, el id del client y una referencia a la cola de
      * actiones de clients, donde se pushearán las peticiones recibidas.
      */
-    explicit ClientHandler(Socket&& skt_client, size_t id,
-                            Queue<ClientAction>& actiones_clients);
+    explicit ClientHandler(Socket&& skt_client, size_t id, Queue<ClientAction>& actiones_clients);
 
     /*
      * Con `ClientHandler::ejecutar` se inician los hilos de recepción
@@ -70,7 +69,7 @@ public:
     void server_enviar_pos(uint32_t id, int16_t x, int16_t y);
 
     /*
-     * Envia las posiciones de todos los jugadores al cliente. 
+     * Envia las posiciones de todos los jugadores al cliente.
      */
     void send_positions_to_all(const std::vector<PlayerPos>& positions);
 

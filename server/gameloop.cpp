@@ -31,9 +31,10 @@ void Gameloop::procesar_actiones() {
                 // Aqui faltaria lo de enviar OK al cliente por su hilo de envio
             } else if (action.type == ClientAction::Type::Room) {
                 std::cout << "Room action from client " << action.id
-                          << " cmd=" << (int)action.room_cmd
-                          << " room=" << (int)action.room_id << "\n";
-                // TODO: Integrar con MonitorLobby (crear/unirse y validar cupo) - ahora lo maneja MonitorLobby
+                          << " cmd=" << (int)action.room_cmd << " room=" << (int)action.room_id
+                          << "\n";
+                // TODO: Integrar con MonitorLobby (crear/unirse y validar cupo) - ahora lo maneja
+                // MonitorLobby
             }
 
         } catch (const std::exception& err) {

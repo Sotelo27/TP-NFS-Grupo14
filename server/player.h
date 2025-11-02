@@ -4,6 +4,7 @@
 #include <string>
 
 #include "../common/dto/movement.h"
+
 #include "car.h"
 
 class Player {
@@ -14,7 +15,7 @@ private:
 
 public:
     explicit Player(size_t id, std::string name, Car car);
-    Player(size_t id);
+    explicit Player(size_t id);
 
     void execute_movement(Movement mv);
     void update(float dt) noexcept;

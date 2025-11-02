@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <utility>
 
 #include "../common/dto/movement.h"
 
@@ -18,14 +19,13 @@ struct ClientAction {
     uint8_t room_cmd{0};
     uint8_t room_id{0};
 
-    ClientAction(size_t id, Movement mv)
-        : type(Type::Move), id(id), movement(mv) {}
+    ClientAction(size_t id, Movement mv): type(Type::Move), id(id), movement(mv) {}
 
-    ClientAction(size_t id, std::string name)
-        : type(Type::Name), id(id), username(std::move(name)) {}
+    ClientAction(size_t id, std::string name):
+            type(Type::Name), id(id), username(std::move(name)), movement() {}
 
-    ClientAction(size_t id, uint8_t room_cmd, uint8_t room_id)
-        : type(Type::Room), id(id), room_cmd(room_cmd), room_id(room_id) {}
+    ClientAction(size_t id, uint8_t room_cmd, uint8_t room_id):
+            type(Type::Room), id(id), movement(), room_cmd(room_cmd), room_id(room_id) {}
 
     ClientAction() = default;
 };

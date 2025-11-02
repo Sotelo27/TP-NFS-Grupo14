@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
 
 #include "../common/dto/movement.h"
 
@@ -26,12 +27,8 @@ private:
     int direction_Y;
 
 public:
-    Car(std::string model,
-         uint16_t base_speed,
-         uint16_t base_acceleration,
-         uint16_t base_mass,
-         uint16_t base_control,
-         uint16_t base_health);
+    Car(std::string model, uint16_t base_speed, uint16_t base_acceleration, uint16_t base_mass,
+        uint16_t base_control, uint16_t base_health);
 
     void move(Movement mv) noexcept;
     void update(float dt) noexcept;

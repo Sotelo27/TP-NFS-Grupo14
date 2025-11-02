@@ -1,11 +1,10 @@
 #include "monitor_lobby.h"
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
-MonitorLobby::MonitorLobby(float nitro_duracion)
-    : actions_in(), nitro_duracion(nitro_duracion) {}
+MonitorLobby::MonitorLobby(float nitro_duracion): actions_in(), nitro_duracion(nitro_duracion) {}
 
 size_t MonitorLobby::reserve_connection_id() {
     std::lock_guard<std::mutex> lk(m);
@@ -25,10 +24,11 @@ void MonitorLobby::add_pending_connection(std::shared_ptr<ClientHandler> ch, siz
 std::vector<RoomInfo> MonitorLobby::list_rooms_locked() const {
     std::vector<RoomInfo> out;
     out.reserve(rooms.size());
-    for (const auto& [rid, partida] : rooms) {
+    for (const auto& [rid, partida]: rooms) {
         uint8_t current = 0;
-        for (const auto& [conn, bind] : bindings) {
-            if (bind.first == rid) current++;
+        for (const auto& [conn, bind]: bindings) {
+            if (bind.first == rid)
+                current++;
         }
         out.push_back(RoomInfo{rid, current, partida.max_players});
     }
@@ -37,7 +37,7 @@ std::vector<RoomInfo> MonitorLobby::list_rooms_locked() const {
 
 void MonitorLobby::broadcast_rooms_to_pending_locked() {
     auto rooms_dto = list_rooms_locked();
-    for (auto& kv : pending) {
+    for (auto& kv: pending) {
         if (kv.second) {
             kv.second->send_rooms_to_client(rooms_dto);
         }
@@ -64,24 +64,28 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players) {
     uint8_t rid = next_room_id++;
 
     auto [it, _] = rooms.try_emplace(rid, rid, nitro_duracion, max_players);
-    
+
     start_room_loop_locked(it->second);
     return rid;
 }
 
 bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     auto itp = pending.find(conn_id);
-    if (itp == pending.end()) return false;
+    if (itp == pending.end())
+        return false;
 
     auto itr = rooms.find(room_id);
-    if (itr == rooms.end()) return false;
+    if (itr == rooms.end())
+        return false;
 
     // Chequear cupo
     uint8_t current = 0;
-    for (const auto& [conn, bind] : bindings) {
-        if (bind.first == room_id) current++;
+    for (const auto& [conn, bind]: bindings) {
+        if (bind.first == room_id)
+            current++;
     }
-    if (current >= itr->second.max_players) return false;
+    if (current >= itr->second.max_players)
+        return false;
 
     // Tomar el handler y quitarlo de 'pending'
     std::shared_ptr<ClientHandler> handler = itp->second;
@@ -112,7 +116,7 @@ void MonitorLobby::reap_locked() {
         auto& pr = it->second;
         std::vector<size_t> removed_conn_ids;
         pr.clients.reap(removed_conn_ids);
-        for (size_t conn_id : removed_conn_ids) {
+        for (size_t conn_id: removed_conn_ids) {
             auto b = bindings.find(conn_id);
             if (b != bindings.end()) {
                 size_t player_id = b->second.second;
@@ -127,8 +131,11 @@ void MonitorLobby::reap_locked() {
 
         // Si sala queda vacía -> cerrar loop y borrar
         bool empty_room = true;
-        for (const auto& [conn, bind] : bindings) {
-            if (bind.first == pr.room_id) { empty_room = false; break; }
+        for (const auto& [conn, bind]: bindings) {
+            if (bind.first == pr.room_id) {
+                empty_room = false;
+                break;
+            }
         }
         if (empty_room) {
             stop_room_loop_locked(pr);
@@ -212,7 +219,7 @@ void MonitorLobby::run() {
     // Apagar salas y limpiar pendientes
     {
         std::lock_guard<std::mutex> lk(m);
-        for (auto& [rid, pr] : rooms) {
+        for (auto& [rid, pr]: rooms) {
             stop_room_loop_locked(pr);
         }
         rooms.clear();

@@ -6,9 +6,8 @@
 #include "../common/constants.h"
 #include "../common/dto/server_msg.h"
 
-ClientHandler::ClientHandler(Socket&& skt_client, size_t id,
-                   Queue<ClientAction>& actiones_clients):
-    protocol(ServerProtocol(std::move(skt_client))),
+ClientHandler::ClientHandler(Socket&& skt_client, size_t id, Queue<ClientAction>& actiones_clients):
+        protocol(ServerProtocol(std::move(skt_client))),
         id(id),
         mensajes_a_enviar{},
         recv(protocol, id, actiones_clients),
@@ -53,7 +52,7 @@ void ClientHandler::server_enviar_pos(uint32_t id, int16_t x, int16_t y) {
 }
 
 void ClientHandler::send_positions_to_all(const std::vector<PlayerPos>& positions) {
-    for (const auto& pp : positions) {
+    for (const auto& pp: positions) {
         server_enviar_pos(pp.id, pp.x, pp.y);
     }
 }
@@ -73,4 +72,3 @@ void ClientHandler::send_ok_to_client() {
         std::cerr << "Error sending OK to client " << id << ": " << e.what() << "\n";
     }
 }
-
