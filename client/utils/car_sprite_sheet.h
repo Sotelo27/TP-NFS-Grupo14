@@ -8,6 +8,7 @@
 #include "../sdl_wrappers/SdlWindow.h"
 
 #include "Area.h"
+
 struct CarData {
     Area area;
     int width_scale_screen;

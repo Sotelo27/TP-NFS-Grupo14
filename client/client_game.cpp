@@ -7,13 +7,10 @@
 
 #include <SDL2/SDL.h>
 
-#include "sdl_wrappers/SdlMapTexture.h"
-#include "sdl_wrappers/SdlObjTexture.h"
 #include "sdl_wrappers/SdlWindow.h"
+#include "utils/maps_textures.h"
 
 #include "constants.h"
-
-#define ASSETS std::string(ASSETS_PATH)
 
 ClientGame::ClientGame(CarSpriteID car, const char* host, const char* service):
         current_car(car),
@@ -33,11 +30,12 @@ void ClientGame::start() {
     CarSpriteSheet car_sprites(window);
     const CarData& car_data = car_sprites.getCarData(this->current_car);
 
-    SdlMapTexture im(ASSETS + "/cities/Liberty City.png", window);
+    MapsTextures map_manager(window);
+    map_manager.loadMap(MapID::LibertyCity);
 
-    int real_width, real_height;
-    SDL_QueryTexture(im.getTexture(), NULL, NULL, &real_width, &real_height);
-    std::cout << "Tamaño real del mapa: " << real_width << "x" << real_height << std::endl;
+    const MapData& map_data = map_manager.getCurrentMapData();
+    std::cout << "Tamaño real del mapa: " << map_data.width_scale_screen << "x"
+              << map_data.height_scale_screen << std::endl;
 
     const float MAP_TO_VIEWPORT_SCALE_X =
             static_cast<float>(WINDOW_WIDTH) / MAP_WIDTH_SIZE;  // 2.6667
@@ -69,14 +67,14 @@ void ClientGame::start() {
         }
 
         // Ajustar cuando llegamos al borde derecho
-        if (x_map > real_width - MAP_WIDTH_SIZE) {
-            x_map = real_width - MAP_WIDTH_SIZE;
+        if (x_map > map_data.width_scale_screen - MAP_WIDTH_SIZE) {
+            x_map = map_data.width_scale_screen - MAP_WIDTH_SIZE;
             x_car_screen = (positions.x_car_map - x_map) * MAP_TO_VIEWPORT_SCALE_X;
         }
 
         // Ajustar cuando llegamos al borde inferior
-        if (y_map > real_height - MAP_HEIGHT_SIZE) {
-            y_map = real_height - MAP_HEIGHT_SIZE;
+        if (y_map > map_data.height_scale_screen - MAP_HEIGHT_SIZE) {
+            y_map = map_data.height_scale_screen - MAP_HEIGHT_SIZE;
             y_car_screen = (positions.y_car_map - y_map) * MAP_TO_VIEWPORT_SCALE_Y;
         }
 
@@ -86,7 +84,7 @@ void ClientGame::start() {
                          y_car_screen - car_data.height_scale_screen / 2,
                          car_data.width_scale_screen, car_data.height_scale_screen);
 
-        im.render(srcArea, destArea);
+        map_manager.render(srcArea, destArea);
         car_sprites.render(car_data.area, destAreaCar);
         window.render();
     }
