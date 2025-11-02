@@ -20,6 +20,13 @@ void ClientThreadRecv::run() {
             } else if (received.type == ClientMessage::Type::Name) {
                 ClientAction msg = {id, std::move(received.username)};
                 actiones_clients.push(std::move(msg));
+            } else if (received.type == ClientMessage::Type::Room) {
+                ClientAction msg;
+                msg.type = ClientAction::Type::Room;
+                msg.id = id;
+                msg.room_cmd = received.room_cmd;
+                msg.room_id = received.room_id;
+                actiones_clients.push(std::move(msg));
             } else {
                 // Otros comandos que ser vera despues :P
             }

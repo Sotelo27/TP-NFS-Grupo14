@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include "../common/base_protocol.h"
 #include "../common/constants.h"
 
 Gameloop::Gameloop(Game& game, ClientListProtected& clients, Queue<ClientAction>& actiones_clients):
@@ -29,9 +28,13 @@ void Gameloop::procesar_actiones() {
             } else if (action.type == ClientAction::Type::Name) {
                 std::cout << "Bienvenido " << action.username << " (id " << action.id << ")\n";
                 game.set_player_name(action.id, std::move(action.username));
-
                 // Aqui faltaria lo de enviar OK al cliente por su hilo de envio
-                // asi el cliente sabe que se logeeo correctamente
+            } else if (action.type == ClientAction::Type::Room) {
+                std::cout << "Room action from client " << action.id
+                          << " cmd=" << (int)action.room_cmd << " room=" << (int)action.room_id
+                          << "\n";
+                // TODO: Integrar con MonitorLobby (crear/unirse y validar cupo) - ahora lo maneja
+                // MonitorLobby
             }
 
         } catch (const std::exception& err) {

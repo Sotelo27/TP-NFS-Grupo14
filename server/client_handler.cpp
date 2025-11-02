@@ -4,27 +4,45 @@
 #include <utility>
 
 #include "../common/constants.h"
+#include "../common/dto/server_msg.h"
 
-ClientHandler::ClientHandler(Socket&& skt_client, size_t id,
-                   Queue<ClientAction>& actiones_clients):
-    protocol(ServerProtocol(std::move(skt_client))),
+ClientHandler::ClientHandler(Socket&& skt_client, size_t id, Queue<ClientAction>& actiones_clients):
+        protocol(ServerProtocol(std::move(skt_client))),
         id(id),
         mensajes_a_enviar{},
         recv(protocol, id, actiones_clients),
-        send(protocol, id, mensajes_a_enviar) {}
+    send(protocol, id, mensajes_a_enviar),
+    recv_started(false),
+    send_started(false) {}
 
 ClientHandler::~ClientHandler() {
     hard_kill();
     mensajes_a_enviar.close();
-    recv.join();
-    send.join();
+    if (recv_started) {
+        try { recv.join(); } catch (...) {}
+    }
+    if (send_started) {
+        try { send.join(); } catch (...) {}
+    }
 }
 
 void ClientHandler::ejecutar() {
-    // Enviar el id al cliente apenas inicia la sesión
-    protocol.send_your_id((uint32_t)id);
-    recv.start();
-    send.start();
+    start_recv_only();
+    start_send_only();
+}
+
+void ClientHandler::start_recv_only() {
+    if (!recv_started) {
+        recv.start();
+        recv_started = true;
+    }
+}
+
+void ClientHandler::start_send_only() {
+    if (!send_started) {
+        send.start();
+        send_started = true;
+    }
 }
 
 bool ClientHandler::is_alive() {
@@ -61,3 +79,18 @@ void ClientHandler::send_positions_to_all(const std::vector<PlayerPos>& position
     }
 }
 
+void ClientHandler::send_rooms_to_client(const std::vector<RoomInfo>& rooms) {
+    try {
+        protocol.send_rooms(rooms);
+    } catch (const std::exception& e) {
+        std::cerr << "Error sending rooms to client " << id << ": " << e.what() << "\n";
+    }
+}
+
+void ClientHandler::send_ok_to_client() {
+    try {
+        protocol.send_ok();
+    } catch (const std::exception& e) {
+        std::cerr << "Error sending OK to client " << id << ": " << e.what() << "\n";
+    }
+}

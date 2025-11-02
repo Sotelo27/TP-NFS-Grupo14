@@ -9,7 +9,6 @@
 #include "../common/queue.h"
 #include "../common/thread.h"
 
-#include "acceptor.h"
 #include "client_handler.h"
 #include "client_list.h"
 #include "game.h"

@@ -1,7 +1,7 @@
 #ifndef SERVER_THREAD_RECV_H
 #define SERVER_THREAD_RECV_H
 
-#include "../../common/base_protocol.h"
+#include "../../common/dto/server_msg.h"
 #include "../../common/queue.h"
 #include "../../common/thread.h"
 #include "../client_protocol.h"

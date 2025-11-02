@@ -10,19 +10,12 @@
 #include "../common/thread.h"
 
 #include "client_handler.h"
-#include "client_list.h"
-#include "game.h"
+#include "monitor_lobby.h"
 
 class Acceptor: public Thread {
 private:
     Socket skt_server;
-    Game& game;
-    ClientListProtected& clients;
-    Queue<ClientAction>& actions_clients;
-
-    void reap();
-    void clear();
-    void limpiar_jugadores(const std::vector<size_t>& ids);
+    MonitorLobby& lobby;
 
 public:
     /*
@@ -32,8 +25,7 @@ public:
      * El socket debe estar previamente creado y enlazado
      * al puerto de escucha.
      */
-    Acceptor(const char* puerto, Game& game, ClientListProtected& clients,
-             Queue<ClientAction>& actions_clients);
+    Acceptor(const char* puerto, MonitorLobby& lobby);
 
     void run() override;
 

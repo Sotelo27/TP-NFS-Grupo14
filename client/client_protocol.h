@@ -6,7 +6,8 @@
 
 #include "../common/constants.h"
 #include "../common/socket.h"
-#include "../common/base_protocol.h"
+#include "../common/dto/movement.h"
+#include "../common/dto/server_msg.h"
 
 class ClientProtocol {
 private:
@@ -20,6 +21,10 @@ public:
 
     // Send movement (enum Movement)
     void send_move(Movement mov);
+
+    // Rooms: crear / unirse
+    void send_create_room();
+    void send_join_room(uint8_t room_id);
 
     // Receive() returns ServerMessage DTO
     ServerMessage receive();

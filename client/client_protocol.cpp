@@ -31,6 +31,20 @@ void ClientProtocol::send_move(Movement mov) {
     skt.sendall(buf, sizeof(buf));
 }
 
+void ClientProtocol::send_create_room() {
+    uint8_t code = CODE_C2S_ROOM;
+    uint8_t sub = ROOM_CREATE;
+    char buf[2] = {static_cast<char>(code), static_cast<char>(sub)};
+    skt.sendall(buf, sizeof(buf));
+}
+
+void ClientProtocol::send_join_room(uint8_t room_id) {
+    uint8_t code = CODE_C2S_ROOM;
+    uint8_t sub = ROOM_JOIN;
+    char buf[3] = {static_cast<char>(code), static_cast<char>(sub), static_cast<char>(room_id)};
+    skt.sendall(buf, sizeof(buf));
+}
+
 ServerMessage ClientProtocol::receive() {
     ServerMessage dto;
     dto.type = ServerMessage::Type::Unknown;
@@ -56,6 +70,19 @@ ServerMessage ClientProtocol::receive() {
         dto.id = ntohl(id_be);
         dto.x = ntohs(x_be);
         dto.y = ntohs(y_be);
+    } else if (code == CODE_S2C_ROOMS) {
+        dto.type = ServerMessage::Type::Rooms;
+        uint8_t count = 0;
+        skt.recvall(&count, sizeof(count));
+        dto.rooms.clear();
+        dto.rooms.reserve(count);
+        for (uint8_t i = 0; i < count; ++i) {
+            RoomInfo rinfo{};
+            skt.recvall(&rinfo.id, sizeof(rinfo.id));
+            skt.recvall(&rinfo.current_players, sizeof(rinfo.current_players));
+            skt.recvall(&rinfo.max_players, sizeof(rinfo.max_players));
+            dto.rooms.push_back(rinfo);
+        }
     }
 
     return dto;

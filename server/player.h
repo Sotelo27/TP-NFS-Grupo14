@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "../common/base_protocol.h"
 #include "../common/car_model.h"
+#include "../common/dto/movement.h"
 
 class Player {
 private:

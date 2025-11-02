@@ -16,11 +16,17 @@ constexpr uint8_t CODE_NITRO_EXPIRED = 0x08;
 // Base protocol: Client -> Server
 constexpr uint8_t CODE_C2S_NAME = 0x01;
 constexpr uint8_t CODE_C2S_MOVE = 0x02;
+constexpr uint8_t CODE_C2S_ROOM = 0x03;  // crear/unirse a sala (payload con subcódigo)
 
 // Base protocol: Server -> Client
 constexpr uint8_t CODE_S2C_OK  = 0x30;
 constexpr uint8_t CODE_S2C_POS = 0x31;
 constexpr uint8_t CODE_S2C_YOUR_ID = 0x32;
+constexpr uint8_t CODE_S2C_ROOMS = 0x21; // listado de salas
+
+// Subcódigos para CODE_C2S_ROOM
+constexpr uint8_t ROOM_CREATE = 0x02;
+constexpr uint8_t ROOM_JOIN   = 0x03;
 
 constexpr std::string_view HIT_NITRO = "A car hit the nitro!";
 constexpr std::string_view OUT_NITRO = "A car is out of juice.";

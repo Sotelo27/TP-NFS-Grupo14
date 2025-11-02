@@ -31,6 +31,7 @@ add_library(taller_common STATIC)
 # add the source files that make the lib
 # HEY!! TODO XXX: add more subfolders here
 add_subdirectory(common/)
+add_subdirectory(common/dto/)
 
 
 # set compiler warnings to the targets

@@ -11,7 +11,7 @@
 
 class ClientListProtected {
 private:
-    std::list<std::unique_ptr<ClientHandler>> clients;
+    std::list<std::shared_ptr<ClientHandler>> clients;
     std::mutex m;
 
 public:
@@ -20,7 +20,7 @@ public:
     /*
      * Agrega un nuevo client a la list de clients.
      */
-    void agregar_client(std::unique_ptr<ClientHandler> client);
+    void agregar_client(std::shared_ptr<ClientHandler> client);
 
     /*
      * Elimina de la list de clients a todos los clients que ya no estén

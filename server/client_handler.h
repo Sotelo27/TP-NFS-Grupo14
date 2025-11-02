@@ -2,10 +2,12 @@
 #define CLIENT_HANDLER_H
 
 #include <utility>
+#include <vector>
 
+#include "../common/dto/room_info.h"
+#include "../common/player_aux.h"
 #include "../common/queue.h"
 #include "../common/thread.h"
-#include "../common/player_aux.h"
 
 #include "client_action.h"
 #include "client_thread_recv.h"
@@ -19,6 +21,8 @@ private:
     Queue<server_msg_pos> mensajes_a_enviar;
     ClientThreadRecv recv;
     ClientThreadSend send;
+    bool recv_started{false};
+    bool send_started{false};
 
 public:
     /*
@@ -26,14 +30,23 @@ public:
      * con el client, el id del client y una referencia a la cola de
      * actiones de clients, donde se pushearán las peticiones recibidas.
      */
-    explicit ClientHandler(Socket&& skt_client, size_t id,
-                            Queue<ClientAction>& actiones_clients);
+    explicit ClientHandler(Socket&& skt_client, size_t id, Queue<ClientAction>& actiones_clients);
 
     /*
      * Con `ClientHandler::ejecutar` se inician los hilos de recepción
      * y envío de mensajes.
      */
     void ejecutar();
+
+    /*
+     * Inicia solo el hilo de recepcion (para estado pendiente en lobby)
+     */
+    void start_recv_only();
+
+    /*
+     * Inicia solo el hilo de envio (al entrar a una sala)
+     */
+    void start_send_only();
 
     /*
      * Con `ClientHandler::is_alive` se puede consultar si ambos hilos
@@ -56,13 +69,19 @@ public:
      */
     size_t get_id();
 
+    // Enviar listado de salas a este cliente
+    void send_rooms_to_client(const std::vector<RoomInfo>& rooms);
+
+    // Enviar OK a este cliente
+    void send_ok_to_client();
+
     /*
      * Encola el envío de una posición (id,x,y,angle) al cliente
      */
     void server_enviar_pos(uint32_t id, int16_t x, int16_t y, float angle);
 
     /*
-     * Envia las posiciones de todos los jugadores al cliente. 
+     * Envia las posiciones de todos los jugadores al cliente.
      */
     void send_positions_to_all(const std::vector<PlayerPos>& positions);
 
