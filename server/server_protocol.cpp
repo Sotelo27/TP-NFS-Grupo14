@@ -12,15 +12,22 @@ void ServerProtocol::send_ok() {
     skt.sendall(&code, sizeof(code));
 }
 
-void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y) {
+static inline uint32_t htonf32(float f) {
+    uint32_t u;
+    std::memcpy(&u, &f, sizeof(u));
+    return htonl(u);
+}
+
+void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y, float angle) {
     uint8_t code = CODE_S2C_POS;
 
     uint32_t id_be = htonl(id);
     uint16_t x_be = htons((uint16_t)x);
     uint16_t y_be = htons((uint16_t)y);
+    uint32_t ang_be = htonf32(angle);
 
     std::vector<char> buf;
-    buf.reserve(1 + 4 + 2 + 2);
+    buf.reserve(1 + 4 + 2 + 2 + 4);
     buf.push_back((char)(code));
 
     size_t offset = buf.size();
@@ -35,7 +42,66 @@ void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y) {
     buf.resize(offset + 2);
     std::memcpy(buf.data() + offset, &y_be, 2);
 
+    offset = buf.size();
+    buf.resize(offset + 4);
+    std::memcpy(buf.data() + offset, &ang_be, 4);
+
     skt.sendall(buf.data(), buf.size());
+}
+
+void ServerProtocol::send_your_id(uint32_t id) {
+    uint8_t code = CODE_S2C_YOUR_ID;
+    uint32_t id_be = htonl(id);
+
+    char buf[1 + 4];
+    buf[0] = (char)code;
+    std::memcpy(buf + 1, &id_be, 4);
+    skt.sendall(buf, sizeof(buf));
+}
+
+void ServerProtocol::send_player_name(uint32_t id, const std::string& username) {
+    uint8_t code = CODE_S2C_PLAYER_NAME;
+    uint32_t id_be = htonl(id);
+    uint16_t len = static_cast<uint16_t>(username.size());
+    uint16_t len_be = htons(len);
+
+    std::vector<char> buf;
+    buf.reserve(1 + 4 + 2 + username.size());
+    buf.push_back(static_cast<char>(code));
+
+    size_t off = buf.size();
+    buf.resize(off + 4); std::memcpy(buf.data() + off, &id_be, 4);
+    off = buf.size();
+    buf.resize(off + 2); std::memcpy(buf.data() + off, &len_be, 2);
+    if (len > 0) {
+        off = buf.size();
+        buf.resize(off + username.size());
+        std::memcpy(buf.data() + off, username.data(), username.size());
+    }
+
+    skt.sendall(buf.data(), buf.size());
+}
+
+void ServerProtocol::send_rooms(const std::vector<RoomInfo>& rooms) {
+    uint8_t code = CODE_S2C_ROOMS;
+    uint8_t count = static_cast<uint8_t>(rooms.size());
+
+    std::vector<char> buf;
+    buf.reserve(1 + 1 + rooms.size() * 3);
+    buf.push_back(static_cast<char>(code));
+    buf.push_back(static_cast<char>(count));
+    for (const auto& r : rooms) {
+        buf.push_back(static_cast<char>(r.id));
+        buf.push_back(static_cast<char>(r.current_players));
+        buf.push_back(static_cast<char>(r.max_players));
+    }
+    skt.sendall(buf.data(), buf.size());
+}
+
+void ServerProtocol::send_room_created(uint8_t room_id) {
+    uint8_t code = CODE_S2C_ROOM_CREATED;
+    char buf[2] = {static_cast<char>(code), static_cast<char>(room_id)};
+    skt.sendall(buf, sizeof(buf));
 }
 
 void ServerProtocol::enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje) {
@@ -100,6 +166,19 @@ ClientMessage ServerProtocol::receive() {
 
         dto.type = ClientMessage::Type::Move;
         dto.movement = (Movement)mv;
+        
+    } else if (code == CODE_C2S_ROOM) {
+        uint8_t sub = 0;
+        skt.recvall(&sub, sizeof(sub));
+        dto.type = ClientMessage::Type::Room;
+        dto.room_cmd = sub;
+        if (sub == ROOM_JOIN) {
+            uint8_t room = 0;
+            skt.recvall(&room, sizeof(room));
+            dto.room_id = room;
+        }
+    } else if (code == CODE_C2S_EXIT) {
+        dto.type = ClientMessage::Type::Exit;
     }
 
     return dto;

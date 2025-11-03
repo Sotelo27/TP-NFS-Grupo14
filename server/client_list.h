@@ -11,7 +11,7 @@
 
 class ClientListProtected {
 private:
-    std::list<std::unique_ptr<ClientHandler>> clients;
+    std::list<std::shared_ptr<ClientHandler>> clients;
     std::mutex m;
 
 public:
@@ -20,7 +20,7 @@ public:
     /*
      * Agrega un nuevo client a la list de clients.
      */
-    void agregar_client(std::unique_ptr<ClientHandler> client);
+    void agregar_client(std::shared_ptr<ClientHandler> client);
 
     /*
      * Elimina de la list de clients a todos los clients que ya no estén
@@ -40,9 +40,9 @@ public:
     void clear(std::vector<size_t>& clients_eliminados);
 
     /*
-     * Enviar una posición (x,y) a un cliente específico por id.
+     * Enviar una posición (x,y,angle) a un cliente específico por id.
      */
-    void send_pos_to(size_t id, int16_t x, int16_t y);
+    void send_pos_to(size_t id, int16_t x, int16_t y, float angle);
 
     /*
      * Envia las posiciones de todos los jugadores a todos los clientes.

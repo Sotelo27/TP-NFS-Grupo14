@@ -9,7 +9,6 @@
 #include "../common/queue.h"
 #include "../common/thread.h"
 
-#include "acceptor.h"
 #include "client_handler.h"
 #include "client_list.h"
 #include "game.h"
@@ -34,7 +33,6 @@ public:
      */
     explicit Gameloop(Game& game, ClientListProtected& clients,
                       Queue<ClientAction>& actiones_clients);
-
     /*
      * Inicia el aceptor y el loop principal del servidor.
      */

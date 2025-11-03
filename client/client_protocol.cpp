@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <vector>
-
 #include <arpa/inet.h>
 
 #define MOVE_BUF 2
@@ -31,6 +30,25 @@ void ClientProtocol::send_move(Movement mov) {
     skt.sendall(buf, sizeof(buf));
 }
 
+void ClientProtocol::send_create_room() {
+    uint8_t code = CODE_C2S_ROOM;
+    uint8_t sub = ROOM_CREATE;
+    char buf[2] = {static_cast<char>(code), static_cast<char>(sub)};
+    skt.sendall(buf, sizeof(buf));
+}
+
+void ClientProtocol::send_join_room(uint8_t room_id) {
+    uint8_t code = CODE_C2S_ROOM;
+    uint8_t sub = ROOM_JOIN;
+    char buf[3] = {static_cast<char>(code), static_cast<char>(sub), static_cast<char>(room_id)};
+    skt.sendall(buf, sizeof(buf));
+}
+
+void ClientProtocol::send_exit() {
+    uint8_t code = CODE_C2S_EXIT;
+    skt.sendall(&code, sizeof(code));
+}
+
 ServerMessage ClientProtocol::receive() {
     ServerMessage dto;
     dto.type = ServerMessage::Type::Unknown;
@@ -56,6 +74,43 @@ ServerMessage ClientProtocol::receive() {
         dto.id = ntohl(id_be);
         dto.x = ntohs(x_be);
         dto.y = ntohs(y_be);
+    } else if (code == CODE_S2C_ROOMS) {
+        dto.type = ServerMessage::Type::Rooms;
+        uint8_t count = 0;
+        skt.recvall(&count, sizeof(count));
+        dto.rooms.clear();
+        dto.rooms.reserve(count);
+        for (uint8_t i = 0; i < count; ++i) {
+            RoomInfo rinfo{};
+            skt.recvall(&rinfo.id, sizeof(rinfo.id));
+            skt.recvall(&rinfo.current_players, sizeof(rinfo.current_players));
+            skt.recvall(&rinfo.max_players, sizeof(rinfo.max_players));
+            dto.rooms.push_back(rinfo);
+        }
+    } else if (code == CODE_S2C_PLAYER_NAME) {
+        // 0x33 <player_id u32> <len u16> <username>
+        uint32_t id_be = 0;
+        uint16_t len_be = 0;
+        skt.recvall(&id_be, sizeof(id_be));
+        skt.recvall(&len_be, sizeof(len_be));
+        const uint16_t len = ntohs(len_be);
+        std::vector<char> tmp(len);
+        if (len > 0) {
+            skt.recvall(tmp.data(), len);
+        }
+        dto.type = ServerMessage::Type::PlayerName; 
+        dto.id = ntohl(id_be);
+        dto.username.assign(tmp.begin(), tmp.end()); 
+    } else if (code == CODE_S2C_ROOM_CREATED) {
+        // Formato: 0x34 <room_id u8>
+        uint8_t room_id = 0;
+        skt.recvall(&room_id, sizeof(room_id));
+        dto.type = ServerMessage::Type::Rooms;
+        dto.rooms.clear();
+        dto.rooms.push_back(RoomInfo{room_id, 0, 0});
+    } else if (code == CODE_S2C_GAME_OVER) {
+        dto.type = ServerMessage::Type::GameOver;
+        // Si se define payload (ganador/estadísticas), parsearlo aquí.
     }
 
     return dto;

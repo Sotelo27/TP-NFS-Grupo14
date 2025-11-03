@@ -3,26 +3,26 @@
 
 #include <string>
 
-#include "../common/base_protocol.h"
-#include "car.h"
+#include "../common/car_model.h"
+#include "../common/dto/movement.h"
 
 class Player {
 private:
     size_t id = 0;
     std::string name;
-    Car car;
+    CarModel car;
 
 public:
-    explicit Player(size_t id, std::string name, Car car);
+    explicit Player(size_t id, std::string name, CarModel car);
     Player(size_t id);
-
-    void execute_movement(Movement mv);
-    void update(float dt) noexcept;
 
     size_t get_Id() const;
     const std::string& get_name() const;
     void set_name(std::string name);
-    Position get_Pose() const;
+
+    // Acceso al modelo (parametros fisicos) del auto
+    const CarModel& get_car_model() const noexcept { return car; }
+    void set_car_model(const CarModel& c) noexcept { car = c; }
 };
 
 #endif

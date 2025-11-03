@@ -8,20 +8,19 @@
 #include <utility>
 #include <vector>
 
-#include "../common/base_protocol.h"
 #include "../common/constants.h"
 
 Gameloop::Gameloop(Game& game, ClientListProtected& clients, Queue<ClientAction>& actiones_clients):
-        game(game), clients(clients), actiones_clients(actiones_clients) {}
+    game(game), clients(clients), actiones_clients(actiones_clients) {}
 
 void Gameloop::procesar_actiones() {
     ClientAction action;
     while (actiones_clients.try_pop(action)) {
         try {
             std::cout << "Received action from client " << action.id << ": "
-                      << "Type=" << static_cast<int>(action.type)
+                      << "Type=" << (int)(action.type)
                       << ", Username=" << action.username
-                      << ", Movement=" << static_cast<int>(action.movement) << "\n";
+                      << ", Movement=" << (int)(action.movement) << "\n";
 
             if (action.type == ClientAction::Type::Move) {
                 // Aplicar movimiento en el dominio
@@ -29,9 +28,13 @@ void Gameloop::procesar_actiones() {
             } else if (action.type == ClientAction::Type::Name) {
                 std::cout << "Bienvenido " << action.username << " (id " << action.id << ")\n";
                 game.set_player_name(action.id, std::move(action.username));
-
                 // Aqui faltaria lo de enviar OK al cliente por su hilo de envio
-                // asi el cliente sabe que se logeeo correctamente
+            } else if (action.type == ClientAction::Type::Room) {
+                std::cout << "Room action from client " << action.id
+                          << " cmd=" << (int)action.room_cmd << " room=" << (int)action.room_id
+                          << "\n";
+                // TODO: Integrar con MonitorLobby (crear/unirse y validar cupo) - ahora lo maneja
+                // MonitorLobby
             }
 
         } catch (const std::exception& err) {
@@ -42,11 +45,11 @@ void Gameloop::procesar_actiones() {
 }
 
 void Gameloop::iteracion_game() {
-    const float dt = 0.25f;  // 250 ms
+    const float dt = 0.016f;
     game.update(dt);
     auto positions = game.players_positions();
     clients.broadcast_player_positions(positions);
-    std::cout << "Broadcasted positions of " << positions.size() << " players.\n";
+    // std::cout << "Broadcasted positions of " << positions.size() << " players.\n";
 }
 
 void Gameloop::run() {
@@ -54,7 +57,7 @@ void Gameloop::run() {
         try {
             procesar_actiones();
             iteracion_game();
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
         } catch (const std::exception& err) {
             std::cerr << "Something went wrong and an exception was caught: " << err.what() << "\n";
         }

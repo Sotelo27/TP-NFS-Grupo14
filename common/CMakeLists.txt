@@ -16,5 +16,5 @@ target_sources(taller_common
     socket.h
     thread.h
     foo.h
-    base_protocol.h
+    car_model.h
     )

@@ -3,10 +3,13 @@
 
 #include <cstdint>
 #include <utility>
+#include <vector>
+#include <string>
 
 #include "../common/constants.h"
 #include "../common/socket.h"
-#include "../common/base_protocol.h"
+#include "../common/dto/client_msg.h"
+#include "../common/dto/room_info.h"
 
 class ServerProtocol {
 private:
@@ -18,8 +21,20 @@ public:
     // Server: send OK
     void send_ok();
 
-    // Server: send position (id,x,y)
-    void send_pos(uint32_t id, int16_t x, int16_t y);
+    // Server: send position (id,x,y,angle)
+    void send_pos(uint32_t id, int16_t x, int16_t y, float angle);
+
+    // Server: send your id to client
+    void send_your_id(uint32_t id);
+
+    // Server: send player username (player_id, length, username)
+    void send_player_name(uint32_t id, const std::string& username);
+
+    // Server: send listado de salas (id, current, max)
+    void send_rooms(const std::vector<RoomInfo>& rooms);
+
+    // Server: enviar id de sala recién creada
+    void send_room_created(uint8_t room_id);
 
     // Server: receive() returns ClientMessage (base)
     ClientMessage receive();

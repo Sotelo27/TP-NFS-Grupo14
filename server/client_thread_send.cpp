@@ -8,7 +8,7 @@ void ClientThreadSend::run() {
     while (should_keep_running()) {
         try {
             server_msg_pos msg = mensajes_a_enviar.pop();
-            protocol.send_pos(msg.id, msg.x, msg.y);
+            protocol.send_pos(msg.id, msg.x, msg.y, msg.angle);
         } catch (const std::exception& e) {
             if (!should_keep_running()) {
                 break;

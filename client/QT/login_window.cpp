@@ -67,6 +67,17 @@ void LoginWindow::onLoginClicked() {
         return;
     }
 
+    // TODO (protocolo): Enviar nombre al servidor antes de mostrar el lobby.
+    // Por ejemplo podemos hacer un wrapper en la capa Client/ServerHandler:
+    //   client.send_username(username.toStdString());
+    //
+    // TODO (protocolo): Solicitar/esperar el listado de salas (ServerMessage::Type::Rooms).
+    //   - Al recibir Rooms (vector<RoomInfo>), poblar una vista en Qt (lista/botones).
+    //   - Al presionar "Crear sala": client.create_room();  (internamente: ClientProtocol::send_create_room())
+    //   - Al presionar "Unirse a sala": client.join_room(roomId); (internamente: ClientProtocol::send_join_room(roomId))
+    //   - El server volverá a enviar Rooms para refrescar cupos o un OK; actualizar UI en consecuencia.
+    //
+
     this->close();
-    client.start();
+    client.start();  // No toco el flujo actual del sdl.
 }
