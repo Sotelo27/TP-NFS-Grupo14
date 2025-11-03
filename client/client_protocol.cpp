@@ -83,6 +83,19 @@ ServerMessage ClientProtocol::receive() {
             skt.recvall(&rinfo.max_players, sizeof(rinfo.max_players));
             dto.rooms.push_back(rinfo);
         }
+    } else if (code == CODE_S2C_PLAYER_NAME) {
+        // Formato: 0x33 <player_id u32> <len u16> <username bytes>
+        uint32_t id_be = 0;
+        uint16_t len_be = 0;
+        skt.recvall(&id_be, sizeof(id_be));
+        skt.recvall(&len_be, sizeof(len_be));
+        uint16_t len = ntohs(len_be);
+        std::vector<char> tmp;
+        tmp.resize(len);
+        if (len > 0) {
+            skt.recvall(tmp.data(), len);
+        }
+        dto.type = ServerMessage::Type::Unknown;
     }
 
     return dto;
