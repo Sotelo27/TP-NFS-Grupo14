@@ -101,6 +101,13 @@ ServerMessage ClientProtocol::receive() {
         dto.type = ServerMessage::Type::PlayerName; 
         dto.id = ntohl(id_be);
         dto.username.assign(tmp.begin(), tmp.end()); 
+    } else if (code == CODE_S2C_YOUR_ID) {
+        // 0x32 <player_id u32>
+        uint32_t id_be = 0;
+        skt.recvall(&id_be, sizeof(id_be));
+        dto.id = ntohl(id_be);
+        // Si el DTO soporta un tipo específico:
+        dto.type = ServerMessage::Type::YourId; // si no existe, se puede dejar Unknown
     } else if (code == CODE_S2C_ROOM_CREATED) {
         // Formato: 0x34 <room_id u8>
         uint8_t room_id = 0;
