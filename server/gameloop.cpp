@@ -11,16 +11,16 @@
 #include "../common/constants.h"
 
 Gameloop::Gameloop(Game& game, ClientListProtected& clients, Queue<ClientAction>& actiones_clients):
-        game(game), clients(clients), actiones_clients(actiones_clients) {}
+    game(game), clients(clients), actiones_clients(actiones_clients) {}
 
 void Gameloop::procesar_actiones() {
     ClientAction action;
     while (actiones_clients.try_pop(action)) {
         try {
             std::cout << "Received action from client " << action.id << ": "
-                      << "Type=" << static_cast<int>(action.type)
+                      << "Type=" << (int)(action.type)
                       << ", Username=" << action.username
-                      << ", Movement=" << static_cast<int>(action.movement) << "\n";
+                      << ", Movement=" << (int)(action.movement) << "\n";
 
             if (action.type == ClientAction::Type::Move) {
                 // Aplicar movimiento en el dominio
@@ -49,7 +49,7 @@ void Gameloop::iteracion_game() {
     game.update(dt);
     auto positions = game.players_positions();
     clients.broadcast_player_positions(positions);
-    //std::cout << "Broadcasted positions of " << positions.size() << " players.\n";
+    // std::cout << "Broadcasted positions of " << positions.size() << " players.\n";
 }
 
 void Gameloop::run() {

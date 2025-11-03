@@ -28,6 +28,7 @@ size_t Game::add_player() { // Luego necesito que reciba un player o el  nombre 
     }
 
     players.emplace(id_indice, Player{id_indice});
+    std::cout << "[Game] Added player with id=" << id_indice << "\n";
 
     // Agregar jugador a la race minima con su CarModel y una posición inicial segura lejos de bordes
     // El CarModel se obtiene del player recién creado
@@ -86,5 +87,6 @@ void Game::set_player_name(size_t id, std::string name) {
     if (!jugador_existe_auxiliar(id)) {
         throw_jugador_no_existe(id);
     }
+    std::cout << "[Game] Setting name for player id=" << id << ": '" << name << "'\n";
     players.at(id).set_name(std::move(name));
 }

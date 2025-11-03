@@ -33,7 +33,6 @@ public:
      */
     explicit Gameloop(Game& game, ClientListProtected& clients,
                       Queue<ClientAction>& actiones_clients);
-
     /*
      * Inicia el aceptor y el loop principal del servidor.
      */
