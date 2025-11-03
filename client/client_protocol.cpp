@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <vector>
-
 #include <arpa/inet.h>
 
 #define MOVE_BUF 2
@@ -43,6 +42,11 @@ void ClientProtocol::send_join_room(uint8_t room_id) {
     uint8_t sub = ROOM_JOIN;
     char buf[3] = {static_cast<char>(code), static_cast<char>(sub), static_cast<char>(room_id)};
     skt.sendall(buf, sizeof(buf));
+}
+
+void ClientProtocol::send_exit() {
+    uint8_t code = CODE_C2S_EXIT;
+    skt.sendall(&code, sizeof(code));
 }
 
 ServerMessage ClientProtocol::receive() {
@@ -90,12 +94,29 @@ ServerMessage ClientProtocol::receive() {
         skt.recvall(&id_be, sizeof(id_be));
         skt.recvall(&len_be, sizeof(len_be));
         uint16_t len = ntohs(len_be);
-        std::vector<char> tmp;
-        tmp.resize(len);
+        std::vector<char> tmp(len);
         if (len > 0) {
             skt.recvall(tmp.data(), len);
         }
-        dto.type = ServerMessage::Type::Unknown;
+        // requiere agregar en ServerMessage:
+        //  - enum Type::PlayerName
+        //  - campo uint32_t id; (player_id)
+        //  - campo std::string username;
+        dto.type = ServerMessage::Type::PlayerName;
+        dto.id = ntohl(id_be);
+        dto.username.assign(tmp.begin(), tmp.end());
+    } else if (code == CODE_S2C_ROOM_CREATED) {
+        // Formato: 0x34 <room_id u8>
+        uint8_t room_id = 0;
+        skt.recvall(&room_id, sizeof(room_id));
+        // Reutilizo el DTO Rooms: una entrada con solo ROOM-ID
+        dto.type = ServerMessage::Type::Rooms;
+        dto.rooms.clear();
+        dto.rooms.push_back(RoomInfo{room_id, 0, 0});
+    } else if (code == CODE_S2C_GAME_OVER) {
+        // requiere agregar en ServerMessage enum Type::GameOver
+        dto.type = ServerMessage::Type::GameOver;
+        // Si se define payload (ganador/estadísticas), parsearlo aquí.
     }
 
     return dto;

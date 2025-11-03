@@ -26,6 +26,9 @@ public:
     void send_create_room();
     void send_join_room(uint8_t room_id);
 
+    // Exit match
+    void send_exit();
+
     // Receive() returns ServerMessage DTO
     ServerMessage receive();
 
