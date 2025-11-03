@@ -94,3 +94,11 @@ void ClientHandler::send_ok_to_client() {
         std::cerr << "Error sending OK to client " << id << ": " << e.what() << "\n";
     }
 }
+
+void ClientHandler::send_your_id_to_client(uint32_t pid) {
+    try {
+        protocol.send_your_id(pid);
+    } catch (const std::exception& e) {
+        std::cerr << "Error sending YOUR_ID to client " << id << ": " << e.what() << "\n";
+    }
+}

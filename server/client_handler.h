@@ -75,6 +75,9 @@ public:
     // Enviar OK a este cliente
     void send_ok_to_client();
 
+    // Enviar al cliente su propio id asignado en la sala
+    void send_your_id_to_client(uint32_t id);
+
     /*
      * Encola el envío de una posición (id,x,y,angle) al cliente
      */

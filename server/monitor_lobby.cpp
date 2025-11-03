@@ -14,6 +14,7 @@ size_t MonitorLobby::reserve_connection_id() {
 void MonitorLobby::add_pending_connection(std::shared_ptr<ClientHandler> ch, size_t conn_id) {
     std::lock_guard<std::mutex> lk(m);
     pending.emplace(conn_id, std::move(ch));
+    std::cout << "[Lobby] New pending connection conn_id=" << conn_id << "\n";
     // Enviar listado de salas actual al cliente que acaba de entrar
     auto it = pending.find(conn_id);
     if (it != pending.end() && it->second) {
@@ -67,6 +68,7 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players) {
     uint8_t rid = next_room_id++;
 
     auto [it, _] = rooms.try_emplace(rid, rid, nitro_duracion, max_players);
+    std::cout << "[Lobby] Created room id=" << (int)rid << ", max_players=" << (int)max_players << "\n";
 
     start_room_loop_locked(it->second);
     return rid;
@@ -100,6 +102,7 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     // Nombre pendiente -> setear en Game
     auto pn = pending_names.find(conn_id);
     if (pn != pending_names.end()) {
+        std::cout << "[Lobby] Applying pending name for conn_id=" << conn_id << ": '" << pn->second << "'\n";
         itr->second.game.set_player_name(player_id, pn->second);
         pending_names.erase(pn);
     }
@@ -109,6 +112,11 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
 
     // Arrancar hilo de envio ahora que esta en sala ya que recv en este caso ya estaria activo
     handler->start_send_only();
+
+    // Aca se informa  al cliente su player_id para que renderice correctamente
+    handler->send_your_id_to_client((uint32_t)(player_id));
+    std::cout << "[Lobby] conn_id=" << conn_id << " joined room_id=" << (int)room_id
+              << " as player_id=" << player_id << "\n";
 
     return true;
 }
@@ -171,9 +179,11 @@ void MonitorLobby::run() {
                         (void)rid;
                         broadcast_rooms_to_pending_locked();
                         // Unir automáticamente al creador
+                        std::cout << "[Lobby] Auto-joining creator conn_id=" << act.id << " into room_id=" << (int)rid << "\n";
                         join_room_locked(act.id, rid);
                         broadcast_rooms_to_pending_locked();
                     } else if (act.room_cmd == ROOM_JOIN) {
+                        std::cout << "[Lobby] JOIN request conn_id=" << act.id << " -> room_id=" << (int)act.room_id << "\n";
                         if (join_room_locked(act.id, act.room_id)) {
                             broadcast_rooms_to_pending_locked();
                         }
@@ -183,11 +193,13 @@ void MonitorLobby::run() {
                     auto itb = bindings.find(act.id);
                     if (itb == bindings.end()) {
                         pending_names[act.id] = act.username;
+                        std::cout << "[Lobby] Stored pending name for conn_id=" << act.id << ": '" << act.username << "'\n";
                     } else {
                         auto rid = itb->second.first;
                         auto pid = itb->second.second;
                         auto itr = rooms.find((uint8_t)rid);
                         if (itr != rooms.end()) {
+                            std::cout << "[Lobby] Applying name to player_id=" << pid << " in room_id=" << (int)rid << ": '" << act.username << "'\n";
                             itr->second.game.set_player_name(pid, std::move(act.username));
                         }
                     }
@@ -200,6 +212,7 @@ void MonitorLobby::run() {
                         auto itp = pending.find(act.id);
                         if (itp != pending.end() && itp->second) {
                             itp->second->send_rooms_to_client(list_rooms_locked());
+                            std::cout << "[Lobby] MOVE from conn_id=" << act.id << " ignored (not in room). Sent rooms list again.\n";
                         }
                         continue;
                     }
@@ -209,6 +222,10 @@ void MonitorLobby::run() {
                     if (itr != rooms.end()) {
                         ClientAction routed(pid, act.movement);
                         itr->second.actions.push(routed);
+                        // Debug de ruteo: muestra de qué conexión y hacia qué sala/player se envió el movimiento
+                        std::cout << "[Lobby] Routed MOVE from conn_id=" << act.id
+                                  << " -> room_id=" << (int)rid
+                                  << ", player_id=" << pid << "\n";
                     }
                 }
             }
