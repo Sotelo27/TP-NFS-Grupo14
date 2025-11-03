@@ -23,6 +23,7 @@ constexpr uint8_t CODE_S2C_OK  = 0x30;
 constexpr uint8_t CODE_S2C_POS = 0x31;
 constexpr uint8_t CODE_S2C_YOUR_ID = 0x32;
 constexpr uint8_t CODE_S2C_ROOMS = 0x21; // listado de salas
+constexpr uint8_t CODE_S2C_PLAYER_NAME = 0x33; // (id, length, username)
 
 // Subcódigos para CODE_C2S_ROOM
 constexpr uint8_t ROOM_CREATE = 0x02;
