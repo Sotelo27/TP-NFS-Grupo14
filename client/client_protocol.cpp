@@ -88,33 +88,27 @@ ServerMessage ClientProtocol::receive() {
             dto.rooms.push_back(rinfo);
         }
     } else if (code == CODE_S2C_PLAYER_NAME) {
-        // Formato: 0x33 <player_id u32> <len u16> <username bytes>
+        // 0x33 <player_id u32> <len u16> <username>
         uint32_t id_be = 0;
         uint16_t len_be = 0;
         skt.recvall(&id_be, sizeof(id_be));
         skt.recvall(&len_be, sizeof(len_be));
-        uint16_t len = ntohs(len_be);
+        const uint16_t len = ntohs(len_be);
         std::vector<char> tmp(len);
         if (len > 0) {
             skt.recvall(tmp.data(), len);
         }
-        // requiere agregar en ServerMessage:
-        //  - enum Type::PlayerName
-        //  - campo uint32_t id; (player_id)
-        //  - campo std::string username;
-        dto.type = ServerMessage::Type::PlayerName;
+        dto.type = ServerMessage::Type::PlayerName; 
         dto.id = ntohl(id_be);
-        dto.username.assign(tmp.begin(), tmp.end());
+        dto.username.assign(tmp.begin(), tmp.end()); 
     } else if (code == CODE_S2C_ROOM_CREATED) {
         // Formato: 0x34 <room_id u8>
         uint8_t room_id = 0;
         skt.recvall(&room_id, sizeof(room_id));
-        // Reutilizo el DTO Rooms: una entrada con solo ROOM-ID
         dto.type = ServerMessage::Type::Rooms;
         dto.rooms.clear();
         dto.rooms.push_back(RoomInfo{room_id, 0, 0});
     } else if (code == CODE_S2C_GAME_OVER) {
-        // requiere agregar en ServerMessage enum Type::GameOver
         dto.type = ServerMessage::Type::GameOver;
         // Si se define payload (ganador/estadísticas), parsearlo aquí.
     }
