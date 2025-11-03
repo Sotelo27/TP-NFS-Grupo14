@@ -7,7 +7,7 @@
 #include "movement.h"
 
 struct ClientMessage {
-    enum class Type { Name, Move, Room, Unknown } type = Type::Unknown;
+    enum class Type { Name, Move, Room, Exit, Unknown } type = Type::Unknown;
 
     std::string username;
     Movement movement = Movement::Up;
