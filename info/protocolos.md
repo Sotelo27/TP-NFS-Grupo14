@@ -121,3 +121,9 @@
 - **Fin de partida**
 
 - 0x26
+
+- **Nombre de jugador (id + username)**
+- 0x33 <PLAYER-ID> <LENGTH> <USERNAME>
+    - PLAYER-ID cuatro bytes big endian con el id del jugador dentro de la sala.
+    - LENGTH longitud del nombre de usuario (dos bytes big endian).
+    - USERNAME string con el nombre de usuario.
