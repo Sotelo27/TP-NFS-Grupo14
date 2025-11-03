@@ -10,6 +10,9 @@
 #include "../common/socket.h"
 #include "../common/dto/client_msg.h"
 #include "../common/dto/room_info.h"
+#include "../common/dto/car_info.h"
+#include "../common/dto/results_info.h"
+#include "../common/dto/map_tick_info.h"
 
 class ServerProtocol {
 private:
@@ -49,6 +52,21 @@ public:
      * Enviar lista/paquete de rooms por defecto (compatibilidad).
      */
     void enviar_rooms_default();
+
+    // --- Nuevos envíos S2C según enunciado ---
+    void send_cars_list(const std::vector<CarInfo>& cars);
+
+    // Race start
+    // checkpoints opcional: pares (x,y) en 32 bits big endian (si no se usa, pasar vector vacío)
+    void send_race_start(const std::string& map, uint8_t amount_checkpoints,
+                         const std::vector<std::pair<int32_t,int32_t>>& checkpoints);
+
+    void send_results(const std::vector<PlayerResultCurrent>& current,
+                      const std::vector<PlayerResultTotal>& total);
+
+    void send_map_info(const std::vector<PlayerTickInfo>& players,
+                       const std::vector<NpcTickInfo>& npcs,
+                       const std::vector<EventInfo>& events);
 
     bool is_recv_closed() const { return skt.is_stream_recv_closed(); }
     void shutdown(int mode) { skt.shutdown(mode); }
