@@ -14,6 +14,11 @@ constexpr int WINDOW_HEIGHT = 1080;
 constexpr int MAP_WIDTH_SIZE = 720;
 constexpr int MAP_HEIGHT_SIZE = 405;
 
+constexpr float MAP_TO_VIEWPORT_SCALE_X =
+            static_cast<float>(WINDOW_WIDTH) / MAP_WIDTH_SIZE;  // 2.6667
+constexpr float MAP_TO_VIEWPORT_SCALE_Y =
+            static_cast<float>(WINDOW_HEIGHT) / MAP_HEIGHT_SIZE;  // 2.6667
+
 // Car size in relation to the screen
 constexpr int CAR_WIDTH_SMALL = 80;
 constexpr int CAR_HEIGHT_SMALL = 80;
