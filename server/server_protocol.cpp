@@ -59,6 +59,29 @@ void ServerProtocol::send_your_id(uint32_t id) {
     skt.sendall(buf, sizeof(buf));
 }
 
+void ServerProtocol::send_player_name(uint32_t id, const std::string& username) {
+    uint8_t code = CODE_S2C_PLAYER_NAME;
+    uint32_t id_be = htonl(id);
+    uint16_t len = static_cast<uint16_t>(username.size());
+    uint16_t len_be = htons(len);
+
+    std::vector<char> buf;
+    buf.reserve(1 + 4 + 2 + username.size());
+    buf.push_back(static_cast<char>(code));
+
+    size_t off = buf.size();
+    buf.resize(off + 4); std::memcpy(buf.data() + off, &id_be, 4);
+    off = buf.size();
+    buf.resize(off + 2); std::memcpy(buf.data() + off, &len_be, 2);
+    if (len > 0) {
+        off = buf.size();
+        buf.resize(off + username.size());
+        std::memcpy(buf.data() + off, username.data(), username.size());
+    }
+
+    skt.sendall(buf.data(), buf.size());
+}
+
 void ServerProtocol::send_rooms(const std::vector<RoomInfo>& rooms) {
     uint8_t code = CODE_S2C_ROOMS;
     uint8_t count = static_cast<uint8_t>(rooms.size());

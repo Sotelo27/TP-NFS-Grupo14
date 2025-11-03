@@ -102,3 +102,11 @@ void ClientHandler::send_your_id_to_client(uint32_t pid) {
         std::cerr << "Error sending YOUR_ID to client " << id << ": " << e.what() << "\n";
     }
 }
+
+void ClientHandler::send_player_name_to_client(uint32_t pid, const std::string& username) {
+    try {
+        protocol.send_player_name(pid, username);
+    } catch (const std::exception& e) {
+        std::cerr << "Error sending PLAYER_NAME to client " << id << ": " << e.what() << "\n";
+    }
+}

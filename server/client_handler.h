@@ -78,6 +78,9 @@ public:
     // Enviar al cliente su propio id asignado en la sala
     void send_your_id_to_client(uint32_t id);
 
+    // Enviar el username de un player (id, username)
+    void send_player_name_to_client(uint32_t id, const std::string& username);
+
     /*
      * Encola el envío de una posición (id,x,y,angle) al cliente
      */

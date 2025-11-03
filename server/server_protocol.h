@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <utility>
 #include <vector>
+#include <string>
 
 #include "../common/constants.h"
 #include "../common/socket.h"
@@ -25,6 +26,9 @@ public:
 
     // Server: send your id to client
     void send_your_id(uint32_t id);
+
+    // Server: send player username (player_id, length, username)
+    void send_player_name(uint32_t id, const std::string& username);
 
     // Server: send listado de salas (id, current, max)
     void send_rooms(const std::vector<RoomInfo>& rooms);

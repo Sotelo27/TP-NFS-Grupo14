@@ -104,6 +104,10 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     if (pn != pending_names.end()) {
         std::cout << "[Lobby] Applying pending name for conn_id=" << conn_id << ": '" << pn->second << "'\n";
         itr->second.game.set_player_name(player_id, pn->second);
+        // Enviar al cliente su username asociado a su player_id
+        if (handler) {
+            handler->send_player_name_to_client(static_cast<uint32_t>(player_id), pn->second);
+        }
         pending_names.erase(pn);
     }
 
