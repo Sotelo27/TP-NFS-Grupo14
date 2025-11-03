@@ -13,20 +13,32 @@ constexpr uint8_t CODE_SERVER_MSG = 0x10;
 constexpr uint8_t CODE_NITRO_ACTIVATED = 0x07;
 constexpr uint8_t CODE_NITRO_EXPIRED = 0x08;
 
-// Base protocol: Client -> Server
+// Base protocol: Client -> Server 
 constexpr uint8_t CODE_C2S_NAME = 0x01;
 constexpr uint8_t CODE_C2S_MOVE = 0x02;
-constexpr uint8_t CODE_C2S_ROOM = 0x03;  // crear/unirse a sala (payload con subcódigo)
-constexpr uint8_t CODE_C2S_EXIT = 0x09;  // cliente pide finalizar partida (exit)
+constexpr uint8_t CODE_C2S_ROOM = 0x03;
+constexpr uint8_t CODE_C2S_EXIT = 0x09;
 
-// Base protocol: Server -> Client
+// Nuevos C2S 
+constexpr uint8_t CODE_C2S_START_GAME  = 0x0A;
+constexpr uint8_t CODE_C2S_CHOOSE_CAR  = 0x0B;
+constexpr uint8_t CODE_C2S_IMPROVEMENT = 0x0C;
+constexpr uint8_t CODE_C2S_CHEAT       = 0x0D;
+
+// Base protocol: Server -> Client 
 constexpr uint8_t CODE_S2C_OK  = 0x30;
 constexpr uint8_t CODE_S2C_POS = 0x31;
 constexpr uint8_t CODE_S2C_YOUR_ID = 0x32;
-constexpr uint8_t CODE_S2C_ROOMS = 0x21; // listado de salas
-constexpr uint8_t CODE_S2C_PLAYER_NAME = 0x33; // (id, length, username)
-constexpr uint8_t CODE_S2C_ROOM_CREATED = 0x34; // (room_id)
-constexpr uint8_t CODE_S2C_GAME_OVER = 0x26;    // fin de partida
+constexpr uint8_t CODE_S2C_ROOMS = 0x21;
+constexpr uint8_t CODE_S2C_PLAYER_NAME = 0x33;
+constexpr uint8_t CODE_S2C_ROOM_CREATED = 0x34;
+constexpr uint8_t CODE_S2C_GAME_OVER = 0x26;
+
+// Nuevos S2C (usar valores libres, distintos de los existentes)
+constexpr uint8_t CODE_S2C_CAR_LIST   = 0x22;
+constexpr uint8_t CODE_S2C_RACE_START = 0x23;
+constexpr uint8_t CODE_S2C_RESULTS    = 0x24;
+constexpr uint8_t CODE_S2C_MAP_INFO   = 0x25;
 
 // Subcódigos para CODE_C2S_ROOM
 constexpr uint8_t ROOM_CREATE = 0x02;
