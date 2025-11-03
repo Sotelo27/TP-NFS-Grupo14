@@ -47,43 +47,45 @@ void ClientGame::start() {
         update_animation_frames(map_data, car_sprites);
 
         render_in_z_order(window, map_manager, car_sprites);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
 }
 
 void ClientGame::update_state_from_position() {
     SDL_Event event;
 
-    // Para el alumno: Buscar diferencia entre waitEvent y pollEvent
-    SDL_WaitEvent(&event);
-    switch (event.type) {
-        case SDL_KEYDOWN: {
-            const SDL_KeyboardEvent& keyEvent = (SDL_KeyboardEvent&)event;
-            switch (keyEvent.keysym.sym) {
-                case SDLK_LEFT:
-                    server_handler.send_movement(Movement::Left);
-                    std::cout << "Left key pressed, send action to server." << std::endl;
-                    break;
-                case SDLK_RIGHT:
-                    server_handler.send_movement(Movement::Right);
-                    std::cout << "Right key pressed, send action to server." << std::endl;
-                    break;
-                case SDLK_UP:
-                    server_handler.send_movement(Movement::Up);
-                    std::cout << "Up key pressed, send action to server." << std::endl;
-                    break;
-                case SDLK_DOWN:
-                    server_handler.send_movement(Movement::Down);
-                    std::cout << "Down key pressed, send action to server." << std::endl;
-                    break;
-            }
-        }  // Fin KEY_DOWN
-        break;
-        case SDL_MOUSEMOTION:
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_KEYDOWN: {
+                const SDL_KeyboardEvent& keyEvent = (SDL_KeyboardEvent&)event;
+                switch (keyEvent.keysym.sym) {
+                    case SDLK_LEFT:
+                        server_handler.send_movement(Movement::Left);
+                        std::cout << "Left key pressed, send action to server." << std::endl;
+                        break;
+                    case SDLK_RIGHT:
+                        server_handler.send_movement(Movement::Right);
+                        std::cout << "Right key pressed, send action to server." << std::endl;
+                        break;
+                    case SDLK_UP:
+                        server_handler.send_movement(Movement::Up);
+                        std::cout << "Up key pressed, send action to server." << std::endl;
+                        break;
+                    case SDLK_DOWN:
+                        server_handler.send_movement(Movement::Down);
+                        std::cout << "Down key pressed, send action to server." << std::endl;
+                        break;
+                }
+            }  // Fin KEY_DOWN
             break;
-        case SDL_QUIT:
-            std::cout << "Quit :(" << std::endl;
-            running = false;
-            break;
+            case SDL_MOUSEMOTION:
+                break;
+            case SDL_QUIT:
+                std::cout << "Quit :(" << std::endl;
+                running = false;
+                break;
+        }
     }
 
     ServerMessage action;
