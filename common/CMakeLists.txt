@@ -17,4 +17,8 @@ target_sources(taller_common
     thread.h
     foo.h
     car_model.h
+    # --- nuevos DTO usados por los métodos de ServerProtocol ---
+    dto/car_info.h
+    dto/results_info.h
+    dto/map_tick_info.h
     )

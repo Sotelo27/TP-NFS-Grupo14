@@ -12,20 +12,24 @@ struct ServerMessage {
         Ok,
         Pos,
         Rooms,
-        YourId,
-        Unknown,
         PlayerName,
-        GameOver
+        YourId,
+        GameOver,
+        Unknown
     } type{Type::Unknown};
 
+    // Campos comunes / reutilizados por varios tipos
     uint32_t id{0};
-    int16_t x{0}, y{0};
-    float angle{0.0f};
 
-    // Listado de salas
+    // Para Pos
+    uint16_t x{0};
+    uint16_t y{0};
+    float angle{0.0f}; // agregado: ángulo en radianes (S2C_POS)
+
+    // Para Rooms
     std::vector<RoomInfo> rooms;
 
-    // Nuevo: para CODE_S2C_PLAYER_NAME
+    // Para PlayerName
     std::string username;
 };
 

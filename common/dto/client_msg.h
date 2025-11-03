@@ -3,18 +3,43 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "movement.h"
 
 struct ClientMessage {
-    enum class Type { Name, Move, Room, Exit, Unknown } type = Type::Unknown;
+    enum class Type {
+        Name,
+        Move,
+        Room,
+        Exit,
+        StartGame,
+        ChooseCar,
+        Improvement,
+        Cheat,
+        Unknown
+    } type = Type::Unknown;
 
-    std::string username;
-    Movement movement = Movement::Up;
+    // Identidad / datos básicos
+    std::string username{};
+    Movement movement{};
 
-    // Sala: subcódigo y room id (si join)
-    uint8_t room_cmd = 0;  // ROOM_CREATE | ROOM_JOIN
-    uint8_t room_id = 0;   // válido con ROOM_JOIN
+    // Acciones de sala
+    uint8_t room_cmd{0};
+    uint8_t room_id{0};
+
+    // StartGame: vector de carreras (map, route)
+    std::vector<std::pair<std::string, uint8_t>> races;
+
+    // ChooseCar
+    uint8_t car_id{0};
+
+    // Improvement
+    uint8_t improvement{0};
+
+    // Cheat
+    uint8_t cheat{0};
 };
 
 #endif
