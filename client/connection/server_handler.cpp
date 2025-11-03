@@ -39,4 +39,4 @@ void ServerHandler::hard_kill() {
     }
 }
 
-void ServerHandler::send_movement(Movement mov) { messages_send.push(client_msg_pos{mov}); }
+void ServerHandler::send_movement(Movement mov) { messages_send.try_push(client_msg_pos{mov}); }
