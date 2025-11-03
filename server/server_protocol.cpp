@@ -313,22 +313,43 @@ ClientMessage ServerProtocol::receive() {
             dto.room_id = room;
         }
     } else if (code == CODE_C2S_START_GAME) {
-        uint8_t qty = 0; skt.recvall(&qty, sizeof(qty));
-        for (uint8_t i=0;i<qty;++i){
-            uint16_t lbe=0; skt.recvall(&lbe,2);
-            uint16_t l=ntohs(lbe);
-            std::vector<char> map(l); if(l) skt.recvall(map.data(), l);
-            uint8_t route=0; skt.recvall(&route,1);
+        // 0x0A <QUANTITY-RACES u8> [ <LENGTH u16> <MAP bytes> <ROUTE u8> ]...
+        uint8_t qty = 0;
+        skt.recvall(&qty, sizeof(qty));
+        std::vector<std::pair<std::string, uint8_t>> races;
+        races.reserve(qty);
+        for (uint8_t i = 0; i < qty; ++i) {
+            uint16_t lbe = 0;
+            skt.recvall(&lbe, sizeof(lbe));
+            uint16_t l = ntohs(lbe);
+            std::string map(l, '\0');
+            if (l) {
+                skt.recvall(&map[0], l);
+            }
+            uint8_t route = 0;
+            skt.recvall(&route, sizeof(route));
+            races.emplace_back(std::move(map), route);
         }
+        dto.type = ClientMessage::Type::StartGame;
+        dto.races = std::move(races);
     } else if (code == CODE_C2S_CHOOSE_CAR) {
-        uint8_t car=0; skt.recvall(&car,1);
-        // ...existing code...
+        // 0x0B <CAR-ID u8>
+        uint8_t car = 0;
+        skt.recvall(&car, 1);
+        dto.type = ClientMessage::Type::ChooseCar;
+        dto.car_id = car;
     } else if (code == CODE_C2S_IMPROVEMENT) {
-        uint8_t imp=0; skt.recvall(&imp,1);
-        // ...existing code...
+        // 0x0C <IMPROVEMENT u8>
+        uint8_t imp = 0;
+        skt.recvall(&imp, 1);
+        dto.type = ClientMessage::Type::Improvement;
+        dto.improvement = imp;
     } else if (code == CODE_C2S_CHEAT) {
-        uint8_t cheat=0; skt.recvall(&cheat,1);
-        // ...existing code...
+        // 0x0D <CHEAT u8>
+        uint8_t cheat = 0;
+        skt.recvall(&cheat, 1);
+        dto.type = ClientMessage::Type::Cheat;
+        dto.cheat = cheat;
     } else if (code == CODE_C2S_EXIT) {
         dto.type = ClientMessage::Type::Exit;
     }
