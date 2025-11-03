@@ -38,6 +38,15 @@ void ClientGame::start() {
     std::cout << "Tamaño real del mapa: " << map_data.width_scale_screen << "x"
               << map_data.height_scale_screen << std::endl;
 
+    // [NUEVO] Posición inicial hardcodeada para que el auto sea visible
+    positions.x_car_map = map_data.width_scale_screen / 2;
+    positions.y_car_map = map_data.height_scale_screen / 2;
+    const CarData& init_car = car_sprites.getCarData(this->current_car);
+    const int start_x_screen = (WINDOW_WIDTH  - init_car.width_scale_screen) / 2;
+    const int start_y_screen = (WINDOW_HEIGHT - init_car.height_scale_screen) / 2;
+    map_dest_areas[client_id] = Area(start_x_screen, start_y_screen,
+                                     init_car.width_scale_screen, init_car.height_scale_screen);
+
     while (this->running) {
         update_state_from_position();
 
@@ -96,6 +105,16 @@ void ClientGame::update_state_from_position() {
                           << action.y << ")\n";
                 positions.x_car_map = action.x;
                 positions.y_car_map = action.y;
+
+                // [OPCIONAL] Reflejar rápido en pantalla sin esperar el siguiente cálculo
+                // de cámara (update_animation_frames volverá a recalcular).
+                const int cx = WINDOW_WIDTH / 2;
+                const int cy = WINDOW_HEIGHT / 2;
+                // ocupar el tamaño del sprite actual
+                // (si cambia el auto, update_animation_frames lo ajusta luego)
+                map_dest_areas[client_id].update(cx - CAR_WIDTH_MEDIUM / 2,
+                                                 cy - CAR_HEIGHT_MEDIUM / 2,
+                                                 CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM);
             }
 
         } catch (const std::exception& err) {
