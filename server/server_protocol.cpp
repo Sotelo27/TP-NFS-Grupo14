@@ -98,6 +98,12 @@ void ServerProtocol::send_rooms(const std::vector<RoomInfo>& rooms) {
     skt.sendall(buf.data(), buf.size());
 }
 
+void ServerProtocol::send_room_created(uint8_t room_id) {
+    uint8_t code = CODE_S2C_ROOM_CREATED;
+    char buf[2] = {static_cast<char>(code), static_cast<char>(room_id)};
+    skt.sendall(buf, sizeof(buf));
+}
+
 void ServerProtocol::enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje) {
     uint8_t codigo = CODE_SERVER_MSG;
 
@@ -171,6 +177,8 @@ ClientMessage ServerProtocol::receive() {
             skt.recvall(&room, sizeof(room));
             dto.room_id = room;
         }
+    } else if (code == CODE_C2S_EXIT) {
+        dto.type = ClientMessage::Type::Exit;
     }
 
     return dto;

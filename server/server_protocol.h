@@ -33,6 +33,9 @@ public:
     // Server: send listado de salas (id, current, max)
     void send_rooms(const std::vector<RoomInfo>& rooms);
 
+    // Server: enviar id de sala recién creada
+    void send_room_created(uint8_t room_id);
+
     // Server: receive() returns ClientMessage (base)
     ClientMessage receive();
 
