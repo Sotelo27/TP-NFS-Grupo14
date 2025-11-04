@@ -196,18 +196,29 @@ void MonitorLobby::run() {
                 if (act.type == ClientAction::Type::Room) {
                     std::lock_guard<std::mutex> lk(m);
                     if (act.room_cmd == ROOM_CREATE) {
+                        std::cout << "[Lobby] Processing ROOM_CREATE from conn_id=" << act.id << "\n";
                         uint8_t rid = create_room_locked(/*max_players=*/8);
-                        (void)rid;
-                        // Notificar explícitamente al creador el id de la sala
+                        
+                        // 1. Notificar al creador PRIMERO
                         auto itp = pending.find(act.id);
                         if (itp != pending.end() && itp->second) {
+                            std::cout << "[Lobby] Sending ROOM_CREATED(" << (int)rid << ") to conn_id=" << act.id << "\n";
                             itp->second->send_room_created_to_client(rid);
+                            
+                            // Pequeña pausa para asegurar que el mensaje se envíe
+                            std::this_thread::sleep_for(std::chrono::milliseconds(100));
                         }
+                        
+                        // 2. Broadcast de la nueva lista de salas
+                        std::cout << "[Lobby] Broadcasting updated room list\n";
                         broadcast_rooms_to_pending_locked();
-                        // Unir automáticamente al creador
+                        
+                        // 3. Unir automáticamente al creador
                         std::cout << "[Lobby] Auto-joining creator conn_id=" << act.id << " into room_id=" << (int)rid << "\n";
-                        join_room_locked(act.id, rid);
-                        broadcast_rooms_to_pending_locked();
+                        if (join_room_locked(act.id, rid)) {
+                            // 4. Broadcast final después del join
+                            broadcast_rooms_to_pending_locked();
+                        }
                     } else if (act.room_cmd == ROOM_JOIN) {
                         std::cout << "[Lobby] JOIN request conn_id=" << act.id << " -> room_id=" << (int)act.room_id << "\n";
                         if (join_room_locked(act.id, act.room_id)) {
