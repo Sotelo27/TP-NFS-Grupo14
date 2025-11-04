@@ -22,9 +22,9 @@ struct ServerMessage {
     uint32_t id{0};
 
     // Para Pos
-    uint16_t x{0};
-    uint16_t y{0};
-    float angle{0.0f}; // agregado: ángulo en radianes (S2C_POS)
+    uint16_t x{0}; // pixeles
+    uint16_t y{0}; // pixeles
+    float angle{0.0f}; //angulo ya en grados
 
     // Para Rooms
     std::vector<RoomInfo> rooms;
