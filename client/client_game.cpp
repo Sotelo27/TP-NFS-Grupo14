@@ -9,11 +9,10 @@
 
 #include "constants.h"
 
-ClientGame::ClientGame(CarSpriteID car, size_t client_id, const char* host, const char* service):
+ClientGame::ClientGame(CarSpriteID car, size_t client_id, ServerHandler& server_handler):
         current_car(car),
         client_id(client_id),
-        server_actions{},
-        server_handler(std::move(Socket(host, service)), server_actions),
+        server_handler(server_handler),
         running(false),
         positions(),
         src_area_map(0, 0, 0, 0),
@@ -97,8 +96,9 @@ void ClientGame::update_state_from_position() {
         }
     }
 
-    ServerMessage action;
-    while (server_actions.try_pop(action)) {
+    bool keep_loop = true;
+    while (keep_loop) {
+        ServerMessage action = server_handler.recv_response_from_server();
         try {
             if (action.type == ServerMessage::Type::Pos) {
                 std::cout << "Received position update from server: (" << action.x << ", "
@@ -115,6 +115,9 @@ void ClientGame::update_state_from_position() {
                 map_dest_areas[client_id].update(cx - CAR_WIDTH_MEDIUM / 2,
                                                  cy - CAR_HEIGHT_MEDIUM / 2,
                                                  CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM);
+
+            } else if (action.type == ServerMessage::Type::Unknown) {
+                keep_loop = false;
             }
 
         } catch (const std::exception& err) {

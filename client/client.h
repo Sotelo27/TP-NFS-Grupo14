@@ -3,18 +3,19 @@
 
 #include <optional>
 #include <string>
-
+#include "../common/queue.h"
+#include "connection/server_handler.h"
 #include "client_protocol.h"
 
 class Client {
 private:
-    const char* host;
-    const char* service;
+    ServerHandler server_handler;
 
 public:
     explicit Client(const char* host, const char* service);
 
     void start();
+    // void login();
 
     Client(const Client&) = delete;
     Client& operator=(const Client&) = delete;

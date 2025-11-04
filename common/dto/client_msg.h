@@ -12,6 +12,7 @@ struct ClientMessage {
     enum class Type {
         Name,
         Move,
+        CreateRoom,
         Room,
         Exit,
         StartGame,
