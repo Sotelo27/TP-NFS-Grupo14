@@ -85,6 +85,20 @@ void ClientGame::update_state_from_position() {
         }
     }
 
+    const Uint8* keyboard = SDL_GetKeyboardState(nullptr);
+    if (keyboard[SDL_SCANCODE_LEFT]) {
+        server_handler.send_movement(Movement::Left);
+    }
+    if (keyboard[SDL_SCANCODE_RIGHT]) {
+        server_handler.send_movement(Movement::Right);
+    }
+    if (keyboard[SDL_SCANCODE_UP]) {
+        server_handler.send_movement(Movement::Up);
+    }
+    if (keyboard[SDL_SCANCODE_DOWN]) {
+        server_handler.send_movement(Movement::Down);
+    }
+
     // Procesar mensajes del servidor
     bool keep_loop = true;
     int msg_count = 0;
