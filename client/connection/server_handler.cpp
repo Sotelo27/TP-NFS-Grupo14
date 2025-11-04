@@ -51,6 +51,7 @@ void ServerHandler::send_username(const std::string& username) {
     ClientMessage msg;
     msg.type = ClientMessage::Type::Name;
     msg.username = username;
+    std::cout << "[ServerHandler] Sending username: " << username << std::endl;
     messages_send.try_push(msg);
 }
 
@@ -59,6 +60,7 @@ void ServerHandler::send_create_room() {
     msg.type = ClientMessage::Type::Room;
     msg.room_cmd = ROOM_CREATE;
     msg.room_id = 0;
+    std::cout << "[ServerHandler] Sending ROOM_CREATE" << std::endl;
     messages_send.try_push(msg);
 }
 
@@ -67,12 +69,14 @@ void ServerHandler::send_join_room(uint8_t room_id) {
     msg.type = ClientMessage::Type::Room;
     msg.room_cmd = ROOM_JOIN;
     msg.room_id = room_id;
+    std::cout << "[ServerHandler] Sending ROOM_JOIN to room " << (int)room_id << std::endl;
     messages_send.try_push(msg);
 }
 
 ServerMessage ServerHandler::recv_response_from_server() {
     ServerMessage msg;
     if (messages_recv.try_pop(msg)) {
+        std::cout << "[ServerHandler] Received message type: " << (int)msg.type << std::endl;
         return msg;
     }
     msg.type = ServerMessage::Type::Unknown;

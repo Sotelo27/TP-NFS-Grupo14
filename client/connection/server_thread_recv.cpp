@@ -8,12 +8,14 @@ ServerThreadRecv::ServerThreadRecv(ClientProtocol& protocol, Queue<ServerMessage
 void ServerThreadRecv::run() {
     while (should_keep_running()) {
         try {
-            ServerMessage received = protocol.receive();
+            ServerMessage msg = protocol.receive();
             if (protocol.is_recv_closed()) {
                 break;
             }
 
-            server_actions.push(std::move(received));
+            if (msg.type != ServerMessage::Type::Unknown) {
+                server_actions.push(msg);
+            }
         } catch (const std::exception& e) {
             if (!should_keep_running()) {
                 break;
