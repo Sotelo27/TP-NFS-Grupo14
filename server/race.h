@@ -36,13 +36,6 @@ private:
      */
     static float resolve_rotation_input(const InputState& input);
 
-    /*
-    * Aplica al auto del jugador(body) una fuerza hacia adelante o hacia atras
-    * segun la direccion de aceleracion obtenida del input y las
-    * caracteristicas fisicas del auto (CarModel).
-     */
-    void apply_acceleration_force(size_t player_id, float throttle, const CarModel& car);
-
 public:
     Race(uint32_t id, PhysicsWorld& external_world);
 

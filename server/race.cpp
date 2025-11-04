@@ -66,15 +66,6 @@ float Race::resolve_rotation_input(const InputState& input) {
     return (input.right ? 1.f : 0.f) - (input.left ? 1.f : 0.f);
 }
 
-void Race::apply_acceleration_force(size_t player_id, float throttle, const CarModel& car) {
-    // Fuerza longitudinal en el eje forward del auto (usa ángulo actual)
-    float ang = physics.get_angle(player_id);
-    float fx = throttle * car.fuerzaAceleracionN * std::cos(ang);
-    float fy = throttle * car.fuerzaAceleracionN * std::sin(ang);
-    physics.apply_force_center(player_id, fx, fy);
-}
-
-
 std::vector<PlayerPos> Race::snapshot_poses() const {
     std::vector<PlayerPos> player_positions;
     player_positions.reserve(parts.size());

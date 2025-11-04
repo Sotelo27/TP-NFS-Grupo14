@@ -85,34 +85,9 @@ public:
     void step(float dt);
 
     /*
-     * Empuja al auto aplicando una fuerza en su centro
-     */
-    void apply_force_center(size_t id, float fx, float fy);
-
-    /*
-     * Hace girar al auto aplicando un torque
-     */
-    void apply_torque(size_t id, float torque);
-
-    /*
-     * Devuelve la rotacion actual en radianes
-     */
-    float get_angle(size_t id) const;
-
-    /*
      * Obtiene la posicion del body completa (posicion + angulo)
      */
     Pose get_pose(size_t id) const;
-
-    /*
-     * Pone un tope a la velocidad lineal (m/s).
-     */
-    void cap_linear_speed(size_t id, float max_mps);
-
-    /*
-     * Devuelve la velocidad lineal actual (m/s).
-     */
-    float get_linear_speed(size_t id) const;
 
     // Acceso controlado al body (solo lectura del puntero)
     b2Body* get_body(size_t id) const {
