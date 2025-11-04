@@ -4,7 +4,11 @@
 
 #include "../constants.h"
 
-CarSpriteSheet::CarSpriteSheet() {
+#define CAR_SPRITE_SHEET_FILE std::string(ASSETS_PATH) + "/cars/Cars.png"
+
+CarSpriteSheet::CarSpriteSheet(const SdlWindow& window):
+        texture_cars(CAR_SPRITE_SHEET_FILE, window,
+                     Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)) {
     sprites.emplace(CarSpriteID::CommonGreenCar,
                     CarData{Area(0, 0, 32, 32), CAR_WIDTH_SMALL, CAR_HEIGHT_SMALL});
     sprites.emplace(CarSpriteID::RedCar,
@@ -21,6 +25,8 @@ CarSpriteSheet::CarSpriteSheet() {
                     CarData{Area(0, 464, 48, 48), CAR_WIDTH_LARGE, CAR_HEIGHT_LARGE});
 }
 
-const CarData& CarSpriteSheet::get(CarSpriteID id) const { return this->sprites.at(id); }
+const CarData& CarSpriteSheet::getCarData(CarSpriteID id) const { return this->sprites.at(id); }
 
-const Area& CarSpriteSheet::getArea(CarSpriteID id) const { return this->sprites.at(id).area; }
+void CarSpriteSheet::render(const Area& src, const Area& dest) const {
+    this->texture_cars.render(src, dest);
+}

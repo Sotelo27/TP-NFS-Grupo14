@@ -3,6 +3,7 @@
 
 #include <string>
 #include <utility>
+#include <vector> // agregado
 
 #include "../common/constants.h"
 #include "../common/socket.h"
@@ -25,6 +26,21 @@ public:
     // Rooms: crear / unirse
     void send_create_room();
     void send_join_room(uint8_t room_id);
+
+    // Start game: cantidad de carreras y (map, route) por carrera
+    void send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races);
+
+    // Elegir auto
+    void send_choose_car(uint8_t car_id);
+
+    // Mejoras de auto
+    void send_improvement(uint8_t improvement);
+
+    // Cheats
+    void send_cheat(uint8_t cheat_code);
+
+    // Exit match
+    void send_exit();
 
     // Receive() returns ServerMessage DTO
     ServerMessage receive();
