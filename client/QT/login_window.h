@@ -1,30 +1,42 @@
-#ifndef QT_H
-#define QT_H
+#ifndef LOGIN_WINDOW_H
+#define LOGIN_WINDOW_H
 
 #include <QWidget>
 #include <QApplication>
 #include <QLineEdit>
 #include <QPushButton>
-
-#include "client/client.h"
+#include <QLabel>
+#include "../../common/queue.h"
+#include "../client_protocol.h"
+#include "../connection/server_handler.h"
 
 class LoginWindow : public QWidget {
     Q_OBJECT
 public:
-    explicit LoginWindow(const char* host,
-                        const char* service,
+    explicit LoginWindow(ServerHandler& server_handler, size_t& my_id,
                         QWidget* parent = nullptr);
-    // int run();
     ~LoginWindow() = default;
 
 private slots:
     void onLoginClicked();
 
 private:
-    QLineEdit *usernameInput;
-    QPushButton *loginButton;
-    Client client;
- };
+    ServerHandler& server_handler;
+    size_t& my_id;
+    QLabel* title;
+    QLabel* usernameLabel;
+    QLineEdit* usernameInput;
+    QPushButton* loginButton;
 
+    void setupUi();
+    void setupStyles();
+    void setupConnections();
 
-#endif //QT_H
+    void createWindowBackground();
+    void createTittle();
+    void createUsernameLabel();
+    void createButtonLogIn();
+    void createContainer();
+};
+
+#endif // LOGIN_WINDOW_H

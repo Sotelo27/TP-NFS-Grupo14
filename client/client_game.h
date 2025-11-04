@@ -18,15 +18,14 @@ struct Positions {
 
 class ClientGame {
 private:
-    CarSpriteID current_car;
     size_t client_id;
-    Queue<ServerMessage> server_actions;
-    ServerHandler server_handler;
+    ServerHandler& server_handler;
     bool running;
     Positions positions;
     Area src_area_map;
     Area dest_area_map;
     std::unordered_map<size_t, Area> map_dest_areas;
+    CarSpriteID current_car = CarSpriteID::CommonGreenCar;
 
     void update_state_from_position();
     void update_animation_frames(const MapData& map_data, const CarSpriteSheet& car_sprites);
@@ -34,8 +33,8 @@ private:
                            const CarSpriteSheet& car_sprites);
 
 public:
-    explicit ClientGame(CarSpriteID current_car, size_t client_id, const char* host,
-                        const char* service);
+    explicit ClientGame(size_t client_id,
+        ServerHandler& server_handler);
 
     void start();
 

@@ -1,26 +1,48 @@
 #include "server_thread_recv.h"
-
-#include <utility>
+#include <iostream>
 
 ServerThreadRecv::ServerThreadRecv(ClientProtocol& protocol, Queue<ServerMessage>& server_actions):
         protocol(protocol), server_actions(server_actions) {}
 
 void ServerThreadRecv::run() {
+    std::cout << "[ServerThreadRecv] Thread started" << std::endl;
+    std::cout.flush();
+    
     while (should_keep_running()) {
         try {
-            ServerMessage received = protocol.receive();
+            std::cout << "[ServerThreadRecv] Calling protocol.receive()..." << std::endl;
+            std::cout.flush();
+            
+            ServerMessage msg = protocol.receive();
+            
+            std::cout << "[ServerThreadRecv] protocol.receive() returned, type=" << (int)msg.type << std::endl;
+            std::cout.flush();
+            
             if (protocol.is_recv_closed()) {
+                std::cout << "[ServerThreadRecv] Connection closed by server" << std::endl;
+                std::cout.flush();
                 break;
             }
 
-            server_actions.push(std::move(received));
+            std::cout << "[ServerThreadRecv] Received message type=" << (int)msg.type << std::endl;
+            std::cout.flush();
+            
+            if (msg.type != ServerMessage::Type::Unknown) {
+                server_actions.push(msg);
+                std::cout << "[ServerThreadRecv] Pushed message to queue" << std::endl;
+                std::cout.flush();
+            }
         } catch (const std::exception& e) {
             if (!should_keep_running()) {
                 break;
             }
 
-            std::cerr << "Error receiving message from server: " << e.what() << "\n";
+            std::cerr << "[ServerThreadRecv] Error receiving message from server: " << e.what() << "\n";
+            std::cerr.flush();
             break;
         }
     }
+    
+    std::cout << "[ServerThreadRecv] Thread stopped" << std::endl;
+    std::cout.flush();
 }

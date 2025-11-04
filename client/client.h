@@ -3,13 +3,17 @@
 
 #include <optional>
 #include <string>
-
+#include "../common/queue.h"
+#include "../common/socket.h"
+#include "connection/server_handler.h"
 #include "client_protocol.h"
+
+class LoginWindow;
 
 class Client {
 private:
-    const char* host;
-    const char* service;
+    ServerHandler server_handler;
+    LoginWindow* login_window;
 
 public:
     explicit Client(const char* host, const char* service);
@@ -22,7 +26,7 @@ public:
     Client(Client&&) = default;
     Client& operator=(Client&&) = default;
 
-    ~Client() = default;
+    ~Client();
 };
 
 #endif

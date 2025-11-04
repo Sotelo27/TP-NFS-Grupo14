@@ -4,14 +4,29 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QPixmap>
+#include "lobby_window.h"
+#include <thread>
+#include <chrono>
 
-LoginWindow::LoginWindow(const char* host,
-                        const char* service,
-                        QWidget* parent)
-    : QWidget(parent), client(host, service)
+#define WIDTH_SIZE_WINDOW 800
+#define HEIGHT_SIZE_WINDOW 560
+
+LoginWindow::LoginWindow(ServerHandler& server_handler, size_t& my_id,
+                         QWidget* parent)
+    : QWidget(parent), server_handler(server_handler), my_id(my_id)
 {
-    setWindowTitle("Login");
-    setFixedSize(640, 360);
+    setupUi();
+    setupConnections();
+}
+
+void LoginWindow::createTittle() {
+    title = new QLabel("Need For Speed\nLog In", this);
+    title->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    title->setMinimumHeight(50);
+}
+
+void LoginWindow::createWindowBackground() {
     QLabel* background = new QLabel(this);
     background->setPixmap(
         QPixmap("assets/images/nfs_most_wanted.png").scaled(
@@ -20,26 +35,23 @@ LoginWindow::LoginWindow(const char* host,
     );
     background->setGeometry(0, 0, width(), height());
     background->lower();
+}
 
-    QLabel *title = new QLabel("Need For Speed\nLog In", this);
-    title->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-    title->setStyleSheet("font-size: 40px; font-weight: bold; color: red;");
-    title->setMinimumHeight(50);
-
-    QLabel *usernameLabel = new QLabel("Username:", this);
-    usernameLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
+void LoginWindow::createUsernameLabel() {
+    usernameLabel = new QLabel("Username:", this);
     usernameInput = new QLineEdit(this);
     usernameInput->setPlaceholderText("Enter your username");
-    usernameInput->setStyleSheet("font-size: 16px; padding: 5px; color: white; background-color: #1F2C4D; border: 1px solid white;");
     usernameInput->setMinimumHeight(30);
+}
 
+void LoginWindow::createButtonLogIn() {
     loginButton = new QPushButton("Ingresar", this);
-    loginButton->setStyleSheet("font-size: 16px; font-weight: bold; color: green; background-color: #2E3A5D; padding: 5px;");
+}
 
+void LoginWindow::createContainer() {
     QHBoxLayout *userLayout = new QHBoxLayout();
     userLayout->addWidget(usernameLabel);
     userLayout->addWidget(usernameInput);
-
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addStretch();
     mainLayout->addWidget(title);
@@ -48,14 +60,41 @@ LoginWindow::LoginWindow(const char* host,
     mainLayout->addSpacing(10);
     mainLayout->addWidget(loginButton, 0, Qt::AlignCenter);
     mainLayout->addStretch();
-
     setLayout(mainLayout);
+}
+
+void LoginWindow::setupStyles() {
+    title->setStyleSheet("font-size: 40px; font-weight: bold; color: red;");
+    usernameLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
+    usernameInput->setStyleSheet(
+        "font-size: 16px; padding: 5px; color: white;"
+        "background-color: #1F2C4D; border: 1px solid white;"
+    );
+    loginButton->setStyleSheet(
+        "font-size: 16px; font-weight: bold; color: green;"
+        "background-color: #2E3A5D; padding: 5px;"
+    );
+}
+
+void LoginWindow::setupUi() {
+    setWindowTitle("Login");
+    setFixedSize(WIDTH_SIZE_WINDOW, HEIGHT_SIZE_WINDOW);
+
+    createWindowBackground();
+    createTittle();
+    createUsernameLabel();
+    createButtonLogIn();
+    createContainer();
 
     title->raise();
     usernameLabel->raise();
     usernameInput->raise();
     loginButton->raise();
 
+    setupStyles();
+}
+
+void LoginWindow::setupConnections() {
     connect(loginButton, &QPushButton::clicked, this, &LoginWindow::onLoginClicked);
 }
 
@@ -67,17 +106,17 @@ void LoginWindow::onLoginClicked() {
         return;
     }
 
-    // TODO (protocolo): Enviar nombre al servidor antes de mostrar el lobby.
-    // Por ejemplo podemos hacer un wrapper en la capa Client/ServerHandler:
-    //   client.send_username(username.toStdString());
-    //
-    // TODO (protocolo): Solicitar/esperar el listado de salas (ServerMessage::Type::Rooms).
-    //   - Al recibir Rooms (vector<RoomInfo>), poblar una vista en Qt (lista/botones).
-    //   - Al presionar "Crear sala": client.create_room();  (internamente: ClientProtocol::send_create_room())
-    //   - Al presionar "Unirse a sala": client.join_room(roomId); (internamente: ClientProtocol::send_join_room(roomId))
-    //   - El server volverá a enviar Rooms para refrescar cupos o un OK; actualizar UI en consecuencia.
-    //
+    std::cout << "[Client] Enviando nombre de usuario: " << username.toStdString() << std::endl;
+    server_handler.send_username(username.toStdString());
+    
+    // Pequeña pausa para dar tiempo al servidor a procesar
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
+    LobbyWindow* lobby = new LobbyWindow(server_handler, my_id);
+    lobby->show();
+    
+    std::cout << "[Client] Mostrando ventana de lobby" << std::endl;
+    
     this->close();
-    client.start();  // No toco el flujo actual del sdl.
 }
+
