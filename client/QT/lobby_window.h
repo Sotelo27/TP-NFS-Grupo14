@@ -18,6 +18,9 @@ private:
     QWidget* container;
     QVBoxLayout* layout;
     QTimer* pollTimer;
+    
+    uint8_t current_room_id{0};
+    uint32_t my_player_id{0};
 
     void processServerMessage(const ServerMessage& msg);
 

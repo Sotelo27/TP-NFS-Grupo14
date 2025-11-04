@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
+#include "../client_game.h"
 
 LobbyWindow::LobbyWindow(ServerHandler& server_handler, QWidget* parent)
     : QWidget(parent), server_handler(server_handler), usuario_entro_a_sala(false)
@@ -83,22 +84,33 @@ void LobbyWindow::processServerMessage(const ServerMessage& msg) {
         updateRoomList(msg.rooms);
     } else if (msg.type == ServerMessage::Type::RoomCreated) {
         std::cout << "[LobbyWindow] Sala creada con ID: " << (int)msg.id << std::endl;
+        current_room_id = static_cast<uint8_t>(msg.id);
+    } else if (msg.type == ServerMessage::Type::YourId) {
+        std::cout << "[LobbyWindow] Tu ID asignado: " << msg.id << std::endl;
+        my_player_id = msg.id;
         
-        // Detener polling ANTES de mostrar el diálogo
+        // Detener polling
         usuario_entro_a_sala = true;
         pollTimer->stop();
         
-        QMessageBox::information(this, "Sala creada", 
-            QString("La sala #%1 fue creada correctamente.\nIngresando automáticamente...").arg(msg.id));
+        std::cout << "[LobbyWindow] Iniciando juego real con SDL..." << std::endl;
         
-        open_waiting_room(static_cast<uint8_t>(msg.id));
-    } else if (msg.type == ServerMessage::Type::YourId) {
-        std::cout << "[LobbyWindow] Tu ID asignado: " << msg.id << std::endl;
+        // Cerrar lobby
+        this->close();
+        
+        // Iniciar el juego REAL con SDL - Usar el auto verde (CommonGreenCar)
+        try {
+            ClientGame game(CarSpriteID::CommonGreenCar, my_player_id, server_handler);
+            game.start();
+        } catch (const std::exception& e) {
+            std::cerr << "[LobbyWindow] Error iniciando el juego: " << e.what() << std::endl;
+            QMessageBox::critical(nullptr, "Error", 
+                QString("No se pudo iniciar el juego: %1").arg(e.what()));
+        }
+        
     } else if (msg.type == ServerMessage::Type::PlayerName) {
         std::cout << "[LobbyWindow] Nombre de jugador recibido: " << msg.username << " (id: " << msg.id << ")" << std::endl;
     } else if (msg.type == ServerMessage::Type::Pos) {
-        // Ignorar mensajes de posición en el lobby
-        // Estos son del gameloop que ya está corriendo en la sala
         std::cout << "[LobbyWindow] Ignorando mensaje POS (id=" << msg.id << ", x=" << msg.x << ", y=" << msg.y << ")" << std::endl;
     }
 }
@@ -168,11 +180,6 @@ void LobbyWindow::open_waiting_room(uint8_t id_room) {
     
     std::cout << "[LobbyWindow] Entrando a sala " << (int)id_room << std::endl;
     
-    // Cerrar la ventana del lobby
-    this->close();
-    
-    // Aquí eventualmente se abrirá la ventana de espera (WaitingRoomWindow)
-    // Por ahora solo mostramos un mensaje final
-    QMessageBox::information(nullptr, "En sala", 
-        QString("Estás en la sala #%1\n\n¡El juego está listo para comenzar!\n\n(Presiona OK para continuar jugando)").arg(id_room));
+    // Ya no cerrar la ventana aquí, esperar a recibir YOUR_ID
+    // this->close();
 }
