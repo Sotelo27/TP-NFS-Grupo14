@@ -2,6 +2,7 @@
 #define __SDL_OBJ_TEXTURE_H__
 #include <string>
 
+#include "../utils/Area.h"
 #include "../utils/rgb.h"
 
 #include "SdlBaseTexture.h"
@@ -9,7 +10,7 @@
 class SDL_Surface;
 class SDL_Renderer;
 class SdlWindow;
-class Area;
+
 
 class SdlObjTexture: public SdlBaseTexture {
 private:
@@ -21,6 +22,8 @@ protected:
 public:
     SdlObjTexture(const std::string& filename, const SdlWindow& window,
                   const Rgb& background_color);
+
+    void renderEntity(const Area& src, const Area& dest, double angle) const;
 };
 
 #endif

@@ -46,7 +46,7 @@ void ClientGame::start() {
 
         render_in_z_order(window, map_manager, car_sprites, add_text);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~60 FPS
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // ~60 FPS
     }
 }
 
@@ -75,8 +75,7 @@ void ClientGame::update_state_from_position() {
                         std::cout << "[ClientGame] DOWN pressed\n";
                         break;
                 }
-            }
-            break;
+            } break;
             case SDL_MOUSEMOTION:
                 break;
             case SDL_QUIT:
@@ -91,24 +90,22 @@ void ClientGame::update_state_from_position() {
     int msg_count = 0;
     static int frame_count = 0;
     frame_count++;
-    
+
     while (keep_loop && msg_count < 10) {
         ServerMessage action = server_handler.recv_response_from_server();
-        
+
         if (action.type == ServerMessage::Type::Pos) {
             // Actualizar posición si es para este cliente
             if (action.id == client_id) {
                 // Logear cada 60 frames (1 vez por segundo aprox)
                 if (frame_count % 60 == 0) {
-                    std::cout << "[ClientGame] Server position: (" << action.x << ", " << action.y 
-                              << ") - Current position: (" << positions.x_car_map << ", " << positions.y_car_map << ")\n";
+                    std::cout << "[ClientGame] Server position: (" << action.x << ", " << action.y
+                              << ") - Current position: (" << positions.x_car_map << ", "
+                              << positions.y_car_map << ")\n";
                 }
-                
-                // SOLO actualizar si las posiciones del servidor son válidas (no son 0,0)
-                if (action.x != 0 || action.y != 0) {
-                    positions.x_car_map = action.x;
-                    positions.y_car_map = action.y;
-                }
+                positions.x_car_map = action.x;
+                positions.y_car_map = action.y;
+                positions.angle = action.angle;
             }
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
@@ -148,9 +145,11 @@ void ClientGame::update_animation_frames(const MapData& map_data,
     src_area_map.update(x_map, y_map, MAP_WIDTH_SIZE, MAP_HEIGHT_SIZE);
 
     CarData car_data = car_sprites.getCarData(this->current_car);
-    map_dest_areas[client_id] = Area(x_car_screen - car_data.width_scale_screen / 2,
-                                     y_car_screen - car_data.height_scale_screen / 2,
-                                     car_data.width_scale_screen, car_data.height_scale_screen);
+    Area areaAlgo(x_car_screen - car_data.width_scale_screen / 2,
+                  y_car_screen - car_data.height_scale_screen / 2, car_data.width_scale_screen,
+                  car_data.height_scale_screen);
+
+    map_dest_areas[client_id] = {client_id, positions, areaAlgo};
 }
 
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
@@ -158,9 +157,10 @@ void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_ma
     const CarData& car_data = car_sprites.getCarData(this->current_car);
 
     map_manager.render(src_area_map, dest_area_map);
-    
-    car_sprites.render(car_data.area, map_dest_areas[client_id]);
-    
+
+    car_sprites.render(car_data.area, map_dest_areas[client_id].dest_area,
+                       map_dest_areas[client_id].positions.angle);
+
     std::string client_id_str = "Client ID: " + std::to_string(client_id);
     add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
 

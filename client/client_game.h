@@ -8,13 +8,20 @@
 
 #include "connection/server_handler.h"
 #include "sdl_wrappers/SdlWindow.h"
+#include "utils/add_text.h"
 #include "utils/car_sprite_sheet.h"
 #include "utils/maps_textures.h"
-#include "utils/add_text.h"
 
 struct Positions {
     int x_car_map;
     int y_car_map;
+    float angle;
+};
+
+struct CarPosition {
+    size_t client_id;
+    Positions positions;
+    Area dest_area;
 };
 
 class ClientGame {
@@ -25,7 +32,7 @@ private:
     Positions positions;
     Area src_area_map;
     Area dest_area_map;
-    std::unordered_map<size_t, Area> map_dest_areas;
+    std::unordered_map<size_t, CarPosition> map_dest_areas;
     CarSpriteID current_car = CarSpriteID::CommonGreenCar;
 
     void update_state_from_position();
@@ -34,8 +41,7 @@ private:
                            const CarSpriteSheet& car_sprites, const AddText& add_text);
 
 public:
-    explicit ClientGame(size_t client_id,
-        ServerHandler& server_handler);
+    explicit ClientGame(size_t client_id, ServerHandler& server_handler);
 
     void start();
 

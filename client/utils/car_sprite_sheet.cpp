@@ -27,6 +27,6 @@ CarSpriteSheet::CarSpriteSheet(const SdlWindow& window):
 
 const CarData& CarSpriteSheet::getCarData(CarSpriteID id) const { return this->sprites.at(id); }
 
-void CarSpriteSheet::render(const Area& src, const Area& dest) const {
-    this->texture_cars.render(src, dest);
+void CarSpriteSheet::render(const Area& src, const Area& dest, float angle) const {
+    this->texture_cars.renderEntity(src, dest, angle);
 }

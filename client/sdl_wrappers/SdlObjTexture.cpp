@@ -33,3 +33,13 @@ SDL_Texture* SdlObjTexture::loadTexture(const std::string& filename) {
 
     return tex;
 }
+
+void SdlObjTexture::renderEntity(const Area& src, const Area& dest, double angle) const {
+    SDL_Rect srcRect = {src.getX(), src.getY(), src.getWidth(), src.getHeight()};
+    SDL_Rect destRect = {dest.getX(), dest.getY(), dest.getWidth(), dest.getHeight()};
+
+    if (SDL_RenderCopyEx(renderer, texture, &srcRect, &destRect, angle, nullptr, SDL_FLIP_NONE) !=
+        0) {
+        throw SdlException("Error rendering texture", SDL_GetError());
+    }
+}

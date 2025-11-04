@@ -34,7 +34,7 @@ public:
     explicit CarSpriteSheet(const SdlWindow& window);
 
     const CarData& getCarData(CarSpriteID id) const;
-    void render(const Area& src, const Area& dest) const;
+    void render(const Area& src, const Area& dest, float angle) const;
 };
 
 #endif  // CAR_SPRITE_SHEET_H
