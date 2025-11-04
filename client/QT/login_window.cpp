@@ -6,6 +6,8 @@
 #include <QMessageBox>
 #include <QPixmap>
 #include "lobby_window.h"
+#include <thread>
+#include <chrono>
 
 #define WIDTH_SIZE_WINDOW 800
 #define HEIGHT_SIZE_WINDOW 560
@@ -106,16 +108,15 @@ void LoginWindow::onLoginClicked() {
 
     std::cout << "[Client] Enviando nombre de usuario: " << username.toStdString() << std::endl;
     server_handler.send_username(username.toStdString());
-
-    // Pequeña pausa para dar tiempo al servidor a procesar el nombre
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    // Pequeña pausa para dar tiempo al servidor a procesar
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     LobbyWindow* lobby = new LobbyWindow(server_handler);
     lobby->show();
     
-    this->close();
+    std::cout << "[Client] Mostrando ventana de lobby" << std::endl;
     
-    // Ejecutar el loop del lobby para procesar mensajes
-    std::cout << "[Client] Iniciando loop del lobby..." << std::endl;
-    lobby->run_lobby_loop();
+    this->close();
 }
+

@@ -1,23 +1,25 @@
 #include "client.h"
 
-#include <exception>
-#include <fstream>
 #include <iostream>
-#include <utility>
-
-#include "client_game.h"
 #include "QT/login_window.h"
 
-Client::Client(const char* host, const char* service)
-    : server_handler(Socket(host, service)) {}
-
-// void Client::start() {
-//       CarSpriteID current_car = CarSpriteID::CommonGreenCar;
-//       ClientGame game(current_car, host, service);
-//       game.start();
-// }
+Client::Client(const char* hostname, const char* servname):
+        skt(hostname, servname),
+        server_handler(std::move(skt)),
+        login_window(nullptr) {
+    std::cout << "[Client] Connected to server " << hostname << ":" << servname << std::endl;
+}
 
 void Client::start() {
-    LoginWindow* login = new LoginWindow(server_handler);
-    login->show();
+    std::cout << "[Client] Starting server handler threads..." << std::endl;
+    server_handler.start();
+    
+    login_window = new LoginWindow(server_handler);
+    login_window->show();
+}
+
+Client::~Client() {
+    if (login_window) {
+        delete login_window;
+    }
 }

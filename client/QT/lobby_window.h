@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QScrollArea>
 #include <QVBoxLayout>
+#include <QTimer>
 #include "../../common/dto/server_msg.h"
 #include "../connection/server_handler.h"
 
@@ -16,6 +17,12 @@ private:
     QScrollArea* scrollArea;
     QWidget* container;
     QVBoxLayout* layout;
+    QTimer* pollTimer;
+
+    void processServerMessage(const ServerMessage& msg);
+
+private slots:
+    void onPollTimer();
 
 public:
     explicit LobbyWindow(ServerHandler& server_handler, QWidget* parent = nullptr);
@@ -23,7 +30,6 @@ public:
     void updateRoomList(const std::vector<RoomInfo>& rooms);
     void create_new_room();
     void open_waiting_room(uint8_t id_room);
-    void run_lobby_loop();
 };
 
 #endif
