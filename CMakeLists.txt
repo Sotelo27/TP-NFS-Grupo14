@@ -162,6 +162,18 @@ if(TALLER_SERVER)
 
     # Link the taller_common lib target
     target_link_libraries(taller_server taller_common)
+
+    # YAML-CPP (for server track loading)
+    include(FetchContent)
+    FetchContent_Declare(
+        yaml_cpp
+        GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+        GIT_TAG 0.8.0 
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+    )
+    FetchContent_MakeAvailable(yaml_cpp)
+    target_link_libraries(taller_server yaml-cpp)
 endif()
 
 if(TALLER_EDITOR)
