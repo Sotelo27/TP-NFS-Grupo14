@@ -12,7 +12,6 @@ class LoginWindow;
 
 class Client {
 private:
-    Socket skt;
     ServerHandler server_handler;
     LoginWindow* login_window;
 
@@ -20,7 +19,6 @@ public:
     explicit Client(const char* host, const char* service);
 
     void start();
-    // void login();
 
     Client(const Client&) = delete;
     Client& operator=(const Client&) = delete;

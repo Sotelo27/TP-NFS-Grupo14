@@ -9,8 +9,7 @@
 
 #include "constants.h"
 
-ClientGame::ClientGame(CarSpriteID car, size_t client_id, ServerHandler& server_handler):
-        current_car(car),
+ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler):
         client_id(client_id),
         server_handler(server_handler),
         running(false),

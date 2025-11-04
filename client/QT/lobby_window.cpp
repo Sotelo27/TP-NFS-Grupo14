@@ -97,17 +97,6 @@ void LobbyWindow::processServerMessage(const ServerMessage& msg) {
         
         // Cerrar lobby
         this->close();
-        
-        // Iniciar el juego REAL con SDL - Usar el auto verde (CommonGreenCar)
-        try {
-            ClientGame game(CarSpriteID::CommonGreenCar, my_player_id, server_handler);
-            game.start();
-        } catch (const std::exception& e) {
-            std::cerr << "[LobbyWindow] Error iniciando el juego: " << e.what() << std::endl;
-            QMessageBox::critical(nullptr, "Error", 
-                QString("No se pudo iniciar el juego: %1").arg(e.what()));
-        }
-        
     } else if (msg.type == ServerMessage::Type::PlayerName) {
         std::cout << "[LobbyWindow] Nombre de jugador recibido: " << msg.username << " (id: " << msg.id << ")" << std::endl;
     } else if (msg.type == ServerMessage::Type::Pos) {
