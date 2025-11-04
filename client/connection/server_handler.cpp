@@ -20,8 +20,14 @@ ServerHandler::~ServerHandler() {
 }
 
 void ServerHandler::start() {
+    std::cout << "[ServerHandler] Starting recv and send threads..." << std::endl;
+    std::cout.flush();
+    
     recv.start();
     send.start();
+    
+    std::cout << "[ServerHandler] Threads started successfully" << std::endl;
+    std::cout.flush();
 }
 
 bool ServerHandler::is_alive() {
