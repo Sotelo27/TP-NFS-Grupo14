@@ -13,6 +13,8 @@
 
 #include "player.h"
 #include "race.h"
+#include "city.h"
+#include "../common/dto/map_config.h"
 
 class Game {
 private:
@@ -20,7 +22,8 @@ private:
     std::map<size_t, Player> players;
     size_t id_indice = 0;
     std::mutex m;
-    Race race{1}; // Carrera única mínima (id=1)
+    City city; // ciudad única (mundo físico compartido)
+    Race race{1, city.get_world()}; // Carrera dentro de la ciudad
     // Inputs acumulados por tick (OR de todos los mensajes recibidos en el frame)
     std::map<size_t, InputState> pending_inputs;
 
@@ -75,6 +78,11 @@ public:
      * Setea el nombre del jugador
      */
     void set_player_name(size_t id, std::string name);
+
+    /*
+     * Carga el MapConfig paredes, edificios en la ciudad.
+     */
+    void load_map(const MapConfig& cfg);
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
