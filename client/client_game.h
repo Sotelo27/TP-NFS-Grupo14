@@ -10,6 +10,7 @@
 #include "sdl_wrappers/SdlWindow.h"
 #include "utils/car_sprite_sheet.h"
 #include "utils/maps_textures.h"
+#include "utils/add_text.h"
 
 struct Positions {
     int x_car_map;
@@ -30,7 +31,7 @@ private:
     void update_state_from_position();
     void update_animation_frames(const MapData& map_data, const CarSpriteSheet& car_sprites);
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                           const CarSpriteSheet& car_sprites);
+                           const CarSpriteSheet& car_sprites, const AddText& add_text);
 
 public:
     explicit ClientGame(size_t client_id,

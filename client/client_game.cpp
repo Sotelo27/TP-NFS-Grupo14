@@ -26,6 +26,7 @@ void ClientGame::start() {
     window.fill();
 
     CarSpriteSheet car_sprites(window);
+    AddText add_text(24, window);
 
     MapsTextures map_manager(window);
     map_manager.loadMap(MapID::LibertyCity);
@@ -34,22 +35,7 @@ void ClientGame::start() {
     std::cout << "[ClientGame] Tamaño real del mapa: " << map_data.width_scale_screen << "x"
               << map_data.height_scale_screen << std::endl;
 
-    // Posición inicial VISIBLE en el centro del mapa para que se vea el auto
-    positions.x_car_map = map_data.width_scale_screen / 2;
-    positions.y_car_map = map_data.height_scale_screen / 2;
-    
-    std::cout << "[ClientGame] Posición inicial del auto: (" << positions.x_car_map 
-              << ", " << positions.y_car_map << ")" << std::endl;
-    
-    const CarData& init_car = car_sprites.getCarData(this->current_car);
-    const int start_x_screen = (WINDOW_WIDTH  - init_car.width_scale_screen) / 2;
-    const int start_y_screen = (WINDOW_HEIGHT - init_car.height_scale_screen) / 2;
-    map_dest_areas[client_id] = Area(start_x_screen, start_y_screen,
-                                     init_car.width_scale_screen, init_car.height_scale_screen);
-
     std::cout << "[ClientGame] Juego iniciado, esperando posiciones del servidor..." << std::endl;
-    std::cout << "[ClientGame] Auto seleccionado: " << (int)current_car << std::endl;
-
     while (this->running) {
         update_state_from_position();
 
@@ -58,7 +44,7 @@ void ClientGame::start() {
 
         update_animation_frames(map_data, car_sprites);
 
-        render_in_z_order(window, map_manager, car_sprites);
+        render_in_z_order(window, map_manager, car_sprites, add_text);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~60 FPS
     }
@@ -168,25 +154,15 @@ void ClientGame::update_animation_frames(const MapData& map_data,
 }
 
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                                   const CarSpriteSheet& car_sprites) {
+                                   const CarSpriteSheet& car_sprites, const AddText& add_text) {
     const CarData& car_data = car_sprites.getCarData(this->current_car);
 
-    // Renderizar mapa
     map_manager.render(src_area_map, dest_area_map);
     
-    // Renderizar auto
     car_sprites.render(car_data.area, map_dest_areas[client_id]);
     
-    // Log cada 120 frames para debug
-    static int render_count = 0;
-    render_count++;
-    if (render_count % 120 == 0) {
-        std::cout << "[ClientGame] Rendering car at screen position: (" 
-                  << map_dest_areas[client_id].getX() << ", " 
-                  << map_dest_areas[client_id].getY() << ") size: ("
-                  << map_dest_areas[client_id].getWidth() << "x"
-                  << map_dest_areas[client_id].getHeight() << ")\n";
-    }
+    std::string client_id_str = "Client ID: " + std::to_string(client_id);
+    add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
 
     window.render();
 }
