@@ -11,7 +11,7 @@
 #include "race_participant.h"
 #include "../common/dto/input_state.h"
 #include "../common/car_model.h"
-#include "physics/Car.h"
+#include "Player/car.h"
 
 class Race {
 private:
