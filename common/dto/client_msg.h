@@ -11,8 +11,8 @@
 struct ClientMessage {
     enum class Type {
         Name,
+        Pos,
         Move,
-        CreateRoom,
         Room,
         Exit,
         StartGame,
@@ -25,6 +25,10 @@ struct ClientMessage {
     // Identidad / datos básicos
     std::string username{};
     Movement movement{};
+
+    uint16_t x{0}; // pixeles
+    uint16_t y{0}; // pixeles
+    float angle{0.0f}; //angulo ya en grados
 
     // Acciones de sala
     uint8_t room_cmd{0};

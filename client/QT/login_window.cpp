@@ -106,8 +106,8 @@ void LoginWindow::onLoginClicked() {
 
     server_handler.send_username(username.toStdString());
 
-    LobbyWindow lobby(server_handler);
-    lobby.show();
+    LobbyWindow* lobby = new LobbyWindow(server_handler);
+    lobby->show();
 
     this->close();
 }

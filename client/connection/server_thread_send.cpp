@@ -13,7 +13,7 @@ void ServerThreadSend::run() {
                 protocol.send_name(msg.username);
             } else if (msg.type == ClientMessage::Type::Move) {
                 protocol.send_move(msg.movement);
-            } else if (msg.type == ClientMessage::Type::CreateRoom) {
+            } else if (msg.type == ClientMessage::Type::Room) {
                 protocol.send_create_room();
             }
 

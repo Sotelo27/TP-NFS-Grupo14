@@ -1,23 +1,24 @@
 #ifndef CLIENT_THREAD_SEND_H
 #define CLIENT_THREAD_SEND_H
 
+#include "client_action.h"
 #include "../common/queue.h"
 #include "../common/thread.h"
 
 #include "server_protocol.h"
 
-struct server_msg_pos {
-    uint32_t id; 
-    int16_t x{0};
-    int16_t y{0};
-    float angle{0.f};
-};
+// struct server_msg_pos {
+//     uint32_t id;
+//     int16_t x{0};
+//     int16_t y{0};
+//     float angle{0.f};
+// };
 
 class ClientThreadSend: public Thread {
 private:
     ServerProtocol& protocol;
     size_t id = 0;
-    Queue<server_msg_pos>& mensajes_a_enviar;
+    Queue<ClientMessage>& mensajes_a_enviar;
 
 public:
     /*
@@ -26,7 +27,7 @@ public:
      * cola de mensajes a enviar.
      */
     explicit ClientThreadSend(ServerProtocol& protocol, size_t id,
-                             Queue<server_msg_pos>& mensajes_a_enviar);
+                             Queue<ClientMessage>& mensajes_a_enviar);
 
     void run() override;
 
