@@ -13,7 +13,7 @@
 class LoginWindow : public QWidget {
     Q_OBJECT
 public:
-    explicit LoginWindow(ServerHandler& server_handler,
+    explicit LoginWindow(ServerHandler& server_handler, size_t& my_id,
                         QWidget* parent = nullptr);
     ~LoginWindow() = default;
 
@@ -22,6 +22,7 @@ private slots:
 
 private:
     ServerHandler& server_handler;
+    size_t& my_id;
     QLabel* title;
     QLabel* usernameLabel;
     QLineEdit* usernameInput;

@@ -12,9 +12,9 @@
 #define WIDTH_SIZE_WINDOW 800
 #define HEIGHT_SIZE_WINDOW 560
 
-LoginWindow::LoginWindow(ServerHandler& server_handler,
+LoginWindow::LoginWindow(ServerHandler& server_handler, size_t& my_id,
                          QWidget* parent)
-    : QWidget(parent), server_handler(server_handler)
+    : QWidget(parent), server_handler(server_handler), my_id(my_id)
 {
     setupUi();
     setupConnections();
@@ -112,7 +112,7 @@ void LoginWindow::onLoginClicked() {
     // Pequeña pausa para dar tiempo al servidor a procesar
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-    LobbyWindow* lobby = new LobbyWindow(server_handler);
+    LobbyWindow* lobby = new LobbyWindow(server_handler, my_id);
     lobby->show();
     
     std::cout << "[Client] Mostrando ventana de lobby" << std::endl;

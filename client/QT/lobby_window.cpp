@@ -8,8 +8,8 @@
 #include <QMessageBox>
 #include "../client_game.h"
 
-LobbyWindow::LobbyWindow(ServerHandler& server_handler, QWidget* parent)
-    : QWidget(parent), server_handler(server_handler), usuario_entro_a_sala(false)
+LobbyWindow::LobbyWindow(ServerHandler& server_handler, size_t& my_id, QWidget* parent)
+    : QWidget(parent), server_handler(server_handler), my_id(my_id), usuario_entro_a_sala(false)
 {
     setWindowTitle("Lobby - Need For Speed");
     setFixedSize(600, 400);
@@ -87,7 +87,7 @@ void LobbyWindow::processServerMessage(const ServerMessage& msg) {
         current_room_id = static_cast<uint8_t>(msg.id);
     } else if (msg.type == ServerMessage::Type::YourId) {
         std::cout << "[LobbyWindow] Tu ID asignado: " << msg.id << std::endl;
-        my_player_id = msg.id;
+        my_id = msg.id;
         
         // Detener polling
         usuario_entro_a_sala = true;

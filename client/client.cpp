@@ -18,11 +18,15 @@ void Client::start() {
     
     int n = 0;
     QApplication app(n, nullptr);
-    login_window = new LoginWindow(server_handler);
+
+    size_t my_id;
+    login_window = new LoginWindow(server_handler, my_id);
     login_window->show();
     app.exec();
 
-    ClientGame game(1, server_handler);
+    std::cout << "[Client] Starting game loop..." << std::endl;
+    std::cout << "[Client] My client ID is: " << my_id << std::endl;
+    ClientGame game(my_id, server_handler);
     game.start();
 }
 

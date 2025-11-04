@@ -13,6 +13,7 @@ class LobbyWindow : public QWidget {
 
 private:
     ServerHandler& server_handler;
+    size_t& my_id;
     bool usuario_entro_a_sala;
     QScrollArea* scrollArea;
     QWidget* container;
@@ -28,7 +29,7 @@ private slots:
     void onPollTimer();
 
 public:
-    explicit LobbyWindow(ServerHandler& server_handler, QWidget* parent = nullptr);
+    explicit LobbyWindow(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
 
     void updateRoomList(const std::vector<RoomInfo>& rooms);
     void create_new_room();
