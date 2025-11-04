@@ -15,6 +15,7 @@ struct ServerMessage {
         PlayerName,
         YourId,
         GameOver,
+        RoomCreated,
         Unknown
     } type{Type::Unknown};
 
