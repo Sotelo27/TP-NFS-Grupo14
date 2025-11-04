@@ -86,6 +86,13 @@ void ClientGame::update_state_from_position() {
         }
     }
 
+    // Enviar entradas continuas mientras las teclas estén presionadas
+    const Uint8* keyboard = SDL_GetKeyboardState(nullptr);
+    if (keyboard[SDL_SCANCODE_LEFT])  { server_handler.send_movement(Movement::Left); }
+    if (keyboard[SDL_SCANCODE_RIGHT]) { server_handler.send_movement(Movement::Right); }
+    if (keyboard[SDL_SCANCODE_UP])    { server_handler.send_movement(Movement::Up); }
+    if (keyboard[SDL_SCANCODE_DOWN])  { server_handler.send_movement(Movement::Down); }
+
     // Procesar mensajes del servidor
     bool keep_loop = true;
     int msg_count = 0;
@@ -103,12 +110,13 @@ void ClientGame::update_state_from_position() {
                     std::cout << "[ClientGame] Server position: (" << action.x << ", " << action.y 
                               << ") - Current position: (" << positions.x_car_map << ", " << positions.y_car_map << ")\n";
                 }
-                
-                // SOLO actualizar si las posiciones del servidor son válidas (no son 0,0)
+
+                // Actualizar posición y ángulo
                 if (action.x != 0 || action.y != 0) {
                     positions.x_car_map = action.x;
                     positions.y_car_map = action.y;
                 }
+                positions.angle_deg = action.angle; // ya viene en grados
             }
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
@@ -158,8 +166,8 @@ void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_ma
     const CarData& car_data = car_sprites.getCarData(this->current_car);
 
     map_manager.render(src_area_map, dest_area_map);
-    
-    car_sprites.render(car_data.area, map_dest_areas[client_id]);
+
+    car_sprites.render_rotated(car_data.area, map_dest_areas[client_id], positions.angle_deg);
     
     std::string client_id_str = "Client ID: " + std::to_string(client_id);
     add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));

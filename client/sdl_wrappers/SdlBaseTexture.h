@@ -17,6 +17,8 @@ public:
     explicit SdlBaseTexture(const SdlWindow& window);
     virtual ~SdlBaseTexture();
     int render(const Area& src, const Area& dest) const;
+    // Render con rotación (en grados) alrededor del centro del rect destino
+    int render_rotated(const Area& src, const Area& dest, double angle_deg) const;
 };
 
 #endif

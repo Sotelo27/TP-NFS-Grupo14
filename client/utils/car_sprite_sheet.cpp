@@ -30,3 +30,7 @@ const CarData& CarSpriteSheet::getCarData(CarSpriteID id) const { return this->s
 void CarSpriteSheet::render(const Area& src, const Area& dest) const {
     this->texture_cars.render(src, dest);
 }
+
+void CarSpriteSheet::render_rotated(const Area& src, const Area& dest, double angle_deg) const {
+    this->texture_cars.render_rotated(src, dest, angle_deg);
+}

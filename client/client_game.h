@@ -13,8 +13,9 @@
 #include "utils/add_text.h"
 
 struct Positions {
-    int x_car_map;
-    int y_car_map;
+    int x_car_map{0};
+    int y_car_map{0};
+    float angle_deg{0.f};
 };
 
 class ClientGame {

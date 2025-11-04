@@ -35,6 +35,7 @@ public:
 
     const CarData& getCarData(CarSpriteID id) const;
     void render(const Area& src, const Area& dest) const;
+    void render_rotated(const Area& src, const Area& dest, double angle_deg) const;
 };
 
 #endif  // CAR_SPRITE_SHEET_H
