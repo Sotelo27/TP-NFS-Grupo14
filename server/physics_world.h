@@ -20,7 +20,7 @@ private:
 
     // Ajuste/tolerancia para colisionadores rectangulares: reducimos 2px por lado
     // para evitar contactos "tempranos" respecto al arte de los edificios.
-    static constexpr float rect_collider_margin_px = 4.0f;
+    static constexpr float rect_collider_margin_px = 32.0f;
 
     /*
      * Conversion de unidades ----
