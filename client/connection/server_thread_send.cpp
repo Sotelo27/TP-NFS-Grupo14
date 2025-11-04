@@ -14,7 +14,11 @@ void ServerThreadSend::run() {
             } else if (msg.type == ClientMessage::Type::Move) {
                 protocol.send_move(msg.movement);
             } else if (msg.type == ClientMessage::Type::Room) {
-                protocol.send_create_room();
+                if (msg.room_cmd == ROOM_CREATE) {
+                    protocol.send_create_room();
+                } else if (msg.room_cmd == ROOM_JOIN) {
+                    protocol.send_join_room(msg.room_id);
+                }
             }
 
         } catch (const std::exception& e) {

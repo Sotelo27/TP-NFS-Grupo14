@@ -171,7 +171,8 @@ ServerMessage ClientProtocol::receive() {
     } else if (code == CODE_S2C_ROOM_CREATED) {
         uint8_t room_id = 0;
         skt.recvall(&room_id, sizeof(room_id));
-        dto.type = ServerMessage::Type::Rooms;
+        dto.type = ServerMessage::Type::Rooms; // mantener compatibilidad
+        dto.id = room_id; // importante: exponer id para LobbyWindow
         dto.rooms.clear();
         dto.rooms.push_back(RoomInfo{room_id, 0, 0});
     } else if (code == CODE_S2C_GAME_OVER) {

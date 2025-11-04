@@ -57,6 +57,16 @@ void ServerHandler::send_username(const std::string& username) {
 void ServerHandler::send_create_room() {
     ClientMessage msg;
     msg.type = ClientMessage::Type::Room;
+    msg.room_cmd = ROOM_CREATE;
+    msg.room_id = 0;
+    messages_send.try_push(msg);
+}
+
+void ServerHandler::send_join_room(uint8_t room_id) {
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::Room;
+    msg.room_cmd = ROOM_JOIN;
+    msg.room_id = room_id;
     messages_send.try_push(msg);
 }
 

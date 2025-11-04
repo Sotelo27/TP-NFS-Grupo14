@@ -18,7 +18,7 @@ class ClientHandler {
 private:
     ServerProtocol protocol;
     size_t id = 0;
-    Queue<server_msg_pos> mensajes_a_enviar;
+    Queue<ServerOutMsg> mensajes_a_enviar;
     ClientThreadRecv recv;
     ClientThreadSend send;
     bool recv_started{false};
@@ -80,6 +80,9 @@ public:
 
     // Enviar el username de un player (id, username)
     void send_player_name_to_client(uint32_t id, const std::string& username);
+
+    // Notificar id de sala recién creada a este cliente
+    void send_room_created_to_client(uint8_t room_id);
 
     /*
      * Encola el envío de una posición (id,x,y,angle) al cliente

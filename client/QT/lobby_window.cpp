@@ -80,6 +80,8 @@ void LobbyWindow::create_new_room() {
 void LobbyWindow::open_waiting_room(uint8_t id_room) {
     usuario_entro_a_sala = true;
     std::cout << "Entrando a sala " << (int)id_room << std::endl;
+    // Enviar JOIN-ROOM para salas existentes (si ya fue auto-join, el server lo ignorará)
+    server_handler.send_join_room(id_room);
     // WaitingRoomWindow waiting_room(server_handler);
     // waiting_room.show();
     this->close();

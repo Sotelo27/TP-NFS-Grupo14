@@ -198,6 +198,11 @@ void MonitorLobby::run() {
                     if (act.room_cmd == ROOM_CREATE) {
                         uint8_t rid = create_room_locked(/*max_players=*/8);
                         (void)rid;
+                        // Notificar explícitamente al creador el id de la sala
+                        auto itp = pending.find(act.id);
+                        if (itp != pending.end() && itp->second) {
+                            itp->second->send_room_created_to_client(rid);
+                        }
                         broadcast_rooms_to_pending_locked();
                         // Unir automáticamente al creador
                         std::cout << "[Lobby] Auto-joining creator conn_id=" << act.id << " into room_id=" << (int)rid << "\n";

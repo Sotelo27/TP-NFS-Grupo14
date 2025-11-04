@@ -49,7 +49,6 @@ bool ClientHandler::is_alive() {
     if (!recv.is_alive() || !send.is_alive()) {
         return false;
     }
-
     return true;
 }
 
@@ -63,50 +62,53 @@ void ClientHandler::hard_kill() {
 
 size_t ClientHandler::get_id() { return id; }
 
-void ClientHandler::server_enviar_pos(uint32_t id, int16_t x, int16_t y, float angle) {
-    server_msg_pos msg{};
-    msg.id = id;
-    msg.x = x;
-    msg.y = y;
-    msg.angle = angle;
-    mensajes_a_enviar.try_push(std::move(msg));
+void ClientHandler::server_enviar_pos(uint32_t pid, int16_t x, int16_t y, float angle) {
+    ServerOutMsg out{};
+    out.type = ServerOutType::Pos;
+    out.id = pid;
+    out.x = x;
+    out.y = y;
+    out.angle = angle;
+    mensajes_a_enviar.try_push(std::move(out));
 }
 
 void ClientHandler::send_positions_to_all(const std::vector<PlayerPos>& positions) {
-    // Volver a enviar todas las posiciones; el cliente ya filtra por su id para cámara.
     for (const auto& pp : positions) {
         server_enviar_pos(pp.id, pp.x, pp.y, pp.angle);
     }
 }
 
 void ClientHandler::send_rooms_to_client(const std::vector<RoomInfo>& rooms) {
-    try {
-        protocol.send_rooms(rooms);
-    } catch (const std::exception& e) {
-        std::cerr << "Error sending rooms to client " << id << ": " << e.what() << "\n";
-    }
+    ServerOutMsg out{};
+    out.type = ServerOutType::Rooms;
+    out.rooms = rooms;
+    mensajes_a_enviar.try_push(std::move(out));
 }
 
 void ClientHandler::send_ok_to_client() {
-    try {
-        protocol.send_ok();
-    } catch (const std::exception& e) {
-        std::cerr << "Error sending OK to client " << id << ": " << e.what() << "\n";
-    }
+    ServerOutMsg out{};
+    out.type = ServerOutType::Ok;
+    mensajes_a_enviar.try_push(std::move(out));
 }
 
 void ClientHandler::send_your_id_to_client(uint32_t pid) {
-    try {
-        protocol.send_your_id(pid);
-    } catch (const std::exception& e) {
-        std::cerr << "Error sending YOUR_ID to client " << id << ": " << e.what() << "\n";
-    }
+    ServerOutMsg out{};
+    out.type = ServerOutType::YourId;
+    out.your_id = pid;
+    mensajes_a_enviar.try_push(std::move(out));
 }
 
 void ClientHandler::send_player_name_to_client(uint32_t pid, const std::string& username) {
-    try {
-        protocol.send_player_name(pid, username);
-    } catch (const std::exception& e) {
-        std::cerr << "Error sending PLAYER_NAME to client " << id << ": " << e.what() << "\n";
-    }
+    ServerOutMsg out{};
+    out.type = ServerOutType::PlayerName;
+    out.id = pid;
+    out.username = username;
+    mensajes_a_enviar.try_push(std::move(out));
+}
+
+void ClientHandler::send_room_created_to_client(uint8_t room_id) {
+    ServerOutMsg out{};
+    out.type = ServerOutType::RoomCreated;
+    out.room_id = room_id;
+    mensajes_a_enviar.try_push(std::move(out));
 }
