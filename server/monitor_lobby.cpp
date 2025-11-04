@@ -8,7 +8,7 @@
 
 // IMPORTANTE: Cambiar esta ruta por una válida en tu sistema o hacer que sea configurable
 // Por ahora, comentar la carga del mapa para que el juego funcione sin él
-#define RUTA_MAPA "/home/mariosalazar/Documentos/TallerVeiga/TPGRUPAL/TP-NFS-Grupo14/CollisionTest2.yaml" // Dejar vacío hasta tener un mapa válido
+#define RUTA_MAPA std::string(COLLISION_PATH) + "/CollisionTest2.yaml" // Dejar vacío hasta tener un mapa válido
 
 MonitorLobby::MonitorLobby(float nitro_duracion): actions_in(), nitro_duracion(nitro_duracion) {}
 
