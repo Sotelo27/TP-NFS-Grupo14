@@ -8,7 +8,7 @@
 
 // IMPORTANTE: Cambiar esta ruta por una válida en tu sistema o hacer que sea configurable
 // Por ahora, comentar la carga del mapa para que el juego funcione sin él
-#define RUTA_MAPA "" // Dejar vacío hasta tener un mapa válido
+#define RUTA_MAPA "/home/mariosalazar/Documentos/TallerVeiga/TPGRUPAL/TP-NFS-Grupo14/CollisionTest2.yaml" // Dejar vacío hasta tener un mapa válido
 
 MonitorLobby::MonitorLobby(float nitro_duracion): actions_in(), nitro_duracion(nitro_duracion) {}
 
@@ -80,7 +80,7 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players) {
     std::cout << "[Lobby] Created room id=" << (int)rid << ", max_players=" << (int)max_players << "\n";
 
     // TEMPORALMENTE comentado hasta tener una ruta de mapa válida
-    /*
+    
     try {
         MapConfig cfg = MapConfigLoader::load_tiled_file(RUTA_MAPA);
         it->second.game.load_map(cfg);
@@ -91,7 +91,6 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players) {
         std::cerr << "[Lobby] Failed to load map YAML '" << RUTA_MAPA
                   << "': " << e.what() << "\n";
     }
-    */
 
     start_room_loop_locked(it->second);
     return rid;

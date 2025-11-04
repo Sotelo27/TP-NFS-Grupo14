@@ -14,14 +14,20 @@ void Race::add_player(size_t playerId, const CarModel& spec, float spawnX_px, fl
     const float spawnY_m = spawnY_px / PPM;
     const int16_t spawnX_units = (int16_t)(std::lround(spawnX_m * UNITS_PER_METER));
     const int16_t spawnY_units = (int16_t)(std::lround(spawnY_m * UNITS_PER_METER));
-    parts[playerId] = RaceParticipant{ParticipantState::Active, &spec, 100.f};
-    physics.create_body_with_spec(playerId, spawnX_units, spawnY_units, spec);
+    parts[playerId] = RaceParticipant{ParticipantState::Active, &spec};
+    physics.create_car_body(playerId, spawnX_units, spawnY_units, spec);
+    cars[playerId] = std::make_unique<Car>(playerId, spec, physics.get_body(playerId));
 }
 
 void Race::remove_player(size_t playerId) {
     auto it = parts.find(playerId);
     if (it != parts.end()) {
         it->second.state = ParticipantState::Disconnected;
+    }
+    // Remover entidad Car asociada
+    auto itc = cars.find(playerId);
+    if (itc != cars.end()) {
+        cars.erase(itc);
     }
     physics.destroy_body(playerId);
 }
@@ -35,26 +41,14 @@ void Race::apply_input(size_t playerId, const InputState& input) {
     if (participant.state != ParticipantState::Active) return;
     if (!participant.spec) return;
 
-    const CarModel& car = *participant.spec;
-
-    // Obtener la dirección de aceleracion y giro
+    // Resolver entradas en [-1..1]
     const float throttle = resolve_acceleration_input(input);
     const float steer = resolve_rotation_input(input);
 
-    // Aplicar fuerza de aceleracion
-    apply_acceleration_force(playerId, throttle, car);
-
-    // Aplicar torque de giro solo si hay aceleracion
-    if (std::fabs(throttle) > 0.01f) {
-        float speed = physics.get_linear_speed(playerId);
-        float k = (speed - 0.5f) / 5.0f;
-        k = std::clamp(k, 0.2f, 1.0f);
-    physics.apply_torque(playerId, steer * car.torqueGiro * k);
-    }
-
-    // 4) Limitar velocidad máxima
-    if (car.velocidadMaxMps > 0.f) {
-    physics.cap_linear_speed(playerId, car.velocidadMaxMps);
+    // Delegar aplicacion de input a Car,asi desacoplamos race
+    auto itc = cars.find(playerId);
+    if (itc != cars.end() && itc->second) {
+        itc->second->apply_input(throttle, steer);
     }
 }
 
@@ -71,15 +65,6 @@ float Race::resolve_acceleration_input(const InputState& input) {
 float Race::resolve_rotation_input(const InputState& input) {
     return (input.right ? 1.f : 0.f) - (input.left ? 1.f : 0.f);
 }
-
-void Race::apply_acceleration_force(size_t player_id, float throttle, const CarModel& car) {
-    // Fuerza longitudinal en el eje forward del auto (usa ángulo actual)
-    float ang = physics.get_angle(player_id);
-    float fx = throttle * car.fuerzaAceleracionN * std::cos(ang);
-    float fy = throttle * car.fuerzaAceleracionN * std::sin(ang);
-    physics.apply_force_center(player_id, fx, fy);
-}
-
 
 std::vector<PlayerPos> Race::snapshot_poses() const {
     std::vector<PlayerPos> player_positions;

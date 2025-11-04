@@ -11,7 +11,7 @@
 #include "../common/dto/movement.h"
 #include "../common/player_aux.h"
 
-#include "player.h"
+#include "Player/player.h"
 #include "race.h"
 #include "city.h"
 #include "../common/dto/map_config.h"

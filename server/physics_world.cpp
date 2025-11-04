@@ -5,7 +5,7 @@
 
 PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)) {}
 
-void PhysicsWorld::create_body_with_spec(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec) {
+void PhysicsWorld::create_car_body(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec) {
     destroy_body(id);
 
     b2BodyDef def;
@@ -55,47 +55,11 @@ void PhysicsWorld::step(float dt) {
     }
 }
 
-void PhysicsWorld::apply_force_center(size_t id, float fx, float fy) {
-    auto it = bodies.find(id);
-    if (it == bodies.end()) return;
-    it->second->ApplyForceToCenter(b2Vec2(fx, fy), true);
-}
-
-void PhysicsWorld::apply_torque(size_t id, float torque) {
-    auto it = bodies.find(id);
-    if (it == bodies.end()) return;
-    it->second->ApplyTorque(torque, true);
-}
-
-float PhysicsWorld::get_angle(size_t id) const {
-    auto it = bodies.find(id);
-    if (it == bodies.end()) return 0.f;
-    return it->second->GetAngle();
-}
-
 Pose PhysicsWorld::get_pose(size_t id) const {
     auto it = bodies.find(id);
     if (it == bodies.end()) return Pose{0, 0, 0.f};
     b2Vec2 p = it->second->GetPosition();
     return Pose{toUnits(p.x), toUnits(p.y), it->second->GetAngle()};
-}
-
-void PhysicsWorld::cap_linear_speed(size_t id, float max_mps) {
-    auto it = bodies.find(id);
-    if (it == bodies.end()) return;
-    b2Vec2 v = it->second->GetLinearVelocity();
-    float speed = v.Length();
-    if (speed > max_mps && speed > 0.f) {
-        v *= (max_mps / speed);
-        it->second->SetLinearVelocity(v);
-    }
-}
-
-float PhysicsWorld::get_linear_speed(size_t id) const {
-    auto it = bodies.find(id);
-    if (it == bodies.end()) return 0.f;
-    b2Vec2 v = it->second->GetLinearVelocity();
-    return v.Length();
 }
 
 void PhysicsWorld::clear_static_geometry() {

@@ -11,12 +11,14 @@
 #include "race_participant.h"
 #include "../common/dto/input_state.h"
 #include "../common/car_model.h"
+#include "Player/car.h"
 
 class Race {
 private:
     uint32_t id;
     PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
+    std::unordered_map<size_t, std::unique_ptr<Car>> cars;
 
     /*
      * Devuelve la direccion de aceleración del jugador segun su input
@@ -33,13 +35,6 @@ private:
      *    0 : recto
      */
     static float resolve_rotation_input(const InputState& input);
-
-    /*
-    * Aplica al auto del jugador(body) una fuerza hacia adelante o hacia atras
-    * segun la direccion de aceleracion obtenida del input y las
-    * caracteristicas fisicas del auto (CarModel).
-     */
-    void apply_acceleration_force(size_t player_id, float throttle, const CarModel& car);
 
 public:
     Race(uint32_t id, PhysicsWorld& external_world);
