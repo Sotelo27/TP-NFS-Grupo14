@@ -79,6 +79,7 @@ void ClientHandler::send_positions_to_all(const std::vector<PlayerPos>& position
 }
 
 void ClientHandler::send_rooms_to_client(const std::vector<RoomInfo>& rooms) {
+    std::cout << "[ClientHandler] Queueing ROOMS message for conn_id=" << id << " (count=" << rooms.size() << ")\n";
     ServerOutMsg out{};
     out.type = ServerOutType::Rooms;
     out.rooms = rooms;
@@ -86,12 +87,14 @@ void ClientHandler::send_rooms_to_client(const std::vector<RoomInfo>& rooms) {
 }
 
 void ClientHandler::send_ok_to_client() {
+    std::cout << "[ClientHandler] Queueing OK message for conn_id=" << id << "\n";
     ServerOutMsg out{};
     out.type = ServerOutType::Ok;
     mensajes_a_enviar.try_push(std::move(out));
 }
 
 void ClientHandler::send_your_id_to_client(uint32_t pid) {
+    std::cout << "[ClientHandler] Queueing YOUR_ID message for conn_id=" << id << " (player_id=" << pid << ")\n";
     ServerOutMsg out{};
     out.type = ServerOutType::YourId;
     out.your_id = pid;
@@ -99,6 +102,7 @@ void ClientHandler::send_your_id_to_client(uint32_t pid) {
 }
 
 void ClientHandler::send_player_name_to_client(uint32_t pid, const std::string& username) {
+    std::cout << "[ClientHandler] Queueing PLAYER_NAME message for conn_id=" << id << " (player_id=" << pid << ", name='" << username << "')\n";
     ServerOutMsg out{};
     out.type = ServerOutType::PlayerName;
     out.id = pid;
@@ -107,6 +111,7 @@ void ClientHandler::send_player_name_to_client(uint32_t pid, const std::string& 
 }
 
 void ClientHandler::send_room_created_to_client(uint8_t room_id) {
+    std::cout << "[ClientHandler] Queueing ROOM_CREATED message for conn_id=" << id << " (room_id=" << (int)room_id << ")\n";
     ServerOutMsg out{};
     out.type = ServerOutType::RoomCreated;
     out.room_id = room_id;

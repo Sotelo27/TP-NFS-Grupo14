@@ -20,13 +20,16 @@ void MonitorLobby::add_pending_connection(std::shared_ptr<ClientHandler> ch, siz
     std::lock_guard<std::mutex> lk(m);
     pending.emplace(conn_id, std::move(ch));
     std::cout << "[Lobby] New pending connection conn_id=" << conn_id << "\n";
+    
     // Enviar listado de salas actual al cliente que acaba de entrar
     auto it = pending.find(conn_id);
     if (it != pending.end() && it->second) {
         it->second->send_rooms_to_client(list_rooms_locked());
-        // iniciar solo recepcion para procesar NAME/ROOM y luego de ahi entrar a sala
-        // practicamente sera posponer el hilo de envio hasta que el cliente cree o entre a  una sala >:3
+        
+        // CRÍTICO: Iniciar AMBOS hilos para que el cliente pueda enviar Y recibir
+        std::cout << "[Lobby] Starting recv and send threads for conn_id=" << conn_id << "\n";
         it->second->start_recv_only();
+        it->second->start_send_only();
     }
 }
 
@@ -188,11 +191,22 @@ void MonitorLobby::reap_locked() {
 }
 
 void MonitorLobby::run() {
+    std::cout << "[Lobby] MonitorLobby iniciado, esperando acciones..." << std::endl;
+    
+    int iteration_count = 0;
+    
     while (should_keep_running()) {
         try {
             // Drenar cola global y enrutar
             ClientAction act;
+            bool processed_any = false;
+            
             while (actions_in.try_pop(act)) {
+                processed_any = true;
+                std::cout << "[Lobby] ======================================\n";
+                std::cout << "[Lobby] Acción recibida: type=" << (int)act.type 
+                          << ", id=" << act.id << std::endl;
+                
                 if (act.type == ClientAction::Type::Room) {
                     std::lock_guard<std::mutex> lk(m);
                     if (act.room_cmd == ROOM_CREATE) {
@@ -204,9 +218,8 @@ void MonitorLobby::run() {
                         if (itp != pending.end() && itp->second) {
                             std::cout << "[Lobby] Sending ROOM_CREATED(" << (int)rid << ") to conn_id=" << act.id << "\n";
                             itp->second->send_room_created_to_client(rid);
-                            
-                            // Pequeña pausa para asegurar que el mensaje se envíe
-                            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                        } else {
+                            std::cout << "[Lobby] ERROR: No se encontró pending conn_id=" << act.id << "\n";
                         }
                         
                         // 2. Broadcast de la nueva lista de salas
@@ -216,8 +229,11 @@ void MonitorLobby::run() {
                         // 3. Unir automáticamente al creador
                         std::cout << "[Lobby] Auto-joining creator conn_id=" << act.id << " into room_id=" << (int)rid << "\n";
                         if (join_room_locked(act.id, rid)) {
+                            std::cout << "[Lobby] Auto-join successful\n";
                             // 4. Broadcast final después del join
                             broadcast_rooms_to_pending_locked();
+                        } else {
+                            std::cout << "[Lobby] ERROR: Auto-join failed\n";
                         }
                     } else if (act.room_cmd == ROOM_JOIN) {
                         std::cout << "[Lobby] JOIN request conn_id=" << act.id << " -> room_id=" << (int)act.room_id << "\n";
@@ -227,6 +243,7 @@ void MonitorLobby::run() {
                     }
                 } else if (act.type == ClientAction::Type::Name) {
                     std::lock_guard<std::mutex> lk(m);
+                    std::cout << "[Lobby] NAME action from conn_id=" << act.id << ": '" << act.username << "'\n";
                     auto itb = bindings.find(act.id);
                     if (itb == bindings.end()) {
                         pending_names[act.id] = act.username;
@@ -244,8 +261,6 @@ void MonitorLobby::run() {
                     std::lock_guard<std::mutex> lk(m);
                     auto itb = bindings.find(act.id);
                     if (itb == std::end(bindings)) {
-                        // si no esta en sala, Vamos a ignorar todo lo demas coomo el MOVE y reenviar rooms
-                        // solo a ese cliente para que elija
                         auto itp = pending.find(act.id);
                         if (itp != pending.end() && itp->second) {
                             itp->second->send_rooms_to_client(list_rooms_locked());
@@ -259,12 +274,12 @@ void MonitorLobby::run() {
                     if (itr != rooms.end()) {
                         ClientAction routed(pid, act.movement);
                         itr->second.actions.push(routed);
-                        // Debug de ruteo: muestra de qué conexión y hacia qué sala/player se envió el movimiento
                         std::cout << "[Lobby] Routed MOVE from conn_id=" << act.id
                                   << " -> room_id=" << (int)rid
                                   << ", player_id=" << pid << "\n";
                     }
                 }
+                std::cout << "[Lobby] ======================================\n";
             }
 
             {
@@ -272,7 +287,20 @@ void MonitorLobby::run() {
                 reap_locked();
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            // Log periódico cada 100 iteraciones para no saturar
+            iteration_count++;
+            if (iteration_count % 100 == 0) {
+                std::lock_guard<std::mutex> lk(m);
+                std::cout << "[Lobby] Status: " << rooms.size() << " rooms, " 
+                          << pending.size() << " pending connections\n";
+            }
+
+            // Si no procesamos ninguna acción, dormir un poco más para no saturar CPU
+            if (!processed_any) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            } else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
         } catch (const ClosedQueue&) {
             break;
         } catch (const std::exception& e) {
