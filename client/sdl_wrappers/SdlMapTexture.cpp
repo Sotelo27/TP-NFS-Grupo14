@@ -17,3 +17,5 @@ SDL_Texture* SdlMapTexture::loadTexture(const std::string& filename) {
     }
     return texture;
 }
+
+SDL_Texture* SdlMapTexture::getTexture() const { return this->texture; }

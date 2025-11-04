@@ -1,13 +1,19 @@
 #ifndef SERVER_THREAD_SEND_H
 #define SERVER_THREAD_SEND_H
 
+#include <string>
+
 #include "../../common/dto/movement.h"
 #include "../../common/queue.h"
 #include "../../common/thread.h"
 #include "../client_protocol.h"
 
+enum TypeMessageSend { ClientPosition, SendUsername, CreateRoom };
+
 struct client_msg_pos {
+    TypeMessageSend type;
     Movement tecla;
+    std::string username;
 };
 
 class ServerThreadSend: public Thread {

@@ -23,6 +23,9 @@ ClientGame::ClientGame(CarSpriteID car, size_t client_id, const char* host, cons
 void ClientGame::start() {
     server_handler.start();
 
+    server_handler.send_username("Player_" + std::to_string(client_id));
+    server_handler.send_create_room();
+
     this->running = true;
 
     // init resources
@@ -30,7 +33,7 @@ void ClientGame::start() {
     window.fill();
 
     CarSpriteSheet car_sprites(window);
-
+    AddText add_text(24, window);
     MapsTextures map_manager(window);
     map_manager.loadMap(MapID::LibertyCity);
 
@@ -46,7 +49,7 @@ void ClientGame::start() {
 
         update_animation_frames(map_data, car_sprites);
 
-        render_in_z_order(window, map_manager, car_sprites);
+        render_in_z_order(window, map_manager, car_sprites, add_text);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
@@ -142,11 +145,14 @@ void ClientGame::update_animation_frames(const MapData& map_data,
 }
 
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                                   const CarSpriteSheet& car_sprites) {
+                                   const CarSpriteSheet& car_sprites, const AddText& add_text) {
     const CarData& car_data = car_sprites.getCarData(this->current_car);
 
     map_manager.render(src_area_map, dest_area_map);
     car_sprites.render(car_data.area, map_dest_areas[client_id]);
+
+    std::string client_id_str = "Client ID: " + std::to_string(client_id);
+    add_text.renderText(client_id_str, Rgb(255, 255, 255, 128), Area(10, 10, 0, 0));
 
     window.render();
 }

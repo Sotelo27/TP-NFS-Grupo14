@@ -8,6 +8,7 @@
 
 #include "connection/server_handler.h"
 #include "sdl_wrappers/SdlWindow.h"
+#include "utils/add_text.h"
 #include "utils/car_sprite_sheet.h"
 #include "utils/maps_textures.h"
 
@@ -31,7 +32,7 @@ private:
     void update_state_from_position();
     void update_animation_frames(const MapData& map_data, const CarSpriteSheet& car_sprites);
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                           const CarSpriteSheet& car_sprites);
+                           const CarSpriteSheet& car_sprites, const AddText& add_text);
 
 public:
     explicit ClientGame(CarSpriteID current_car, size_t client_id, const char* host,

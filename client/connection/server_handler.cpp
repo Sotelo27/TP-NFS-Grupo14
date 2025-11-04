@@ -39,4 +39,14 @@ void ServerHandler::hard_kill() {
     }
 }
 
-void ServerHandler::send_movement(Movement mov) { messages_send.try_push(client_msg_pos{mov}); }
+void ServerHandler::send_movement(Movement mov) {
+    messages_send.try_push(client_msg_pos{TypeMessageSend::ClientPosition, mov, ""});
+}
+
+void ServerHandler::send_username(const std::string& username) {
+    messages_send.try_push(client_msg_pos{TypeMessageSend::SendUsername, Movement::Up, username});
+}
+
+void ServerHandler::send_create_room() {
+    messages_send.try_push(client_msg_pos{TypeMessageSend::CreateRoom, Movement::Up, ""});
+}

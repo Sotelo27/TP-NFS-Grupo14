@@ -1,6 +1,7 @@
 #ifndef SERVER_HANDLER_H
 #define SERVER_HANDLER_H
 
+#include <string>
 #include <utility>
 
 #include "../../common/queue.h"
@@ -47,6 +48,10 @@ public:
     void hard_kill();
 
     void send_movement(Movement mov);
+
+    void send_username(const std::string& username);
+
+    void send_create_room();
 
     ServerHandler(const ServerHandler&) = delete;
     ServerHandler& operator=(const ServerHandler&) = delete;

@@ -140,6 +140,7 @@ if(TALLER_CLIENT)
             taller_common
             SDL2pp::SDL2pp
             SDL2_image::SDL2_image
+            SDL2_ttf::SDL2_ttf
             taller_common
             Qt5::Core
             Qt5::Gui
