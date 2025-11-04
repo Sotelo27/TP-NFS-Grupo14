@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <memory>
 #include <vector>
 
 #include "../common/player_aux.h"
@@ -14,7 +15,7 @@
 class Race {
 private:
     uint32_t id;
-    PhysicsWorld physics;
+    PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
 
     /*
@@ -41,7 +42,7 @@ private:
     void apply_acceleration_force(size_t player_id, float throttle, const CarModel& car);
 
 public:
-    explicit Race(uint32_t id);
+    Race(uint32_t id, PhysicsWorld& external_world);
 
     /*
     * Agrega un jugador a la carrera con su CarModel y posicioon inicial
@@ -54,11 +55,6 @@ public:
      * Marca al jugador como desconectado y destruye su body fisico removiendolo de la carrera
      */
     void remove_player(size_t playerId);
-
-    /*
-     * Avanza los ticks fisicos dtMs (world.Step) y procesa efectos globales
-     */
-    void update(uint32_t dtMs);
 
     /*
     * Aplica el InputState del jugador: acelera, gira segun CarModel

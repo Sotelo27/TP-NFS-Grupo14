@@ -4,6 +4,11 @@
 #include <iostream>
 #include <thread>
 
+#include "map/map_config_loader.h"
+
+// dejo esta ruta para solo pruebas de colisiones
+#define RUTA "/home/mariosalazar/Documentos/TallerVeiga/TPGRUPAL/TP-NFS-Grupo14/CollisionTest2.yaml"
+
 MonitorLobby::MonitorLobby(float nitro_duracion): actions_in(), nitro_duracion(nitro_duracion) {}
 
 size_t MonitorLobby::reserve_connection_id() {
@@ -69,6 +74,18 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players) {
 
     auto [it, _] = rooms.try_emplace(rid, rid, nitro_duracion, max_players);
     std::cout << "[Lobby] Created room id=" << (int)rid << ", max_players=" << (int)max_players << "\n";
+
+    // Cuando se crea una sala se leen todos los datos del mapa para que la ciudad los utilice
+    try {
+    MapConfig cfg = MapConfigLoader::load_tiled_file(RUTA);
+        it->second.game.load_map(cfg);
+    std::cout << "[Lobby] Loaded map from YAML: " << RUTA
+          << " (rects=" << cfg.rects.size() << ", polylines=" << cfg.polylines.size()
+          << ", spawns=" << cfg.spawns.size() << ")\n";
+    } catch (const std::exception& e) {
+    std::cerr << "[Lobby] Failed to load map YAML '" << RUTA
+                  << "': " << e.what() << "\n";
+    }
 
     start_room_loop_locked(it->second);
     return rid;

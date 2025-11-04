@@ -21,8 +21,7 @@ class ClientGame {
 private:
     CarSpriteID current_car;
     size_t client_id;
-    Queue<ServerMessage> server_actions;
-    ServerHandler server_handler;
+    ServerHandler& server_handler;
     bool running;
     Positions positions;
     Area src_area_map;
@@ -35,8 +34,8 @@ private:
                            const CarSpriteSheet& car_sprites, const AddText& add_text);
 
 public:
-    explicit ClientGame(CarSpriteID current_car, size_t client_id, const char* host,
-                        const char* service);
+    explicit ClientGame(CarSpriteID current_car, size_t client_id,
+        ServerHandler& server_handler);
 
     void start();
 

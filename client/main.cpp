@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
         }
 
         QApplication app(argc, argv);
-        LoginWindow login(HOST_NAME, SERVICENAME);
-        login.show();
+        Client client(HOST_NAME,SERVICENAME);
+        client.start();
         return app.exec();
 
     } catch (const std::exception& err) {

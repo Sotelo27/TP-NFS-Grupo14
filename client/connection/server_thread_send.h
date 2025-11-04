@@ -3,23 +3,15 @@
 
 #include <string>
 
-#include "../../common/dto/movement.h"
 #include "../../common/queue.h"
 #include "../../common/thread.h"
 #include "../client_protocol.h"
-
-enum TypeMessageSend { ClientPosition, SendUsername, CreateRoom };
-
-struct client_msg_pos {
-    TypeMessageSend type;
-    Movement tecla;
-    std::string username;
-};
+#include "../../common/dto/client_msg.h"
 
 class ServerThreadSend: public Thread {
 private:
     ClientProtocol& protocol;
-    Queue<client_msg_pos>& messages_send;
+    Queue<ClientMessage>& messages_send;
 
 public:
     /*
@@ -27,7 +19,7 @@ public:
      * protocol del client, el id del client y una referencia a la
      * cola de mensajes a enviar.
      */
-    explicit ServerThreadSend(ClientProtocol& protocol, Queue<client_msg_pos>& messages_send);
+    explicit ServerThreadSend(ClientProtocol& protocol, Queue<ClientMessage>& messages_send);
 
     void run() override;
 

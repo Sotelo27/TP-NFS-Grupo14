@@ -10,11 +10,13 @@
 
 #include "server_thread_recv.h"
 #include "server_thread_send.h"
+#include "common/dto/client_msg.h"
 
 class ServerHandler {
 private:
     ClientProtocol protocol;
-    Queue<client_msg_pos> messages_send;
+    Queue<ClientMessage> messages_send;
+    Queue<ServerMessage> messages_recv;
     ServerThreadRecv recv;
     ServerThreadSend send;
 
@@ -24,7 +26,7 @@ public:
      * con el Server, el id del Server y una referencia a la cola de
      * actiones de Servers, donde se pushearán las peticiones recibidas.
      */
-    explicit ServerHandler(Socket&& skt, Queue<ServerMessage>& server_actions);
+    explicit ServerHandler(Socket&& skt);
 
     /*
      * Con `ServerHandler::ejecutar` se inician los hilos de recepción
@@ -47,7 +49,10 @@ public:
      */
     void hard_kill();
 
+    void send_username(const std::string& username);
     void send_movement(Movement mov);
+    void send_create_room();
+    ServerMessage recv_response_from_server();
 
     void send_username(const std::string& username);
 

@@ -6,12 +6,18 @@
 #include <utility>
 
 #include "client_game.h"
+#include "QT/login_window.h"
 
-Client::Client(const char* host, const char* service): host(host), service(service) {}
+Client::Client(const char* host, const char* service)
+    : server_handler(Socket(host, service)) {}
+
+// void Client::start() {
+//       CarSpriteID current_car = CarSpriteID::CommonGreenCar;
+//       ClientGame game(current_car, host, service);
+//       game.start();
+// }
 
 void Client::start() {
-    CarSpriteID current_car = CarSpriteID::CommonGreenCar;
-    size_t client_id = 1;
-    ClientGame game(current_car, client_id, host, service);
-    game.start();
+    LoginWindow* login = new LoginWindow(server_handler);
+    login->show();
 }

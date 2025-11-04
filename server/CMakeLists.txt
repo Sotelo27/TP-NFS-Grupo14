@@ -11,6 +11,7 @@ target_sources(taller_server
     game.cpp
     race.cpp
     physics_world.cpp
+    map/map_config_loader.cpp
     # headers-only or inline headers can be listed under PUBLIC
     player.cpp
     server.cpp
@@ -27,7 +28,9 @@ target_sources(taller_server
     gameloop.h
     game.h
     race.h
+    city.h
     physics_world.h
+    map/map_config_loader.h
     race_participant.h
     player.h
     server.h

@@ -21,7 +21,7 @@ void Game::throw_jugador_no_existe(size_t id) const {
     throw std::invalid_argument("The player with id " + std::to_string(id) + " does not exist.");
 }
 
-size_t Game::add_player() { // Luego necesito que reciba un player o el  nombre y auto
+size_t Game::add_player() {
     std::lock_guard<std::mutex> lock(m);
     while (jugador_existe_auxiliar(id_indice)) {
         id_indice++;
@@ -30,10 +30,11 @@ size_t Game::add_player() { // Luego necesito que reciba un player o el  nombre 
     players.emplace(id_indice, Player{id_indice});
     std::cout << "[Game] Added player with id=" << id_indice << "\n";
 
-    // Agregar jugador a la race minima con su CarModel y una posición inicial segura lejos de bordes
-    // El CarModel se obtiene del player recién creado
+    // Agregar jugador a la race con su CarModel y el spawn de la ciudad
     const CarModel& model = players.at(id_indice).get_car_model();
-    race.add_player(id_indice, model, 1000.0f, 1000.0f);
+    size_t spawn_index = (players.size() > 0) ? (players.size() - 1) : 0;
+    SpawnPoint sp = city.get_spawn_for_index(spawn_index);
+    race.add_player(id_indice, model, sp.x_px, sp.y_px);
 
     return id_indice;
 }
@@ -52,7 +53,6 @@ void Game::apply_player_move(size_t id, Movement movimiento) {
     if (!jugador_existe_auxiliar(id)) {
         throw_jugador_no_existe(id);
     }
-    // Acumular inputs para este tick (OR de todos los mensajes recibidos)
     InputState& in = pending_inputs[id];
     switch (movimiento) {
         case Movement::Up:    in.up = true;    break;
@@ -78,8 +78,8 @@ void Game::update(float dt) {
     }
     pending_inputs.clear();
 
-    const uint32_t dtMs = (uint32_t)std::lround(dt * 1000.0f);
-    race.update(dtMs);
+    // El step del mundo físico se hace a nivel de ciudad
+    city.step(dt);
 }
 
 void Game::set_player_name(size_t id, std::string name) {
@@ -89,4 +89,9 @@ void Game::set_player_name(size_t id, std::string name) {
     }
     std::cout << "[Game] Setting name for player id=" << id << ": '" << name << "'\n";
     players.at(id).set_name(std::move(name));
+}
+
+void Game::load_map(const MapConfig& cfg) {
+    std::lock_guard<std::mutex> lock(m);
+    city.load_map(cfg);
 }

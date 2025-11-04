@@ -3,15 +3,17 @@
 #include <cmath>
 #include <algorithm>
 
-Race::Race(uint32_t id)
-    : id(id) {}
+Race::Race(uint32_t id, PhysicsWorld& external_world)
+    : id(id), physics(external_world) {}
 
 void Race::add_player(size_t playerId, const CarModel& spec, float spawnX_px, float spawnY_px) {
-    // Conversión simple de píxeles a "unidades" del PhysicsWorld (metros)
-    // Por ahora 1 unidad = 1 metro y asumimos 32px = 1m si el cliente usa PPM=32.
-    const float PPM = 32.f;
-    int16_t spawnX_units = (int16_t)(spawnX_px / PPM);
-    int16_t spawnY_units = (int16_t)(spawnY_px / PPM);
+    // Conversión de píxeles -> metros (PPM=32) -> unidades discretas (128 unidades/m)
+    constexpr float PPM = 32.f;
+    constexpr float UNITS_PER_METER = 128.f;
+    const float spawnX_m = spawnX_px / PPM;
+    const float spawnY_m = spawnY_px / PPM;
+    const int16_t spawnX_units = (int16_t)(std::lround(spawnX_m * UNITS_PER_METER));
+    const int16_t spawnY_units = (int16_t)(std::lround(spawnY_m * UNITS_PER_METER));
     parts[playerId] = RaceParticipant{ParticipantState::Active, &spec, 100.f};
     physics.create_body_with_spec(playerId, spawnX_units, spawnY_units, spec);
 }
@@ -22,11 +24,6 @@ void Race::remove_player(size_t playerId) {
         it->second.state = ParticipantState::Disconnected;
     }
     physics.destroy_body(playerId);
-}
-
-void Race::update(uint32_t dtMs) {
-    const float dt = (float)(dtMs) / 1000.0f;
-    physics.step(dt);
 }
 
 void Race::apply_input(size_t playerId, const InputState& input) {
@@ -52,12 +49,12 @@ void Race::apply_input(size_t playerId, const InputState& input) {
         float speed = physics.get_linear_speed(playerId);
         float k = (speed - 0.5f) / 5.0f;
         k = std::clamp(k, 0.2f, 1.0f);
-        physics.apply_torque(playerId, steer * car.torqueGiro * k);
+    physics.apply_torque(playerId, steer * car.torqueGiro * k);
     }
 
     // 4) Limitar velocidad máxima
     if (car.velocidadMaxMps > 0.f) {
-        physics.cap_linear_speed(playerId, car.velocidadMaxMps);
+    physics.cap_linear_speed(playerId, car.velocidadMaxMps);
     }
 }
 
@@ -93,7 +90,11 @@ std::vector<PlayerPos> Race::snapshot_poses() const {
             continue;
         }
         Pose pose = physics.get_pose(playerId);
-        player_positions.push_back(PlayerPos{(uint32_t)(playerId),pose.x,pose.y,pose.angle});
+
+        const double PIXELS_PER_UNIT = 0.25;
+        const int16_t x_px = (int16_t)(std::lround((double)(pose.x) * PIXELS_PER_UNIT));
+        const int16_t y_px = (int16_t)(std::lround((double)(pose.y) * PIXELS_PER_UNIT));
+        player_positions.push_back(PlayerPos{(uint32_t)(playerId), x_px, y_px, pose.angle});
     }
 
     return player_positions;
