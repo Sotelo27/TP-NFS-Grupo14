@@ -71,7 +71,8 @@ public:
      * Crea el cuerpo fisico del jugador en su posicion inicial,
      * usando el modelo de auto (masa, velocidad y demas prarmetros)
      */
-    void create_body_with_spec(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec);
+    // Crea el body físico de un auto según su CarModel en la posición inicial
+    void create_car_body(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec);
 
     /*
      * Elimina el cuerpo del jugador del mundo Box2d
@@ -112,6 +113,13 @@ public:
      * Devuelve la velocidad lineal actual (m/s).
      */
     float get_linear_speed(size_t id) const;
+
+    // Acceso controlado al body (solo lectura del puntero)
+    b2Body* get_body(size_t id) const {
+        auto it = bodies.find(id);
+        if (it == bodies.end()) return nullptr;
+        return it->second;
+    }
 
     /*
      * Carga geotrica estatica (paredes, bordes) al mundo fisico desde MapConfig

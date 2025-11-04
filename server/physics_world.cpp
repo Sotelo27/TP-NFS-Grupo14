@@ -5,7 +5,7 @@
 
 PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)) {}
 
-void PhysicsWorld::create_body_with_spec(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec) {
+void PhysicsWorld::create_car_body(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec) {
     destroy_body(id);
 
     b2BodyDef def;

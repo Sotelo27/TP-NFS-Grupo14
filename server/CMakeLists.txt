@@ -30,6 +30,8 @@ target_sources(taller_server
     race.h
     city.h
     physics_world.h
+    physics/Car.h
+    physics/Entidad.h
     map/map_config_loader.h
     race_participant.h
     player.h

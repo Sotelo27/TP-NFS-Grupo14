@@ -11,12 +11,14 @@
 #include "race_participant.h"
 #include "../common/dto/input_state.h"
 #include "../common/car_model.h"
+#include "physics/Car.h"
 
 class Race {
 private:
     uint32_t id;
     PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
+    std::unordered_map<size_t, std::unique_ptr<Car>> cars;
 
     /*
      * Devuelve la direccion de aceleración del jugador segun su input

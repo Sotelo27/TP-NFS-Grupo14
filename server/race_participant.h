@@ -16,7 +16,6 @@ enum class ParticipantState : uint8_t {
 struct RaceParticipant {
     ParticipantState state{ParticipantState::Active};
     const CarModel* spec{nullptr};
-    float health{100.f};
 };
 
 #endif
