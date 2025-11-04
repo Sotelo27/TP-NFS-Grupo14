@@ -54,10 +54,6 @@ public:
     void send_create_room();
     ServerMessage recv_response_from_server();
 
-    void send_username(const std::string& username);
-
-    void send_create_room();
-
     ServerHandler(const ServerHandler&) = delete;
     ServerHandler& operator=(const ServerHandler&) = delete;
 
