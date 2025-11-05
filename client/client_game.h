@@ -34,11 +34,13 @@ private:
     CarSpriteID current_car = CarSpriteID::CommonGreenCar;
 
     void update_state_from_position();
+
     void update_animation_frames(const MapData& map_data, const CarSpriteSheet& car_sprites);
     void update_map_area(const MapData& map_data);
 
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
                            const CarSpriteSheet& car_sprites, const AddText& add_text);
+    void render_cars(const CarSpriteSheet& car_sprites);
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler);

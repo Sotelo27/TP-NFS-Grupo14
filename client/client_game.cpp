@@ -177,11 +177,7 @@ void ClientGame::update_animation_frames(const MapData& map_data,
     }
 }
 
-void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                                   const CarSpriteSheet& car_sprites, const AddText& add_text) {
-
-    map_manager.render(src_area_map, dest_area_map);
-
+void ClientGame::render_cars(const CarSpriteSheet& car_sprites) {
     for (const auto& [id, car_pos]: car_positions) {
         if (car_pos.dest_area.getWidth() == 0 || car_pos.dest_area.getHeight() == 0) {
             continue;
@@ -191,6 +187,14 @@ void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_ma
         const CarData& car_data = car_sprites.getCarData(this->current_car);
         car_sprites.render(car_data.area, car_pos.dest_area, car_pos.position.angle);
     }
+}
+
+void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
+                                   const CarSpriteSheet& car_sprites, const AddText& add_text) {
+
+    map_manager.render(src_area_map, dest_area_map);
+
+    render_cars(car_sprites);
 
     std::string client_id_str = "Client ID: " + std::to_string(client_id);
     add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
