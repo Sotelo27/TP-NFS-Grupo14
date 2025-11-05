@@ -50,7 +50,7 @@
 
 ---
 
-**Protocolo server:**
+**Protocolo servidor:**
 
 - **Todas las salas disponibles**
 - 0x21 <NUMBER-ROOMS> [<ROOM-INFO>]
@@ -63,6 +63,17 @@
 - **Sala creada (envía el id de la sala recién creada)**
 - 0x34 <ROOM-ID>
     - ROOM-ID es un byte que identifica la sala creada.
+
+- **Lista de jugadores en sala de espera**
+- 0x35 <NUMBER-PLAYERS> [<PLAYER-INFO>]
+  - NUMBER-PLAYERS es un byte con la cantidad de jugadores en la sala.
+  - PLAYER-INFO es <PLAYER-ID> <LENGTH> <USERNAME> <IS-READY> <HEALTH> <RACE-TIME>
+    - PLAYER-ID cuatro bytes big endian con el id del jugador.
+    - LENGTH **longitud** del nombre de usuario (dos bytes big endian).
+    - USERNAME string con el nombre del usuario.
+    - IS-READY byte indicando si está listo (0x00=no, 0x01=sí).
+    - HEALTH byte con la vida actual del jugador (0-100).
+    - RACE-TIME cuatro bytes big endian con el tiempo de carrera en milisegundos.
 
 - **Todos los autos disponibles**
 - 0x22 <NUMBER-CARS> [<CAR-INFO>]

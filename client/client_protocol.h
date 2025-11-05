@@ -9,7 +9,7 @@
 #include "../common/socket.h"
 #include "../common/dto/movement.h"
 #include "../common/dto/server_msg.h"
-#include "../common/dto/player_info.h"  // AGREGAR ESTE INCLUDE
+#include "../common/dto/player_info.h" 
 
 class ClientProtocol {
 private:

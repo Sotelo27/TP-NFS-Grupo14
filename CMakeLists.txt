@@ -159,6 +159,8 @@ if(TALLER_SERVER)
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
     add_subdirectory(server)
+    add_subdirectory(server/map)
+    add_subdirectory(server/Player)
 
     set_project_warnings(taller_server ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
