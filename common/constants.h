@@ -32,6 +32,7 @@ constexpr uint8_t CODE_S2C_YOUR_ID = 0x32;
 constexpr uint8_t CODE_S2C_ROOMS = 0x21;
 constexpr uint8_t CODE_S2C_PLAYER_NAME = 0x33;
 constexpr uint8_t CODE_S2C_ROOM_CREATED = 0x34;
+constexpr uint8_t CODE_S2C_PLAYERS_LIST = 0x35;  // NUEVO: Lista de jugadores en sala
 constexpr uint8_t CODE_S2C_GAME_OVER = 0x26;
 
 // Nuevos S2C (usar valores libres, distintos de los existentes)
