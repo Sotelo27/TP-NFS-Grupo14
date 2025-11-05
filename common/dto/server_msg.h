@@ -21,6 +21,7 @@ struct ServerMessage {
         YourId,
         PlayerName,
         PlayersList,
+        MapInfo,
         GameOver
     };
 
@@ -32,7 +33,11 @@ struct ServerMessage {
     std::string username;
     std::vector<RoomInfo> rooms;
     std::vector<PlayerInfo> players;
+    std::vector<PlayerTickInfo> players_tick;
+    std::vector<NpcTickInfo> npcs_tick;
+    std::vector<EventInfo> events_tick;
     uint8_t room_id;
+    uint32_t timestamp_ms;
 
     ServerMessage();
 };
@@ -62,6 +67,7 @@ struct ServerOutMsg {
     uint32_t your_id{0};
     std::string username;
     uint8_t room_id{0};
+    uint32_t timestamp_ms{0}; // NUEVO: para MAP_INFO
 
     // Listas
     std::vector<RoomInfo> rooms;

@@ -264,7 +264,7 @@ ServerMessage ClientProtocol::receive() {
         // Leer timestamp
         uint32_t ts_be=0; skt.recvall(&ts_be,4);
         uint32_t timestamp = ntohl(ts_be);
-        (void)timestamp; // Suprimir warning - TODO: usar timestamp
+        (void)timestamp; 
         
         uint8_t np=0; skt.recvall(&np,1);
         for(uint8_t i=0;i<np;++i){
