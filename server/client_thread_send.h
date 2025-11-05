@@ -4,64 +4,11 @@
 #include "client_action.h"
 #include "../common/queue.h"
 #include "../common/thread.h"
+#include "../common/dto/server_msg.h"
 #include "server_protocol.h"
 #include <variant>
 #include <vector>
 #include <string>
-
-// Mensaje de salida general del servidor -> cliente
-enum class ServerOutType {
-    Ok,
-    Pos,
-    YourId,
-    PlayerName,
-    Rooms,
-    RoomCreated,
-    CarList,
-    RaceStart,
-    Results,
-    MapInfo
-};
-
-struct ServerOutMsg {
-    ServerOutType type{ServerOutType::Ok};
-
-    // Payloads
-    // Pos
-    uint32_t id{0};
-    int16_t x{0};
-    int16_t y{0};
-    float angle{0.f};
-
-    // YourId
-    uint32_t your_id{0};
-
-    // PlayerName
-    std::string username;
-
-    // Rooms
-    std::vector<RoomInfo> rooms;
-
-    // RoomCreated
-    uint8_t room_id{0};
-
-    // CarList
-    std::vector<CarInfo> cars;
-
-    // RaceStart
-    std::string map_name;
-    uint8_t amount_checkpoints{0};
-    std::vector<std::pair<int32_t,int32_t>> checkpoints;
-
-    // Results
-    std::vector<PlayerResultCurrent> results_current;
-    std::vector<PlayerResultTotal> results_total;
-
-    // MapInfo
-    std::vector<PlayerTickInfo> players_tick;
-    std::vector<NpcTickInfo> npcs_tick;
-    std::vector<EventInfo> events_tick;
-};
 
 class ClientThreadSend: public Thread {
 private:

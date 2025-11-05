@@ -1,5 +1,6 @@
 #include "client_thread_send.h"
 #include <cmath>
+#include <iostream>  // AGREGAR ESTE INCLUDE
 
 #include "client_action.h"
 #define  PI 3.14159265358979323846f
@@ -14,44 +15,42 @@ void ClientThreadSend::run() {
     
     while (should_keep_running()) {
         try {
-            ServerOutMsg msg = mensajes_a_enviar.pop();
-            
-            // Solo logear mensajes que NO sean POS para no saturar
-            if (msg.type != ServerOutType::Pos) {
-                std::cout << "[ClientThreadSend] Sending message type=" << (int)msg.type << " to client " << id << "\n";
-                std::cout.flush();
+            ServerOutMsg msg;
+            bool got_msg = mensajes_a_enviar.try_pop(msg);
+            if (!got_msg) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                continue;
             }
-            
+
             switch (msg.type) {
-                case ServerOutType::Ok:
-                    protocol.send_ok();
-                    std::cout << "[ClientThreadSend] Sent OK to client " << id << "\n";
-                    std::cout.flush();
-                    break;
                 case ServerOutType::Pos: {
                     float angle_deg = msg.angle * 180.0f / PI;
                     protocol.send_pos(msg.id, msg.x, msg.y, angle_deg);
-                    // NO logear cada posición para no saturar la consola
                 } break;
+                case ServerOutType::Rooms:
+                    std::cout << "[ClientThreadSend] Sending ROOMS to conn_id=" << id << "\n";
+                    protocol.send_rooms(msg.rooms);
+                    break;
+                case ServerOutType::Ok:
+                    std::cout << "[ClientThreadSend] Sending OK to conn_id=" << id << "\n";
+                    protocol.send_ok();
+                    break;
                 case ServerOutType::YourId:
+                    std::cout << "[ClientThreadSend] Sending YOUR_ID(" << msg.your_id << ") to conn_id=" << id << "\n";
                     protocol.send_your_id(msg.your_id);
-                    std::cout << "[ClientThreadSend] Sent YOUR_ID(" << msg.your_id << ") to client " << id << "\n";
-                    std::cout.flush();
                     break;
                 case ServerOutType::PlayerName:
+                    std::cout << "[ClientThreadSend] Sending PLAYER_NAME to conn_id=" << id << "\n";
                     protocol.send_player_name(msg.id, msg.username);
-                    std::cout << "[ClientThreadSend] Sent PLAYER_NAME to client " << id << "\n";
-                    std::cout.flush();
-                    break;
-                case ServerOutType::Rooms:
-                    protocol.send_rooms(msg.rooms);
-                    std::cout << "[ClientThreadSend] Sent ROOMS(" << msg.rooms.size() << ") to client " << id << "\n";
-                    std::cout.flush();
                     break;
                 case ServerOutType::RoomCreated:
+                    std::cout << "[ClientThreadSend] Sending ROOM_CREATED(" << (int)msg.room_id << ") to conn_id=" << id << "\n";
                     protocol.send_room_created(msg.room_id);
-                    std::cout << "[ClientThreadSend] Sent ROOM_CREATED(" << (int)msg.room_id << ") to client " << id << "\n";
-                    std::cout.flush();
+                    break;
+                case ServerOutType::PlayersList:
+                    std::cout << "[ClientThreadSend] Sending PLAYERS_LIST to conn_id=" << id 
+                              << " (count=" << msg.players.size() << ")\n";
+                    protocol.send_players_list(msg.players);
                     break;
                 case ServerOutType::CarList:
                     protocol.send_cars_list(msg.cars);
