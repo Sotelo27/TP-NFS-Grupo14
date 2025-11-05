@@ -116,12 +116,37 @@ uint32_t Game::get_player_race_time(size_t id) const {
     std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
     auto it = players.find(id);
     if (it == players.end()) {
-        return 0; // Valor por defecto si no existe
+        return 0;
     }
     // TODO: Implementar cuando se tenga sistema de tiempo de carrera
-    return 0; // Por ahora retornar 0
+    return 0;
 }
 
+GameTickInfo Game::get_game_tick_snapshot() const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
+    
+    GameTickInfo tick;
+    tick.timestamp_ms = 0; // TODO: implementar timestamp real
+    
+    auto positions = race.snapshot_poses();
+    for (const auto& pos : positions) {
+        auto it = players.find(pos.id);
+        if (it != players.end()) {
+            PlayerTickInfo pinfo;
+            pinfo.username = it->second.get_name();
+            pinfo.car_id = 0; // TODO: obtener car_id real cuando CarModel tenga este campo
+            pinfo.x = pos.x;
+            pinfo.y = pos.y;
+            pinfo.angle = pos.angle;
+            pinfo.health = 100; // TODO: obtener vida real
+            pinfo.speed = 0;    // TODO: obtener velocidad real del cuerpo físico
+            tick.players.push_back(pinfo);
+        }
+    }
+    
+    // Por ahora npcs y events vacíos
+    return tick;
+}
 
 void Game::load_map(const MapConfig& cfg) {
     std::lock_guard<std::mutex> lock(m);

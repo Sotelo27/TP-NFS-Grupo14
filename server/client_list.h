@@ -9,6 +9,7 @@
 
 #include "client_handler.h"
 #include "../common/dto/player_info.h"
+#include "../common/dto/map_tick_info.h"
 
 class ClientListProtected {
 private:
@@ -49,7 +50,8 @@ public:
      * Envia las posiciones de todos los jugadores a todos los clientes.
      */
     void broadcast_player_positions(const std::vector<PlayerPos>& positions);
-    void broadcast_players_list(const std::vector<PlayerInfo>& players); // NUEVO
+    void broadcast_players_list(const std::vector<PlayerInfo>& players);
+    void broadcast_game_tick(const GameTickInfo& tick); // NUEVO
 
     ClientListProtected(const ClientListProtected&) = delete;
     ClientListProtected& operator=(const ClientListProtected&) = delete;

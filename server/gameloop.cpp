@@ -47,9 +47,14 @@ void Gameloop::procesar_actiones() {
 void Gameloop::iteracion_game() {
     const float dt = 0.016f;
     game.update(dt);
+    
+    // VOLVER al sistema original que funcionaba
     auto positions = game.players_positions();
     clients.broadcast_player_positions(positions);
-    // std::cout << "Broadcasted positions of " << positions.size() << " players.\n";
+    
+    // OPCIONAL: Si quieres también enviar el nuevo formato (para debug o futuro):
+    // GameTickInfo tick = game.get_game_tick_snapshot();
+    // clients.broadcast_game_tick(tick);
 }
 
 void Gameloop::run() {

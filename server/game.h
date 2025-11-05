@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "../common/dto/movement.h"
+#include "../common/dto/map_tick_info.h"
 #include "../common/player_aux.h"
 
 #include "Player/player.h"
@@ -90,6 +91,12 @@ public:
      * Retorna 0 si no está en carrera
      */
     uint32_t get_player_race_time(size_t id) const;
+
+    /*
+     * Obtiene snapshot completo del estado del juego para broadcast
+     * Incluye: timestamp, posiciones, vida, velocidad de todos los jugadores
+     */
+    GameTickInfo get_game_tick_snapshot() const;
 
     /*
      * Carga el MapConfig paredes, edificios en la ciudad.

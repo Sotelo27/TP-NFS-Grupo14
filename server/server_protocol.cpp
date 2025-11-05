@@ -271,19 +271,27 @@ void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& curren
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
+void ServerProtocol::send_map_info(uint32_t timestamp_ms,
+                                   const std::vector<PlayerTickInfo>& players,
                                    const std::vector<NpcTickInfo>& npcs,
                                    const std::vector<EventInfo>& events) {
     uint8_t code = CODE_S2C_MAP_INFO;
     std::vector<uint8_t> buf;
     buf.reserve(1);
     buf.push_back(code);
+    
+    // NUEVO: Agregar timestamp (4 bytes big endian)
+    uint32_t ts_be = htonl(timestamp_ms);
+    size_t off = buf.size();
+    buf.resize(off + 4);
+    std::memcpy(buf.data() + off, &ts_be, 4);
+    
     // players
     buf.push_back((uint8_t)players.size());
     for (const auto& p : players) {
         uint16_t l = (uint16_t)p.username.size();
         uint16_t lbe = htons(l);
-        size_t off = buf.size();
+        off = buf.size();
         buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
         if (l) {
             off = buf.size();
@@ -294,13 +302,24 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         int32_t xbe = htonl(p.x), ybe = htonl(p.y);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &xbe, 4);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ybe, 4);
+        
+        // NUEVO: angle (float as 4 bytes big endian)
+        uint32_t angle_be = htonf32(p.angle);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &angle_be, 4);
+        
+        // NUEVO: health (1 byte)
+        buf.push_back(p.health);
+        
+        // NUEVO: speed (2 bytes big endian)
+        uint16_t speed_be = htons(p.speed);
+        off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &speed_be, 2);
     }
     // npcs
     buf.push_back((uint8_t)npcs.size());
     for (const auto& n : npcs) {
         buf.push_back(n.npc_id);
         int32_t xbe = htonl(n.x), ybe = htonl(n.y);
-        size_t off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &xbe, 4);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &xbe, 4);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ybe, 4);
     }
     // events
@@ -309,7 +328,7 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         buf.push_back(e.event_type);
         uint16_t l = (uint16_t)e.username.size();
         uint16_t lbe = htons(l);
-        size_t off = buf.size();
+        off = buf.size();
         buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
         if (l) {
             off = buf.size();

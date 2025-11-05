@@ -8,6 +8,7 @@
 
 #include "../common/queue.h"
 #include "../common/thread.h"
+#include "../common/dto/map_tick_info.h"
 
 #include "client_handler.h"
 #include "client_list.h"

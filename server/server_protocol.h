@@ -68,7 +68,8 @@ public:
     void send_results(const std::vector<PlayerResultCurrent>& current,
                       const std::vector<PlayerResultTotal>& total);
 
-    void send_map_info(const std::vector<PlayerTickInfo>& players,
+    void send_map_info(uint32_t timestamp_ms,
+                       const std::vector<PlayerTickInfo>& players,
                        const std::vector<NpcTickInfo>& npcs,
                        const std::vector<EventInfo>& events);
 

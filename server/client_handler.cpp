@@ -126,3 +126,13 @@ void ClientHandler::send_players_list_to_client(const std::vector<PlayerInfo>& p
     out.players = players;
     mensajes_a_enviar.try_push(std::move(out));
 }
+
+void ClientHandler::send_game_tick_to_client(const GameTickInfo& tick) {
+    ServerOutMsg out{};
+    out.type = ServerOutType::MapInfo;
+    out.timestamp_ms = tick.timestamp_ms;
+    out.players_tick = tick.players;
+    out.npcs_tick = tick.npcs;
+    out.events_tick = tick.events;
+    mensajes_a_enviar.try_push(std::move(out));
+}

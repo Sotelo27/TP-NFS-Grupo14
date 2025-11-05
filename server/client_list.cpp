@@ -64,11 +64,15 @@ void ClientListProtected::broadcast_player_positions(const std::vector<PlayerPos
 
 void ClientListProtected::broadcast_players_list(const std::vector<PlayerInfo>& players) {
     std::lock_guard<std::mutex> lock(m);
-    std::cout << "[ClientList] Broadcasting players list to " << clients.size() << " clients\n";
-    for (auto& client: clients) {
-        if (client && client->is_alive()) {
-            client->send_players_list_to_client(players);
-        }
+    for (auto& client : clients) {
+        client->send_players_list_to_client(players);
+    }
+}
+
+void ClientListProtected::broadcast_game_tick(const GameTickInfo& tick) {
+    std::lock_guard<std::mutex> lock(m);
+    for (auto& client : clients) {
+        client->send_game_tick_to_client(tick);
     }
 }
 
