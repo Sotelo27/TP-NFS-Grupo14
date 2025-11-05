@@ -7,6 +7,7 @@
 
 #include "../sdl_wrappers/SdlMapTexture.h"
 #include "../sdl_wrappers/SdlWindow.h"
+#include "../../common/enum/map_enum.h"
 
 #include "Area.h"
 
@@ -14,8 +15,6 @@ struct MapData {
     int width_scale_screen;
     int height_scale_screen;
 };
-
-enum class MapID { LibertyCity, SanAndreas, ViceCity };
 
 class MapsTextures {
 private:

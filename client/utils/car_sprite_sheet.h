@@ -6,6 +6,7 @@
 
 #include "../sdl_wrappers/SdlObjTexture.h"
 #include "../sdl_wrappers/SdlWindow.h"
+#include "../../common/enum/car_enum.h"
 
 #include "Area.h"
 
@@ -13,16 +14,6 @@ struct CarData {
     Area area;
     int width_scale_screen;
     int height_scale_screen;
-};
-
-enum class CarSpriteID {
-    CommonGreenCar,
-    RedCar,
-    RedSportsCar,
-    SpecialCar,
-    FourByFourConvertible,
-    PickupTruck,
-    Limousine
 };
 
 class CarSpriteSheet {

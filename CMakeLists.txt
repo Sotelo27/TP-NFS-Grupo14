@@ -32,6 +32,7 @@ add_library(taller_common STATIC)
 # HEY!! TODO XXX: add more subfolders here
 add_subdirectory(common/)
 add_subdirectory(common/dto/)
+add_subdirectory(common/enum/)
 
 
 # set compiler warnings to the targets
