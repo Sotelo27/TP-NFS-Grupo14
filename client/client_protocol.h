@@ -3,12 +3,13 @@
 
 #include <string>
 #include <utility>
-#include <vector> // agregado
+#include <vector>
 
 #include "../common/constants.h"
 #include "../common/socket.h"
 #include "../common/dto/movement.h"
 #include "../common/dto/server_msg.h"
+#include "../common/dto/player_info.h"  // AGREGAR ESTE INCLUDE
 
 class ClientProtocol {
 private:
