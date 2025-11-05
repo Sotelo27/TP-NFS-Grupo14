@@ -12,15 +12,14 @@
 #include "utils/car_sprite_sheet.h"
 #include "utils/maps_textures.h"
 
-struct Positions {
+struct Position {
     int x_car_map;
     int y_car_map;
     float angle;
 };
 
 struct CarPosition {
-    size_t client_id;
-    Positions positions;
+    Position position;
     Area dest_area;
 };
 
@@ -29,16 +28,19 @@ private:
     size_t client_id;
     ServerHandler& server_handler;
     bool running;
-    Positions positions;
     Area src_area_map;
     Area dest_area_map;
-    std::unordered_map<size_t, CarPosition> map_dest_areas;
+    std::unordered_map<size_t, CarPosition> car_positions;
     CarSpriteID current_car = CarSpriteID::CommonGreenCar;
 
     void update_state_from_position();
+
     void update_animation_frames(const MapData& map_data, const CarSpriteSheet& car_sprites);
+    void update_map_area(const MapData& map_data);
+
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
                            const CarSpriteSheet& car_sprites, const AddText& add_text);
+    void render_cars(const CarSpriteSheet& car_sprites);
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler);
