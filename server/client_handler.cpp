@@ -117,3 +117,12 @@ void ClientHandler::send_room_created_to_client(uint8_t room_id) {
     out.room_id = room_id;
     mensajes_a_enviar.try_push(std::move(out));
 }
+
+void ClientHandler::send_players_list_to_client(const std::vector<PlayerInfo>& players) {
+    std::cout << "[ClientHandler] Queueing PLAYERS_LIST message for conn_id=" << id 
+              << " (count=" << players.size() << ")\n";
+    ServerOutMsg out{};
+    out.type = ServerOutType::PlayersList;
+    out.players = players;
+    mensajes_a_enviar.try_push(std::move(out));
+}

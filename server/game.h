@@ -80,6 +80,18 @@ public:
     void set_player_name(size_t id, std::string name);
 
     /*
+     * Obtiene la vida del jugador (0-100)
+     * Retorna 100 por defecto si no está implementado
+     */
+    uint8_t get_player_health(size_t id) const;
+
+    /*
+     * Obtiene el tiempo de carrera del jugador en milisegundos
+     * Retorna 0 si no está en carrera
+     */
+    uint32_t get_player_race_time(size_t id) const;
+
+    /*
      * Carga el MapConfig paredes, edificios en la ciudad.
      */
     void load_map(const MapConfig& cfg);

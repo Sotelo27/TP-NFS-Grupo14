@@ -11,13 +11,10 @@ target_sources(taller_server
     game.cpp
     race.cpp
     physics_world.cpp
-    map/map_config_loader.cpp
-    # headers-only or inline headers can be listed under PUBLIC
-    Player/car.cpp
-    Player/player.cpp
     server.cpp
     server_protocol.cpp
     monitor_lobby.cpp
+    city.cpp
     PUBLIC
     # .h files
     acceptor.h
@@ -31,11 +28,8 @@ target_sources(taller_server
     race.h
     city.h
     physics_world.h
-    Player/car.h
     physics/Entidad.h
-    map/map_config_loader.h
     race_participant.h
-    Player/player.h
     server.h
     server_protocol.h
     monitor_lobby.h

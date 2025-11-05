@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "../common/dto/player_info.h"
 #include "../common/dto/room_info.h"
 #include "../common/player_aux.h"
 #include "../common/queue.h"
@@ -83,6 +84,7 @@ public:
 
     // Notificar id de sala recién creada a este cliente
     void send_room_created_to_client(uint8_t room_id);
+    void send_players_list_to_client(const std::vector<PlayerInfo>& players); // NUEVO
 
     /*
      * Encola el envío de una posición (id,x,y,angle) al cliente
