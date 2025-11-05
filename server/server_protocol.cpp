@@ -4,6 +4,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <iostream>  // AGREGAR ESTE INCLUDE
 
 #include <arpa/inet.h>
 
@@ -102,6 +103,53 @@ void ServerProtocol::send_room_created(uint8_t room_id) {
     uint8_t code = CODE_S2C_ROOM_CREATED;
     uint8_t buf[2] = {code, room_id};
     skt.sendall(buf, sizeof(buf));
+}
+
+void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
+    uint8_t code = CODE_S2C_PLAYERS_LIST;
+    uint8_t count = (uint8_t)players.size();
+    
+    std::vector<uint8_t> buf;
+    buf.reserve(2 + players.size() * 30); // Estimación aumentada por campos extra
+    buf.push_back(code);
+    buf.push_back(count);
+    
+    for (const auto& p : players) {
+        // Player ID (4 bytes big endian)
+        uint32_t id_be = htonl(p.player_id);
+        size_t off = buf.size();
+        buf.resize(off + 4);
+        std::memcpy(buf.data() + off, &id_be, 4);
+        
+        // Username length (2 bytes big endian)
+        uint16_t len = (uint16_t)p.username.size();
+        uint16_t len_be = htons(len);
+        off = buf.size();
+        buf.resize(off + 2);
+        std::memcpy(buf.data() + off, &len_be, 2);
+        
+        // Username string
+        if (len > 0) {
+            off = buf.size();
+            buf.resize(off + p.username.size());
+            std::memcpy(buf.data() + off, p.username.data(), p.username.size());
+        }
+        
+        // Ready flag (1 byte)
+        buf.push_back(p.is_ready ? 1 : 0);
+        
+        // Health (1 byte)
+        buf.push_back(p.health);
+        
+        // Race time (4 bytes big endian)
+        uint32_t time_be = htonl(p.race_time_ms);
+        off = buf.size();
+        buf.resize(off + 4);
+        std::memcpy(buf.data() + off, &time_be, 4);
+    }
+    
+    skt.sendall(buf.data(), (unsigned int)buf.size());
+    std::cout << "[ServerProtocol] Sent PLAYERS_LIST with " << (int)count << " players\n";
 }
 
 void ServerProtocol::enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje) {
