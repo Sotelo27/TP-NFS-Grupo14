@@ -189,15 +189,19 @@ void ClientGame::render_cars(const CarSpriteSheet& car_sprites) {
     }
 }
 
+void ClientGame::render_hud(const AddText& add_text) {
+    std::string client_id_str = "Client ID: " + std::to_string(client_id);
+    add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
+}
+
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
                                    const CarSpriteSheet& car_sprites, const AddText& add_text) {
 
     map_manager.render(src_area_map, dest_area_map);
 
     render_cars(car_sprites);
-
-    std::string client_id_str = "Client ID: " + std::to_string(client_id);
-    add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
+    
+    render_hud(add_text);
 
     window.render();
 }

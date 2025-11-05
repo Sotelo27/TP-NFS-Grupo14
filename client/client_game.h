@@ -41,6 +41,7 @@ private:
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
                            const CarSpriteSheet& car_sprites, const AddText& add_text);
     void render_cars(const CarSpriteSheet& car_sprites);
+    void render_hud(const AddText& add_text);
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler);
