@@ -261,6 +261,11 @@ ServerMessage ClientProtocol::receive() {
             uint32_t tbe=0; skt.recvall(&tbe,4);
         }
     } else if (code == CODE_S2C_MAP_INFO) {
+        // Leer timestamp
+        uint32_t ts_be=0; skt.recvall(&ts_be,4);
+        uint32_t timestamp = ntohl(ts_be);
+        (void)timestamp; // Suprimir warning - TODO: usar timestamp
+        
         uint8_t np=0; skt.recvall(&np,1);
         for(uint8_t i=0;i<np;++i){
             uint16_t lbe=0; skt.recvall(&lbe,2);
@@ -268,6 +273,17 @@ ServerMessage ClientProtocol::receive() {
             std::string user(l, '\0'); if(l) skt.recvall(&user[0], l);
             uint8_t car=0; skt.recvall(&car,1);
             int32_t px=0,py=0; skt.recvall(&px,4); skt.recvall(&py,4);
+            
+            // Leer angle, health, speed
+            uint32_t angle_be=0; skt.recvall(&angle_be,4);
+            float angle = ntohf32(angle_be);
+            uint8_t health=0; skt.recvall(&health,1);
+            uint16_t speed_be=0; skt.recvall(&speed_be,2);
+            uint16_t speed = ntohs(speed_be);
+            
+            (void)angle;
+            (void)health;
+            (void)speed;
         }
         uint8_t nn=0; skt.recvall(&nn,1);
         for(uint8_t i=0;i<nn;++i){
