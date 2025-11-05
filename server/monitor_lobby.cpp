@@ -6,8 +6,12 @@
 
 #include "map/map_config_loader.h"
 
-// IMPORTANTE: Cambiar esta ruta por una válida en tu sistema o hacer que sea configurable
-// Por ahora, comentar la carga del mapa para que el juego funcione sin él
+// COLLISION_PATH se define en CMakeLists.txt como macro del compilador
+// Si no está definida, usar una ruta por defecto
+#ifndef COLLISION_PATH
+#define COLLISION_PATH "."
+#endif
+
 #define RUTA_MAPA std::string(COLLISION_PATH) + "/CollisionTest2.yaml" // Dejar vacío hasta tener un mapa válido
 
 MonitorLobby::MonitorLobby(float nitro_duracion): actions_in(), nitro_duracion(nitro_duracion) {}
@@ -55,6 +59,70 @@ void MonitorLobby::broadcast_rooms_to_pending_locked() {
             kv.second->send_rooms_to_client(rooms_dto);
         }
     }
+}
+
+std::vector<PlayerInfo> MonitorLobby::get_players_in_room_locked(uint8_t room_id) const {
+    std::vector<PlayerInfo> players_list;
+    
+    auto itr = rooms.find(room_id);
+    if (itr == rooms.end()) {
+        return players_list;
+    }
+    
+    // Recolectar todos los jugadores en esta sala
+    for (const auto& [conn_id, bind] : bindings) {
+        if (bind.first == room_id) {
+            size_t player_id = bind.second;
+            std::string username = "Player_" + std::to_string(player_id);
+            
+            // Obtener vida y tiempo del Game si está disponible
+            uint8_t health = 100;  // Valor por defecto
+            uint32_t race_time = 0; // Valor por defecto
+            
+            try {
+                // TODO: Cuando Game tenga métodos para obtener vida y tiempo, usarlos aquí
+                // health = itr->second.game.get_player_health(player_id);
+                // race_time = itr->second.game.get_player_race_time(player_id);
+                
+                players_list.emplace_back(
+                    static_cast<uint32_t>(player_id), 
+                    username, 
+                    false, // is_ready
+                    health,
+                    race_time
+                );
+            } catch (...) {
+                players_list.emplace_back(
+                    static_cast<uint32_t>(player_id), 
+                    username, 
+                    false,
+                    health,
+                    race_time
+                );
+            }
+        }
+    }
+    
+    std::cout << "[Lobby] get_players_in_room_locked: room_id=" << (int)room_id 
+              << ", found " << players_list.size() << " players\n";
+    
+    return players_list;
+}
+
+void MonitorLobby::broadcast_players_in_room_locked(uint8_t room_id) {
+    auto itr = rooms.find(room_id);
+    if (itr == rooms.end()) {
+        std::cout << "[Lobby] broadcast_players_in_room_locked: room not found: " << (int)room_id << "\n";
+        return;
+    }
+    
+    std::vector<PlayerInfo> players_list = get_players_in_room_locked(room_id);
+    
+    std::cout << "[Lobby] Broadcasting " << players_list.size() 
+              << " players to room_id=" << (int)room_id << "\n";
+    
+    // Broadcast a todos los clientes en esta sala
+    itr->second.clients.broadcast_players_list(players_list);
 }
 
 void MonitorLobby::start_room_loop_locked(Partida& p) {
@@ -144,6 +212,9 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     std::cout << "[Lobby] conn_id=" << conn_id << " joined room_id=" << (int)room_id
               << " as player_id=" << player_id << "\n";
 
+    // NUEVO: Broadcast lista actualizada de jugadores a todos en la sala
+    broadcast_players_in_room_locked(room_id);
+
     return true;
 }
 
@@ -153,6 +224,8 @@ void MonitorLobby::reap_locked() {
         auto& pr = it->second;
         std::vector<size_t> removed_conn_ids;
         pr.clients.reap(removed_conn_ids);
+        
+        bool room_changed = false;
         for (size_t conn_id: removed_conn_ids) {
             auto b = bindings.find(conn_id);
             if (b != bindings.end()) {
@@ -163,7 +236,13 @@ void MonitorLobby::reap_locked() {
                     std::cerr << "Error removing player " << player_id << ": " << e.what() << "\n";
                 }
                 bindings.erase(b);
+                room_changed = true;
             }
+        }
+        
+        // Si hubo cambios, broadcast actualizado de jugadores
+        if (room_changed) {
+            broadcast_players_in_room_locked(pr.room_id);
         }
 
         // Si sala queda vacía -> cerrar loop y borrar

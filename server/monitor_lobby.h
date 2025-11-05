@@ -64,6 +64,8 @@ private:
     // Helpers (requieren m tomada)
     std::vector<RoomInfo> list_rooms_locked() const;
     void broadcast_rooms_to_pending_locked();
+    void broadcast_players_in_room_locked(uint8_t room_id); // NUEVO
+    std::vector<PlayerInfo> get_players_in_room_locked(uint8_t room_id) const; // NUEVO
     uint8_t create_room_locked(uint8_t max_players);
     bool join_room_locked(size_t conn_id, uint8_t room_id);
     void start_room_loop_locked(Partida& p);
