@@ -10,6 +10,7 @@
 #include "sdl_wrappers/SdlWindow.h"
 #include "utils/add_text.h"
 #include "utils/car_sprite_sheet.h"
+#include "utils/life_bar.h"
 #include "utils/maps_textures.h"
 
 struct Position {
@@ -39,9 +40,10 @@ private:
     void update_map_area(const MapData& map_data);
 
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                           const CarSpriteSheet& car_sprites, const AddText& add_text);
+                           const CarSpriteSheet& car_sprites, const AddText& add_text,
+                           const LifeBarSpriteSheet& life_bar_sprites);
     void render_cars(const CarSpriteSheet& car_sprites);
-    void render_hud(const AddText& add_text);
+    void render_hud(const AddText& add_text, const LifeBarSpriteSheet& life_bar_sprites);
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler);

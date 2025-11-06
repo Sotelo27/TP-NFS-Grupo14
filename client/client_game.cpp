@@ -28,6 +28,8 @@ void ClientGame::start() {
 
     AddText add_text(24, window);
 
+    LifeBarSpriteSheet life_bar_sprites(window);
+
     MapsTextures map_manager(window);
     map_manager.loadMap(MapID::LibertyCity);
 
@@ -44,7 +46,7 @@ void ClientGame::start() {
 
         update_animation_frames(map_data, car_sprites);
 
-        render_in_z_order(window, map_manager, car_sprites, add_text);
+        render_in_z_order(window, map_manager, car_sprites, add_text, life_bar_sprites);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(16));  // ~60 FPS
     }
@@ -189,19 +191,22 @@ void ClientGame::render_cars(const CarSpriteSheet& car_sprites) {
     }
 }
 
-void ClientGame::render_hud(const AddText& add_text) {
+void ClientGame::render_hud(const AddText& add_text, const LifeBarSpriteSheet& life_bar_sprites) {
     std::string client_id_str = "Client ID: " + std::to_string(client_id);
     add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
+
+    life_bar_sprites.render(100, 5, Area(10, 50, 100, 20));
 }
 
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                                   const CarSpriteSheet& car_sprites, const AddText& add_text) {
+                                   const CarSpriteSheet& car_sprites, const AddText& add_text,
+                                   const LifeBarSpriteSheet& life_bar_sprites) {
 
     map_manager.render(src_area_map, dest_area_map);
 
     render_cars(car_sprites);
-    
-    render_hud(add_text);
+
+    render_hud(add_text, life_bar_sprites);
 
     window.render();
 }
