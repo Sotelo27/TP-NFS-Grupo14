@@ -10,15 +10,15 @@
 LifeBarSpriteSheet::LifeBarSpriteSheet(const SdlWindow& window):
         texture_life_bar(LIFE_BAR_SPRITE_SHEET_FILE, window, Rgb(0, 0, 255)) {
     sprites.emplace(PercentageLifeBar::FULL,
-                    LifeBarData{Area(0, 57, 600, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
+                    LifeBarData{Area(78, 57, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
     sprites.emplace(PercentageLifeBar::EIGHTY,
-                    LifeBarData{Area(0, 157, 600, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
+                    LifeBarData{Area(78, 157, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
     sprites.emplace(PercentageLifeBar::FIFTY,
-                    LifeBarData{Area(0, 257, 600, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
+                    LifeBarData{Area(78, 257, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
     sprites.emplace(PercentageLifeBar::TWENTY_FIVE,
-                    LifeBarData{Area(0, 357, 600, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
+                    LifeBarData{Area(78, 357, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
     sprites.emplace(PercentageLifeBar::TEN,
-                    LifeBarData{Area(0, 457, 600, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
+                    LifeBarData{Area(78, 457, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
 }
 
 void LifeBarSpriteSheet::render(int max_life, int current_life, const Area& dest) const {
