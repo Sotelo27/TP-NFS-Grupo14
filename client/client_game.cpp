@@ -179,14 +179,19 @@ void ClientGame::update_animation_frames(const MapData& map_data,
     }
 }
 
-void ClientGame::render_cars(const CarSpriteSheet& car_sprites) {
+void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
+                             const LifeBarSpriteSheet& life_bar_sprites) {
     for (const auto& [id, car_pos]: car_positions) {
         if (car_pos.dest_area.getWidth() == 0 || car_pos.dest_area.getHeight() == 0) {
             continue;
         }
 
-        // el auto debería de pasarlo el server en algún momento
         const CarData& car_data = car_sprites.getCarData(this->current_car);
+        life_bar_sprites.render(100, 5,
+                                Area(car_pos.dest_area.getX(),
+                                     car_pos.dest_area.getY() - car_data.width_scale_screen / 5,
+                                     car_data.width_scale_screen, car_data.width_scale_screen / 5));
+        // el auto debería de pasarlo el server en algún momento
         car_sprites.render(car_data.area, car_pos.dest_area, car_pos.position.angle);
     }
 }
@@ -204,7 +209,7 @@ void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_ma
 
     map_manager.render(src_area_map, dest_area_map);
 
-    render_cars(car_sprites);
+    render_cars(car_sprites, life_bar_sprites);
 
     render_hud(add_text, life_bar_sprites);
 
