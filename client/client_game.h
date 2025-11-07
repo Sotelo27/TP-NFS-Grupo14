@@ -43,7 +43,7 @@ private:
                            const CarSpriteSheet& car_sprites, const AddText& add_text,
                            const LifeBarSpriteSheet& life_bar_sprites);
     void render_cars(const CarSpriteSheet& car_sprites, const LifeBarSpriteSheet& life_bar_sprites);
-    void render_hud(const AddText& add_text, const LifeBarSpriteSheet& life_bar_sprites);
+    void render_hud(const AddText& add_text, const MapsTextures& map_manager, SdlWindow& window);
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler);

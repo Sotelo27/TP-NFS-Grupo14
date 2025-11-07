@@ -7,6 +7,7 @@
 
 #include <SDL2/SDL.h>
 
+#include "sdl_wrappers/SdlDrawFill.h"
 #include "constants.h"
 
 ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler):
@@ -196,11 +197,33 @@ void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
     }
 }
 
-void ClientGame::render_hud(const AddText& add_text, const LifeBarSpriteSheet& life_bar_sprites) {
+void ClientGame::render_hud(const AddText& add_text, const MapsTextures& map_manager, SdlWindow& window) {
     std::string client_id_str = "Client ID: " + std::to_string(client_id);
     add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
 
-    life_bar_sprites.render(100, 5, Area(10, 50, 100, 20));
+    const MapData& map_data = map_manager.getCurrentMapData();
+    int y_dest = 15;
+    int x_dest = WINDOW_WIDTH - (MAP_HEIGHT_SIZE *  3 / 4) - y_dest;
+    int mini_map_width = 300;
+    int mini_map_height = mini_map_width * map_data.height_scale_screen / map_data.width_scale_screen;
+
+    int border = 4;
+    Rgb color(0, 0, 0, 255);
+
+    Area top(x_dest - border, y_dest - border, mini_map_width + border * 2, border);
+    Area bottom(x_dest - border, y_dest + mini_map_height, mini_map_width + border * 2, border);
+    Area left(x_dest - border, y_dest, border, mini_map_height);
+    Area right(x_dest + mini_map_width, y_dest, border, mini_map_height);
+
+    SdlDrawFill draw_fill(window);
+    draw_fill.fill(top, color);
+    draw_fill.fill(bottom, color);
+    draw_fill.fill(left, color);
+    draw_fill.fill(right, color);
+
+    Area src_mini_map_area(0, 0, map_data.width_scale_screen, map_data.height_scale_screen);
+    Area dest_mini_map_area(x_dest, y_dest, mini_map_width, mini_map_height);
+    map_manager.render(src_mini_map_area, dest_mini_map_area);
 }
 
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
@@ -211,7 +234,7 @@ void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_ma
 
     render_cars(car_sprites, life_bar_sprites);
 
-    render_hud(add_text, life_bar_sprites);
+    render_hud(add_text, map_manager, window);
 
     window.render();
 }
