@@ -2,23 +2,18 @@
 
 #include <algorithm>
 
-#define LIFE_BAR_SPRITE_SHEET_FILE std::string(ASSETS_PATH) + "/images/barra_de_vida2.png"
+#include "../constants.h"
 
-#define LIFE_BAR_WIDTH 100
-#define LIFE_BAR_HEIGHT 20
+#define LIFE_BAR_SPRITE_SHEET_FILE std::string(ASSETS_PATH) + "/images/barra_de_vida.png"
 
 LifeBarSpriteSheet::LifeBarSpriteSheet(const SdlWindow& window):
-        texture_life_bar(LIFE_BAR_SPRITE_SHEET_FILE, window, Rgb(0, 0, 255)) {
-    sprites.emplace(PercentageLifeBar::FULL,
-                    LifeBarData{Area(78, 57, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
-    sprites.emplace(PercentageLifeBar::EIGHTY,
-                    LifeBarData{Area(78, 157, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
-    sprites.emplace(PercentageLifeBar::FIFTY,
-                    LifeBarData{Area(78, 257, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
-    sprites.emplace(PercentageLifeBar::TWENTY_FIVE,
-                    LifeBarData{Area(78, 357, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
-    sprites.emplace(PercentageLifeBar::TEN,
-                    LifeBarData{Area(78, 457, 462, 100), LIFE_BAR_WIDTH, LIFE_BAR_HEIGHT});
+        texture_life_bar(LIFE_BAR_SPRITE_SHEET_FILE, window,
+                         Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)) {
+    sprites.emplace(PercentageLifeBar::FULL, Area(127, 84, 756, 162));
+    sprites.emplace(PercentageLifeBar::EIGHTY, Area(127, 246, 756, 162));
+    sprites.emplace(PercentageLifeBar::FIFTY, Area(127, 408, 756, 162));
+    sprites.emplace(PercentageLifeBar::TWENTY_FIVE, Area(127, 570, 756, 162));
+    sprites.emplace(PercentageLifeBar::TEN, Area(127, 732, 756, 162));
 }
 
 void LifeBarSpriteSheet::render(int max_life, int current_life, const Area& dest) const {
@@ -41,6 +36,6 @@ void LifeBarSpriteSheet::render(int max_life, int current_life, const Area& dest
         percentage = PercentageLifeBar::TEN;
     }
 
-    const LifeBarData& life_bar_data = this->sprites.at(percentage);
-    this->texture_life_bar.render(life_bar_data.area, dest);
+    const Area& life_bar_src_area = this->sprites.at(percentage);
+    this->texture_life_bar.render(life_bar_src_area, dest);
 }

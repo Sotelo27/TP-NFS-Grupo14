@@ -11,16 +11,10 @@
 
 enum class PercentageLifeBar { TEN, TWENTY_FIVE, FIFTY, EIGHTY, FULL };
 
-struct LifeBarData {
-    Area area;
-    int width_scale_screen;
-    int height_scale_screen;
-};
-
 class LifeBarSpriteSheet {
 private:
     SdlObjTexture texture_life_bar;
-    std::unordered_map<PercentageLifeBar, LifeBarData> sprites;
+    std::unordered_map<PercentageLifeBar, Area> sprites;
 
 public:
     explicit LifeBarSpriteSheet(const SdlWindow& window);
