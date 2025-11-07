@@ -7,11 +7,11 @@
 #include <unordered_map>
 
 #include "connection/server_handler.h"
+#include "resources/car_sprite_sheet.h"
+#include "resources/life_bar.h"
+#include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 #include "utils/add_text.h"
-#include "utils/car_sprite_sheet.h"
-#include "utils/life_bar.h"
-#include "utils/maps_textures.h"
 
 struct Position {
     int x_car_map;

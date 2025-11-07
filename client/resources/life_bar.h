@@ -6,8 +6,7 @@
 
 #include "../sdl_wrappers/SdlObjTexture.h"
 #include "../sdl_wrappers/SdlWindow.h"
-
-#include "Area.h"
+#include "../utils/Area.h"
 
 enum class PercentageLifeBar { TEN, TWENTY_FIVE, FIFTY, EIGHTY, FULL };
 

@@ -5,11 +5,10 @@
 #include <string>
 #include <unordered_map>
 
+#include "../../common/enum/map_enum.h"
 #include "../sdl_wrappers/SdlMapTexture.h"
 #include "../sdl_wrappers/SdlWindow.h"
-#include "../../common/enum/map_enum.h"
-
-#include "Area.h"
+#include "../utils/Area.h"
 
 struct MapData {
     int width_scale_screen;
