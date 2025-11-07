@@ -11,6 +11,7 @@ SdlObjTexture::SdlObjTexture(const std::string& filename, const SdlWindow& windo
                              const Rgb& background_color):
         SdlBaseTexture(window), background_color(background_color) {
     this->texture = loadTexture(filename);
+    this->updateLimits();
 }
 
 SDL_Texture* SdlObjTexture::loadTexture(const std::string& filename) {

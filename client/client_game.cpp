@@ -8,6 +8,7 @@
 #include <SDL2/SDL.h>
 
 #include "sdl_wrappers/SdlDrawFill.h"
+
 #include "constants.h"
 
 ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler):
@@ -34,9 +35,8 @@ void ClientGame::start() {
     MapsTextures map_manager(window);
     map_manager.loadMap(MapID::LibertyCity);
 
-    const MapData& map_data = map_manager.getCurrentMapData();
-    std::cout << "[ClientGame] Tamaño real del mapa: " << map_data.width_scale_screen << "x"
-              << map_data.height_scale_screen << std::endl;
+    std::cout << "[ClientGame] Tamaño real del mapa: " << map_manager.getCurrentMapWidth() << "x"
+              << map_manager.getCurrentMapHeight() << std::endl;
 
     std::cout << "[ClientGame] Juego iniciado, esperando posiciones del servidor..." << std::endl;
     while (this->running) {
@@ -45,7 +45,7 @@ void ClientGame::start() {
         // Clear display
         window.fill();
 
-        update_animation_frames(map_data, car_sprites);
+        update_animation_frames(map_manager, car_sprites);
 
         render_in_z_order(window, map_manager, car_sprites, add_text, life_bar_sprites);
 
@@ -125,7 +125,7 @@ void ClientGame::update_state_from_position() {
     }
 }
 
-void ClientGame::update_map_area(const MapData& map_data) {
+void ClientGame::update_map_area(const MapsTextures& map_manager) {
     const Position& position_my_car = car_positions[client_id].position;
 
     int x_map = position_my_car.x_car_map - MAP_WIDTH_SIZE / 2;
@@ -139,20 +139,20 @@ void ClientGame::update_map_area(const MapData& map_data) {
         y_map = 0;
     }
 
-    if (x_map > map_data.width_scale_screen - MAP_WIDTH_SIZE) {
-        x_map = map_data.width_scale_screen - MAP_WIDTH_SIZE;
+    if (x_map > map_manager.getCurrentMapWidth() - MAP_WIDTH_SIZE) {
+        x_map = map_manager.getCurrentMapWidth() - MAP_WIDTH_SIZE;
     }
 
-    if (y_map > map_data.height_scale_screen - MAP_HEIGHT_SIZE) {
-        y_map = map_data.height_scale_screen - MAP_HEIGHT_SIZE;
+    if (y_map > map_manager.getCurrentMapHeight() - MAP_HEIGHT_SIZE) {
+        y_map = map_manager.getCurrentMapHeight() - MAP_HEIGHT_SIZE;
     }
 
     src_area_map.update(x_map, y_map, MAP_WIDTH_SIZE, MAP_HEIGHT_SIZE);
 }
 
-void ClientGame::update_animation_frames(const MapData& map_data,
+void ClientGame::update_animation_frames(const MapsTextures& map_manager,
                                          const CarSpriteSheet& car_sprites) {
-    update_map_area(map_data);
+    update_map_area(map_manager);
 
     Area extend_area_map(src_area_map.getX() - CAR_WIDTH_LARGE,
                          src_area_map.getY() - CAR_HEIGHT_LARGE,
@@ -197,15 +197,16 @@ void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
     }
 }
 
-void ClientGame::render_hud(const AddText& add_text, const MapsTextures& map_manager, SdlWindow& window) {
+void ClientGame::render_hud(const AddText& add_text, const MapsTextures& map_manager,
+                            const SdlWindow& window) {
     std::string client_id_str = "Client ID: " + std::to_string(client_id);
     add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
 
-    const MapData& map_data = map_manager.getCurrentMapData();
     int y_dest = 15;
-    int x_dest = WINDOW_WIDTH - (MAP_HEIGHT_SIZE *  3 / 4) - y_dest;
+    int x_dest = WINDOW_WIDTH - (MAP_HEIGHT_SIZE * 3 / 4) - y_dest;
     int mini_map_width = 300;
-    int mini_map_height = mini_map_width * map_data.height_scale_screen / map_data.width_scale_screen;
+    int mini_map_height =
+            mini_map_width * map_manager.getCurrentMapHeight() / map_manager.getCurrentMapWidth();
 
     int border = 4;
     Rgb color(0, 0, 0, 255);
@@ -221,7 +222,8 @@ void ClientGame::render_hud(const AddText& add_text, const MapsTextures& map_man
     draw_fill.fill(left, color);
     draw_fill.fill(right, color);
 
-    Area src_mini_map_area(0, 0, map_data.width_scale_screen, map_data.height_scale_screen);
+    Area src_mini_map_area(0, 0, map_manager.getCurrentMapWidth(),
+                           map_manager.getCurrentMapHeight());
     Area dest_mini_map_area(x_dest, y_dest, mini_map_width, mini_map_height);
     map_manager.render(src_mini_map_area, dest_mini_map_area);
 }

@@ -36,14 +36,16 @@ private:
 
     void update_state_from_position();
 
-    void update_animation_frames(const MapData& map_data, const CarSpriteSheet& car_sprites);
-    void update_map_area(const MapData& map_data);
+    void update_animation_frames(const MapsTextures& map_manager,
+                                 const CarSpriteSheet& car_sprites);
+    void update_map_area(const MapsTextures& map_manager);
 
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
                            const CarSpriteSheet& car_sprites, const AddText& add_text,
                            const LifeBarSpriteSheet& life_bar_sprites);
     void render_cars(const CarSpriteSheet& car_sprites, const LifeBarSpriteSheet& life_bar_sprites);
-    void render_hud(const AddText& add_text, const MapsTextures& map_manager, SdlWindow& window);
+    void render_hud(const AddText& add_text, const MapsTextures& map_manager,
+                    const SdlWindow& window);
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler);

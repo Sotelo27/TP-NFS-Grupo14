@@ -8,6 +8,7 @@
 SdlMapTexture::SdlMapTexture(const std::string& filename, const SdlWindow& window):
         SdlBaseTexture(window) {
     this->texture = loadTexture(filename);
+    this->updateLimits();
 }
 
 SDL_Texture* SdlMapTexture::loadTexture(const std::string& filename) {

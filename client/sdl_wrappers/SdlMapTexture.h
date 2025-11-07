@@ -15,8 +15,6 @@ protected:
 
 public:
     SdlMapTexture(const std::string& filename, const SdlWindow& window);
-
-    SDL_Texture* getTexture() const { return this->texture; }
 };
 
 #endif

@@ -19,16 +19,6 @@ void MapsTextures::loadMap(MapID mapID) {
     }
 
     currentMapTexture = std::make_unique<SdlMapTexture>(it->second, window);
-
-    SDL_QueryTexture(currentMapTexture->getTexture(), NULL, NULL,
-                     &currentMapData.width_scale_screen, &currentMapData.height_scale_screen);
-}
-
-const MapData& MapsTextures::getCurrentMapData() const {
-    if (!currentMapTexture) {
-        throw std::runtime_error("No map loaded for getting data");
-    }
-    return currentMapData;
 }
 
 void MapsTextures::render(const Area& src, const Area& dest) const {
@@ -36,4 +26,18 @@ void MapsTextures::render(const Area& src, const Area& dest) const {
         throw std::runtime_error("No map loaded for rendering");
     }
     currentMapTexture->render(src, dest);
+}
+
+int MapsTextures::getCurrentMapWidth() const {
+    if (!currentMapTexture) {
+        throw std::runtime_error("No map loaded to get width");
+    }
+    return currentMapTexture->getWidth();
+}
+
+int MapsTextures::getCurrentMapHeight() const {
+    if (!currentMapTexture) {
+        throw std::runtime_error("No map loaded to get height");
+    }
+    return currentMapTexture->getHeight();
 }

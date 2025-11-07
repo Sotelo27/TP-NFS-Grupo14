@@ -10,17 +10,11 @@
 #include "../sdl_wrappers/SdlWindow.h"
 #include "../utils/Area.h"
 
-struct MapData {
-    int width_scale_screen;
-    int height_scale_screen;
-};
-
 class MapsTextures {
 private:
     std::unordered_map<MapID, std::string> mapFilenames;
     const SdlWindow& window;
     std::unique_ptr<SdlMapTexture> currentMapTexture;
-    MapData currentMapData;
 
 public:
     /*
@@ -35,18 +29,14 @@ public:
     void loadMap(MapID mapID);
 
     /*
-        Retorna los datos del mapa actualmente cargado.
-
-        Si no se ha cargado ningún mapa, lanza una excepción.
-     */
-    const MapData& getCurrentMapData() const;
-
-    /*
         Renderiza en la ventana la región src del mapa cargado en el área dest.
 
         Si no se ha cargado ningún mapa, lanza una excepción.
     */
     void render(const Area& src, const Area& dest) const;
+
+    int getCurrentMapWidth() const;
+    int getCurrentMapHeight() const;
 };
 
 #endif  // MAPS_TEXTURES_H
