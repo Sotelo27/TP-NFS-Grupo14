@@ -8,8 +8,7 @@
 #include "SdlException.h"
 #include "SdlWindow.h"
 
-SdlDrawFill::SdlDrawFill(const SdlWindow& window):
-        renderer(window.getRenderer()) {}
+SdlDrawFill::SdlDrawFill(const SdlWindow& window): renderer(window.getRenderer()) {}
 
 void SdlDrawFill::fill(const Area& area, const Rgb& color) const {
     SDL_SetRenderDrawColor(this->renderer, color.getR(), color.getG(), color.getB(), color.getA());
