@@ -8,7 +8,6 @@
 
 #include "../connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
-#include "resources/life.h"
 #include "resources/life_bar.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"

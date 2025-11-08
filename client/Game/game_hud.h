@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "resources/life.h"
+#include "resources/life_hud.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 

@@ -1,4 +1,4 @@
-#include "life.h"
+#include "life_hud.h"
 
 #include "../constants.h"
 #include "../utils/rgb.h"
