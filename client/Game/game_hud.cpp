@@ -9,13 +9,16 @@
 
 #define FONT_STYLE std::string(ASSETS_PATH) + "/font/PrStart.ttf"
 
+#define SPACE_BETWEEN_WINDOW_EDGE_AND_HUD 15
+
 GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
                  std::unordered_map<size_t, CarPosition>& car_positions):
         window(window),
         map_manager(map_manager),
         client_id(client_id),
         car_positions(car_positions),
-        life_hud(window) {}
+        life_hud(window),
+        time_hud(window) {}
 
 void GameHud::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                   int mini_map_height) {
@@ -51,7 +54,7 @@ void GameHud::renderPositionMiniMap(int x_dest_mini_map, int y_dest_mini_map, in
 }
 
 void GameHud::renderMiniMap() {
-    int y_dest_mini_map = 15;
+    int y_dest_mini_map = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
     int x_dest_mini_map = WINDOW_WIDTH - (MAP_HEIGHT_SIZE * 3 / 4) - y_dest_mini_map;
     int mini_map_width = 300;
     int mini_map_height =
@@ -68,7 +71,8 @@ void GameHud::renderMiniMap() {
 }
 
 void GameHud::render() {
-    life_hud.render(100, 75, 15, 15);
+    time_hud.render(600, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    life_hud.render(100, 75, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
 
     renderMiniMap();
 }

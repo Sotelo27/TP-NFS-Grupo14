@@ -8,6 +8,7 @@
 
 #include "resources/life_hud.h"
 #include "resources/maps_textures.h"
+#include "resources/time_hud.h"
 #include "sdl_wrappers/SdlWindow.h"
 
 #include "car_position.h"
@@ -19,6 +20,7 @@ private:
     size_t client_id;
     std::unordered_map<size_t, CarPosition>& car_positions;
     LifeHud life_hud;
+    TimeHud time_hud;
 
     void renderMiniMap();
     void renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
