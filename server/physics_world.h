@@ -4,12 +4,16 @@
 #include <cstdint>
 #include <unordered_map>
 #include <utility>
+#include <memory>
+#include <vector>
 
 #include <box2d/box2d.h>
 
 #include "../common/car_model.h"
 #include "../common/dto/pose.h"
 #include "../common/dto/map_config.h"
+#include "physics/building_entity.h"
+#include "physics/border_entity.h"
 
 
 class PhysicsWorld {
@@ -17,6 +21,9 @@ private:
     b2World world;
     std::unordered_map<size_t, b2Body*> bodies;
     std::vector<b2Body*> static_bodies; // walls, boundaries, checkpoints
+    
+    std::vector<std::unique_ptr<Entidad>> static_entities;
+    size_t next_static_id_{1};
 
     // Ajuste/tolerancia para colisionadores rectangulares: reducimos 2px por lado
     // para evitar contactos "tempranos" respecto al arte de los edificios.
