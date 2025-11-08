@@ -21,12 +21,16 @@ private:
     std::unordered_map<size_t, CarPosition>& car_positions;
     LifeHud life_hud;
     TimeHud time_hud;
+    SdlFont font_hud;
 
     void renderMiniMap();
     void renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                              int mini_map_height);
     void renderPositionMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                int mini_map_height);
+
+    std::string getOrdinalSuffix(int number);
+    std::string getOrdinalString(int number);
 
 public:
     explicit GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,

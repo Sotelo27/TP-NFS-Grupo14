@@ -8,6 +8,8 @@
 #define POINT_RED std::string(ASSETS_PATH) + "/images/punto_rojo.png"
 
 #define FONT_STYLE std::string(ASSETS_PATH) + "/font/PrStart.ttf"
+// #define FONT_STYLE_POSITION std::string(ASSETS_PATH) + "/font/Pixeboy-z8XGD.ttf"
+#define FONT_STYLE_POSITION std::string(ASSETS_PATH) + "/font/AldotheApache.ttf"
 
 #define SPACE_BETWEEN_WINDOW_EDGE_AND_HUD 15
 
@@ -18,7 +20,8 @@ GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_
         client_id(client_id),
         car_positions(car_positions),
         life_hud(window),
-        time_hud(window) {}
+        time_hud(window),
+        font_hud(FONT_STYLE_POSITION, 60, window) {}
 
 void GameHud::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                   int mini_map_height) {
@@ -70,9 +73,35 @@ void GameHud::renderMiniMap() {
     renderPositionMiniMap(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
 }
 
+std::string GameHud::getOrdinalSuffix(int number) {
+    int last_two = number % 100;
+    if (last_two >= 11 && last_two <= 13) {
+        return "th";
+    }
+
+    switch (number % 10) {
+        case 1:
+            return "st";
+        case 2:
+            return "nd";
+        case 3:
+            return "rd";
+        default:
+            return "th";
+    }
+}
+
+std::string GameHud::getOrdinalString(int number) {
+    return std::to_string(number) + getOrdinalSuffix(number);
+}
+
 void GameHud::render() {
-    time_hud.render(600, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
-    life_hud.render(100, 75, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
+    font_hud.renderText(
+            getOrdinalString(13), Rgb(255, 255, 255),
+            Area(SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, 300, 60));
+
+    time_hud.render(600, WINDOW_WIDTH / 2 - 115, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    life_hud.render(100, 10, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
 
     renderMiniMap();
 }
