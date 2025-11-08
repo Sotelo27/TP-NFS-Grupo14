@@ -10,7 +10,7 @@ public:
      * - id: identificador interno de la entidad
      * - body: puntero al cuerpo de Box2D
      */
-    BorderEntity(size_t id, b2Body* body): Entidad(id, body) {}
+    BorderEntity(size_t id, b2Body* body);
 
     /*
      * Retorna el tipo para el despachador de colisiones

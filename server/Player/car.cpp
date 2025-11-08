@@ -102,5 +102,10 @@ void Car::onCollision(Entidad* other) {
     }
     if (other->type() == Entidad::Type::Building || other->type() == Entidad::Type::Border) {
         set_vida(vida_ - 10.f);
+        return;
+    }
+    if (other->type() == Entidad::Type::Car) {
+        set_vida(vida_ - 5.f);
+        return;
     }
 }

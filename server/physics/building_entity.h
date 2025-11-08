@@ -12,7 +12,7 @@ public:
      *       con el id de jugador; se usa para trazas o depuración).
      * - body: puntero al cuerpo de Box2D ya creado y perteneciente al mundo.
      */
-    BuildingEntity(size_t id, b2Body* body): Entidad(id, body) {}
+    BuildingEntity(size_t id, b2Body* body);
 
     /*
      * Retorna el tipo de entidad para que el listener pueda despachar
