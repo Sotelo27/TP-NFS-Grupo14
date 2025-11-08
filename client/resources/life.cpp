@@ -9,7 +9,7 @@
 
 LifeHud::LifeHud(const SdlWindow& window):
         texture(LIFE_ICON, window, Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
-        add_text(SIZE, window) {}
+        add_text((SIZE * 7) / 12, window) {}
 
 void LifeHud::render(int max_life, int current_life, int x, int y) const {
     this->texture.render(Area(0, 0, texture.getWidth(), texture.getHeight()),
@@ -19,5 +19,5 @@ void LifeHud::render(int max_life, int current_life, int x, int y) const {
     int r = 255 - g;
 
     add_text.renderText(std::to_string(current_life), Rgb(r, g, 0),
-                        Area(x + SIZE + 5, y, SIZE * 2, SIZE));
+                        Area(x + SIZE + 5, y + SIZE / 6, SIZE * 2, SIZE));
 }
