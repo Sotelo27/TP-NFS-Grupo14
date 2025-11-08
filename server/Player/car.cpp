@@ -8,8 +8,8 @@ Car::Car(size_t id, const CarModel& spec, b2Body* body)
         b->SetBullet(true);
         b->SetLinearDamping(spec_.dampingLineal);
         b->SetAngularDamping(spec_.dampingAngular);
-        b->GetUserData().pointer =
-            reinterpret_cast<uintptr_t>(static_cast<Entidad*>(this));
+        b->SetUserData(this); // aqui unimos las dos referencias, entonces Car ya se asocia su BODY y en BOdy asociamos el Car
+                              // entonces en colisiones podemos recuperar el Car desde el Body, asi evitamos buscar en mapas
     }
 }
 
