@@ -12,7 +12,6 @@
 #include "resources/life_bar.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
-#include "utils/add_text.h"
 
 #include "car_position.h"
 #include "game_hud.h"

@@ -7,6 +7,8 @@
 
 #define POINT_RED std::string(ASSETS_PATH) + "/images/punto_rojo.png"
 
+#define FONT_STYLE std::string(ASSETS_PATH) + "/font/PrStart.ttf"
+
 GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
                  std::unordered_map<size_t, CarPosition>& car_positions):
         window(window),
