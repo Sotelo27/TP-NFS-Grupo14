@@ -1,6 +1,6 @@
 #include "client.h"
 
-#include "client_game.h"
+#include "Game/client_game.h"
 #include <iostream>
 #include "../common/socket.h"
 #include "QT/login_window.h"

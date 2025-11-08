@@ -6,7 +6,6 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
-#include "../client_game.h"
 
 LobbyWindow::LobbyWindow(ServerHandler& server_handler, size_t& my_id, QWidget* parent)
     : QWidget(parent), server_handler(server_handler), my_id(my_id), usuario_entro_a_sala(false)

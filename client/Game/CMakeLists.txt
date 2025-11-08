@@ -1,11 +1,8 @@
 target_sources(taller_client
     PRIVATE
     # .cpp files
-    main.cpp
-    client.cpp
-    client_protocol.cpp
+    client_game.cpp
     PUBLIC
     # .h files
-    client.h
-    client_protocol.h
+    client_game.h
     )

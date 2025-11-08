@@ -7,6 +7,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "sdl_wrappers/SdlDrawFill.h"
+
 #include "constants.h"
 
 ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler):
@@ -28,12 +30,15 @@ void ClientGame::start() {
 
     AddText add_text(24, window);
 
+    LifeHud life_hud(window);
+
+    LifeBarSpriteSheet life_bar_sprites(window);
+
     MapsTextures map_manager(window);
     map_manager.loadMap(MapID::LibertyCity);
 
-    const MapData& map_data = map_manager.getCurrentMapData();
-    std::cout << "[ClientGame] Tamaño real del mapa: " << map_data.width_scale_screen << "x"
-              << map_data.height_scale_screen << std::endl;
+    std::cout << "[ClientGame] Tamaño real del mapa: " << map_manager.getCurrentMapWidth() << "x"
+              << map_manager.getCurrentMapHeight() << std::endl;
 
     std::cout << "[ClientGame] Juego iniciado, esperando posiciones del servidor..." << std::endl;
     while (this->running) {
@@ -42,9 +47,9 @@ void ClientGame::start() {
         // Clear display
         window.fill();
 
-        update_animation_frames(map_data, car_sprites);
+        update_animation_frames(map_manager, car_sprites);
 
-        render_in_z_order(window, map_manager, car_sprites, add_text);
+        render_in_z_order(window, map_manager, car_sprites, add_text, life_bar_sprites, life_hud);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(16));  // ~60 FPS
     }
@@ -109,6 +114,8 @@ void ClientGame::update_state_from_position() {
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::Pos) {
+            car_positions.clear();
+
             std::cout << "[ClientGame] Posición recibida del servidor: (" << action.x << ", "
                       << action.y << ", " << action.angle << ")\n";
 
@@ -122,7 +129,7 @@ void ClientGame::update_state_from_position() {
     }
 }
 
-void ClientGame::update_map_area(const MapData& map_data) {
+void ClientGame::update_map_area(const MapsTextures& map_manager) {
     const Position& position_my_car = car_positions[client_id].position;
 
     int x_map = position_my_car.x_car_map - MAP_WIDTH_SIZE / 2;
@@ -136,20 +143,20 @@ void ClientGame::update_map_area(const MapData& map_data) {
         y_map = 0;
     }
 
-    if (x_map > map_data.width_scale_screen - MAP_WIDTH_SIZE) {
-        x_map = map_data.width_scale_screen - MAP_WIDTH_SIZE;
+    if (x_map > map_manager.getCurrentMapWidth() - MAP_WIDTH_SIZE) {
+        x_map = map_manager.getCurrentMapWidth() - MAP_WIDTH_SIZE;
     }
 
-    if (y_map > map_data.height_scale_screen - MAP_HEIGHT_SIZE) {
-        y_map = map_data.height_scale_screen - MAP_HEIGHT_SIZE;
+    if (y_map > map_manager.getCurrentMapHeight() - MAP_HEIGHT_SIZE) {
+        y_map = map_manager.getCurrentMapHeight() - MAP_HEIGHT_SIZE;
     }
 
     src_area_map.update(x_map, y_map, MAP_WIDTH_SIZE, MAP_HEIGHT_SIZE);
 }
 
-void ClientGame::update_animation_frames(const MapData& map_data,
+void ClientGame::update_animation_frames(const MapsTextures& map_manager,
                                          const CarSpriteSheet& car_sprites) {
-    update_map_area(map_data);
+    update_map_area(map_manager);
 
     Area extend_area_map(src_area_map.getX() - CAR_WIDTH_LARGE,
                          src_area_map.getY() - CAR_HEIGHT_LARGE,
@@ -177,27 +184,77 @@ void ClientGame::update_animation_frames(const MapData& map_data,
     }
 }
 
-void ClientGame::render_cars(const CarSpriteSheet& car_sprites) {
+void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
+                             const LifeBarSpriteSheet& life_bar_sprites) {
     for (const auto& [id, car_pos]: car_positions) {
         if (car_pos.dest_area.getWidth() == 0 || car_pos.dest_area.getHeight() == 0) {
             continue;
         }
 
-        // el auto debería de pasarlo el server en algún momento
         const CarData& car_data = car_sprites.getCarData(this->current_car);
+        life_bar_sprites.render(100, 5,
+                                Area(car_pos.dest_area.getX(),
+                                     car_pos.dest_area.getY() - car_data.width_scale_screen / 5,
+                                     car_data.width_scale_screen, car_data.width_scale_screen / 5));
+        // el auto debería de pasarlo el server en algún momento
         car_sprites.render(car_data.area, car_pos.dest_area, car_pos.position.angle);
     }
 }
 
+void ClientGame::render_hud(const AddText& add_text, const MapsTextures& map_manager,
+                            const SdlWindow& window, const LifeHud& life_hud) {
+    std::string client_id_str = "Client ID: " + std::to_string(client_id);
+    add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, WINDOW_HEIGHT - 70, 0, 0));
+
+    life_hud.render(100, 75, 15, 15);
+
+    // mini mapa
+    int y_dest = 15;
+    int x_dest = WINDOW_WIDTH - (MAP_HEIGHT_SIZE * 3 / 4) - y_dest;
+    int mini_map_width = 300;
+    int mini_map_height =
+            mini_map_width * map_manager.getCurrentMapHeight() / map_manager.getCurrentMapWidth();
+
+    int border = 4;
+    Rgb color(0, 0, 0, 255);
+
+    Area top(x_dest - border, y_dest - border, mini_map_width + border * 2, border);
+    Area bottom(x_dest - border, y_dest + mini_map_height, mini_map_width + border * 2, border);
+    Area left(x_dest - border, y_dest, border, mini_map_height);
+    Area right(x_dest + mini_map_width, y_dest, border, mini_map_height);
+
+    SdlDrawFill draw_fill(window);
+    draw_fill.fill(top, color);
+    draw_fill.fill(bottom, color);
+    draw_fill.fill(left, color);
+    draw_fill.fill(right, color);
+
+    Area src_mini_map_area(0, 0, map_manager.getCurrentMapWidth(),
+                           map_manager.getCurrentMapHeight());
+    Area dest_mini_map_area(x_dest, y_dest, mini_map_width, mini_map_height);
+    map_manager.render(src_mini_map_area, dest_mini_map_area);
+
+    // dibujar posición del auto en el mini mapa
+    const Position& position_my_car = car_positions[client_id].position;
+    int x_car_mini_map =
+            x_dest + (position_my_car.x_car_map * mini_map_width) / map_manager.getCurrentMapWidth();
+    int y_car_mini_map =
+            y_dest + (position_my_car.y_car_map * mini_map_height) / map_manager.getCurrentMapHeight();
+
+    Area car_area_mini_map(x_car_mini_map - 5, y_car_mini_map - 5, 10, 10);
+    draw_fill.fill(car_area_mini_map, Rgb(255, 0, 0, 255));
+}
+
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                                   const CarSpriteSheet& car_sprites, const AddText& add_text) {
+                                   const CarSpriteSheet& car_sprites, const AddText& add_text,
+                                   const LifeBarSpriteSheet& life_bar_sprites,
+                                   const LifeHud& life_hud) {
 
     map_manager.render(src_area_map, dest_area_map);
 
-    render_cars(car_sprites);
+    render_cars(car_sprites, life_bar_sprites);
 
-    std::string client_id_str = "Client ID: " + std::to_string(client_id);
-    add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
+    render_hud(add_text, map_manager, window, life_hud);
 
     window.render();
 }

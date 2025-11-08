@@ -4,11 +4,10 @@
 #include <string>
 #include <unordered_map>
 
+#include "../../../common/enum/car_enum.h"
 #include "../sdl_wrappers/SdlObjTexture.h"
 #include "../sdl_wrappers/SdlWindow.h"
-#include "../../common/enum/car_enum.h"
-
-#include "Area.h"
+#include "../utils/Area.h"
 
 struct CarData {
     Area area;

@@ -7,6 +7,7 @@ target_sources(taller_client
     SdlMapTexture.cpp
     SdlObjTexture.cpp
     SdlFont.cpp
+    SdlDrawFill.cpp
     PUBLIC
     # .h files
     SdlException.h
@@ -15,4 +16,5 @@ target_sources(taller_client
     SdlMapTexture.h
     SdlObjTexture.h
     SdlFont.h
+    SdlDrawFill.h
     )

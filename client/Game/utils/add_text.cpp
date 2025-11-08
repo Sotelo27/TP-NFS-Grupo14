@@ -1,6 +1,6 @@
 #include "add_text.h"
 
-#define FONT_STYLE std::string(ASSETS_PATH) + "/font/PixelGame-R9AZe.otf"
+#define FONT_STYLE std::string(ASSETS_PATH) + "/font/PrStart.ttf"
 
 AddText::AddText(size_t font_size, const SdlWindow& window): font(FONT_STYLE, font_size, window) {}
 

@@ -6,11 +6,13 @@
 #include <string>
 #include <unordered_map>
 
-#include "connection/server_handler.h"
+#include "../connection/server_handler.h"
+#include "resources/car_sprite_sheet.h"
+#include "resources/life.h"
+#include "resources/life_bar.h"
+#include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 #include "utils/add_text.h"
-#include "utils/car_sprite_sheet.h"
-#include "utils/maps_textures.h"
 
 struct Position {
     int x_car_map;
@@ -35,12 +37,16 @@ private:
 
     void update_state_from_position();
 
-    void update_animation_frames(const MapData& map_data, const CarSpriteSheet& car_sprites);
-    void update_map_area(const MapData& map_data);
+    void update_animation_frames(const MapsTextures& map_manager,
+                                 const CarSpriteSheet& car_sprites);
+    void update_map_area(const MapsTextures& map_manager);
 
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                           const CarSpriteSheet& car_sprites, const AddText& add_text);
-    void render_cars(const CarSpriteSheet& car_sprites);
+                           const CarSpriteSheet& car_sprites, const AddText& add_text,
+                           const LifeBarSpriteSheet& life_bar_sprites, const LifeHud& life_hud);
+    void render_cars(const CarSpriteSheet& car_sprites, const LifeBarSpriteSheet& life_bar_sprites);
+    void render_hud(const AddText& add_text, const MapsTextures& map_manager,
+                    const SdlWindow& window, const LifeHud& life_hud);
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler);
