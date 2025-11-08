@@ -114,6 +114,8 @@ void ClientGame::update_state_from_position() {
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::Pos) {
+            car_positions.clear();
+
             std::cout << "[ClientGame] Posición recibida del servidor: (" << action.x << ", "
                       << action.y << ", " << action.angle << ")\n";
 
@@ -231,6 +233,16 @@ void ClientGame::render_hud(const AddText& add_text, const MapsTextures& map_man
                            map_manager.getCurrentMapHeight());
     Area dest_mini_map_area(x_dest, y_dest, mini_map_width, mini_map_height);
     map_manager.render(src_mini_map_area, dest_mini_map_area);
+
+    // dibujar posición del auto en el mini mapa
+    const Position& position_my_car = car_positions[client_id].position;
+    int x_car_mini_map =
+            x_dest + (position_my_car.x_car_map * mini_map_width) / map_manager.getCurrentMapWidth();
+    int y_car_mini_map =
+            y_dest + (position_my_car.y_car_map * mini_map_height) / map_manager.getCurrentMapHeight();
+
+    Area car_area_mini_map(x_car_mini_map - 5, y_car_mini_map - 5, 10, 10);
+    draw_fill.fill(car_area_mini_map, Rgb(255, 0, 0, 255));
 }
 
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,

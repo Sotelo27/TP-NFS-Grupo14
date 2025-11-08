@@ -117,9 +117,10 @@ if(TALLER_CLIENT)
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
     add_subdirectory(client)
-    add_subdirectory(client/sdl_wrappers)
-    add_subdirectory(client/utils)
-    add_subdirectory(client/resources)
+    add_subdirectory(client/Game)
+    add_subdirectory(client/Game/sdl_wrappers)
+    add_subdirectory(client/Game/utils)
+    add_subdirectory(client/Game/resources)
     add_subdirectory(client/connection)
     add_subdirectory(client/QT)
 
@@ -127,6 +128,7 @@ if(TALLER_CLIENT)
 
     # add libSDL2pp's headers
     target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR})
+    target_include_directories(taller_client PRIVATE Game)
     target_include_directories(taller_client PRIVATE sdl_wrappers)
     target_include_directories(taller_client PRIVATE utils)
     target_include_directories(taller_client PRIVATE resources)

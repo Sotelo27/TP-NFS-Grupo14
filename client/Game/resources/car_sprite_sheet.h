@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../common/enum/car_enum.h"
+#include "../../../common/enum/car_enum.h"
 #include "../sdl_wrappers/SdlObjTexture.h"
 #include "../sdl_wrappers/SdlWindow.h"
 #include "../utils/Area.h"

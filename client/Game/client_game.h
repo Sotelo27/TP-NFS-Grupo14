@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "connection/server_handler.h"
+#include "../connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
 #include "resources/life.h"
 #include "resources/life_bar.h"
