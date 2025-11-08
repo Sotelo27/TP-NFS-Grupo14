@@ -1,8 +1,11 @@
 #include "game_hud.h"
 
 #include "sdl_wrappers/SdlDrawFill.h"
+#include "sdl_wrappers/SdlObjTexture.h"
 
 #include "constants.h"
+
+#define POINT_RED std::string(ASSETS_PATH) + "/images/punto_rojo.png"
 
 GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
                  std::unordered_map<size_t, CarPosition>& car_positions):
@@ -49,5 +52,6 @@ void GameHud::render() {
                                           map_manager.getCurrentMapHeight();
 
     Area car_area_mini_map(x_car_mini_map - 5, y_car_mini_map - 5, 10, 10);
-    draw_fill.fill(car_area_mini_map, Rgb(255, 0, 0, 255));
+    SdlObjTexture car_mini_map(POINT_RED, window, Rgb(0, 0, 0));
+    car_mini_map.renderEntity(Area(0, 0, car_mini_map.getWidth(), car_mini_map.getHeight()), car_area_mini_map, position_my_car.angle);
 }
