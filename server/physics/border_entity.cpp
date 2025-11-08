@@ -10,6 +10,6 @@ Entidad::Type BorderEntity::type() const {
 
 void BorderEntity::onCollision(Entidad* other) {
     if (other && other->type() == Type::Car) {
-        std::cout << "Car ID " << other->get_id()  << " chocó con un borde (ID " << get_id() << ")\n";
+        std::cout << "Car ID " << other->get_id()  << " choco con un borde (ID " << get_id() << ")\n";
     }
 }

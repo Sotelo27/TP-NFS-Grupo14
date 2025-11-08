@@ -10,6 +10,6 @@ Entidad::Type BuildingEntity::type() const {
 
 void BuildingEntity::onCollision(Entidad* other) {
     if (other && other->type() == Type::Car) {
-        std::cout << "Car ID " << other->get_id() << " chocó con un edificio (ID " << get_id() << ")\n";
+        std::cout << "Car ID " << other->get_id() << " choco con un edificio (ID " << get_id() << ")\n";
     }
 }

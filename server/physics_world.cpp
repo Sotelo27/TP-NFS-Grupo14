@@ -2,6 +2,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
 PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)) {
     world.SetContactListener(&contact_listener);
@@ -156,7 +157,7 @@ void PhysicsWorld::add_static_rect_body_px(const RectCollider& rect, float pixel
 
     // añado el edificio al user data del body
     auto ent = std::make_unique<BuildingEntity>(next_static_id_++, body);
-    body->SetUserData(ent.get());
+    body->GetUserData().pointer = reinterpret_cast<uintptr_t>(ent.get());
     static_entities.push_back(std::move(ent));
 
     static_bodies.push_back(body);
@@ -225,7 +226,7 @@ void PhysicsWorld::add_static_polyline_bodies_px(const PolylineCollider& pl, flo
 
     // añado el borde al user data del body
     auto ent = std::make_unique<BorderEntity>(next_static_id_++, body);
-    body->SetUserData(ent.get());
+    body->GetUserData().pointer = reinterpret_cast<uintptr_t>(ent.get());
     static_entities.push_back(std::move(ent));
 
     static_bodies.push_back(body);

@@ -1,6 +1,8 @@
 #include "car.h"
 #include <cmath>
 #include <algorithm>
+#include <cstdint>
+#include <iostream>
 
 Car::Car(size_t id, const CarModel& spec, b2Body* body)
     : Entidad(id, body), spec_(spec) {
@@ -8,7 +10,8 @@ Car::Car(size_t id, const CarModel& spec, b2Body* body)
         b->SetBullet(true);
         b->SetLinearDamping(spec_.dampingLineal);
         b->SetAngularDamping(spec_.dampingAngular);
-        b->SetUserData(this); // aqui unimos las dos referencias, entonces Car ya se asocia su BODY y en BOdy asociamos el Car
+    // Asociar puntero a Entidad en el userData del body // INTENTE CON SETUSERDATA Y NO ME FUNCIONO
+    b->GetUserData().pointer = reinterpret_cast<uintptr_t>(this); // aqui unimos las dos referencias, entonces Car ya se asocia su BODY y en BOdy asociamos el Car
                               // entonces en colisiones podemos recuperar el Car desde el Body, asi evitamos buscar en mapas
     }
 }
@@ -100,12 +103,21 @@ void Car::onCollision(Entidad* other) {
     if (!other){
         return;
     }
+    const float oldVida = vida_;
     if (other->type() == Entidad::Type::Building || other->type() == Entidad::Type::Border) {
-        set_vida(vida_ - 10.f);
+        const float damage = 10.f;
+        set_vida(vida_ - damage);
+        std::cout << "[Collision] Car " << id
+                  << " vs " << (other->type() == Entidad::Type::Building ? "Building" : "Border")
+                  << " | vida: " << oldVida << " -> " << vida_ << " (-" << (oldVida - vida_) << ")\n";
         return;
     }
     if (other->type() == Entidad::Type::Car) {
-        set_vida(vida_ - 5.f);
+        const float damage = 5.f;
+        set_vida(vida_ - damage);
+        std::cout << "[Collision] Car " << id
+                  << " vs Car " << other->get_id()
+                  << " | vida: " << oldVida << " -> " << vida_ << " (-" << (oldVida - vida_) << ")\n";
         return;
     }
 }
