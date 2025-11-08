@@ -1,6 +1,7 @@
 #include "client_list.h"
 
 #include <vector>
+#include <iostream>  // AGREGAR ESTE INCLUDE
 
 #include "../common/constants.h"
 #include "../common/player_aux.h"
@@ -55,9 +56,19 @@ void ClientListProtected::send_pos_to(size_t id, int16_t x, int16_t y, float ang
 void ClientListProtected::broadcast_player_positions(const std::vector<PlayerPos>& positions) {
     std::lock_guard<std::mutex> lock(m);
     for (auto& client: clients) {
-        if (!client)
-            continue;
-        client->send_positions_to_all(positions);
+        if (client && client->is_alive()) {
+            client->send_positions_to_all(positions);
+        }
+    }
+}
+
+void ClientListProtected::broadcast_players_list(const std::vector<PlayerInfo>& players) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting players list to " << clients.size() << " clients\n";
+    for (auto& client: clients) {
+        if (client && client->is_alive()) {
+            client->send_players_list_to_client(players);
+        }
     }
 }
 

@@ -102,6 +102,27 @@ void Game::set_player_name(size_t id, std::string name) {
     players.at(id).set_name(std::move(name));
 }
 
+uint8_t Game::get_player_health(size_t id) const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
+    auto it = players.find(id);
+    if (it == players.end()) {
+        return 100; // Valor por defecto si no existe
+    }
+    // TODO: Implementar cuando Player tenga atributo de vida
+    return 100; // Por ahora retornar vida completa
+}
+
+uint32_t Game::get_player_race_time(size_t id) const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
+    auto it = players.find(id);
+    if (it == players.end()) {
+        return 0; // Valor por defecto si no existe
+    }
+    // TODO: Implementar cuando se tenga sistema de tiempo de carrera
+    return 0; // Por ahora retornar 0
+}
+
+
 void Game::load_map(const MapConfig& cfg) {
     std::lock_guard<std::mutex> lock(m);
     city.load_map(cfg);

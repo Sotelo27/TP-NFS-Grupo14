@@ -1,37 +1,88 @@
-#ifndef DTO_SERVER_MSG_H
-#define DTO_SERVER_MSG_H
+#ifndef SERVER_MSG_H
+#define SERVER_MSG_H
 
 #include <cstdint>
 #include <string>
 #include <vector>
 
 #include "room_info.h"
+#include "player_info.h"
+#include "car_info.h"
+#include "results_info.h"
+#include "map_tick_info.h"
 
 struct ServerMessage {
     enum class Type {
+        Unknown,
         Ok,
         Pos,
         Rooms,
-        PlayerName,
-        YourId,
-        GameOver,
         RoomCreated,
-        Unknown
-    } type{Type::Unknown};
+        YourId,
+        PlayerName,
+        PlayersList,
+        GameOver
+    };
 
-    // Campos comunes / reutilizados por varios tipos
-    uint32_t id{0};
-
-    // Para Pos
-    uint16_t x{0}; // pixeles
-    uint16_t y{0}; // pixeles
-    float angle{0.0f}; //angulo ya en grados
-
-    // Para Rooms
-    std::vector<RoomInfo> rooms;
-
-    // Para PlayerName
+    Type type;
+    uint32_t id;
+    int16_t x;
+    int16_t y;
+    float angle;
     std::string username;
+    std::vector<RoomInfo> rooms;
+    std::vector<PlayerInfo> players;
+    uint8_t room_id;
+
+    ServerMessage();
+};
+
+enum class ServerOutType {
+    Ok,
+    Pos,
+    YourId,
+    PlayerName,
+    Rooms,
+    RoomCreated,
+    PlayersList,
+    CarList,
+    RaceStart,
+    Results,
+    MapInfo
+};
+
+struct ServerOutMsg {
+    ServerOutType type{ServerOutType::Ok};
+
+    // Payloads básicos
+    uint32_t id{0};
+    int16_t x{0};
+    int16_t y{0};
+    float angle{0.f};
+    uint32_t your_id{0};
+    std::string username;
+    uint8_t room_id{0};
+
+    // Listas
+    std::vector<RoomInfo> rooms;
+    std::vector<PlayerInfo> players;
+    std::vector<CarInfo> cars;
+
+    // RaceStart
+    std::string map_name;
+    uint8_t amount_checkpoints{0};
+    std::vector<std::pair<int32_t,int32_t>> checkpoints;
+
+    // Results
+    std::vector<PlayerResultCurrent> results_current;
+    std::vector<PlayerResultTotal> results_total;
+
+    // MapInfo
+    std::vector<PlayerTickInfo> players_tick;
+    std::vector<NpcTickInfo> npcs_tick;
+    std::vector<EventInfo> events_tick;
+
+    ServerOutMsg();
 };
 
 #endif

@@ -3,7 +3,10 @@
 #include <cstdint>
 #include <vector>
 #include <cstring>
+#include <iostream>  
 #include <arpa/inet.h>
+
+#include "../common/dto/player_info.h"
 
 #define MOVE_BUF 2
 
@@ -173,6 +176,56 @@ ServerMessage ClientProtocol::receive() {
         skt.recvall(&room_id, sizeof(room_id));
         dto.type = ServerMessage::Type::RoomCreated;
         dto.id = room_id;
+    } else if (code == CODE_S2C_PLAYERS_LIST) {
+        dto.type = ServerMessage::Type::PlayersList;
+        uint8_t count = 0;
+        skt.recvall(&count, sizeof(count));
+        
+        dto.players.clear();
+        dto.players.reserve(count);
+        
+        for (uint8_t i = 0; i < count; ++i) {
+            PlayerInfo pinfo;
+            
+            // Player ID (4 bytes big endian)
+            uint32_t id_be = 0;
+            skt.recvall(&id_be, sizeof(id_be));
+            pinfo.player_id = ntohl(id_be);
+            
+            // Username length (2 bytes big endian)
+            uint16_t len_be = 0;
+            skt.recvall(&len_be, sizeof(len_be));
+            uint16_t len = ntohs(len_be);
+            
+            // Username string
+            pinfo.username.resize(len);
+            if (len > 0) {
+                skt.recvall(&pinfo.username[0], len);
+            }
+            
+            // Ready flag (1 byte)
+            uint8_t ready = 0;
+            skt.recvall(&ready, sizeof(ready));
+            pinfo.is_ready = (ready != 0);
+            
+            // Health (1 byte)
+            uint8_t health = 0;
+            skt.recvall(&health, sizeof(health));
+            pinfo.health = health;
+            
+            // Race time (4 bytes big endian)
+            uint32_t time_be = 0;
+            skt.recvall(&time_be, sizeof(time_be));
+            pinfo.race_time_ms = ntohl(time_be);
+            
+            dto.players.push_back(pinfo);
+            
+            std::cout << "[ClientProtocol] Player " << pinfo.player_id 
+                      << " '" << pinfo.username << "' health=" << (int)pinfo.health
+                      << " time=" << pinfo.race_time_ms << "ms\n";
+        }
+        
+        std::cout << "[ClientProtocol] Received PLAYERS_LIST with " << (int)count << " players\n";
     } else if (code == CODE_S2C_GAME_OVER) {
         dto.type = ServerMessage::Type::GameOver;
     } else if (code == CODE_S2C_CAR_LIST) {

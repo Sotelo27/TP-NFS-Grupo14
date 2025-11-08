@@ -13,6 +13,7 @@
 #include "../common/dto/car_info.h"
 #include "../common/dto/results_info.h"
 #include "../common/dto/map_tick_info.h"
+#include "../common/dto/player_info.h"
 
 class ServerProtocol {
 private:
@@ -38,6 +39,9 @@ public:
 
     // Server: enviar id de sala recién creada
     void send_room_created(uint8_t room_id);
+
+    // Server: enviar lista de jugadores en sala de espera
+    void send_players_list(const std::vector<PlayerInfo>& players);
 
     // Server: receive() returns ClientMessage (base)
     ClientMessage receive();

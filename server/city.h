@@ -1,35 +1,43 @@
 #ifndef CITY_H
 #define CITY_H
 
+#include <vector>
 #include "physics_world.h"
 #include "../common/dto/map_config.h"
 
 class City {
 private:
-    PhysicsWorld world;
-    std::vector<SpawnPoint> spawns_cfg;
+    PhysicsWorld physics_world;
+    std::vector<SpawnPoint> spawns;
 
 public:
-    City() = default;
+    City();
 
-    void load_map(const MapConfig& cfg) {
-        world.load_static_geometry(cfg);
-        spawns_cfg.clear();
-        spawns_cfg.reserve(cfg.spawns.size());
-        for (const auto& sp : cfg.spawns) {
-            spawns_cfg.push_back(sp);
-        }
-    }
+    /*
+     * Obtiene referencia al mundo físico
+     */
+    PhysicsWorld& get_world();
 
-    SpawnPoint get_spawn_for_index(size_t idx) const {
-        if (spawns_cfg.empty()) return SpawnPoint{};
-        return spawns_cfg[idx % spawns_cfg.size()];
-    }
+    /*
+     * Avanza la simulación física
+     */
+    void step(float dt);
 
-    void step(float dtSeconds) { world.step(dtSeconds); }
+    /*
+     * Carga la geometría del mapa
+     */
+    void load_map(const MapConfig& cfg);
 
-    PhysicsWorld& get_world() { return world; }
-    const PhysicsWorld& get_world() const { return world; }
+    /*
+     * Obtiene un spawn point según el índice
+     * Si no hay spawns, retorna una posición por defecto
+     */
+    SpawnPoint get_spawn_for_index(size_t index) const;
+
+    /*
+     * Configura los puntos de spawn
+     */
+    void set_spawns(const std::vector<SpawnPoint>& new_spawns);
 };
 
 #endif
