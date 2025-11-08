@@ -1,0 +1,53 @@
+#include "game_hud.h"
+
+#include "sdl_wrappers/SdlDrawFill.h"
+
+#include "constants.h"
+
+GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
+                 std::unordered_map<size_t, CarPosition>& car_positions):
+        window(window),
+        map_manager(map_manager),
+        client_id(client_id),
+        car_positions(car_positions),
+        life_hud(window) {}
+
+void GameHud::render() {
+    life_hud.render(100, 75, 15, 15);
+
+    // mini mapa
+    int y_dest = 15;
+    int x_dest = WINDOW_WIDTH - (MAP_HEIGHT_SIZE * 3 / 4) - y_dest;
+    int mini_map_width = 300;
+    int mini_map_height =
+            mini_map_width * map_manager.getCurrentMapHeight() / map_manager.getCurrentMapWidth();
+
+    int border = 4;
+    Rgb color(0, 0, 0, 255);
+
+    Area top(x_dest - border, y_dest - border, mini_map_width + border * 2, border);
+    Area bottom(x_dest - border, y_dest + mini_map_height, mini_map_width + border * 2, border);
+    Area left(x_dest - border, y_dest, border, mini_map_height);
+    Area right(x_dest + mini_map_width, y_dest, border, mini_map_height);
+
+    SdlDrawFill draw_fill(window);
+    draw_fill.fill(top, color);
+    draw_fill.fill(bottom, color);
+    draw_fill.fill(left, color);
+    draw_fill.fill(right, color);
+
+    Area src_mini_map_area(0, 0, map_manager.getCurrentMapWidth(),
+                           map_manager.getCurrentMapHeight());
+    Area dest_mini_map_area(x_dest, y_dest, mini_map_width, mini_map_height);
+    map_manager.render(src_mini_map_area, dest_mini_map_area);
+
+    // dibujar posición del auto en el mini mapa
+    const Position& position_my_car = car_positions[client_id].position;
+    int x_car_mini_map = x_dest + (position_my_car.x_car_map * mini_map_width) /
+                                          map_manager.getCurrentMapWidth();
+    int y_car_mini_map = y_dest + (position_my_car.y_car_map * mini_map_height) /
+                                          map_manager.getCurrentMapHeight();
+
+    Area car_area_mini_map(x_car_mini_map - 5, y_car_mini_map - 5, 10, 10);
+    draw_fill.fill(car_area_mini_map, Rgb(255, 0, 0, 255));
+}
