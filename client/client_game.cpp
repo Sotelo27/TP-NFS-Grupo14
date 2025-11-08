@@ -30,6 +30,8 @@ void ClientGame::start() {
 
     AddText add_text(24, window);
 
+    LifeHud life_hud(window);
+
     LifeBarSpriteSheet life_bar_sprites(window);
 
     MapsTextures map_manager(window);
@@ -47,7 +49,7 @@ void ClientGame::start() {
 
         update_animation_frames(map_manager, car_sprites);
 
-        render_in_z_order(window, map_manager, car_sprites, add_text, life_bar_sprites);
+        render_in_z_order(window, map_manager, car_sprites, add_text, life_bar_sprites, life_hud);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(16));  // ~60 FPS
     }
@@ -198,10 +200,13 @@ void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
 }
 
 void ClientGame::render_hud(const AddText& add_text, const MapsTextures& map_manager,
-                            const SdlWindow& window) {
+                            const SdlWindow& window, const LifeHud& life_hud) {
     std::string client_id_str = "Client ID: " + std::to_string(client_id);
-    add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, 10, 0, 0));
+    add_text.renderText(client_id_str, Rgb(255, 255, 255, 255), Area(10, WINDOW_HEIGHT - 70, 0, 0));
 
+    life_hud.render(100, 75, 15, 15);
+
+    // mini mapa
     int y_dest = 15;
     int x_dest = WINDOW_WIDTH - (MAP_HEIGHT_SIZE * 3 / 4) - y_dest;
     int mini_map_width = 300;
@@ -230,13 +235,14 @@ void ClientGame::render_hud(const AddText& add_text, const MapsTextures& map_man
 
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
                                    const CarSpriteSheet& car_sprites, const AddText& add_text,
-                                   const LifeBarSpriteSheet& life_bar_sprites) {
+                                   const LifeBarSpriteSheet& life_bar_sprites,
+                                   const LifeHud& life_hud) {
 
     map_manager.render(src_area_map, dest_area_map);
 
     render_cars(car_sprites, life_bar_sprites);
 
-    render_hud(add_text, map_manager, window);
+    render_hud(add_text, map_manager, window, life_hud);
 
     window.render();
 }

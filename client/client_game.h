@@ -8,6 +8,7 @@
 
 #include "connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
+#include "resources/life.h"
 #include "resources/life_bar.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
@@ -42,10 +43,10 @@ private:
 
     void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
                            const CarSpriteSheet& car_sprites, const AddText& add_text,
-                           const LifeBarSpriteSheet& life_bar_sprites);
+                           const LifeBarSpriteSheet& life_bar_sprites, const LifeHud& life_hud);
     void render_cars(const CarSpriteSheet& car_sprites, const LifeBarSpriteSheet& life_bar_sprites);
     void render_hud(const AddText& add_text, const MapsTextures& map_manager,
-                    const SdlWindow& window);
+                    const SdlWindow& window, const LifeHud& life_hud);
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler);
