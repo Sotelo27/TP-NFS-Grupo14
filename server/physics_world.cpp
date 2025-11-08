@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <cmath>
 
-PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)) {}
+PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)) {
+    world.SetContactListener(&contact_listener);
+}
 
 void PhysicsWorld::create_car_body(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec) {
     destroy_body(id);

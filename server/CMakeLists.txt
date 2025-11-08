@@ -15,6 +15,9 @@ target_sources(taller_server
     server_protocol.cpp
     monitor_lobby.cpp
     city.cpp
+    physics/building_entity.cpp
+    physics/border_entity.cpp
+    physics/contact_listener.cpp
     PUBLIC
     # .h files
     acceptor.h
@@ -29,14 +32,11 @@ target_sources(taller_server
     city.h
     physics_world.h
     physics/Entidad.h
+    physics/building_entity.h
+    physics/border_entity.h
+    physics/contact_listener.h
     race_participant.h
     server.h
     server_protocol.h
     monitor_lobby.h
     )
-
-# Headers del sistema (Box2D está en /usr/include/box2d)
-target_include_directories(taller_server PRIVATE /usr/include)
-
-# Linkea la lib (libbox2d.so => "box2d")
-target_link_libraries(taller_server box2d)

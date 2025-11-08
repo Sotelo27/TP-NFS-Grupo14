@@ -14,6 +14,7 @@
 #include "../common/dto/map_config.h"
 #include "physics/building_entity.h"
 #include "physics/border_entity.h"
+#include "physics/contact_listener.h"
 
 
 class PhysicsWorld {
@@ -24,6 +25,14 @@ private:
     
     std::vector<std::unique_ptr<Entidad>> static_entities;
     size_t next_static_id_{1};
+
+    /*
+     * Listener global de colisiones para el mundo Box2D
+     * de PhysicsWorld. Su responsabilidad actual:
+     *   - Car vs Car: aplica daño base a ambos
+     *   - Car vs (Building|Border): aplica daño al Car
+     */
+    ContactListener contact_listener;
 
     // Ajuste/tolerancia para colisionadores rectangulares: reducimos 2px por lado
     // para evitar contactos "tempranos" respecto al arte de los edificios.
@@ -96,7 +105,10 @@ public:
      */
     Pose get_pose(size_t id) const;
 
-    // Acceso controlado al body (solo lectura del puntero)
+    /*
+     * Obtiene el puntero al body de Box2D asociado a un id
+     * Retorna nullptr si no existe
+     */
     b2Body* get_body(size_t id) const {
         auto it = bodies.find(id);
         if (it == bodies.end()) return nullptr;

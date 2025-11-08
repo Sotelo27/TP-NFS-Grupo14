@@ -182,7 +182,17 @@ if(TALLER_SERVER)
         GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(yaml_cpp)
-    target_link_libraries(taller_server yaml-cpp)
+
+    # Box2D vía pkg-config (garantiza headers+lib 2.4.1 del sistema)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(BOX2D REQUIRED box2d>=2.4)
+
+    # includes y linkeo SIEMPRE con firma "keyword" para este target
+    target_include_directories(taller_server PRIVATE
+        ${BOX2D_INCLUDE_DIRS}
+    )
+
+    target_link_libraries(taller_server yaml-cpp ${BOX2D_LIBRARIES})
 endif()
 
 if(TALLER_EDITOR)

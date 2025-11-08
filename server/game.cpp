@@ -35,16 +35,6 @@ size_t Game::add_player() {
     size_t spawn_index = (players.size() > 0) ? (players.size() - 1) : 0;
     SpawnPoint sp = city.get_spawn_for_index(spawn_index);
     
-    //std::cout << "[Game] Spawning player " << id_indice << " at position (" 
-    //          << sp.x_px << ", " << sp.y_px << ")\n";
-    //
-    //// IMPORTANTE: Si no hay spawns configurados, usar una posición visible por defecto
-    //if (sp.x_px == 0 && sp.y_px == 0) {
-    //    std::cout << "[Game] WARNING: No spawn configured, using default position (400, 300)\n";
-    //    sp.x_px = 400;
-    //    sp.y_px = 300;
-    //}
-    
     race.add_player(id_indice, model, sp.x_px, sp.y_px);
 
     return id_indice;
