@@ -72,6 +72,17 @@ void ClientListProtected::broadcast_players_list(const std::vector<PlayerInfo>& 
     }
 }
 
+void ClientListProtected::broadcast_map_info(const std::vector<PlayerTickInfo>& players,
+                                             const std::vector<NpcTickInfo>& npcs,
+                                             const std::vector<EventInfo>& events) {
+    std::lock_guard<std::mutex> lock(m);
+    for (auto& client: clients) {
+        if (client && client->is_alive()) {
+            client->send_map_info_to_client(players, npcs, events);
+        }
+    }
+}
+
 ClientListProtected::~ClientListProtected() {
     for (auto& c: clients) {
         c->hard_kill();

@@ -290,10 +290,14 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
             buf.resize(off + p.username.size());
             std::memcpy(buf.data()+off, p.username.data(), p.username.size());
         }
+        
         buf.push_back(p.car_id);
         int32_t xbe = htonl(p.x), ybe = htonl(p.y);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &xbe, 4);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ybe, 4);
+        uint32_t ang_be = htonf32(p.angle);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ang_be, 4);
+        buf.push_back(p.health);
     }
     // npcs
     buf.push_back((uint8_t)npcs.size());

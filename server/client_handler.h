@@ -85,6 +85,13 @@ public:
     // Notificar id de sala recién creada a este cliente
     void send_room_created_to_client(uint8_t room_id);
     void send_players_list_to_client(const std::vector<PlayerInfo>& players); // NUEVO
+    
+    /*
+     * Envia la informacion del mapa (jugadores, NPCs, eventos) en tiempo de juego al cliente
+     */
+    void send_map_info_to_client(const std::vector<PlayerTickInfo>& players,
+                                 const std::vector<NpcTickInfo>& npcs,
+                                 const std::vector<EventInfo>& events);
 
     /*
      * Encola el envío de una posición (id,x,y,angle) al cliente
