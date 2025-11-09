@@ -19,6 +19,10 @@ private:
      */
     void apply_steer(float steer) noexcept;
 
+    void apply_lateral_grip() noexcept;
+    
+    b2Vec2 lateral_velocity() const noexcept;
+
     /*
      * Devuelve la velocidad del auto en metros por segundo
      */
