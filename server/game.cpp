@@ -69,6 +69,11 @@ std::vector<PlayerPos> Game::players_positions() {
     return race.snapshot_poses();
 }
 
+std::vector<PlayerTickInfo> Game::players_tick_info() {
+    std::lock_guard<std::mutex> lock(m);
+    return race.snapshot_ticks();
+}
+
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
     // Aplicar inputs acumulados de todos los jugadores una sola vez por tick
