@@ -12,6 +12,7 @@
 #include "../common/dto/input_state.h"
 #include "../common/car_model.h"
 #include "Player/car.h"
+#include "../common/dto/map_tick_info.h"
 
 class Race {
 private:
@@ -62,6 +63,12 @@ public:
      * participantes activos/terminados, para ser enviado a los clientes.
      */
     std::vector<PlayerPos> snapshot_poses() const;
+
+    /*
+     * Construye el snapshot con la informacion ( posiciones y vida) de tick de todos los
+     * participantes activos/terminados, para ser enviado a los clientes
+     */
+    std::vector<PlayerTickInfo> snapshot_ticks() const;
 };
 
 #endif

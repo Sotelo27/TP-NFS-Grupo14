@@ -2,6 +2,7 @@
 #include "race_participant.h"
 #include <cmath>
 #include <algorithm>
+#define  PI 3.14159265358979323846f
 
 Race::Race(uint32_t id, PhysicsWorld& external_world)
     : id(id), physics(external_world) {}
@@ -83,4 +84,39 @@ std::vector<PlayerPos> Race::snapshot_poses() const {
     }
 
     return player_positions;
+}
+
+std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
+    std::vector<PlayerTickInfo> out;
+    out.reserve(parts.size());
+
+    for (const auto& [playerId, participant] : parts) {
+        if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished) {
+            continue;
+        }
+
+        Pose pose = physics.get_pose(playerId);
+        const double PIXELS_PER_UNIT = 0.25;
+        const int32_t x_px = (int32_t)std::lround((double)pose.x * PIXELS_PER_UNIT);
+        const int32_t y_px = (int32_t)std::lround((double)pose.y * PIXELS_PER_UNIT);
+        uint8_t hp = 100;
+        auto itc = cars.find(playerId);
+        if (itc != cars.end() && itc->second) {
+            float vida = itc->second->get_vida();
+            if (vida < 0.f) vida = 0.f;
+            if (vida > 100.f) vida = 100.f;
+            hp = (uint8_t)std::lround(vida);
+        }
+
+        PlayerTickInfo pti;
+        pti.username = "";
+        pti.car_id = 0; //TODO NO SE QUE HACER CON ESTO POR AHORA
+        pti.x = x_px;
+        pti.y = y_px;
+        pti.angle = pose.angle * 180.0f / PI;
+        pti.health = hp;
+        out.push_back(std::move(pti));
+    }
+
+    return out;
 }
