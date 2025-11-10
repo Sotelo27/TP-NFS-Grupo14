@@ -100,7 +100,7 @@ void GameHud::render() {
             getOrdinalString(13), Rgb(255, 255, 255),
             Area(SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, 300, 60));
 
-    time_hud.render(600, WINDOW_WIDTH / 2 - 115, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    time_hud.render(600, WINDOW_WIDTH / 2 - 117, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
     life_hud.render(100, 10, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
 
     renderMiniMap();
