@@ -2,8 +2,11 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
-PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)) {}
+PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)) {
+    world.SetContactListener(&contact_listener);
+}
 
 void PhysicsWorld::create_car_body(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec) {
     destroy_body(id);
@@ -67,6 +70,8 @@ void PhysicsWorld::clear_static_geometry() {
         if (b) world.DestroyBody(b);
     }
     static_bodies.clear();
+    static_entities.clear();
+    next_static_id_ = 1;
 }
 
 void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
@@ -149,6 +154,12 @@ void PhysicsWorld::add_static_rect_body_px(const RectCollider& rect, float pixel
     fixtureDef.isSensor    = rect.is_sensor;
 
     body->CreateFixture(&fixtureDef);
+
+    // añado el edificio al user data del body
+    auto ent = std::make_unique<BuildingEntity>(next_static_id_++, body);
+    body->GetUserData().pointer = reinterpret_cast<uintptr_t>(ent.get());
+    static_entities.push_back(std::move(ent));
+
     static_bodies.push_back(body);
 }
 
@@ -212,6 +223,11 @@ void PhysicsWorld::add_static_polyline_bodies_px(const PolylineCollider& pl, flo
             body->CreateFixture(&fd);
         }
     }
+
+    // añado el borde al user data del body
+    auto ent = std::make_unique<BorderEntity>(next_static_id_++, body);
+    body->GetUserData().pointer = reinterpret_cast<uintptr_t>(ent.get());
+    static_entities.push_back(std::move(ent));
 
     static_bodies.push_back(body);
 }

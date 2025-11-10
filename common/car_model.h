@@ -8,10 +8,10 @@ struct CarModel {
     // Ajustes
     float masaKg{1200.f};
     float fuerzaAceleracionN{1800.f};
-    float torqueGiro{160.0f};
-    float velocidadMaxMps{12.0f};
-    float dampingLineal{3.5f};
-    float dampingAngular{2.5f};
+    float torqueGiro{170.0f};
+    float velocidadMaxMps{6.2f};
+    float dampingLineal{2.2f};
+    float dampingAngular{2.0f};
 };
 
 #endif
