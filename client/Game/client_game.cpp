@@ -17,7 +17,7 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler):
         running(false),
         src_area_map(0, 0, 0, 0),
         dest_area_map(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT),
-        car_positions() {}
+        info_players() {}
 
 void ClientGame::start() {
     this->running = true;
@@ -37,7 +37,7 @@ void ClientGame::start() {
     std::cout << "[ClientGame] Tamaño real del mapa: " << map_manager.getCurrentMapWidth() << "x"
               << map_manager.getCurrentMapHeight() << std::endl;
 
-    GameHud game_hud(window, map_manager, client_id, car_positions);
+    GameHud game_hud(window, map_manager, client_id, info_players);
 
     std::cout << "[ClientGame] Juego iniciado, esperando posiciones del servidor..." << std::endl;
     while (this->running) {
@@ -112,15 +112,12 @@ void ClientGame::update_state_from_position() {
     while (keep_loop && msg_count < 10) {
         ServerMessage action = server_handler.recv_response_from_server();
 
-        if (action.type == ServerMessage::Type::Pos) {
-            car_positions.clear();
+        if (action.type == ServerMessage::Type::MapInfo) {
+            info_players.clear();
 
-            std::cout << "[ClientGame] Posición recibida del servidor: (" << action.x << ", "
-                      << action.y << ", " << action.angle << ")\n";
-
-            car_positions[action.id] = {
-                    {static_cast<int>(action.x), static_cast<int>(action.y), action.angle},
-                    Area(0, 0, 0, 0)};
+            for (const auto& p_info : action.players_tick) {
+                info_players[p_info.player_id] = CarInfoGame{p_info, Area()};
+            }
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
         }
@@ -129,10 +126,10 @@ void ClientGame::update_state_from_position() {
 }
 
 void ClientGame::update_map_area(const MapsTextures& map_manager) {
-    const Position& position_my_car = car_positions[client_id].position;
+    const PlayerTickInfo& info_my_car = info_players[client_id].info_car;
 
-    int x_map = position_my_car.x_car_map - MAP_WIDTH_SIZE / 2;
-    int y_map = position_my_car.y_car_map - MAP_HEIGHT_SIZE / 2;
+    int x_map = info_my_car.x - MAP_WIDTH_SIZE / 2;
+    int y_map = info_my_car.y - MAP_HEIGHT_SIZE / 2;
 
     if (x_map < 0) {
         x_map = 0;
@@ -162,22 +159,22 @@ void ClientGame::update_animation_frames(const MapsTextures& map_manager,
                          src_area_map.getWidth() + CAR_WIDTH_LARGE * 2,
                          src_area_map.getHeight() + CAR_HEIGHT_LARGE * 2);
 
-    for (auto& [id, car_pos]: car_positions) {
-        if (car_pos.position.x_car_map < extend_area_map.getX() ||
-            car_pos.position.x_car_map > extend_area_map.getX() + extend_area_map.getWidth() ||
-            car_pos.position.y_car_map < extend_area_map.getY() ||
-            car_pos.position.y_car_map > extend_area_map.getY() + extend_area_map.getHeight()) {
+    for (auto& [id, car]: info_players) {
+        if (car.info_car.x < extend_area_map.getX() ||
+            car.info_car.x > extend_area_map.getX() + extend_area_map.getWidth() ||
+            car.info_car.y < extend_area_map.getY() ||
+            car.info_car.y > extend_area_map.getY() + extend_area_map.getHeight()) {
             continue;
         }
 
         // el auto debería de pasarlo el server en algún momento
-        CarData car_data = car_sprites.getCarData(this->current_car);
+        CarData car_data = car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
         int x_car_screen =
-                (car_pos.position.x_car_map - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
+                (car.info_car.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
         int y_car_screen =
-                (car_pos.position.y_car_map - src_area_map.getY()) * MAP_TO_VIEWPORT_SCALE_Y;
-        car_pos.dest_area.update(x_car_screen - car_data.width_scale_screen / 2,
+                (car.info_car.y - src_area_map.getY()) * MAP_TO_VIEWPORT_SCALE_Y;
+        car.dest_area.update(x_car_screen - car_data.width_scale_screen / 2,
                                  y_car_screen - car_data.height_scale_screen / 2,
                                  car_data.width_scale_screen, car_data.height_scale_screen);
     }
@@ -185,18 +182,19 @@ void ClientGame::update_animation_frames(const MapsTextures& map_manager,
 
 void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
                              const LifeBarSpriteSheet& life_bar_sprites) {
-    for (const auto& [id, car_pos]: car_positions) {
-        if (car_pos.dest_area.getWidth() == 0 || car_pos.dest_area.getHeight() == 0) {
+    for (const auto& [id, car]: info_players) {
+        if (car.dest_area.getWidth() == 0 || car.dest_area.getHeight() == 0) {
             continue;
         }
 
-        const CarData& car_data = car_sprites.getCarData(this->current_car);
-        life_bar_sprites.render(100, 5,
-                                Area(car_pos.dest_area.getX(),
-                                     car_pos.dest_area.getY() - car_data.width_scale_screen / 5,
+        const CarData& car_data = car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
+        // falta la vida maxima, que se espera recibir con los checkspoints
+        life_bar_sprites.render(100, car.info_car.health,
+                                Area(car.dest_area.getX(),
+                                     car.dest_area.getY() - car_data.width_scale_screen / 5,
                                      car_data.width_scale_screen, car_data.width_scale_screen / 5));
-        // el auto debería de pasarlo el server en algún momento
-        car_sprites.render(car_data.area, car_pos.dest_area, car_pos.position.angle);
+                                     
+        car_sprites.render(car_data.area, car.dest_area, car.info_car.angle);
     }
 }
 
@@ -218,5 +216,5 @@ ClientGame::~ClientGame() {
         server_handler.hard_kill();
     }
 
-    car_positions.clear();
+    info_players.clear();
 }

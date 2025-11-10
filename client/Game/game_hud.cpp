@@ -14,11 +14,11 @@
 #define SPACE_BETWEEN_WINDOW_EDGE_AND_HUD 15
 
 GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
-                 std::unordered_map<size_t, CarPosition>& car_positions):
+                 std::unordered_map<size_t, CarInfoGame>& info_players):
         window(window),
         map_manager(map_manager),
         client_id(client_id),
-        car_positions(car_positions),
+        info_players(info_players),
         life_hud(window),
         time_hud(window),
         font_hud(FONT_STYLE_POSITION, 60, window) {}
@@ -44,16 +44,16 @@ void GameHud::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int 
 
 void GameHud::renderPositionMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                     int mini_map_height) {
-    const Position& position_my_car = car_positions[client_id].position;
-    int x_car_mini_map = x_dest_mini_map + (position_my_car.x_car_map * mini_map_width) /
+    const PlayerTickInfo& info_my_car = info_players[client_id].info_car;
+    int x_car_mini_map = x_dest_mini_map + (info_my_car.x * mini_map_width) /
                                                    map_manager.getCurrentMapWidth();
-    int y_car_mini_map = y_dest_mini_map + (position_my_car.y_car_map * mini_map_height) /
+    int y_car_mini_map = y_dest_mini_map + (info_my_car.y * mini_map_height) /
                                                    map_manager.getCurrentMapHeight();
 
     Area car_area_mini_map(x_car_mini_map - 5, y_car_mini_map - 5, 10, 10);
     SdlObjTexture car_mini_map(POINT_RED, window, Rgb(0, 0, 0));
     car_mini_map.renderEntity(Area(0, 0, car_mini_map.getWidth(), car_mini_map.getHeight()),
-                              car_area_mini_map, position_my_car.angle);
+                              car_area_mini_map, info_my_car.angle);
 }
 
 void GameHud::renderMiniMap() {
@@ -101,7 +101,10 @@ void GameHud::render() {
             Area(SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, 300, 60));
 
     time_hud.render(600, WINDOW_WIDTH / 2 - 117, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
-    life_hud.render(100, 10, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
+
+    int current_life = info_players[client_id].info_car.health;
+    // falta obtener la vida maxima
+    life_hud.render(100, current_life, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
 
     renderMiniMap();
 }

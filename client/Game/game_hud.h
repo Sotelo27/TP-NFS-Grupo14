@@ -11,14 +11,14 @@
 #include "resources/time_hud.h"
 #include "sdl_wrappers/SdlWindow.h"
 
-#include "car_position.h"
+#include "car_info_game.h"
 
 class GameHud {
 private:
     const SdlWindow& window;
     const MapsTextures& map_manager;
     size_t client_id;
-    std::unordered_map<size_t, CarPosition>& car_positions;
+    std::unordered_map<size_t, CarInfoGame>& info_players;
     LifeHud life_hud;
     TimeHud time_hud;
     SdlFont font_hud;
@@ -34,7 +34,7 @@ private:
 
 public:
     explicit GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
-                     std::unordered_map<size_t, CarPosition>& car_positions);
+                     std::unordered_map<size_t, CarInfoGame>& info_players);
 
     void render();
 

@@ -12,7 +12,7 @@
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 
-#include "car_position.h"
+#include "car_info_game.h"
 #include "game_hud.h"
 
 class ClientGame {
@@ -22,7 +22,7 @@ private:
     bool running;
     Area src_area_map;
     Area dest_area_map;
-    std::unordered_map<size_t, CarPosition> car_positions;
+    std::unordered_map<size_t, CarInfoGame> info_players;
     CarSpriteID current_car = CarSpriteID::CommonGreenCar;
 
     void update_state_from_position();
