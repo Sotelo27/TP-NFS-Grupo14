@@ -72,7 +72,8 @@ void Car::apply_lateral_grip() noexcept {
 
     b2Vec2 vlat = lateral_velocity();
     // fuerza que cancela el movimiento lateral
-    const float grip = 0.9f;
+    // Bajamos el grip para permitir un leve derrape controlado
+    const float grip = 0.75f;
     const float mass = body->GetMass();
 
     // impulso opuesto al deslizamiento lateral
@@ -106,9 +107,6 @@ void Car::apply_steer(float steer) noexcept {
         return;
     }
 
-    const float v = speed_mps();
-    // Se elimina el bloqueo por velocidad mínima: basta con que exista aceleración (ver apply_input)
-
     // Invertir el sentido del giro cuando el auto se desplaza hacia atrás
     b2Vec2 lin = b->GetLinearVelocity();
     const float ang = b->GetAngle();
@@ -120,20 +118,7 @@ void Car::apply_steer(float steer) noexcept {
         steerEff = -steer;
     }
 
-    // Refuerzo agresivo para poder girar en esquinas angostas desde casi parado
-    float torqueFinal = spec_.torqueGiro;
-    if (v < 0.4f) {
-        torqueFinal *= 5.5f;
-    } else if (v < 1.2f) {
-        torqueFinal *= 3.5f;
-    } else if (v < 2.0f) {
-        torqueFinal *= 2.2f;
-    } else if (v < 3.0f) {
-        torqueFinal *= 1.4f;
-    } else {
-        torqueFinal *= 1.1f;
-    }
-
+    const float torqueFinal = spec_.torqueGiro;
     b->ApplyTorque(steerEff * torqueFinal, true);
 }
 

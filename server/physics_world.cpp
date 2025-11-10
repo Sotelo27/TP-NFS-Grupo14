@@ -8,28 +8,36 @@ PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)) {
     world.SetContactListener(&contact_listener);
 }
 
-void PhysicsWorld::create_car_body(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec) {
+void PhysicsWorld::create_car_body(size_t id, float x_meters, float y_meters, const CarModel& spec) {
     destroy_body(id);
 
     b2BodyDef def;
     def.type = b2_dynamicBody;
     def.fixedRotation = false;
-    def.position.Set(toMeters(x_units), toMeters(y_units));
+    def.position.Set(x_meters, y_meters);
     b2Body* body = world.CreateBody(&def);
 
     // Activar CCD para reducir "tunneling" a altas velocidades contra colisionadores delgados
     body->SetBullet(true);
 
     b2PolygonShape box;
-    // Aproximar el tamaño físico del auto a ~2.5m x 2.5m (80px con PPM=32)
-    // Si se agregan dimensiones al CarModel, usar esos valores aquí.
-    float halfW = 1.25f;
-    float halfL = 1.25f;
+    float halfW = 0.45f;  // 0.95 m de ancho total
+    float halfL = 0.45f;  // 0.95 m de largo total
     box.SetAsBox(halfW, halfL);
 
     b2FixtureDef fdef;
     fdef.shape = &box;
-    fdef.density = (spec.masaKg > 0.f) ? spec.masaKg / 1000.f : 1.f; // densidad por ahora.
+    //fdef.density = 1.3f;
+    {
+    const float area_m2 = (2.0f * halfW) * (2.0f * halfL);
+    const float target_mass_kg = (spec.masaKg > 0.f) ? spec.masaKg : 1200.f;
+    const float scale_factor = 1.0f / 1000.0f;
+    const float game_mass = target_mass_kg * scale_factor;
+    const float safe_area = std::max(area_m2, 1e-3f);
+
+    fdef.density = std::clamp(game_mass / safe_area, 0.5f, 5.0f);
+   }
+
     fdef.friction = 0.9f;
     fdef.restitution = 0.0f;
     body->CreateFixture(&fdef);

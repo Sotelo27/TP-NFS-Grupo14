@@ -37,6 +37,16 @@ size_t Game::add_player() {
     
     race.add_player(id_indice, model, sp.x_px, sp.y_px);
 
+    // DEBUG: crear un auto fantasma para pruebas de colisión cuando se agrega el primer jugador real.
+    // No se registra en el mapa de Game::players (no tiene nombre ni inputs), pero Race lo incluye en snapshot_ticks.
+    // IMPORTANTE: eliminar esto cuando ya no se necesite.
+    if (players.size() == 1) { // sólo tras el primer jugador
+        const size_t dummyId = 999; // id alto para evitar choque con ids pequeños
+        // Colocar al lado (eje Y) separado 120 px (~3.75 m), no al frente (eje X)
+        race.add_player(dummyId, model, sp.x_px, sp.y_px + 120.0f);
+        std::cout << "[Game] Dummy collision test car spawned with id=" << dummyId << " at lateral offset +120px (Y)\n";
+    }
+
     return id_indice;
 }
 
