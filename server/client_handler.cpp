@@ -130,7 +130,7 @@ void ClientHandler::send_players_list_to_client(const std::vector<PlayerInfo>& p
 void ClientHandler::send_map_info_to_client(const std::vector<PlayerTickInfo>& players,
                                             const std::vector<NpcTickInfo>& npcs,
                                             const std::vector<EventInfo>& events) {
-    std::cout << "[ClientHandler] Queueing MAP_INFO message for conn_id=" << id  << " (players=" << players.size() << ")\n";
+    //std::cout << "[ClientHandler] Queueing MAP_INFO message for conn_id=" << id  << " (players=" << players.size() << ")\n";
     ServerOutMsg out{};
     out.type = ServerOutType::MapInfo;
     out.players_tick = players;
