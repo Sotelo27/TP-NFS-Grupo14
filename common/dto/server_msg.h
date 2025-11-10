@@ -21,7 +21,8 @@ struct ServerMessage {
         YourId,
         PlayerName,
         PlayersList,
-        GameOver
+        GameOver,
+        MapInfo
     };
 
     Type type;
@@ -33,6 +34,10 @@ struct ServerMessage {
     std::vector<RoomInfo> rooms;
     std::vector<PlayerInfo> players;
     uint8_t room_id;
+    // MapInfo payload
+    std::vector<PlayerTickInfo> players_tick;
+    std::vector<NpcTickInfo> npcs_tick;
+    std::vector<EventInfo> events_tick;
 
     ServerMessage();
 };

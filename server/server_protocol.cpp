@@ -292,6 +292,8 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         }
         
         buf.push_back(p.car_id);
+        uint32_t pid_be = htonl(p.player_id);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
         int32_t xbe = htonl(p.x), ybe = htonl(p.y);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &xbe, 4);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ybe, 4);

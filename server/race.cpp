@@ -110,12 +110,13 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
 
         PlayerTickInfo pti;
         pti.username = "";
-        pti.car_id = 0; //TODO NO SE QUE HACER CON ESTO POR AHORA
+        pti.car_id = 0; //TODO: mapear id de auto seleccionado
+        pti.player_id = (uint32_t)(playerId);
         pti.x = x_px;
         pti.y = y_px;
         pti.angle = pose.angle * 180.0f / PI;
         pti.health = hp;
-        out.push_back(std::move(pti));
+        out.push_back(pti);
     }
 
     return out;
