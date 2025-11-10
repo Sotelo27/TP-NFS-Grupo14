@@ -17,10 +17,12 @@ LifeBarSpriteSheet::LifeBarSpriteSheet(const SdlWindow& window):
 }
 
 void LifeBarSpriteSheet::render(int max_life, int current_life, const Area& dest) const {
+    if (max_life <= 0 || current_life <= 0) {
+        return;
+    }
+
     PercentageLifeBar percentage;
-    double life_ratio = (max_life > 0) ?
-                                static_cast<double>(current_life) / static_cast<double>(max_life) :
-                                0.0;
+    double life_ratio = static_cast<double>(current_life) / static_cast<double>(max_life);
 
     life_ratio = std::clamp(life_ratio, 0.0, 1.0);
 

@@ -16,7 +16,7 @@ void LifeHud::render(int max_life, int current_life, int x, int y) const {
     this->texture.render(Area(0, 0, texture.getWidth(), texture.getHeight()),
                          Area(x, y, SIZE, SIZE * texture.getHeight() / texture.getWidth()));
 
-    int g = (255 * current_life) / max_life;
+    int g = (max_life <= 0 || current_life <= 0) ? 0 : (255 * current_life) / max_life;
     int r = 255 - g;
 
     text.renderText(std::to_string(current_life), Rgb(r, g, 0),
