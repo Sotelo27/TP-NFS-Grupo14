@@ -115,7 +115,7 @@ void ClientGame::update_state_from_position() {
         if (action.type == ServerMessage::Type::MapInfo) {
             info_players.clear();
 
-            for (const auto& p_info : action.players_tick) {
+            for (const auto& p_info: action.players_tick) {
                 info_players[p_info.player_id] = CarInfoGame{p_info, Area()};
             }
         } else if (action.type == ServerMessage::Type::Unknown) {
@@ -170,13 +170,11 @@ void ClientGame::update_animation_frames(const MapsTextures& map_manager,
         // el auto debería de pasarlo el server en algún momento
         CarData car_data = car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
-        int x_car_screen =
-                (car.info_car.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
-        int y_car_screen =
-                (car.info_car.y - src_area_map.getY()) * MAP_TO_VIEWPORT_SCALE_Y;
+        int x_car_screen = (car.info_car.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
+        int y_car_screen = (car.info_car.y - src_area_map.getY()) * MAP_TO_VIEWPORT_SCALE_Y;
         car.dest_area.update(x_car_screen - car_data.width_scale_screen / 2,
-                                 y_car_screen - car_data.height_scale_screen / 2,
-                                 car_data.width_scale_screen, car_data.height_scale_screen);
+                             y_car_screen - car_data.height_scale_screen / 2,
+                             car_data.width_scale_screen, car_data.height_scale_screen);
     }
 }
 
@@ -187,13 +185,18 @@ void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
             continue;
         }
 
-        const CarData& car_data = car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
-        // falta la vida maxima, que se espera recibir con los checkspoints
-        life_bar_sprites.render(100, car.info_car.health,
-                                Area(car.dest_area.getX(),
-                                     car.dest_area.getY() - car_data.width_scale_screen / 5,
-                                     car_data.width_scale_screen, car_data.width_scale_screen / 5));
-                                     
+        const CarData& car_data =
+                car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
+
+        if (car.info_car.player_id != client_id) {
+            // falta la vida maxima, que se espera recibir con los checkspoints
+            life_bar_sprites.render(
+                    100, car.info_car.health,
+                    Area(car.dest_area.getX(),
+                         car.dest_area.getY() - car_data.width_scale_screen / 5,
+                         car_data.width_scale_screen, car_data.width_scale_screen / 5));
+        }
+
         car_sprites.render(car_data.area, car.dest_area, car.info_car.angle);
     }
 }
