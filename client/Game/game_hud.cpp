@@ -14,14 +14,17 @@
 #define SPACE_BETWEEN_WINDOW_EDGE_AND_HUD 15
 
 GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
-                 std::unordered_map<size_t, CarInfoGame>& info_players):
+                 std::unordered_map<size_t, CarInfoGame>& info_players,
+                 const CarSpriteSheet& car_sprites):
         window(window),
         map_manager(map_manager),
         client_id(client_id),
         info_players(info_players),
         life_hud(window),
         time_hud(window),
-        font_hud(FONT_STYLE_POSITION, 60, window) {}
+        font_hud(FONT_STYLE_POSITION, 60, window),
+        life_bar_sprites(window),
+        car_sprites(car_sprites) {}
 
 void GameHud::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                   int mini_map_height) {
@@ -45,10 +48,10 @@ void GameHud::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int 
 void GameHud::renderPositionMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                     int mini_map_height) {
     const PlayerTickInfo& info_my_car = info_players[client_id].info_car;
-    int x_car_mini_map = x_dest_mini_map + (info_my_car.x * mini_map_width) /
-                                                   map_manager.getCurrentMapWidth();
-    int y_car_mini_map = y_dest_mini_map + (info_my_car.y * mini_map_height) /
-                                                   map_manager.getCurrentMapHeight();
+    int x_car_mini_map =
+            x_dest_mini_map + (info_my_car.x * mini_map_width) / map_manager.getCurrentMapWidth();
+    int y_car_mini_map =
+            y_dest_mini_map + (info_my_car.y * mini_map_height) / map_manager.getCurrentMapHeight();
 
     Area car_area_mini_map(x_car_mini_map - 5, y_car_mini_map - 5, 10, 10);
     SdlObjTexture car_mini_map(POINT_RED, window, Rgb(0, 0, 0));
@@ -95,7 +98,27 @@ std::string GameHud::getOrdinalString(int number) {
     return std::to_string(number) + getOrdinalSuffix(number);
 }
 
+void GameHud::renderLifeBarHud() {
+    for (const auto& [id, car]: info_players) {
+        if (car.dest_area.getWidth() == 0 || car.dest_area.getHeight() == 0 ||
+            car.info_car.player_id == client_id) {
+            continue;
+        }
+
+        const CarData& car_data =
+                car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
+
+        // falta la vida maxima, que se espera recibir con los checkspoints
+        life_bar_sprites.render(
+                100, car.info_car.health,
+                Area(car.dest_area.getX(), car.dest_area.getY() - car_data.width_scale_screen / 5,
+                     car_data.width_scale_screen, car_data.width_scale_screen / 5));
+    }
+}
+
 void GameHud::render() {
+    renderLifeBarHud();
+
     font_hud.renderText(
             getOrdinalString(13), Rgb(255, 255, 255),
             Area(SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, 300, 60));

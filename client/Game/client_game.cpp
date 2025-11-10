@@ -28,16 +28,13 @@ void ClientGame::start() {
 
     CarSpriteSheet car_sprites(window);
 
-    LifeBarSpriteSheet life_bar_sprites(window);
-
-
     MapsTextures map_manager(window);
     map_manager.loadMap(MapID::LibertyCity);
 
     std::cout << "[ClientGame] Tamaño real del mapa: " << map_manager.getCurrentMapWidth() << "x"
               << map_manager.getCurrentMapHeight() << std::endl;
 
-    GameHud game_hud(window, map_manager, client_id, info_players);
+    GameHud game_hud(window, map_manager, client_id, info_players, car_sprites);
 
     std::cout << "[ClientGame] Juego iniciado, esperando posiciones del servidor..." << std::endl;
     while (this->running) {
@@ -48,7 +45,7 @@ void ClientGame::start() {
 
         update_animation_frames(map_manager, car_sprites);
 
-        render_in_z_order(window, map_manager, car_sprites, life_bar_sprites, game_hud);
+        render_in_z_order(window, map_manager, car_sprites, game_hud);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(16));  // ~60 FPS
     }
@@ -178,8 +175,7 @@ void ClientGame::update_animation_frames(const MapsTextures& map_manager,
     }
 }
 
-void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
-                             const LifeBarSpriteSheet& life_bar_sprites) {
+void ClientGame::render_cars(const CarSpriteSheet& car_sprites) {
     for (const auto& [id, car]: info_players) {
         if (car.dest_area.getWidth() == 0 || car.dest_area.getHeight() == 0) {
             continue;
@@ -188,26 +184,16 @@ void ClientGame::render_cars(const CarSpriteSheet& car_sprites,
         const CarData& car_data =
                 car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
-        if (car.info_car.player_id != client_id) {
-            // falta la vida maxima, que se espera recibir con los checkspoints
-            life_bar_sprites.render(
-                    100, car.info_car.health,
-                    Area(car.dest_area.getX(),
-                         car.dest_area.getY() - car_data.width_scale_screen / 5,
-                         car_data.width_scale_screen, car_data.width_scale_screen / 5));
-        }
-
         car_sprites.render(car_data.area, car.dest_area, car.info_car.angle);
     }
 }
 
 void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                                   const CarSpriteSheet& car_sprites,
-                                   const LifeBarSpriteSheet& life_bar_sprites, GameHud& game_hud) {
+                                   const CarSpriteSheet& car_sprites, GameHud& game_hud) {
 
     map_manager.render(src_area_map, dest_area_map);
 
-    render_cars(car_sprites, life_bar_sprites);
+    render_cars(car_sprites);
 
     game_hud.render();
 

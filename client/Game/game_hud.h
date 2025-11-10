@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "resources/car_sprite_sheet.h"
+#include "resources/life_bar.h"
 #include "resources/life_hud.h"
 #include "resources/maps_textures.h"
 #include "resources/time_hud.h"
@@ -22,6 +24,10 @@ private:
     LifeHud life_hud;
     TimeHud time_hud;
     SdlFont font_hud;
+    LifeBarSpriteSheet life_bar_sprites;
+    const CarSpriteSheet& car_sprites;
+
+    void renderLifeBarHud();
 
     void renderMiniMap();
     void renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
@@ -34,7 +40,8 @@ private:
 
 public:
     explicit GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
-                     std::unordered_map<size_t, CarInfoGame>& info_players);
+                     std::unordered_map<size_t, CarInfoGame>& info_players,
+                     const CarSpriteSheet& car_sprites);
 
     void render();
 
