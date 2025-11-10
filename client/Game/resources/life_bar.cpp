@@ -9,11 +9,11 @@
 LifeBarSpriteSheet::LifeBarSpriteSheet(const SdlWindow& window):
         texture_life_bar(LIFE_BAR_SPRITE_SHEET_FILE, window,
                          Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)) {
-    sprites.emplace(PercentageLifeBar::FULL, Area(127, 84, 756, 162));
-    sprites.emplace(PercentageLifeBar::EIGHTY, Area(127, 246, 756, 162));
-    sprites.emplace(PercentageLifeBar::FIFTY, Area(127, 408, 756, 162));
-    sprites.emplace(PercentageLifeBar::TWENTY_FIVE, Area(127, 570, 756, 162));
-    sprites.emplace(PercentageLifeBar::TEN, Area(127, 732, 756, 162));
+    sprites.emplace(PercentageLifeBar::FULL, Area(123, 94, 767, 165));
+    sprites.emplace(PercentageLifeBar::EIGHTY, Area(123, 259, 767, 165));
+    sprites.emplace(PercentageLifeBar::FIFTY, Area(123, 424, 767, 165));
+    sprites.emplace(PercentageLifeBar::TWENTY_FIVE, Area(123, 589, 767, 160));
+    sprites.emplace(PercentageLifeBar::TEN, Area(123, 749, 767, 163));
 }
 
 void LifeBarSpriteSheet::render(int max_life, int current_life, const Area& dest) const {
