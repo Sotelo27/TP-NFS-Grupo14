@@ -19,26 +19,10 @@
 #include "client_list.h"
 #include "game.h"
 #include "gameloop.h"
+#include "Match.h"  
 
 class MonitorLobby: public Thread {
 private:
-    struct Partida {
-        uint8_t room_id{0};
-        Game game;
-        ClientListProtected clients;
-        Queue<ClientAction> actions;
-        std::optional<Gameloop> loop;
-        uint8_t max_players{8};
-
-        explicit Partida(uint8_t id, float nitro_duracion, uint8_t max_players):
-                room_id(id),
-                game(nitro_duracion),
-                clients(),
-                actions(),
-                loop(std::nullopt),
-                max_players(max_players) {}
-    };
-
     // Acciones entrantes (global, previo a conocer sala)
     Queue<ClientAction> actions_in;
 
@@ -46,7 +30,7 @@ private:
     std::map<size_t, std::shared_ptr<ClientHandler>> pending;
 
     // Salas activas
-    std::map<uint8_t, Partida> rooms;
+    std::map<uint8_t, Match> rooms;
 
     // Vinculación connId -> (room_id, player_id en Game)
     std::unordered_map<size_t, std::pair<uint8_t, size_t>> bindings;
@@ -64,12 +48,12 @@ private:
     // Helpers (requieren m tomada)
     std::vector<RoomInfo> list_rooms_locked() const;
     void broadcast_rooms_to_pending_locked();
-    void broadcast_players_in_room_locked(uint8_t room_id); // NUEVO
-    std::vector<PlayerInfo> get_players_in_room_locked(uint8_t room_id) const; // NUEVO
+    void broadcast_players_in_room_locked(uint8_t room_id);
+    std::vector<PlayerInfo> get_players_in_room_locked(uint8_t room_id) const;
     uint8_t create_room_locked(uint8_t max_players);
     bool join_room_locked(size_t conn_id, uint8_t room_id);
-    void start_room_loop_locked(Partida& p);
-    void stop_room_loop_locked(Partida& p);
+    void start_room_loop_locked(Match& p);   // cambiadas firmas
+    void stop_room_loop_locked(Match& p);    // cambiadas firmas
     void reap_locked();
 
 public:

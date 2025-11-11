@@ -125,14 +125,14 @@ void MonitorLobby::broadcast_players_in_room_locked(uint8_t room_id) {
     itr->second.clients.broadcast_players_list(players_list);
 }
 
-void MonitorLobby::start_room_loop_locked(Partida& p) {
+void MonitorLobby::start_room_loop_locked(Match& p) {
     if (!p.loop.has_value()) {
         p.loop.emplace(p.game, p.clients, p.actions);
         p.loop->start();
     }
 }
 
-void MonitorLobby::stop_room_loop_locked(Partida& p) {
+void MonitorLobby::stop_room_loop_locked(Match& p) {
     if (p.loop.has_value()) {
         p.loop->stop();
         p.loop->join();
