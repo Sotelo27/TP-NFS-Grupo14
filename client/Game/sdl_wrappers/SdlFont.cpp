@@ -70,10 +70,10 @@ SdlFont::~SdlFont() {
     }
 }
 
-void SdlFont::renderDirect(int x, int y, const std::string& text, const Rgb& color,
-                                 bool shadow) {
+void SdlFont::renderDirect(int x, int y, const std::string& text, const Rgb& color, bool shadow,
+                           const Rgb& shadowColor) {
     if (shadow) {
-        this->loadText(text, Rgb(0, 0, 0, color.getA()), true);
+        this->loadText(text, shadowColor, true);
         this->render(x, y);
     }
     this->loadText(text, color);

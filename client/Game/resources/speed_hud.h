@@ -12,12 +12,13 @@
 class SpeedHud {
 private:
     SdlObjTexture texture;
-    SdlFont text;
+    SdlFont textNumber;
+    SdlFont textUnit;
 
 public:
     explicit SpeedHud(const SdlWindow& window);
 
-    void render(int speed, int x, int y) const;
+    void render(int speed, int x, int y);
 };
 
 #endif  // SPEED_HUD_H
