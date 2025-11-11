@@ -52,8 +52,8 @@ private:
     std::vector<PlayerInfo> get_players_in_room_locked(uint8_t room_id) const;
     uint8_t create_room_locked(uint8_t max_players);
     bool join_room_locked(size_t conn_id, uint8_t room_id);
-    void start_room_loop_locked(Match& p);   // cambiadas firmas
-    void stop_room_loop_locked(Match& p);    // cambiadas firmas
+    void start_room_loop_locked(Match& p);   
+    void stop_room_loop_locked(Match& p);    
     void reap_locked();
 
 public:
