@@ -18,6 +18,7 @@ target_sources(taller_server
     physics/building_entity.cpp
     physics/border_entity.cpp
     physics/contact_listener.cpp
+    physics/checkpoint_entity.cpp
     PUBLIC
     # .h files
     acceptor.h
@@ -35,6 +36,7 @@ target_sources(taller_server
     physics/building_entity.h
     physics/border_entity.h
     physics/contact_listener.h
+    physics/checkpoint_entity.h
     race_participant.h
     server.h
     server_protocol.h
