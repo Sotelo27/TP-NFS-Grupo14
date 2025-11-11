@@ -7,11 +7,11 @@ struct CarModel {
     std::string modelo;
     // Ajustes
     float masaKg{1200.f};
-    float fuerzaAceleracionN{1800.f};
-    float torqueGiro{170.0f};
-    float velocidadMaxMps{6.2f};
-    float dampingLineal{2.2f};
-    float dampingAngular{2.0f};
+    float fuerzaAceleracionN{250.f};
+    float torqueGiro{8.5f};
+    float velocidadMaxMps{5.1f};
+    float dampingLineal{0.70f};
+    float dampingAngular{5.5f};
 };
 
 #endif

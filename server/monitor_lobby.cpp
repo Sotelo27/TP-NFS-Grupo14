@@ -154,7 +154,7 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players) {
         it->second.game.load_map(cfg);
         std::cout << "[Lobby] Loaded map from YAML: " << RUTA_MAPA
               << " (rects=" << cfg.rects.size() << ", polylines=" << cfg.polylines.size()
-              << ", spawns=" << cfg.spawns.size() << ")\n";
+              << ", spawns=" << cfg.spawns.size() << ", checkpoints=" << cfg.checkpoints.size() << ")\n";
     } catch (const std::exception& e) {
         std::cerr << "[Lobby] Failed to load map YAML '" << RUTA_MAPA
                   << "': " << e.what() << "\n";

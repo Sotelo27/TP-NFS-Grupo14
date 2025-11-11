@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <utility>
 #include <vector>
+#include <string>
+#include <unordered_map>
 
 struct RectCollider {
     float x_px{0.f};
@@ -33,10 +35,23 @@ struct SpawnPoint {
     int   id{-1};
 };
 
+struct Checkpoint {
+    float x_px{0.f};
+    float y_px{0.f};
+    float w_px{0.f};
+    float h_px{0.f};
+    float rotation_deg{0.f};
+    int   index{0};
+    std::string type{"normal"};
+    std::string race_id{"A"};
+    bool  is_sensor{true};
+};
+
 struct MapConfig {
     std::vector<RectCollider> rects;
     std::vector<PolylineCollider> polylines;
     std::vector<SpawnPoint> spawns;
+    std::unordered_map<std::string, std::vector<Checkpoint>> checkpoints;
     float pixels_per_meter{32.f};
 };
 

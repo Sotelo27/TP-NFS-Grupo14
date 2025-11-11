@@ -7,8 +7,11 @@
 struct PlayerTickInfo {
     std::string username;
     uint8_t car_id;
+    uint32_t player_id;
     int32_t x;
     int32_t y;
+    float angle;
+    uint8_t health;
 };
 
 struct NpcTickInfo {

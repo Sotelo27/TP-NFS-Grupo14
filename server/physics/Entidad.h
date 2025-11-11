@@ -6,7 +6,7 @@
 
 class Entidad {
 public:
-    enum class Type { Car, Border, Building};
+    enum class Type { Car, Border, Building, Checkpoint };
 
 protected:
     size_t id;

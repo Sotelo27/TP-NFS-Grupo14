@@ -242,9 +242,12 @@ ServerMessage ClientProtocol::receive() {
         if (len) skt.recvall(&map[0], len);
         uint8_t amount = 0; skt.recvall(&amount, sizeof(amount));
         for (uint8_t i = 0; i < amount; ++i) {
-            int32_t x=0,y=0;
-            skt.recvall(&x, sizeof(x));
-            skt.recvall(&y, sizeof(y));
+            uint32_t x_be=0, y_be=0;
+            skt.recvall(&x_be, sizeof(x_be));
+            skt.recvall(&y_be, sizeof(y_be));
+            int32_t x_tmp = (int32_t)ntohl(x_be);
+            int32_t y_tmp = (int32_t)ntohl(y_be);
+            (void)x_tmp; (void)y_tmp;
         }
     } else if (code == CODE_S2C_RESULTS) {
         uint8_t nplayers = 0; skt.recvall(&nplayers, sizeof(nplayers));
@@ -261,18 +264,32 @@ ServerMessage ClientProtocol::receive() {
             uint32_t tbe=0; skt.recvall(&tbe,4);
         }
     } else if (code == CODE_S2C_MAP_INFO) {
+        dto.type = ServerMessage::Type::MapInfo;
+        dto.players_tick.clear(); dto.npcs_tick.clear(); dto.events_tick.clear();
         uint8_t np=0; skt.recvall(&np,1);
         for(uint8_t i=0;i<np;++i){
             uint16_t lbe=0; skt.recvall(&lbe,2);
             uint16_t l=ntohs(lbe);
             std::string user(l, '\0'); if(l) skt.recvall(&user[0], l);
             uint8_t car=0; skt.recvall(&car,1);
-            int32_t px=0,py=0; skt.recvall(&px,4); skt.recvall(&py,4);
+            uint32_t pid_be=0; skt.recvall(&pid_be,4);
+            uint32_t pid = ntohl(pid_be);
+            uint32_t x_be=0, y_be=0; skt.recvall(&x_be,4); skt.recvall(&y_be,4);
+            int32_t px = (int32_t)ntohl(x_be);
+            int32_t py = (int32_t)ntohl(y_be);
+            uint32_t ang_be=0; skt.recvall(&ang_be,4);
+            float angle_deg = ntohf32(ang_be);
+            uint8_t health=0; skt.recvall(&health,1);
+            PlayerTickInfo pti; pti.username = std::move(user); pti.car_id = car; pti.player_id = pid; pti.x = px; pti.y = py; pti.angle = angle_deg; pti.health = health;
+            dto.players_tick.push_back(std::move(pti));
         }
         uint8_t nn=0; skt.recvall(&nn,1);
         for(uint8_t i=0;i<nn;++i){
             uint8_t npcid=0; skt.recvall(&npcid,1);
-            int32_t px=0,py=0; skt.recvall(&px,4); skt.recvall(&py,4);
+            uint32_t x_be=0, y_be=0; skt.recvall(&x_be,4); skt.recvall(&y_be,4);
+            int32_t px = (int32_t)ntohl(x_be);
+            int32_t py = (int32_t)ntohl(y_be);
+            NpcTickInfo nti; nti.npc_id = npcid; nti.x = px; nti.y = py; dto.npcs_tick.push_back(nti);
         }
         uint8_t ne=0; skt.recvall(&ne,1);
         for(uint8_t i=0;i<ne;++i){
@@ -280,6 +297,7 @@ ServerMessage ClientProtocol::receive() {
             uint16_t lbe=0; skt.recvall(&lbe,2);
             uint16_t l=ntohs(lbe);
             std::string user(l, '\0'); if(l) skt.recvall(&user[0], l);
+            EventInfo ei; ei.event_type = et; ei.username = std::move(user); dto.events_tick.push_back(std::move(ei));
         }
     }
 

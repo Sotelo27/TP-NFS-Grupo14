@@ -4,6 +4,10 @@
 #include <cstdint>
 #include <iostream>
 
+constexpr float THROTTLE_DEADZONE = 0.02f;
+constexpr float STEER_DEADZONE    = 0.02f;
+constexpr float MIN_STEER_SPEED   = 0.15f;
+
 Car::Car(size_t id, const CarModel& spec, b2Body* body)
     : Entidad(id, body), spec_(spec) {
     if (auto* b = this->body) {
@@ -33,109 +37,121 @@ void Car::set_vida(float v) noexcept {
 }
 
 void Car::apply_input(float throttle, float steer) noexcept {
-    if (!this->body){
-        return;
-    }
+    if (!body) return;
 
     throttle = std::clamp(throttle, -1.f, 1.f);
     steer    = std::clamp(steer,    -1.f, 1.f);
 
+    // cancelación de deriva lateral
     apply_lateral_grip();
+    const float v = speed_mps();
 
-    // Giro SOLO con aceleracion
-    if (std::abs(throttle) > 0.02f ) {
+    // girar solo si hay algo de velocidad O estamos acelerando
+    if (std::abs(steer) > STEER_DEADZONE &&
+        (v > MIN_STEER_SPEED || std::abs(throttle) > THROTTLE_DEADZONE)) {
         apply_steer(steer);
+    } else {
+        // si estamos casi parados, mata cualquier giro residual
+        if (v <= MIN_STEER_SPEED && std::abs(body->GetAngularVelocity()) > 0.0f) {
+            body->SetAngularVelocity(0.0f);
+        }
     }
-    // const float currentSpeed = speed_mps();
-    // if (std::abs(throttle) > 0.02f || currentSpeed > 0.35f) {
-    //     apply_steer(steer);
-    // }
-    apply_force_center(throttle);
+
+    if (std::abs(throttle) > THROTTLE_DEADZONE) {
+        apply_force_center(throttle);
+    }
 
     if (spec_.velocidadMaxMps > 0.f) {
         cap_speed(spec_.velocidadMaxMps);
     }
 }
 
-b2Vec2 Car::lateral_velocity() const noexcept {
-    if (!body) return b2Vec2_zero;
-    const float ang = body->GetAngle();
-    // Eje lateral (derecha)
-    b2Vec2 right(-std::sin(ang), std::cos(ang));
-    b2Vec2 v = body->GetLinearVelocity();
-    float vlat = b2Dot(v, right);
-    return vlat * right;
-}
 
 void Car::apply_lateral_grip() noexcept {
     if (!body) return;
 
-    b2Vec2 vlat = lateral_velocity();
-    // fuerza que cancela el movimiento lateral
-    const float grip = 0.9f;
-    const float mass = body->GetMass();
+    const float m   = body->GetMass();
+    const float ang = body->GetAngle();
+    const b2Vec2 vel = body->GetLinearVelocity();
 
-    // impulso opuesto al deslizamiento lateral
-    b2Vec2 impulse = -grip * mass * vlat;
-    body->ApplyLinearImpulseToCenter(impulse, true);
+    const b2Vec2 right(-std::sin(ang), std::cos(ang));
+    const float vlat = b2Dot(vel, right);
+    const float v    = vel.Length();
+    constexpr float GRIP_MIN = 0.45f;
+    constexpr float GRIP_MAX = 0.85f;
+    const float k = std::clamp(v / 9.1f, 0.0f, 1.0f);
+    const float grip = GRIP_MIN + (GRIP_MAX - GRIP_MIN) * k;
+    const b2Vec2 J = (-grip * m * vlat) * right;
+    body->ApplyLinearImpulseToCenter(J, true);
 }
 
 
 void Car::apply_force_center(float throttle) noexcept {
-    b2Body* b = this->body;
-    if (!b) return;
+    if (!body) return;
 
     float t = std::clamp(throttle, -1.f, 1.f);
     if (t == 0.f) return;
 
-    const float v = speed_mps();
-    const float vmax = spec_.velocidadMaxMps;
+    const float v     = speed_mps();
+    const float vmax  = std::max(0.1f, spec_.velocidadMaxMps);
+    const float m     = body->GetMass();
+    const float ang   = body->GetAngle();
 
-    const float x = (vmax > 0.f) ? std::clamp(v / vmax, 0.0f, 1.0f) : 0.0f;
-    const float scale = std::clamp(1.0f - (x * x), 0.30f, 1.0f);
+    float accel_target = spec_.fuerzaAceleracionN * 0.013f;
+    accel_target = std::clamp(accel_target, 3.0f, 18.0f);
 
-    const float ang = b->GetAngle();
-    const float fx = t * spec_.fuerzaAceleracionN * scale * std::cos(ang);
-    const float fy = t * spec_.fuerzaAceleracionN * scale * std::sin(ang);
-    b->ApplyForceToCenter(b2Vec2(fx, fy), true);
+    const float x = std::clamp(v / vmax, 0.0f, 1.0f);
+    const float scale = std::clamp(1.0f - (x * x * 0.85f), 0.20f, 1.0f);
+    const float F = t * m * accel_target * scale * 32.0f;
+
+    const b2Vec2 forward(std::cos(ang), std::sin(ang));
+    body->ApplyForceToCenter(F * forward, true);
 }
 
 void Car::apply_steer(float steer) noexcept {
-    b2Body* b = this->body;
-    if (!b || steer == 0.f){
-        return;
+    if (!body || steer == 0.f) return;
+
+    const float v   = speed_mps();
+    const float ang = body->GetAngle();
+
+    // invertir sentido si vas en reversa
+    const b2Vec2 forward(std::cos(ang), std::sin(ang));
+    const float vlong = b2Dot(body->GetLinearVelocity(), forward);
+    float steerEff = (vlong < -0.2f) ? -steer : steer;
+
+    // agresividad desde el modelo
+    const float steerFactor = std::clamp(spec_.torqueGiro / 10.0f, 0.6f, 1.6f);
+
+    // ω base: alta a baja velocidad, menor a alta
+    const float k = std::clamp(v / std::max(0.1f, spec_.velocidadMaxMps), 0.0f, 1.0f);
+    const float omega_lo_base = 3.6f;
+    const float omega_hi_base = 1.6f;
+    float omega_max = (omega_lo_base + (omega_hi_base - omega_lo_base) * k) * steerFactor;
+
+    if (v < 0.20f) {
+        const float pivot_min = 4.8f * steerFactor;
+        omega_max = std::max(omega_max, pivot_min);
+
+        // reducir traslación para que no “empuje” contra el muro
+        b2Vec2 lv = body->GetLinearVelocity();
+        body->SetLinearVelocity(0.85f * lv);
+        if (lv.Length() < 0.03f) {
+            const float m = body->GetMass();
+            const b2Vec2 impulse = (0.25f * m) * -forward;
+            body->ApplyLinearImpulseToCenter(impulse, true);
+        }
     }
 
-    const float v = speed_mps();
-    // Se elimina el bloqueo por velocidad mínima: basta con que exista aceleración (ver apply_input)
+    const float omega_des = steerEff * omega_max;
+    const float omega_cur = body->GetAngularVelocity();
+    const float I = body->GetInertia();
 
-    // Invertir el sentido del giro cuando el auto se desplaza hacia atrás
-    b2Vec2 lin = b->GetLinearVelocity();
-    const float ang = b->GetAngle();
-    b2Vec2 forward(std::cos(ang), std::sin(ang));
-    const float vlong = b2Dot(lin, forward);
-
-    float steerEff = steer;
-    if (vlong < -0.2f) {
-        steerEff = -steer;
-    }
-
-    // Refuerzo agresivo para poder girar en esquinas angostas desde casi parado
-    float torqueFinal = spec_.torqueGiro;
-    if (v < 0.4f) {
-        torqueFinal *= 5.5f;
-    } else if (v < 1.2f) {
-        torqueFinal *= 3.5f;
-    } else if (v < 2.0f) {
-        torqueFinal *= 2.2f;
-    } else if (v < 3.0f) {
-        torqueFinal *= 1.4f;
-    } else {
-        torqueFinal *= 1.1f;
-    }
-
-    b->ApplyTorque(steerEff * torqueFinal, true);
+    // impulso angular para alcanzar ω deseada
+    const float J = I * (omega_des - omega_cur);
+    body->ApplyAngularImpulse(J, true);
 }
+
+
 
 float Car::speed_mps() const noexcept {
     const b2Body* b = this->body;

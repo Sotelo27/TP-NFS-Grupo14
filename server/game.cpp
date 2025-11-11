@@ -36,7 +36,6 @@ size_t Game::add_player() {
     SpawnPoint sp = city.get_spawn_for_index(spawn_index);
     
     race.add_player(id_indice, model, sp.x_px, sp.y_px);
-
     return id_indice;
 }
 
@@ -67,6 +66,11 @@ void Game::apply_player_move(size_t id, Movement movimiento) {
 std::vector<PlayerPos> Game::players_positions() {
     std::lock_guard<std::mutex> lock(m);
     return race.snapshot_poses();
+}
+
+std::vector<PlayerTickInfo> Game::players_tick_info() {
+    std::lock_guard<std::mutex> lock(m);
+    return race.snapshot_ticks();
 }
 
 void Game::update(float dt) {

@@ -2,20 +2,18 @@
 #include "race_participant.h"
 #include <cmath>
 #include <algorithm>
+#define  PI 3.14159265358979323846f
 
 Race::Race(uint32_t id, PhysicsWorld& external_world)
     : id(id), physics(external_world) {}
 
 void Race::add_player(size_t playerId, const CarModel& spec, float spawnX_px, float spawnY_px) {
-    // Conversión de píxeles -> metros (PPM=32) -> unidades discretas (128 unidades/m)
-    constexpr float PPM = 32.f;
-    constexpr float UNITS_PER_METER = 128.f;
+    // Conversión directa de píxeles a metros (PPM=32). Evitamos cuantizar a "units" para no introducir offset.
+    constexpr float PPM = 32.f; // 32 px = 1 metro (tamaño del tile)
     const float spawnX_m = spawnX_px / PPM;
     const float spawnY_m = spawnY_px / PPM;
-    const int16_t spawnX_units = (int16_t)(std::lround(spawnX_m * UNITS_PER_METER));
-    const int16_t spawnY_units = (int16_t)(std::lround(spawnY_m * UNITS_PER_METER));
     parts[playerId] = RaceParticipant{ParticipantState::Active, &spec};
-    physics.create_car_body(playerId, spawnX_units, spawnY_units, spec);
+    physics.create_car_body(playerId, spawnX_m, spawnY_m, spec);
     cars[playerId] = std::make_unique<Car>(playerId, spec, physics.get_body(playerId));
 }
 
@@ -74,13 +72,52 @@ std::vector<PlayerPos> Race::snapshot_poses() const {
         if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished) {
             continue;
         }
-        Pose pose = physics.get_pose(playerId);
-
-        const double PIXELS_PER_UNIT = 0.25;
-        const int16_t x_px = (int16_t)(std::lround((double)(pose.x) * PIXELS_PER_UNIT));
-        const int16_t y_px = (int16_t)(std::lround((double)(pose.y) * PIXELS_PER_UNIT));
-        player_positions.push_back(PlayerPos{(uint32_t)(playerId), x_px, y_px, pose.angle});
+        b2Body* body = physics.get_body(playerId);
+        if (!body) continue;
+        b2Vec2 p = body->GetPosition();
+        constexpr float PPM = 32.f; // 32 px = 1 m
+        const int16_t x_px = (int16_t)std::lround(p.x * PPM);
+        const int16_t y_px = (int16_t)std::lround(p.y * PPM);
+        player_positions.push_back(PlayerPos{(uint32_t)(playerId), x_px, y_px, body->GetAngle()});
     }
 
     return player_positions;
+}
+
+std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
+    std::vector<PlayerTickInfo> out;
+    out.reserve(parts.size());
+
+    for (const auto& [playerId, participant] : parts) {
+        if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished) {
+            continue;
+        }
+
+    b2Body* body = physics.get_body(playerId);
+    if (!body) continue;
+    b2Vec2 p = body->GetPosition();
+    constexpr float PPM = 32.f;
+    const int32_t x_px = (int32_t)std::lround(p.x * PPM);
+    const int32_t y_px = (int32_t)std::lround(p.y * PPM);
+        uint8_t hp = 100;
+        auto itc = cars.find(playerId);
+        if (itc != cars.end() && itc->second) {
+            float vida = itc->second->get_vida();
+            if (vida < 0.f) vida = 0.f;
+            if (vida > 100.f) vida = 100.f;
+            hp = (uint8_t)std::lround(vida);
+        }
+
+        PlayerTickInfo pti;
+        pti.username = "";
+        pti.car_id = 0; //TODO: mapear id de auto seleccionado
+        pti.player_id = (uint32_t)(playerId);
+        pti.x = x_px;
+        pti.y = y_px;
+    pti.angle = body->GetAngle() * 180.0f / PI;
+        pti.health = hp;
+        out.push_back(pti);
+    }
+
+    return out;
 }
