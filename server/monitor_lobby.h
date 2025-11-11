@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <functional>          // NUEVO
 
 #include "../common/constants.h"
 #include "../common/player_aux.h"
@@ -19,7 +20,7 @@
 #include "client_list.h"
 #include "game.h"
 #include "gameloop.h"
-#include "Match.h"  
+#include "Match.h"
 
 class MonitorLobby: public Thread {
 private:
@@ -52,9 +53,16 @@ private:
     std::vector<PlayerInfo> get_players_in_room_locked(uint8_t room_id) const;
     uint8_t create_room_locked(uint8_t max_players);
     bool join_room_locked(size_t conn_id, uint8_t room_id);
-    void start_room_loop_locked(Match& p);   
-    void stop_room_loop_locked(Match& p);    
+    void start_room_loop_locked(Match& p);
+    void stop_room_loop_locked(Match& p);
     void reap_locked();
+
+    //dispatch de acciones
+    std::unordered_map<ClientAction::Type, std::function<void(ClientAction)>> action_dispatch;
+    void init_dispatch();
+    void handle_room_action(ClientAction act);  // maneja ROOM_CREATE / ROOM_JOIN
+    void handle_name_action(ClientAction act);
+    void handle_move_action(ClientAction act);
 
 public:
     explicit MonitorLobby(float nitro_duracion);

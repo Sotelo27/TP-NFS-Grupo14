@@ -14,7 +14,99 @@
 
 #define RUTA_MAPA std::string(COLLISION_PATH) + "/CollisionTest2.yaml" // Dejar vacío hasta tener un mapa válido
 
-MonitorLobby::MonitorLobby(float nitro_duracion): actions_in(), nitro_duracion(nitro_duracion) {}
+MonitorLobby::MonitorLobby(float nitro_duracion): actions_in(), nitro_duracion(nitro_duracion) {
+    init_dispatch(); // NUEVO
+}
+
+// Handlers de acciones 
+void MonitorLobby::init_dispatch() {
+    action_dispatch = {
+        {ClientAction::Type::Room, [this](ClientAction act){ handle_room_action(std::move(act)); }},
+        {ClientAction::Type::Name, [this](ClientAction act){ handle_name_action(std::move(act)); }},
+        {ClientAction::Type::Move, [this](ClientAction act){ handle_move_action(std::move(act)); }},
+    };
+}
+
+void MonitorLobby::handle_room_action(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    if (act.room_cmd == ROOM_CREATE) {
+        std::cout << "[Lobby] Processing ROOM_CREATE from conn_id=" << act.id << "\n";
+        uint8_t rid = create_room_locked(/*max_players=*/8);
+
+        auto itp = pending.find(act.id);
+        if (itp != pending.end() && itp->second) {
+            std::cout << "[Lobby] Sending ROOM_CREATED(" << (int)rid << ") to conn_id=" << act.id << "\n";
+            itp->second->send_room_created_to_client(rid);
+        } else {
+            std::cout << "[Lobby] ERROR: No se encontró pending conn_id=" << act.id << "\n";
+        }
+
+        std::cout << "[Lobby] Broadcasting updated room list\n";
+        broadcast_rooms_to_pending_locked();
+
+        std::cout << "[Lobby] Auto-joining creator conn_id=" << act.id
+                  << " into room_id=" << (int)rid << "\n";
+        if (join_room_locked(act.id, rid)) {
+            std::cout << "[Lobby] Auto-join successful\n";
+            broadcast_rooms_to_pending_locked();
+        } else {
+            std::cout << "[Lobby] ERROR: Auto-join failed\n";
+        }
+    } else if (act.room_cmd == ROOM_JOIN) {
+        std::cout << "[Lobby] JOIN request conn_id=" << act.id
+                  << " -> room_id=" << (int)act.room_id << "\n";
+        if (join_room_locked(act.id, act.room_id)) {
+            broadcast_rooms_to_pending_locked();
+        }
+    }
+}
+
+void MonitorLobby::handle_name_action(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    std::cout << "[Lobby] NAME action from conn_id=" << act.id
+              << ": '" << act.username << "'\n";
+    auto itb = bindings.find(act.id);
+    if (itb == bindings.end()) {
+        pending_names[act.id] = std::move(act.username);
+        std::cout << "[Lobby] Stored pending name for conn_id=" << act.id
+                  << "\n";
+    } else {
+        auto rid = itb->second.first;
+        auto pid = itb->second.second;
+        auto itr = rooms.find((uint8_t)rid);
+        if (itr != rooms.end()) {
+            std::cout << "[Lobby] Applying name to player_id=" << pid
+                      << " in room_id=" << (int)rid
+                      << ": '" << act.username << "'\n";
+            itr->second.game.set_player_name(pid, std::move(act.username));
+        }
+    }
+}
+
+void MonitorLobby::handle_move_action(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    auto itb = bindings.find(act.id);
+    if (itb == std::end(bindings)) {
+        auto itp = pending.find(act.id);
+        if (itp != pending.end() && itp->second) {
+            itp->second->send_rooms_to_client(list_rooms_locked());
+            std::cout << "[Lobby] MOVE from conn_id=" << act.id
+                      << " ignored (not in room). Sent rooms list again.\n";
+        }
+        return;
+    }
+    auto rid = itb->second.first;
+    auto pid = itb->second.second;
+    auto itr = rooms.find((uint8_t)rid);
+    if (itr != rooms.end()) {
+        ClientAction routed(pid, act.movement);
+        itr->second.actions.push(routed);
+        std::cout << "[Lobby] Routed MOVE from conn_id=" << act.id
+                  << " -> room_id=" << (int)rid
+                  << ", player_id=" << pid << "\n";
+    }
+}
+// ------------------ FIN handlers ------------------
 
 size_t MonitorLobby::reserve_connection_id() {
     std::lock_guard<std::mutex> lk(m);
@@ -273,93 +365,26 @@ void MonitorLobby::reap_locked() {
 
 void MonitorLobby::run() {
     std::cout << "[Lobby] MonitorLobby iniciado, esperando acciones..." << std::endl;
-    
     int iteration_count = 0;
-    
+
     while (should_keep_running()) {
         try {
-            // Drenar cola global y enrutar
             ClientAction act;
             bool processed_any = false;
-            
+
             while (actions_in.try_pop(act)) {
                 processed_any = true;
                 std::cout << "[Lobby] ======================================\n";
-                std::cout << "[Lobby] Acción recibida: type=" << (int)act.type 
-                          << ", id=" << act.id << std::endl;
-                
-                if (act.type == ClientAction::Type::Room) {
-                    std::lock_guard<std::mutex> lk(m);
-                    if (act.room_cmd == ROOM_CREATE) {
-                        std::cout << "[Lobby] Processing ROOM_CREATE from conn_id=" << act.id << "\n";
-                        uint8_t rid = create_room_locked(/*max_players=*/8);
-                        
-                        // 1. Notificar al creador PRIMERO
-                        auto itp = pending.find(act.id);
-                        if (itp != pending.end() && itp->second) {
-                            std::cout << "[Lobby] Sending ROOM_CREATED(" << (int)rid << ") to conn_id=" << act.id << "\n";
-                            itp->second->send_room_created_to_client(rid);
-                        } else {
-                            std::cout << "[Lobby] ERROR: No se encontró pending conn_id=" << act.id << "\n";
-                        }
-                        
-                        // 2. Broadcast de la nueva lista de salas
-                        std::cout << "[Lobby] Broadcasting updated room list\n";
-                        broadcast_rooms_to_pending_locked();
-                        
-                        // 3. Unir automáticamente al creador
-                        std::cout << "[Lobby] Auto-joining creator conn_id=" << act.id << " into room_id=" << (int)rid << "\n";
-                        if (join_room_locked(act.id, rid)) {
-                            std::cout << "[Lobby] Auto-join successful\n";
-                            // 4. Broadcast final después del join
-                            broadcast_rooms_to_pending_locked();
-                        } else {
-                            std::cout << "[Lobby] ERROR: Auto-join failed\n";
-                        }
-                    } else if (act.room_cmd == ROOM_JOIN) {
-                        std::cout << "[Lobby] JOIN request conn_id=" << act.id << " -> room_id=" << (int)act.room_id << "\n";
-                        if (join_room_locked(act.id, act.room_id)) {
-                            broadcast_rooms_to_pending_locked();
-                        }
-                    }
-                } else if (act.type == ClientAction::Type::Name) {
-                    std::lock_guard<std::mutex> lk(m);
-                    std::cout << "[Lobby] NAME action from conn_id=" << act.id << ": '" << act.username << "'\n";
-                    auto itb = bindings.find(act.id);
-                    if (itb == bindings.end()) {
-                        pending_names[act.id] = act.username;
-                        std::cout << "[Lobby] Stored pending name for conn_id=" << act.id << ": '" << act.username << "'\n";
-                    } else {
-                        auto rid = itb->second.first;
-                        auto pid = itb->second.second;
-                        auto itr = rooms.find((uint8_t)rid);
-                        if (itr != rooms.end()) {
-                            std::cout << "[Lobby] Applying name to player_id=" << pid << " in room_id=" << (int)rid << ": '" << act.username << "'\n";
-                            itr->second.game.set_player_name(pid, std::move(act.username));
-                        }
-                    }
-                } else if (act.type == ClientAction::Type::Move) {
-                    std::lock_guard<std::mutex> lk(m);
-                    auto itb = bindings.find(act.id);
-                    if (itb == std::end(bindings)) {
-                        auto itp = pending.find(act.id);
-                        if (itp != pending.end() && itp->second) {
-                            itp->second->send_rooms_to_client(list_rooms_locked());
-                            std::cout << "[Lobby] MOVE from conn_id=" << act.id << " ignored (not in room). Sent rooms list again.\n";
-                        }
-                        continue;
-                    }
-                    auto rid = itb->second.first;
-                    auto pid = itb->second.second;
-                    auto itr = rooms.find((uint8_t)rid);
-                    if (itr != rooms.end()) {
-                        ClientAction routed(pid, act.movement);
-                        itr->second.actions.push(routed);
-                        std::cout << "[Lobby] Routed MOVE from conn_id=" << act.id
-                                  << " -> room_id=" << (int)rid
-                                  << ", player_id=" << pid << "\n";
-                    }
+                std::cout << "[Lobby] Acción recibida: type=" << (int)act.type
+                          << ", id=" << act.id << "\n";
+
+                auto it = action_dispatch.find(act.type);
+                if (it != action_dispatch.end()) {
+                    it->second(act);
+                } else {
+                    std::cout << "[Lobby] Acción desconocida ignorada\n";
                 }
+
                 std::cout << "[Lobby] ======================================\n";
             }
 
@@ -368,15 +393,14 @@ void MonitorLobby::run() {
                 reap_locked();
             }
 
-            // Log periódico cada 100 iteraciones para no saturar
             iteration_count++;
             if (iteration_count % 100 == 0) {
                 std::lock_guard<std::mutex> lk(m);
-                std::cout << "[Lobby] Status: " << rooms.size() << " rooms, " 
-                          << pending.size() << " pending connections\n";
+                std::cout << "[Lobby] Status: " << rooms.size()
+                          << " rooms, " << pending.size()
+                          << " pending connections\n";
             }
 
-            // Si no procesamos ninguna acción, dormir un poco más para no saturar CPU
             if (!processed_any) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             } else {
@@ -389,7 +413,6 @@ void MonitorLobby::run() {
         }
     }
 
-    // Apagar salas y limpiar pendientes
     {
         std::lock_guard<std::mutex> lk(m);
         for (auto& [rid, pr]: rooms) {
