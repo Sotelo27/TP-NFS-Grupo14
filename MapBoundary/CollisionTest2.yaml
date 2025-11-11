@@ -17,6 +17,7 @@ layers:
 - color: '#ff0000'
   draworder: topdown
   id: 4
+  locked: true
   name: Colisiones
   objects:
   - height: 115.5
@@ -1605,7 +1606,7 @@ layers:
     width: 514.667
     x: 2445
     y: 683
-  - height: 61.6666633333333
+  - height: 61.6667
     id: 237
     name: ''
     rotation: 0
@@ -1647,17 +1648,17 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 7
+    width: 300.333
     x: 1679.5
     y: 1555
-  - height: 189.5
+  - height: 308.167
     id: 242
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 5.5
-    x: 1576.5
+    width: 61.5
+    x: 1520.5
     y: 1696.5
   - height: 379
     id: 243
@@ -1674,8 +1675,8 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 5.5
-    x: 1576.5
+    width: 308.167
+    x: 1273.83
     y: 2015
   - height: 100
     id: 245
@@ -4989,7 +4990,7 @@ layers:
     width: 318
     x: 3617.33
     y: 1390.67
-  - height: 43.83333
+  - height: 43.8333
     id: 623
     name: ''
     rotation: 0
@@ -5842,7 +5843,7 @@ layers:
     type: ''
     visible: true
     width: 43.5
-    x: 3988.91666666667
+    x: 3988.92
     y: 1291.25
   - height: 185.5
     id: 725
@@ -5860,12 +5861,194 @@ layers:
     value: true
   tintcolor: '#55ff00'
   type: objectgroup
+  visible: false
+  x: 0
+  y: 0
+- color: '#00ff00'
+  draworder: topdown
+  id: 6
+  name: Checkpoint_A
+  objects:
+  - height: 165
+    id: 730
+    name: Star
+    properties:
+    - name: index
+      type: int
+      value: 0
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: start
+    rotation: 0
+    type: ''
+    visible: true
+    width: 70
+    x: 1281
+    y: 2631.5
+  - height: 31.6212
+    id: 731
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 1
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: normal
+    rotation: 0
+    type: ''
+    visible: true
+    width: 182.5
+    x: 294.667
+    y: 2560.33
+  - height: 31.5000000000005
+    id: 732
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 2
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: normal
+    rotation: 0
+    type: ''
+    visible: true
+    width: 182.5
+    x: 300.75
+    y: 2112.58333333333
+  - height: 31.5
+    id: 733
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 3
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: normal
+    rotation: 291.265164407574
+    type: ''
+    visible: true
+    width: 86.5031907928878
+    x: 128.739442553603
+    y: 1807.18885222453
+  - height: 31.5
+    id: 735
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 4
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: normal
+    rotation: 0
+    type: ''
+    visible: true
+    width: 115.5
+    x: 19.75
+    y: 1330.25
+  - height: 116
+    id: 736
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 5
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: normal
+    rotation: 0
+    type: ''
+    visible: true
+    width: 46.6666666666667
+    x: 169.333333333333
+    y: 769.333333333333
+  - height: 116
+    id: 739
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 6
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: normal
+    rotation: 0
+    type: ''
+    visible: true
+    width: 46.6667
+    x: 964.66665
+    y: 764
+  - height: 31.5
+    id: 740
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 7
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: normal
+    rotation: 0
+    type: ''
+    visible: true
+    width: 120.5
+    x: 1046.75
+    y: 1338.25
+  - height: 31.5
+    id: 741
+    name: Finish
+    properties:
+    - name: index
+      type: int
+      value: 8
+    - name: race_id
+      type: string
+      value: A
+    - name: type
+      type: string
+      value: finish
+    rotation: 0
+    type: ''
+    visible: true
+    width: 120.5
+    x: 1047.75
+    y: 1780.25
+  opacity: 1
+  type: objectgroup
   visible: true
   x: 0
   y: 0
 - color: '#55ff00'
   draworder: topdown
   id: 5
+  locked: true
   name: Spawns
   objects:
   - height: 0
@@ -5883,8 +6066,8 @@ layers:
   visible: true
   x: 0
   y: 0
-nextlayerid: 6
-nextobjectid: 726
+nextlayerid: 7
+nextobjectid: 742
 orientation: orthogonal
 renderorder: right-down
 tiledversion: 1.11.1-99-gec89c545
