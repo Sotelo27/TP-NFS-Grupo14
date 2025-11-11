@@ -16,29 +16,17 @@ void PhysicsWorld::create_car_body(size_t id, float x_meters, float y_meters, co
     def.fixedRotation = false;
     def.position.Set(x_meters, y_meters);
     b2Body* body = world.CreateBody(&def);
-
-    // Activar CCD para reducir "tunneling" a altas velocidades contra colisionadores delgados
     body->SetBullet(true);
 
     b2PolygonShape box;
-    float halfW = 0.45f;  // 0.95 m de ancho total
-    float halfL = 0.45f;  // 0.95 m de largo total
+    float halfW = 0.45f;
+    float halfL = 0.45f;
     box.SetAsBox(halfW, halfL);
 
     b2FixtureDef fdef;
     fdef.shape = &box;
-    //fdef.density = 1.3f;
-    {
-    const float area_m2 = (2.0f * halfW) * (2.0f * halfL);
-    const float target_mass_kg = (spec.masaKg > 0.f) ? spec.masaKg : 1200.f;
-    const float scale_factor = 1.0f / 1000.0f;
-    const float game_mass = target_mass_kg * scale_factor;
-    const float safe_area = std::max(area_m2, 1e-3f);
-
-    fdef.density = std::clamp(game_mass / safe_area, 0.5f, 5.0f);
-   }
-
-    fdef.friction = 0.9f;
+    fdef.density = 1.3f;
+    fdef.friction = 0.8f;
     fdef.restitution = 0.0f;
     body->CreateFixture(&fdef);
 
@@ -57,13 +45,9 @@ void PhysicsWorld::destroy_body(size_t id) {
 }
 
 void PhysicsWorld::step(float dt) {
-    const float maxStep = 1.0f / 60.0f;
-    int steps = static_cast<int>(std::ceil(dt / maxStep));
-    if (steps < 1) steps = 1;
-    const float h = dt / static_cast<float>(steps);
-    for (int i = 0; i < steps; ++i) {
-        world.Step(h, 8, 3);
-    }
+    constexpr int velocityIterations = 8;
+    constexpr int positionIterations = 3;
+    world.Step(dt, velocityIterations, positionIterations);
 }
 
 Pose PhysicsWorld::get_pose(size_t id) const {
@@ -88,9 +72,12 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
 
     const float PPM = (cfg.pixels_per_meter > 0.f) ? cfg.pixels_per_meter : 32.f;
     const float pixel_to_meters = 1.0f / PPM;
+    size_t total_checkpoints = 0;
+    for (const auto& kv : cfg.checkpoints) total_checkpoints += kv.second.size();
     std::cout << "[Physics] Loading static geometry: PPM=" << PPM
               << " rects=" << cfg.rects.size()
-              << " polylines=" << cfg.polylines.size() << "\n";
+              << " polylines=" << cfg.polylines.size()
+              << " checkpoints=" << total_checkpoints << "\n";
 
     // cARGO los rectaugos del mapa
     size_t ridx = 0;
@@ -124,6 +111,30 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
                       << " bbox_m=[(" << minx << "," << miny << ")- (" << maxx << "," << maxy << ")]\n";
         }
         ++pidx;
+    }
+
+    //Cargo los checkpoinst del mapa, solo hay 1 recorrido A
+    auto it = cfg.checkpoints.find("A");
+    if (it != cfg.checkpoints.end()) {
+        const auto& cps_vec = it->second;
+        size_t cidx = 0;
+        for (const auto& cp : cps_vec) {
+            add_checkpoint_body_px(cp, pixel_to_meters);
+            if (cidx < 8) {
+                const float cx_m = (cp.x_px + cp.w_px * 0.5f) * pixel_to_meters;
+                const float cy_m = (cp.y_px + cp.h_px * 0.5f) * pixel_to_meters;
+                std::cout << "[Physics] Checkpoint[" << cidx << "] race=A"
+                          << " idx=" << cp.index << " type=" << cp.type
+                          << " px=(x=" << cp.x_px << ", y=" << cp.y_px
+                          << ", w=" << cp.w_px << ", h=" << cp.h_px
+                          << ") rot_deg=" << cp.rotation_deg
+                          << " center_m=(" << cx_m << ", " << cy_m << ")\n";
+            }
+            ++cidx;
+        }
+        std::cout << "[Physics] Loaded " << cps_vec.size() << " checkpoints for race 'A'\n";
+    } else {
+        std::cout << "[Physics] No checkpoints found in MapConfig\n";
     }
 }
 
@@ -234,6 +245,37 @@ void PhysicsWorld::add_static_polyline_bodies_px(const PolylineCollider& pl, flo
 
     // añado el borde al user data del body
     auto ent = std::make_unique<BorderEntity>(next_static_id_++, body);
+    body->GetUserData().pointer = reinterpret_cast<uintptr_t>(ent.get());
+    static_entities.push_back(std::move(ent));
+
+    static_bodies.push_back(body);
+}
+
+void PhysicsWorld::add_checkpoint_body_px(const Checkpoint& cp, float pixel_to_meters) {
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_staticBody;
+
+    const float centerX_m = (cp.x_px + cp.w_px * 0.5f) * pixel_to_meters;
+    const float centerY_m = (cp.y_px + cp.h_px * 0.5f) * pixel_to_meters;
+    bodyDef.position.Set(centerX_m, centerY_m);
+
+    b2Body* body = world.CreateBody(&bodyDef);
+
+    b2PolygonShape boxShape;
+    const float halfWidth_m  = std::max(0.001f, (cp.w_px * 0.5f) * pixel_to_meters);
+    const float halfHeight_m = std::max(0.001f, (cp.h_px * 0.5f) * pixel_to_meters);
+    const float angle_rad = cp.rotation_deg * b2_pi / 180.0f;
+    boxShape.SetAsBox(halfWidth_m, halfHeight_m, b2Vec2(0.0f, 0.0f), angle_rad);
+
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape       = &boxShape;
+    fixtureDef.friction    = 0.0f;
+    fixtureDef.restitution = 0.0f;
+    fixtureDef.isSensor    = cp.is_sensor;
+
+    body->CreateFixture(&fixtureDef);
+
+    auto ent = std::make_unique<CheckpointEntity>(next_static_id_++, body, cp.index, cp.race_id, cp.type);
     body->GetUserData().pointer = reinterpret_cast<uintptr_t>(ent.get());
     static_entities.push_back(std::move(ent));
 

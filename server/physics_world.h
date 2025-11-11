@@ -14,6 +14,7 @@
 #include "../common/dto/map_config.h"
 #include "physics/building_entity.h"
 #include "physics/border_entity.h"
+#include "physics/checkpoint_entity.h"
 #include "physics/contact_listener.h"
 
 
@@ -73,6 +74,11 @@ private:
      * Útil para cadenas abiertas en Box2D (b2ChainShape::CreateChain)
      */
     void compute_ghost_vertices(const std::vector<b2Vec2>& verts, b2Vec2& ghostA, b2Vec2& ghostB) const;
+
+    /*
+     * Crea un cuerpo eststico sensor para un checkpoint rectangular
+     */
+    void add_checkpoint_body_px(const Checkpoint& cp, float invPPM);
 
 public:
     PhysicsWorld();

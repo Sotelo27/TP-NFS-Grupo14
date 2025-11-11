@@ -1,10 +1,14 @@
 #include "map_config_loader.h"
 #include <yaml-cpp/yaml.h>
 #include <stdexcept>
+#include <algorithm>
+#include <iostream>
 
 MapConfig MapConfigLoader::load_tiled_file(const std::string& path,
                                            const std::string& collisions_layer,
-                                           const std::string& spawns_layer) {
+                                           const std::string& spawns_layer,
+                                           const std::string& checkpoints_layer) {
+
     YAML::Node root = YAML::LoadFile(path);
     if (!root) throw std::runtime_error("MapConfigLoader: cannot load " + path);
 
@@ -24,8 +28,28 @@ MapConfig MapConfigLoader::load_tiled_file(const std::string& path,
 
         const bool is_collision = (lname == collisions_layer);
         const bool is_spawns    = (lname == spawns_layer);
+        bool is_checkpoints = false;
+        std::string layer_race_id;
+        // Soportar ambas modalidades: nombre exacto por parámetro o prefijo "Checkpoints_"
+        if (lname == checkpoints_layer) {
+            is_checkpoints = true;
+            if (lname.rfind("Checkpoints_", 0) == 0) {
+                layer_race_id = lname.substr(std::string("Checkpoints_").size());
+            } else if (lname.rfind("Checkpoint_", 0) == 0) { // singular
+                layer_race_id = lname.substr(std::string("Checkpoint_").size());
+            }
+            if (layer_race_id.empty()) layer_race_id = "A";
+        } else if (lname.rfind("Checkpoints_", 0) == 0) {
+            is_checkpoints = true;
+            layer_race_id = lname.substr(std::string("Checkpoints_").size());
+            if (layer_race_id.empty()) layer_race_id = "A";
+        } else if (lname.rfind("Checkpoint_", 0) == 0) { // singular
+            is_checkpoints = true;
+            layer_race_id = lname.substr(std::string("Checkpoint_").size());
+            if (layer_race_id.empty()) layer_race_id = "A";
+        }
 
-        for (const auto& obj : layer["objects"]) {
+    for (const auto& obj : layer["objects"]) {
             const float ox = obj["x"].as<float>();
             const float oy = obj["y"].as<float>();
 
@@ -39,6 +63,28 @@ MapConfig MapConfigLoader::load_tiled_file(const std::string& path,
                     s.id = obj["id"] ? obj["id"].as<int>() : -1;
                     cfg.spawns.push_back(s);
                 }
+                continue;
+            }
+
+            if (is_checkpoints) {
+                Checkpoint cp{};
+                cp.x_px = ox;
+                cp.y_px = oy;
+                cp.w_px = obj["width"]  ? obj["width"].as<float>()  : 0.f;
+                cp.h_px = obj["height"] ? obj["height"].as<float>() : 0.f;
+                cp.rotation_deg = obj["rotation"] ? obj["rotation"].as<float>() : 0.f;
+    
+                if (obj["properties"]) {
+                    for (const auto& p : obj["properties"]) {
+                        const std::string pname = p["name"].as<std::string>();
+                        if (pname == "index")    cp.index = p["value"].as<int>();
+                        else if (pname == "type")     cp.type = p["value"].as<std::string>();
+                        else if (pname == "race_id")  cp.race_id = p["value"].as<std::string>();
+                    }
+                }
+
+                if (cp.race_id.empty()) cp.race_id = layer_race_id;
+                cfg.checkpoints[cp.race_id].push_back(std::move(cp));
                 continue;
             }
 
@@ -72,6 +118,14 @@ MapConfig MapConfigLoader::load_tiled_file(const std::string& path,
             }
         }
     }
+
+    for (auto& kv : cfg.checkpoints) {
+        auto& vec = kv.second;
+        std::sort(vec.begin(), vec.end(), [](const Checkpoint& a, const Checkpoint& b){
+            return a.index < b.index;
+        });
+        std::cout << "[MapLoader] race '" << kv.first << "' total checkpoints=" << vec.size() << "\n";
+   }
 
     return cfg;
 }

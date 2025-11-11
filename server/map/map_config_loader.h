@@ -8,7 +8,8 @@ class MapConfigLoader {
 public:
     static MapConfig load_tiled_file(const std::string& path,
                                      const std::string& collisions_layer = "Colisiones",
-                                     const std::string& spawns_layer = "Spawns");
+                                     const std::string& spawns_layer = "Spawns",
+                                     const std::string& checkpoints_layer = "Checkpoint_A");
 };
 
 #endif
