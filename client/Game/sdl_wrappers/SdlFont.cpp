@@ -9,7 +9,7 @@
 
 
 SdlFont::SdlFont(const std::string& filename, size_t font_size, const SdlWindow& window):
-        font(nullptr), renderer(window.getRenderer()) {
+        font(nullptr), renderer(window.getRenderer()), texture(nullptr), width(0), height(0) {
     if (TTF_Init() == -1) {
         throw SdlException("Error initializing SDL_ttf", TTF_GetError());
     }
@@ -20,39 +20,62 @@ SdlFont::SdlFont(const std::string& filename, size_t font_size, const SdlWindow&
     }
 }
 
-void SdlFont::renderText(const std::string& text, const Rgb& color, const Area& dest) const {
-    if (text.empty()) {
-        return;
+void SdlFont::loadText(const std::string& text, const Rgb& color, bool isBordered) {
+    if (this->texture) {
+        SDL_DestroyTexture(this->texture);
+        this->texture = nullptr;
     }
+
+    int borderOffset = isBordered ? 2 : 0;
+    TTF_SetFontOutline(this->font, borderOffset);
 
     SDL_Color sdlColor = {static_cast<uint8_t>(color.getR()), static_cast<uint8_t>(color.getG()),
                           static_cast<uint8_t>(color.getB()), static_cast<uint8_t>(color.getA())};
     SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), sdlColor);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    this->texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
-
-    int result = render(texture, dest);
-    SDL_DestroyTexture(texture);
-
-    if (result != 0) {
-        throw SdlException("Error rendering text texture", SDL_GetError());
-    }
+    this->updateLimits();
 }
 
-int SdlFont::render(SDL_Texture* texture, const Area& dest) const {
+int SdlFont::render(int x, int y) const {
     if (!texture) {
         throw SdlException("Null texture provided to render", SDL_GetError());
     }
 
-    SDL_Rect sdlDest = {dest.getX(), dest.getY(), dest.getWidth(), dest.getHeight()};
+    SDL_Rect sdlDest = {x, y, this->width, this->height};
 
-    SDL_QueryTexture(texture, nullptr, nullptr, &sdlDest.w, &sdlDest.h);
     return SDL_RenderCopy(renderer, texture, nullptr, &sdlDest);
 }
+
+void SdlFont::updateLimits() {
+    if (!this->texture) {
+        throw SdlException("Texture not loaded", "Cannot update limits of a null texture");
+    }
+
+    SDL_QueryTexture(this->texture, NULL, NULL, &this->width, &this->height);
+}
+
+int SdlFont::getWidth() const { return this->width; }
+
+int SdlFont::getHeight() const { return this->height; }
 
 SdlFont::~SdlFont() {
     if (this->font) {
         TTF_CloseFont(this->font);
         this->font = nullptr;
     }
+    if (this->texture) {
+        SDL_DestroyTexture(this->texture);
+        this->texture = nullptr;
+    }
+}
+
+void SdlFont::renderDirect(int x, int y, const std::string& text, const Rgb& color, bool shadow,
+                           const Rgb& shadowColor) {
+    if (shadow) {
+        this->loadText(text, shadowColor, true);
+        this->render(x, y);
+    }
+    this->loadText(text, color);
+    this->render(x, y);
 }

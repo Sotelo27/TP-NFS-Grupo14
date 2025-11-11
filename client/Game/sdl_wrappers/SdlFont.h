@@ -10,19 +10,26 @@
 class SDL_Texture;
 class SDL_Renderer;
 class SdlWindow;
-class Area;
 
 class SdlFont {
 private:
     TTF_Font* font;
     SDL_Renderer* renderer;
+    SDL_Texture* texture;
+    int width;
+    int height;
 
-    int render(SDL_Texture* texture, const Area& dest) const;
+    void updateLimits();
 
 public:
     SdlFont(const std::string& filename, size_t font_size, const SdlWindow& window);
 
-    void renderText(const std::string& text, const Rgb& color, const Area& dest) const;
+    void loadText(const std::string& text, const Rgb& color, bool isBordered = false);
+    int render(int x, int y) const;
+    void renderDirect(int x, int y, const std::string& text, const Rgb& color, bool shadow = false,
+                      const Rgb& shadowColor = Rgb(0, 0, 0));
+    int getWidth() const;
+    int getHeight() const;
 
     ~SdlFont();
 

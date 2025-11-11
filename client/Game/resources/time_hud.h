@@ -17,7 +17,7 @@ private:
 public:
     explicit TimeHud(const SdlWindow& window);
 
-    void render(int16_t time_seconds, int x, int y) const;
+    void render(int16_t time_seconds, int x, int y);
 };
 
 #endif  // TIME_HUD_H
