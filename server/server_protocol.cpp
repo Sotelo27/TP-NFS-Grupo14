@@ -4,7 +4,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
-#include <iostream>  // AGREGAR ESTE INCLUDE
+#include <iostream>  
 
 #include <arpa/inet.h>
 
@@ -326,87 +326,104 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-ClientMessage ServerProtocol::receive() {
-    ClientMessage dto;
-    dto.type = ClientMessage::Type::Unknown;
+ServerProtocol::ServerProtocol(Socket&& skt): skt(std::move(skt)) {
+    init_recv_dispatch();
+}
 
-    uint8_t code = 0;
-    int r = skt.recvall(&code, sizeof(code));
-    if (r == 0) {
-        return dto;
-    }
+// ------------------ NUEVO: Dispatch init ------------------
+void ServerProtocol::init_recv_dispatch() {
+    recv_dispatch = {
+        {CODE_C2S_NAME,        [this](){ return parse_name(); }},
+        {CODE_C2S_MOVE,        [this](){ return parse_move(); }},
+        {CODE_C2S_ROOM,        [this](){ return parse_room(); }},
+        {CODE_C2S_START_GAME,  [this](){ return parse_start_game(); }},
+        {CODE_C2S_CHOOSE_CAR,  [this](){ return parse_choose_car(); }},
+        {CODE_C2S_IMPROVEMENT, [this](){ return parse_improvement(); }},
+        {CODE_C2S_CHEAT,       [this](){ return parse_cheat(); }},
+        {CODE_C2S_EXIT,        [this](){ return parse_exit(); }},
+    };
+}
 
-    if (code == CODE_C2S_NAME) {
-        uint16_t len_be = 0;
-        skt.recvall(&len_be, sizeof(len_be));
-        uint16_t len = ntohs(len_be);
-
-        std::string username;
-        username.resize(len);
-        if (len > 0) {
-            skt.recvall(username.data(), len);
-        }
-
-        dto.type = ClientMessage::Type::Name;
-        dto.username = std::move(username);
-    } else if (code == CODE_C2S_MOVE) {
-        uint8_t mv = 0;
-        skt.recvall(&mv, sizeof(mv));
-
-        dto.type = ClientMessage::Type::Move;
-        dto.movement = (Movement)mv;
-        
-    } else if (code == CODE_C2S_ROOM) {
-        uint8_t sub = 0;
-        skt.recvall(&sub, sizeof(sub));
-        dto.type = ClientMessage::Type::Room;
-        dto.room_cmd = sub;
-        if (sub == ROOM_JOIN) {
-            uint8_t room = 0;
-            skt.recvall(&room, sizeof(room));
-            dto.room_id = room;
-        }
-    } else if (code == CODE_C2S_START_GAME) {
-        // 0x0A <QUANTITY-RACES u8> [ <LENGTH u16> <MAP bytes> <ROUTE u8> ]...
-        uint8_t qty = 0;
-        skt.recvall(&qty, sizeof(qty));
-        std::vector<std::pair<std::string, uint8_t>> races;
-        races.reserve(qty);
-        for (uint8_t i = 0; i < qty; ++i) {
-            uint16_t lbe = 0;
-            skt.recvall(&lbe, sizeof(lbe));
-            uint16_t l = ntohs(lbe);
-            std::string map(l, '\0');
-            if (l) {
-                skt.recvall(&map[0], l);
-            }
-            uint8_t route = 0;
-            skt.recvall(&route, sizeof(route));
-            races.emplace_back(std::move(map), route);
-        }
-        dto.type = ClientMessage::Type::StartGame;
-        dto.races = std::move(races);
-    } else if (code == CODE_C2S_CHOOSE_CAR) {
-        // 0x0B <CAR-ID u8>
-        uint8_t car = 0;
-        skt.recvall(&car, 1);
-        dto.type = ClientMessage::Type::ChooseCar;
-        dto.car_id = car;
-    } else if (code == CODE_C2S_IMPROVEMENT) {
-        // 0x0C <IMPROVEMENT u8>
-        uint8_t imp = 0;
-        skt.recvall(&imp, 1);
-        dto.type = ClientMessage::Type::Improvement;
-        dto.improvement = imp;
-    } else if (code == CODE_C2S_CHEAT) {
-        // 0x0D <CHEAT u8>
-        uint8_t cheat = 0;
-        skt.recvall(&cheat, 1);
-        dto.type = ClientMessage::Type::Cheat;
-        dto.cheat = cheat;
-    } else if (code == CODE_C2S_EXIT) {
-        dto.type = ClientMessage::Type::Exit;
-    }
-
+// ------------------ NUEVO: Handlers individuales ------------------
+ClientMessage ServerProtocol::parse_name() {
+    ClientMessage dto; dto.type = ClientMessage::Type::Name;
+    uint16_t len_be=0; skt.recvall(&len_be,2);
+    uint16_t len=ntohs(len_be);
+    std::string username(len,'\0');
+    if(len) skt.recvall(&username[0], len);
+    dto.username = std::move(username);
     return dto;
+}
+
+ClientMessage ServerProtocol::parse_move() {
+    ClientMessage dto; dto.type = ClientMessage::Type::Move;
+    uint8_t mv=0; skt.recvall(&mv,1);
+    dto.movement = (Movement)mv;
+    return dto;
+}
+
+ClientMessage ServerProtocol::parse_room() {
+    ClientMessage dto; dto.type = ClientMessage::Type::Room;
+    uint8_t sub=0; skt.recvall(&sub,1);
+    dto.room_cmd = sub;
+    if(sub == ROOM_JOIN){
+        uint8_t room=0; skt.recvall(&room,1);
+        dto.room_id = room;
+    }
+    return dto;
+}
+
+ClientMessage ServerProtocol::parse_start_game() {
+    ClientMessage dto; dto.type = ClientMessage::Type::StartGame;
+    uint8_t qty=0; skt.recvall(&qty,1);
+    std::vector<std::pair<std::string,uint8_t>> races; races.reserve(qty);
+    for(uint8_t i=0;i<qty;++i){
+        uint16_t lbe=0; skt.recvall(&lbe,2);
+        uint16_t l=ntohs(lbe);
+        std::string map(l,'\0');
+        if(l) skt.recvall(&map[0], l);
+        uint8_t route=0; skt.recvall(&route,1);
+        races.emplace_back(std::move(map), route);
+    }
+    dto.races = std::move(races);
+    return dto;
+}
+
+ClientMessage ServerProtocol::parse_choose_car() {
+    ClientMessage dto; dto.type = ClientMessage::Type::ChooseCar;
+    uint8_t car=0; skt.recvall(&car,1);
+    dto.car_id = car;
+    return dto;
+}
+
+ClientMessage ServerProtocol::parse_improvement() {
+    ClientMessage dto; dto.type = ClientMessage::Type::Improvement;
+    uint8_t imp=0; skt.recvall(&imp,1);
+    dto.improvement = imp;
+    return dto;
+}
+
+ClientMessage ServerProtocol::parse_cheat() {
+    ClientMessage dto; dto.type = ClientMessage::Type::Cheat;
+    uint8_t cheat=0; skt.recvall(&cheat,1);
+    dto.cheat = cheat;
+    return dto;
+}
+
+ClientMessage ServerProtocol::parse_exit() {
+    ClientMessage dto; dto.type = ClientMessage::Type::Exit;
+    return dto;
+}
+
+ClientMessage ServerProtocol::receive() {
+    ClientMessage dto; dto.type = ClientMessage::Type::Unknown;
+    uint8_t code=0;
+    int r = skt.recvall(&code,1);
+    if(r==0) return dto;
+
+    auto it = recv_dispatch.find(code);
+    if (it != recv_dispatch.end()) {
+        return it->second();
+    }
+    return dto; // Unknown
 }
