@@ -58,6 +58,12 @@ private:
 
 public:
     explicit MonitorLobby(float nitro_duracion);
+    ~MonitorLobby() override;  // Apagado ordenado 
+
+    MonitorLobby(const MonitorLobby&) = delete;
+    MonitorLobby& operator=(const MonitorLobby&) = delete;
+    MonitorLobby(MonitorLobby&&) = delete;
+    MonitorLobby& operator=(MonitorLobby&&) = delete;
 
     // Cola global para que Acceptor/ClientHandler encolen acciones
     Queue<ClientAction>& incoming_actions() { return actions_in; }
