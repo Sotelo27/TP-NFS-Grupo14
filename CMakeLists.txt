@@ -104,6 +104,7 @@ endif()
 # ---------------
 if(TALLER_CLIENT)
     find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets)
+    find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Multimedia)
     include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
     file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
     set(CMAKE_AUTOMOC ON)
@@ -150,6 +151,7 @@ if(TALLER_CLIENT)
             Qt5::Core
             Qt5::Gui
             Qt5::Widgets
+            Qt5::Multimedia
     )
 endif()
 

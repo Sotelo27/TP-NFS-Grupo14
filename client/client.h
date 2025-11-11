@@ -7,13 +7,15 @@
 #include "../common/socket.h"
 #include "connection/server_handler.h"
 #include "client_protocol.h"
+#include "QT/game_window.h"
 
 class LoginWindow;
 
 class Client {
 private:
     ServerHandler server_handler;
-    LoginWindow* login_window;
+    GameWindow* game_window_start;
+    GameWindow* game_window_end;
 
 public:
     explicit Client(const char* host, const char* service);

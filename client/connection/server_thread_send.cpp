@@ -38,6 +38,10 @@ void ServerThreadSend::run() {
                     std::cout << "[ServerThreadSend] Sent ROOM_JOIN(" << (int)msg.room_id << ")" << std::endl;
                     std::cout.flush();
                 }
+            } else if (msg.type == ClientMessage::Type::ChooseCar) {
+                protocol.send_choose_car(msg.car_id);
+                std::cout << "[ServerThreadSend] Sent CHOOSE CAR" << std::endl;
+                std::cout.flush();
             }
 
         } catch (const std::exception& e) {

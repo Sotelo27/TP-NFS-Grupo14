@@ -52,6 +52,7 @@ public:
     void send_movement(Movement mov);
     void send_create_room();
     void send_join_room(uint8_t room_id);
+    void send_choose_car(uint8_t car_id);
     ServerMessage recv_response_from_server();
 
     ServerHandler(const ServerHandler&) = delete;
