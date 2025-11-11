@@ -11,13 +11,6 @@
 
 #define SPEED_BACKGROUND std::string(ASSETS_PATH) + "/images/fondo_cars.png"
 
-#define FONT_STYLE_AA std::string(ASSETS_PATH) + "/font/AldotheApache.ttf"
-#define FONT_STYLE_PX std::string(ASSETS_PATH) + "/font/Pixeboy-z8XGD.ttf"
-#define FONT_STYLE_PS std::string(ASSETS_PATH) + "/font/PrStart.ttf"
-#define FONT_STYLE_CC std::string(ASSETS_PATH) + "/font/C&C Red Alert [INET].ttf"
-#define FONT_STYLE_VS1 std::string(ASSETS_PATH) + "/font/visitor1.ttf"
-#define FONT_STYLE_VS2 std::string(ASSETS_PATH) + "/font/visitor2.ttf"
-
 SpeedHud::SpeedHud(const SdlWindow& window):
         texture(SPEED_BACKGROUND, window,
                 Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),

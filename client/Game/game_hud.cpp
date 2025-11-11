@@ -7,10 +7,6 @@
 
 #define POINT_RED std::string(ASSETS_PATH) + "/images/punto_rojo.png"
 
-#define FONT_STYLE std::string(ASSETS_PATH) + "/font/PrStart.ttf"
-// #define FONT_STYLE_POSITION std::string(ASSETS_PATH) + "/font/Pixeboy-z8XGD.ttf"
-#define FONT_STYLE_POSITION std::string(ASSETS_PATH) + "/font/AldotheApache.ttf"
-
 #define SPACE_BETWEEN_WINDOW_EDGE_AND_HUD 15
 
 GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,

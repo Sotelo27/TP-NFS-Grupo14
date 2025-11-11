@@ -6,11 +6,10 @@
 #define SIZE WINDOW_WIDTH / 43
 
 #define LIFE_ICON std::string(ASSETS_PATH) + "/images/vida.png"
-#define FONT_STYLE std::string(ASSETS_PATH) + "/font/AldotheApache.ttf"
 
 LifeHud::LifeHud(const SdlWindow& window):
         texture(LIFE_ICON, window, Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
-        text(FONT_STYLE, (SIZE * 11) / 12, window) {}
+        text(FONT_STYLE_AA, (SIZE * 11) / 12, window) {}
 
 void LifeHud::render(int max_life, int current_life, int x, int y) {
     this->texture.render(Area(0, 0, texture.getWidth(), texture.getHeight()),

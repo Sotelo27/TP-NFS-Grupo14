@@ -3,10 +3,8 @@
 #include "../constants.h"
 #include "../utils/rgb.h"
 
-#define FONT_STYLE std::string(ASSETS_PATH) + "/font/AldotheApache.ttf"
-
 PositionHud::PositionHud(const SdlWindow& window):
-        text(FONT_STYLE, 60, window) {}
+        text(FONT_STYLE_AA, 60, window) {}
 
 void PositionHud::render(int position, int x, int y) {
     std::string position_str = getOrdinalString(position);
