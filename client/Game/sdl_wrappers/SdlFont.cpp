@@ -20,11 +20,14 @@ SdlFont::SdlFont(const std::string& filename, size_t font_size, const SdlWindow&
     }
 }
 
-void SdlFont::loadText(const std::string& text, const Rgb& color) {
+void SdlFont::loadText(const std::string& text, const Rgb& color, bool isBordered) {
     if (this->texture) {
         SDL_DestroyTexture(this->texture);
         this->texture = nullptr;
     }
+
+    int borderOffset = isBordered ? 2 : 0;
+    TTF_SetFontOutline(this->font, borderOffset);
 
     SDL_Color sdlColor = {static_cast<uint8_t>(color.getR()), static_cast<uint8_t>(color.getG()),
                           static_cast<uint8_t>(color.getB()), static_cast<uint8_t>(color.getA())};
@@ -65,4 +68,14 @@ SdlFont::~SdlFont() {
         SDL_DestroyTexture(this->texture);
         this->texture = nullptr;
     }
+}
+
+void SdlFont::renderDirect(int x, int y, const std::string& text, const Rgb& color,
+                                 bool shadow) {
+    if (shadow) {
+        this->loadText(text, Rgb(0, 0, 0, color.getA()), true);
+        this->render(x, y);
+    }
+    this->loadText(text, color);
+    this->render(x, y);
 }

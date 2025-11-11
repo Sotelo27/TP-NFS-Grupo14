@@ -7,6 +7,7 @@ target_sources(taller_client
     life_hud.cpp
     time_hud.cpp
     speed_hud.cpp
+    position_hud.cpp
     PUBLIC
     # .h files
     car_sprite_sheet.h
@@ -15,4 +16,5 @@ target_sources(taller_client
     life_hud.h
     time_hud.h
     speed_hud.h
+    position_hud.h
     )

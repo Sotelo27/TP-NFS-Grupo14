@@ -23,8 +23,9 @@ private:
 public:
     SdlFont(const std::string& filename, size_t font_size, const SdlWindow& window);
     
-    void loadText(const std::string& text, const Rgb& color);
+    void loadText(const std::string& text, const Rgb& color, bool isBordered = false);
     int render(int x, int y) const;
+    void renderDirect(int x, int y, const std::string& text, const Rgb& color, bool shadow = false);
     int getWidth() const;
     int getHeight() const;
 

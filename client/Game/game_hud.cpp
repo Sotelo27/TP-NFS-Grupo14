@@ -22,10 +22,10 @@ GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_
         info_players(info_players),
         life_hud(window),
         time_hud(window),
-        font_hud(FONT_STYLE_POSITION, 60, window),
         life_bar_sprites(window),
         car_sprites(car_sprites),
-        speed_hud(window) {}
+        speed_hud(window),
+        position_hud(window) {}
 
 void GameHud::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                   int mini_map_height) {
@@ -77,28 +77,6 @@ void GameHud::renderMiniMap() {
     renderPositionMiniMap(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
 }
 
-std::string GameHud::getOrdinalSuffix(int number) {
-    int last_two = number % 100;
-    if (last_two >= 11 && last_two <= 13) {
-        return "th";
-    }
-
-    switch (number % 10) {
-        case 1:
-            return "st";
-        case 2:
-            return "nd";
-        case 3:
-            return "rd";
-        default:
-            return "th";
-    }
-}
-
-std::string GameHud::getOrdinalString(int number) {
-    return std::to_string(number) + getOrdinalSuffix(number);
-}
-
 void GameHud::renderLifeBarHud() {
     for (const auto& [id, car]: info_players) {
         if (car.dest_area.getWidth() == 0 || car.dest_area.getHeight() == 0 ||
@@ -120,10 +98,10 @@ void GameHud::renderLifeBarHud() {
 void GameHud::render() {
     renderLifeBarHud();
 
-    speed_hud.render(300, WINDOW_WIDTH - SPACE_BETWEEN_WINDOW_EDGE_AND_HUD - 192, WINDOW_HEIGHT - 200);
+    speed_hud.render(300, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 200);
 
-    font_hud.loadText(getOrdinalString(13), Rgb(255, 255, 255));
-    font_hud.render(SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    position_hud.render(3, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD,
+                        SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
     time_hud.render(600, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 

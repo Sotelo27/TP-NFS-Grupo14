@@ -27,10 +27,8 @@ void TimeHud::render(int16_t time_seconds, int x, int y) {
        << std::setw(2) << std::abs(seconds);
     std::string buffer = ss.str();
 
-    text.loadText(buffer, Rgb(255, 255, 255));
-
     int text_x = x - text.getWidth() / 2;
-    text.render(text_x, y + SIZE / 5);
+    text.renderDirect(text_x, y + SIZE / 5, buffer, Rgb(255, 255, 255), true);
 
     this->texture.render(Area(0, 0, texture.getWidth(), texture.getHeight()),
                          Area(text_x - SIZE - 5, y, SIZE, SIZE * texture.getHeight() / texture.getWidth()));

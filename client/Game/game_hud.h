@@ -12,6 +12,7 @@
 #include "resources/maps_textures.h"
 #include "resources/time_hud.h"
 #include "resources/speed_hud.h"
+#include "resources/position_hud.h"
 #include "sdl_wrappers/SdlWindow.h"
 
 #include "car_info_game.h"
@@ -24,10 +25,10 @@ private:
     std::unordered_map<size_t, CarInfoGame>& info_players;
     LifeHud life_hud;
     TimeHud time_hud;
-    SdlFont font_hud;
     LifeBarSpriteSheet life_bar_sprites;
     const CarSpriteSheet& car_sprites;
     SpeedHud speed_hud;
+    PositionHud position_hud;
 
     void renderLifeBarHud();
 
@@ -36,9 +37,6 @@ private:
                              int mini_map_height);
     void renderPositionMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                int mini_map_height);
-
-    std::string getOrdinalSuffix(int number);
-    std::string getOrdinalString(int number);
 
 public:
     explicit GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,

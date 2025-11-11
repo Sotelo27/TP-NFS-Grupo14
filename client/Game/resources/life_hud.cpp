@@ -19,6 +19,6 @@ void LifeHud::render(int max_life, int current_life, int x, int y) {
     int g = (max_life <= 0 || current_life <= 0) ? 0 : (255 * current_life) / max_life;
     int r = 255 - g;
 
-    text.loadText(std::to_string(current_life), Rgb(r, g, 0));
-    text.render(x + SIZE + 5, y + SIZE / 12);
+    text.renderDirect(x + SIZE + 5, y + SIZE / 12, std::to_string(current_life),
+                                Rgb(r, g, 0), true);
 }
