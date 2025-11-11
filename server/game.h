@@ -15,6 +15,7 @@
 #include "race.h"
 #include "city.h"
 #include "../common/dto/map_config.h"
+#include "../common/dto/map_tick_info.h"
 
 class Game {
 private:
@@ -73,6 +74,11 @@ public:
      * Devuelve Player {(id, position)} de todos los jugadores
      */
     std::vector<PlayerPos> players_positions();
+
+    /*
+     * Devuelve informacion del jugador para el tick del mapa (posiciones + salud por ahora)
+     */
+    std::vector<PlayerTickInfo> players_tick_info();
 
     /*
      * Setea el nombre del jugador

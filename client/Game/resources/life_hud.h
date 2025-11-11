@@ -17,7 +17,7 @@ private:
 public:
     explicit LifeHud(const SdlWindow& window);
 
-    void render(int max_life, int current_life, int x, int y) const;
+    void render(int max_life, int current_life, int x, int y);
 };
 
 #endif  // LIFE_HUD_H

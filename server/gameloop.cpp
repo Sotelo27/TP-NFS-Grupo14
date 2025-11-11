@@ -47,9 +47,11 @@ void Gameloop::procesar_actiones() {
 void Gameloop::iteracion_game() {
     const float dt = 0.016f;
     game.update(dt);
-    auto positions = game.players_positions();
-    clients.broadcast_player_positions(positions);
-    // std::cout << "Broadcasted positions of " << positions.size() << " players.\n";
+    auto tick_players = game.players_tick_info();
+    // Por ahora no hay NPC, eventos dinamicos lo de las colisiones pero aun no lleno esa info
+    std::vector<NpcTickInfo> npcs;
+    std::vector<EventInfo> events;
+    clients.broadcast_map_info(tick_players, npcs, events);
 }
 
 void Gameloop::run() {

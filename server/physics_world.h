@@ -36,14 +36,8 @@ private:
 
     // Ajuste/tolerancia para colisionadores rectangulares: reducimos 2px por lado
     // para evitar contactos "tempranos" respecto al arte de los edificios.
-    static constexpr float rect_collider_margin_px = 32.0f;
+    static constexpr float rect_collider_margin_px = 0;
 
-    /*
-     * Conversion de unidades ----
-     * - Internamente trabajamos en metros (Box2D)
-     * - Esta clase expone Pose en "units" (128 u/m) por compatibilidad con el servidor
-     * - La capa superior es responsable de convertir esas units a pixeles al enviar al cliente
-     */
     static inline float toMeters(int16_t units) {
         constexpr float UNITS_PER_METER = 128.0f;
         return static_cast<float>(units) / UNITS_PER_METER;
@@ -87,8 +81,8 @@ public:
      * Crea el cuerpo fisico del jugador en su posicion inicial,
      * usando el modelo de auto (masa, velocidad y demas prarmetros)
      */
-    // Crea el body físico de un auto según su CarModel en la posición inicial
-    void create_car_body(size_t id, int16_t x_units, int16_t y_units, const CarModel& spec);
+    // Crea el body físico de un auto según su CarModel en la posición inicial (pos en metros)
+    void create_car_body(size_t id, float x_meters, float y_meters, const CarModel& spec);
 
     /*
      * Elimina el cuerpo del jugador del mundo Box2d
