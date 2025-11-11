@@ -11,6 +11,7 @@
 #include "resources/life_hud.h"
 #include "resources/maps_textures.h"
 #include "resources/time_hud.h"
+#include "resources/speed_hud.h"
 #include "sdl_wrappers/SdlWindow.h"
 
 #include "car_info_game.h"
@@ -26,6 +27,7 @@ private:
     SdlFont font_hud;
     LifeBarSpriteSheet life_bar_sprites;
     const CarSpriteSheet& car_sprites;
+    SpeedHud speed_hud;
 
     void renderLifeBarHud();
 

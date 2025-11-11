@@ -1,5 +1,5 @@
-#ifndef TIME_HUD_H
-#define TIME_HUD_H
+#ifndef SPEED_HUD_H
+#define SPEED_HUD_H
 
 #include <string>
 #include <unordered_map>
@@ -9,15 +9,15 @@
 #include "../sdl_wrappers/SdlWindow.h"
 #include "../utils/Area.h"
 
-class TimeHud {
+class SpeedHud {
 private:
     SdlObjTexture texture;
     SdlFont text;
 
 public:
-    explicit TimeHud(const SdlWindow& window);
+    explicit SpeedHud(const SdlWindow& window);
 
-    void render(int16_t time_seconds, int x, int y);
+    void render(int speed, int x, int y) const;
 };
 
-#endif  // TIME_HUD_H
+#endif  // SPEED_HUD_H

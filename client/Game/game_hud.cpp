@@ -24,7 +24,8 @@ GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_
         time_hud(window),
         font_hud(FONT_STYLE_POSITION, 60, window),
         life_bar_sprites(window),
-        car_sprites(car_sprites) {}
+        car_sprites(car_sprites),
+        speed_hud(window) {}
 
 void GameHud::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                   int mini_map_height) {
@@ -119,11 +120,12 @@ void GameHud::renderLifeBarHud() {
 void GameHud::render() {
     renderLifeBarHud();
 
-    font_hud.renderText(
-            getOrdinalString(13), Rgb(255, 255, 255),
-            Area(SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, 300, 60));
+    speed_hud.render(300, WINDOW_WIDTH - SPACE_BETWEEN_WINDOW_EDGE_AND_HUD - 192, WINDOW_HEIGHT - 200);
 
-    time_hud.render(600, WINDOW_WIDTH / 2 - 117, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    font_hud.loadText(getOrdinalString(13), Rgb(255, 255, 255));
+    font_hud.render(SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+
+    time_hud.render(600, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
     int current_life = info_players[client_id].info_car.health;
     // falta obtener la vida maxima

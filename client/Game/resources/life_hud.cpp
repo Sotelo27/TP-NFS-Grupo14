@@ -12,13 +12,13 @@ LifeHud::LifeHud(const SdlWindow& window):
         texture(LIFE_ICON, window, Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
         text(FONT_STYLE, (SIZE * 11) / 12, window) {}
 
-void LifeHud::render(int max_life, int current_life, int x, int y) const {
+void LifeHud::render(int max_life, int current_life, int x, int y) {
     this->texture.render(Area(0, 0, texture.getWidth(), texture.getHeight()),
                          Area(x, y, SIZE, SIZE * texture.getHeight() / texture.getWidth()));
 
     int g = (max_life <= 0 || current_life <= 0) ? 0 : (255 * current_life) / max_life;
     int r = 255 - g;
 
-    text.renderText(std::to_string(current_life), Rgb(r, g, 0),
-                    Area(x + SIZE + 5, y + SIZE / 12, SIZE * 3, SIZE));
+    text.loadText(std::to_string(current_life), Rgb(r, g, 0));
+    text.render(x + SIZE + 5, y + SIZE / 12);
 }
