@@ -11,7 +11,7 @@
 #include "../common/constants.h"
 
 #define SERVER_HZ 60
-#define BROADCAST_HZ 20
+#define BROADCAST_HZ 30
 
 Gameloop::Gameloop(Game& game, ClientListProtected& clients, Queue<ClientAction>& actiones_clients):
     game(game), clients(clients), actiones_clients(actiones_clients) {}
@@ -46,16 +46,6 @@ void Gameloop::procesar_actiones() {
         }
     }
 }
-
-//void Gameloop::iteracion_game() {
-//    const float dt = 0.016f;
-//    game.update(dt);
-//    auto tick_players = game.players_tick_info();
-//    // Por ahora no hay NPC, eventos dinamicos lo de las colisiones pero aun no lleno esa info
-//    std::vector<NpcTickInfo> npcs;
-//    std::vector<EventInfo> events;
-//    clients.broadcast_map_info(tick_players, npcs, events);
-//}
 
 void Gameloop::run() {
     const int period_ms = std::max(1, 1000 / SERVER_HZ);// esto es casi equivalente a lo que sseri 16ms o 60fps , rate
