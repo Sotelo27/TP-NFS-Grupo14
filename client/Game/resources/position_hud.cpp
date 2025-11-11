@@ -4,7 +4,7 @@
 #include "../utils/rgb.h"
 
 PositionHud::PositionHud(const SdlWindow& window):
-        text(FONT_STYLE_AA, 60, window) {}
+        text(FONT_STYLE_PX, 100, window) {}
 
 void PositionHud::render(int position, int x, int y) {
     std::string position_str = getOrdinalString(position);

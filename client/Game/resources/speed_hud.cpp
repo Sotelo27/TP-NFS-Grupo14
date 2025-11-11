@@ -9,18 +9,11 @@
 #define SIZE_FONT_NUMBER (SIZE * 22) / 48
 #define SIZE_FONT_UNIT (SIZE * 10) / 48
 
-#define SPEED_BACKGROUND std::string(ASSETS_PATH) + "/images/fondo_cars.png"
-
 SpeedHud::SpeedHud(const SdlWindow& window):
-        texture(SPEED_BACKGROUND, window,
-                Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
         textNumber(FONT_STYLE_AA, SIZE_FONT_NUMBER, window),
         textUnit(FONT_STYLE_AA, SIZE_FONT_UNIT, window) {}
 
 void SpeedHud::render(int speed, int x, int y) {
-    this->texture.render(Area(0, 0, texture.getWidth(), texture.getHeight()),
-                         Area(x, y, SIZE, SIZE * texture.getHeight() / texture.getWidth()));
-
     speed = std::max(0, speed);
 
     Rgb white(255, 255, 255);

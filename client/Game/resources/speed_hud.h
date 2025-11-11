@@ -11,7 +11,6 @@
 
 class SpeedHud {
 private:
-    SdlObjTexture texture;
     SdlFont textNumber;
     SdlFont textUnit;
 
