@@ -98,7 +98,7 @@ void GameHud::renderLifeBarHud() {
 void GameHud::render() {
     renderLifeBarHud();
 
-    speed_hud.render(300, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 200);
+    speed_hud.render(999, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);
 
     position_hud.render(3, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD,
                         SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
