@@ -45,13 +45,9 @@ void PhysicsWorld::destroy_body(size_t id) {
 }
 
 void PhysicsWorld::step(float dt) {
-    const float maxStep = 1.0f / 60.0f;
-    int steps = static_cast<int>(std::ceil(dt / maxStep));
-    if (steps < 1) steps = 1;
-    const float h = dt / static_cast<float>(steps);
-    for (int i = 0; i < steps; ++i) {
-        world.Step(h, 8, 3);
-    }
+    constexpr int velocityIterations = 8;
+    constexpr int positionIterations = 3;
+    world.Step(dt, velocityIterations, positionIterations);
 }
 
 Pose PhysicsWorld::get_pose(size_t id) const {
