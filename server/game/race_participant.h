@@ -2,7 +2,7 @@
 #define RACE_PARTICIPANT_H
 
 #include <cstdint>
-#include "../common/car_model.h"
+#include "../../common/car_model.h"
 
 // Estado del participante dentro de una carrera
 // Ya no guarda la pose. la pose vive en ahora en PhysicsWorld

@@ -6,13 +6,13 @@
 #include <memory>
 #include <vector>
 
-#include "../common/player_aux.h"
-#include "physics_world.h"
+#include "../../common/player_aux.h"
+#include "../../common/dto/map_tick_info.h"
+#include "../../common/dto/input_state.h"
+#include "../../common/car_model.h"
+#include "../physics_world.h"
 #include "race_participant.h"
-#include "../common/dto/input_state.h"
-#include "../common/car_model.h"
-#include "Player/car.h"
-#include "../common/dto/map_tick_info.h"
+#include "../Player/car.h"
 
 class Race {
 private:

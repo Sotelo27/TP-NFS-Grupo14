@@ -6,9 +6,9 @@
 
 #include "../common/queue.h"
 #include "client_action.h"
-#include "game.h"
+#include "game/game.h"
 #include "client_list.h"
-#include "gameloop.h"
+#include "game/gameloop.h"
 
 struct Match {
     uint8_t room_id{0};

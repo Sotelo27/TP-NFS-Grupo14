@@ -6,13 +6,13 @@
 #include <string>
 #include <utility>
 
-#include "../common/queue.h"
-#include "../common/thread.h"
+#include "../../common/queue.h"
+#include "../../common/thread.h"
 
-#include "client_handler.h"
-#include "client_list.h"
+#include "../client_handler.h"
+#include "../client_list.h"
 #include "game.h"
-#include "server_protocol.h"
+#include "../server_protocol.h"
 
 class Gameloop: public Thread {
 private:

@@ -19,8 +19,8 @@
 
 #include "client_handler.h"
 #include "client_list.h"
-#include "game.h"
-#include "gameloop.h"
+#include "game/game.h"
+#include "game/gameloop.h"
 #include "Match.h"
 
 class MonitorLobby: public Thread {

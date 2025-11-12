@@ -7,18 +7,10 @@ target_sources(taller_server
     client_thread_recv.cpp
     client_thread_send.cpp
     client_list.cpp
-    gameloop.cpp
-    game.cpp
-    race.cpp
     physics_world.cpp
     server.cpp
     server_protocol.cpp
     monitor_lobby.cpp
-    city.cpp
-    physics/building_entity.cpp
-    physics/border_entity.cpp
-    physics/contact_listener.cpp
-    physics/checkpoint_entity.cpp
     PUBLIC
     # .h files
     acceptor.h
@@ -27,17 +19,7 @@ target_sources(taller_server
     client_thread_recv.h
     client_thread_send.h
     client_list.h
-    gameloop.h
-    game.h
-    race.h
-    city.h
     physics_world.h
-    physics/Entidad.h
-    physics/building_entity.h
-    physics/border_entity.h
-    physics/contact_listener.h
-    physics/checkpoint_entity.h
-    race_participant.h
     server.h
     server_protocol.h
     monitor_lobby.h

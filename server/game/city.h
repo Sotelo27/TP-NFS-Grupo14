@@ -2,8 +2,8 @@
 #define CITY_H
 
 #include <vector>
-#include "physics_world.h"
-#include "../common/dto/map_config.h"
+#include "../physics_world.h"
+#include "../../common/dto/map_config.h"
 
 class City {
 private:
