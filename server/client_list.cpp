@@ -90,3 +90,13 @@ ClientListProtected::~ClientListProtected() {
 
     clients.clear();
 }
+
+std::shared_ptr<ClientHandler> ClientListProtected::get_handler_by_conn(size_t conn_id) {
+    std::lock_guard<std::mutex> lock(m);
+    for (auto& ch : clients) {
+        if (ch && ch->get_id() == conn_id) {
+            return ch;
+        }
+    }
+    return nullptr;
+}

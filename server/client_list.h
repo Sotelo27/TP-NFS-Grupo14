@@ -50,7 +50,8 @@ public:
      * Envia las posiciones de todos los jugadores a todos los clientes.
      */
     void broadcast_player_positions(const std::vector<PlayerPos>& positions);
-    void broadcast_players_list(const std::vector<PlayerInfo>& players); // NUEVO
+    void broadcast_players_list(const std::vector<PlayerInfo>& players);
+    std::shared_ptr<ClientHandler> get_handler_by_conn(size_t conn_id);
 
     /*
      * Envia la información del mapa (jugadores, NPCs, eventos) a todos los clientes
