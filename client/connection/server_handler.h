@@ -2,6 +2,8 @@
 #define SERVER_HANDLER_H
 
 #include <utility>
+#include <vector>
+#include <string>
 
 #include "../../common/queue.h"
 #include "../../common/thread.h"
@@ -52,7 +54,9 @@ public:
     void send_movement(Movement mov);
     void send_create_room();
     void send_join_room(uint8_t room_id);
-    void send_choose_car(uint8_t car_id);
+    void send_choose_car(uint8_t id_car);
+    void send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races);
+    void send_start_game(const std::string& map, uint8_t route);
     ServerMessage recv_response_from_server();
 
     ServerHandler(const ServerHandler&) = delete;

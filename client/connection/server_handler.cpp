@@ -81,9 +81,23 @@ void ServerHandler::send_join_room(uint8_t room_id) {
 
 void ServerHandler::send_choose_car(uint8_t id_car) {
     ClientMessage msg;
+    msg.type = ClientMessage::Type::ChooseCar; 
     msg.car_id = id_car;
     std::cout << "[ServerHandler] Sending choose id car " << (int)id_car << std::endl;
     messages_send.try_push(msg);
+}
+
+void ServerHandler::send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races) {
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::StartGame;
+    msg.races = races;
+    std::cout << "[ServerHandler] Sending START_GAME with " << races.size() << " race(s)" << std::endl;
+    messages_send.try_push(msg);
+}
+
+// Overload simple: una sola carrera
+void ServerHandler::send_start_game(const std::string& map, uint8_t route) {
+    send_start_game({{map, route}});
 }
 
 ServerMessage ServerHandler::recv_response_from_server() {
