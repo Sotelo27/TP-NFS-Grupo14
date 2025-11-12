@@ -45,10 +45,10 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
     QVector<CarInfoSprite> cars = {
         {CarSpriteID::CommonGreenCar, "assets/cars/cars_images/autoVerde.png"},
         {CarSpriteID::RedCar, "assets/cars/cars_images/autoRojoDeportivo.png"},
-        {CarSpriteID::RedSportsCar, "assets/cars/cars_images/autoTojoPorche.png"},
+        {CarSpriteID::RedSportsCar, "assets/cars/cars_images/autoPorcheRojo.png"},
         {CarSpriteID::SpecialCar, "assets/cars/cars_images/autoAzulClaro.png"},
         {CarSpriteID::FourByFourConvertible, "assets/cars/cars_images/jeepRojo.png"},
-        {CarSpriteID::PickupTruck, ":assets/cars/cars_images/camionetaAzul.png"},
+        {CarSpriteID::PickupTruck, "assets/cars/cars_images/camionetaAzul.png"},
         {CarSpriteID::Limousine, "assets/cars/cars_images/limusina.png"}
     };
 
