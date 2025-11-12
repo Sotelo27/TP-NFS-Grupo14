@@ -15,6 +15,7 @@ static inline uint32_t htonf32(float f) {
     std::memcpy(&u, &f, sizeof(u));
     return htonl(u);
 }
+
 static inline float ntohf32(uint32_t u) {
     u = ntohl(u);
     float f;
@@ -22,12 +23,10 @@ static inline float ntohf32(uint32_t u) {
     return f;
 }
 
-// Constructor con inicialización del dispatch
 ClientProtocol::ClientProtocol(Socket&& skt) : skt(std::move(skt)) {
     init_recv_dispatch();
 }
 
-// Dispatch
 void ClientProtocol::init_recv_dispatch() {
     recv_dispatch = {
         {CODE_S2C_OK,           [this](){ return parse_ok(); }},
@@ -41,19 +40,26 @@ void ClientProtocol::init_recv_dispatch() {
         {CODE_S2C_CAR_LIST,     [this](){ return parse_car_list(); }},
         {CODE_S2C_RACE_START,   [this](){ return parse_race_start(); }},
         {CODE_S2C_RESULTS,      [this](){ return parse_results(); }},
-        {CODE_S2C_MAP_INFO,     [this](){ return parse_map_info(); }},
+        {CODE_S2C_MAP_INFO,     [this](){ return parse_map_info(); }}
     };
 }
 
-// Parsers
 ServerMessage ClientProtocol::parse_ok() {
-    ServerMessage dto; dto.type = ServerMessage::Type::Ok; return dto;
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::Ok;
+    return dto;
 }
 
 ServerMessage ClientProtocol::parse_pos() {
-    ServerMessage dto; dto.type = ServerMessage::Type::Pos;
-    uint32_t id_be=0; uint16_t x_be=0,y_be=0; uint32_t ang_be=0;
-    skt.recvall(&id_be,4); skt.recvall(&x_be,2); skt.recvall(&y_be,2); skt.recvall(&ang_be,4);
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::Pos;
+    uint32_t id_be=0;
+    uint16_t x_be=0, y_be=0;
+    uint32_t ang_be=0;
+    skt.recvall(&id_be, 4);
+    skt.recvall(&x_be, 2);
+    skt.recvall(&y_be, 2);
+    skt.recvall(&ang_be, 4);
     dto.id = ntohl(id_be);
     dto.x = (int16_t)ntohs(x_be);
     dto.y = (int16_t)ntohs(y_be);
@@ -62,22 +68,31 @@ ServerMessage ClientProtocol::parse_pos() {
 }
 
 ServerMessage ClientProtocol::parse_rooms() {
-    ServerMessage dto; dto.type = ServerMessage::Type::Rooms;
-    uint8_t count=0; skt.recvall(&count,1);
-    dto.rooms.clear(); dto.rooms.reserve(count);
-    for(uint8_t i=0;i<count;++i){
-        RoomInfo r{}; skt.recvall(&r.id,1); skt.recvall(&r.current_players,1); skt.recvall(&r.max_players,1);
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::Rooms;
+    uint8_t count=0;
+    skt.recvall(&count, 1);
+    dto.rooms.clear();
+    dto.rooms.reserve(count);
+    for(uint8_t i=0; i<count; ++i) {
+        RoomInfo r{};
+        skt.recvall(&r.id, 1);
+        skt.recvall(&r.current_players, 1);
+        skt.recvall(&r.max_players, 1);
         dto.rooms.push_back(r);
     }
     return dto;
 }
 
 ServerMessage ClientProtocol::parse_player_name() {
-    ServerMessage dto; dto.type = ServerMessage::Type::PlayerName;
-    uint32_t id_be=0; uint16_t len_be=0;
-    skt.recvall(&id_be,4); skt.recvall(&len_be,2);
-    uint16_t len=ntohs(len_be);
-    std::string name(len,'\0');
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::PlayerName;
+    uint32_t id_be=0;
+    uint16_t len_be=0;
+    skt.recvall(&id_be, 4);
+    skt.recvall(&len_be, 2);
+    uint16_t len = ntohs(len_be);
+    std::string name(len, '\0');
     if(len) skt.recvall(&name[0], len);
     dto.id = ntohl(id_be);
     dto.username = std::move(name);
@@ -85,88 +100,163 @@ ServerMessage ClientProtocol::parse_player_name() {
 }
 
 ServerMessage ClientProtocol::parse_your_id() {
-    ServerMessage dto; dto.type = ServerMessage::Type::YourId;
-    uint32_t id_be=0; skt.recvall(&id_be,4); dto.id = ntohl(id_be);
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::YourId;
+    uint32_t id_be=0;
+    skt.recvall(&id_be, 4);
+    dto.id = ntohl(id_be);
     return dto;
 }
 
 ServerMessage ClientProtocol::parse_room_created() {
-    ServerMessage dto; dto.type = ServerMessage::Type::RoomCreated;
-    uint8_t room_id=0; skt.recvall(&room_id,1); dto.id = room_id;
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::RoomCreated;
+    uint8_t room_id=0;
+    skt.recvall(&room_id, 1);
+    dto.id = room_id;
     return dto;
 }
 
 ServerMessage ClientProtocol::parse_players_list() {
-    ServerMessage dto; dto.type = ServerMessage::Type::PlayersList;
-    uint8_t count=0; skt.recvall(&count,1);
-    dto.players.clear(); dto.players.reserve(count);
-    for(uint8_t i=0;i<count;++i){
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::PlayersList;
+    uint8_t count=0;
+    skt.recvall(&count, 1);
+    dto.players.clear();
+    dto.players.reserve(count);
+    
+    for(uint8_t i=0; i<count; ++i) {
         PlayerInfo p{};
-        uint32_t id_be=0; skt.recvall(&id_be,4); p.player_id = ntohl(id_be);
-        uint16_t len_be=0; skt.recvall(&len_be,2); uint16_t len=ntohs(len_be);
+        uint32_t id_be=0;
+        skt.recvall(&id_be, 4);
+        p.player_id = ntohl(id_be);
+        
+        uint16_t len_be=0;
+        skt.recvall(&len_be, 2);
+        uint16_t len = ntohs(len_be);
         p.username.resize(len);
         if(len) skt.recvall(&p.username[0], len);
-        uint8_t ready=0; skt.recvall(&ready,1); p.is_ready = (ready!=0);
-        uint8_t health=0; skt.recvall(&health,1); p.health = health;
-        uint32_t time_be=0; skt.recvall(&time_be,4); p.race_time_ms = ntohl(time_be);
+        
+        uint8_t ready=0;
+        skt.recvall(&ready, 1);
+        p.is_ready = (ready != 0);
+        
+        uint8_t health=0;
+        skt.recvall(&health, 1);
+        p.health = health;
+        
+        uint32_t time_be=0;
+        skt.recvall(&time_be, 4);
+        p.race_time_ms = ntohl(time_be);
+        
         dto.players.push_back(p);
-        std::cout << "[ClientProtocol] Player " << p.player_id << " '" << p.username
-                  << "' health=" << (int)p.health << " time=" << p.race_time_ms << "ms\n";
     }
+    
     std::cout << "[ClientProtocol] Received PLAYERS_LIST with " << (int)count << " players\n";
     return dto;
 }
 
 ServerMessage ClientProtocol::parse_game_over() {
-    ServerMessage dto; dto.type = ServerMessage::Type::GameOver; return dto;
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::GameOver;
+    return dto;
 }
 
 ServerMessage ClientProtocol::parse_car_list() {
-    ServerMessage dto; dto.type = ServerMessage::Type::Unknown; // no se setea en versión original
-    uint8_t count=0; skt.recvall(&count,1);
-    for(uint8_t i=0;i<count;++i){ uint8_t tmp[6]; skt.recvall(tmp,sizeof(tmp)); }
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::Unknown;
+    uint8_t count=0;
+    skt.recvall(&count, 1);
+    for(uint8_t i=0; i<count; ++i) {
+        uint8_t tmp[6];
+        skt.recvall(tmp, sizeof(tmp));
+    }
     return dto;
 }
 
 ServerMessage ClientProtocol::parse_race_start() {
-    ServerMessage dto; dto.type = ServerMessage::Type::Unknown; // no se setea antes
-    uint16_t len_be=0; skt.recvall(&len_be,2); uint16_t len=ntohs(len_be);
-    std::string map(len,'\0'); if(len) skt.recvall(&map[0], len);
-    uint8_t amount=0; skt.recvall(&amount,1);
-    for(uint8_t i=0;i<amount;++i){
-        uint32_t x_be=0,y_be=0; skt.recvall(&x_be,4); skt.recvall(&y_be,4);
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::RaceStart;
+    
+    uint16_t len_be=0;
+    skt.recvall(&len_be, 2);
+    uint16_t len = ntohs(len_be);
+    std::string map_name(len, '\0');
+    if(len > 0) {
+        skt.recvall(&map_name[0], len);
     }
+    
+    uint8_t amount=0;
+    skt.recvall(&amount, 1);
+    
+    for(uint8_t i=0; i<amount; ++i) {
+        int32_t x_be=0, y_be=0;
+        skt.recvall(&x_be, 4);
+        skt.recvall(&y_be, 4);
+    }
+    
+    std::cout << "[ClientProtocol] RaceStart recibido: mapa=" << map_name 
+              << ", checkpoints=" << (int)amount << std::endl;
+    
     return dto;
 }
 
 ServerMessage ClientProtocol::parse_results() {
-    ServerMessage dto; dto.type = ServerMessage::Type::Unknown; // igual que antes
-    uint8_t n=0; skt.recvall(&n,1);
-    for(uint8_t i=0;i<n;++i){
-        uint16_t lbe=0; skt.recvall(&lbe,2); uint16_t l=ntohs(lbe);
-        std::string name(l,'\0'); if(l) skt.recvall(&name[0], l);
-        uint16_t time_be=0; skt.recvall(&time_be,2);
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::Unknown;
+    uint8_t n=0;
+    skt.recvall(&n, 1);
+    
+    for(uint8_t i=0; i<n; ++i) {
+        uint16_t lbe=0;
+        skt.recvall(&lbe, 2);
+        uint16_t l = ntohs(lbe);
+        std::string name(l, '\0');
+        if(l) skt.recvall(&name[0], l);
+        uint16_t time_be=0;
+        skt.recvall(&time_be, 2);
     }
-    for(uint8_t i=0;i<n;++i){
-        uint16_t lbe=0; skt.recvall(&lbe,2); uint16_t l=ntohs(lbe);
-        std::string name(l,'\0'); if(l) skt.recvall(&name[0], l);
-        uint32_t tbe=0; skt.recvall(&tbe,4);
+    
+    for(uint8_t i=0; i<n; ++i) {
+        uint16_t lbe=0;
+        skt.recvall(&lbe, 2);
+        uint16_t l = ntohs(lbe);
+        std::string name(l, '\0');
+        if(l) skt.recvall(&name[0], l);
+        uint32_t tbe=0;
+        skt.recvall(&tbe, 4);
     }
     return dto;
 }
 
 ServerMessage ClientProtocol::parse_map_info() {
-    ServerMessage dto; dto.type = ServerMessage::Type::MapInfo;
-    dto.players_tick.clear(); dto.npcs_tick.clear(); dto.events_tick.clear();
-    uint8_t np=0; skt.recvall(&np,1);
-    for(uint8_t i=0;i<np;++i){
-        uint16_t lbe=0; skt.recvall(&lbe,2); uint16_t l=ntohs(lbe);
-        std::string user(l,'\0'); if(l) skt.recvall(&user[0], l);
-        uint8_t car=0; skt.recvall(&car,1);
-        uint32_t pid_be=0; skt.recvall(&pid_be,4);
-        uint32_t x_be=0,y_be=0; skt.recvall(&x_be,4); skt.recvall(&y_be,4);
-        uint32_t ang_be=0; skt.recvall(&ang_be,4);
-        uint8_t health=0; skt.recvall(&health,1);
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::MapInfo;
+    dto.players_tick.clear();
+    dto.npcs_tick.clear();
+    dto.events_tick.clear();
+    
+    uint8_t np=0;
+    skt.recvall(&np, 1);
+    for(uint8_t i=0; i<np; ++i) {
+        uint16_t lbe=0;
+        skt.recvall(&lbe, 2);
+        uint16_t l = ntohs(lbe);
+        std::string user(l, '\0');
+        if(l) skt.recvall(&user[0], l);
+        
+        uint8_t car=0;
+        skt.recvall(&car, 1);
+        uint32_t pid_be=0;
+        skt.recvall(&pid_be, 4);
+        uint32_t x_be=0, y_be=0;
+        skt.recvall(&x_be, 4);
+        skt.recvall(&y_be, 4);
+        uint32_t ang_be=0;
+        skt.recvall(&ang_be, 4);
+        uint8_t health=0;
+        skt.recvall(&health, 1);
+        
         PlayerTickInfo pti;
         pti.username = std::move(user);
         pti.car_id = car;
@@ -177,36 +267,51 @@ ServerMessage ClientProtocol::parse_map_info() {
         pti.health = health;
         dto.players_tick.push_back(std::move(pti));
     }
-    uint8_t nn=0; skt.recvall(&nn,1);
-    for(uint8_t i=0;i<nn;++i){
-        uint8_t npcid=0; skt.recvall(&npcid,1);
-        uint32_t x_be=0,y_be=0; skt.recvall(&x_be,4); skt.recvall(&y_be,4);
+    
+    uint8_t nn=0;
+    skt.recvall(&nn, 1);
+    for(uint8_t i=0; i<nn; ++i) {
+        uint8_t npcid=0;
+        skt.recvall(&npcid, 1);
+        uint32_t x_be=0, y_be=0;
+        skt.recvall(&x_be, 4);
+        skt.recvall(&y_be, 4);
         NpcTickInfo nti;
         nti.npc_id = npcid;
         nti.x = (int32_t)ntohl(x_be);
         nti.y = (int32_t)ntohl(y_be);
         dto.npcs_tick.push_back(nti);
     }
-    uint8_t ne=0; skt.recvall(&ne,1);
-    for(uint8_t i=0;i<ne;++i){
-        uint8_t et=0; skt.recvall(&et,1);
-        uint16_t lbe=0; skt.recvall(&lbe,2); uint16_t l=ntohs(lbe);
-        std::string user(l,'\0'); if(l) skt.recvall(&user[0], l);
-        EventInfo ei; ei.event_type = et; ei.username = std::move(user);
+    
+    uint8_t ne=0;
+    skt.recvall(&ne, 1);
+    for(uint8_t i=0; i<ne; ++i) {
+        uint8_t et=0;
+        skt.recvall(&et, 1);
+        uint16_t lbe=0;
+        skt.recvall(&lbe, 2);
+        uint16_t l = ntohs(lbe);
+        std::string user(l, '\0');
+        if(l) skt.recvall(&user[0], l);
+        EventInfo ei;
+        ei.event_type = et;
+        ei.username = std::move(user);
         dto.events_tick.push_back(std::move(ei));
     }
     return dto;
 }
 
-// Receive usando dispatch 
 ServerMessage ClientProtocol::receive() {
-    ServerMessage dto; dto.type = ServerMessage::Type::Unknown;
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::Unknown;
     uint8_t code=0;
-    int r = skt.recvall(&code,1);
-    if (r==0) return dto;
+    int r = skt.recvall(&code, 1);
+    if(r == 0) return dto;
+    
     auto it = recv_dispatch.find(code);
-    if (it != recv_dispatch.end())
+    if(it != recv_dispatch.end()) {
         return it->second();
+    }
     return dto;
 }
 
@@ -214,18 +319,19 @@ void ClientProtocol::send_name(const std::string& username) {
     uint8_t code = CODE_C2S_NAME;
     uint16_t len = (uint16_t)username.size();
     uint16_t len_be = htons(len);
-
+    
     std::vector<uint8_t> buf;
     buf.reserve(1 + 2 + username.size());
-
     buf.push_back(code);
+    
     size_t off = buf.size();
     buf.resize(off + 2);
     std::memcpy(buf.data() + off, &len_be, 2);
-    if (len > 0) {
+    
+    if(len > 0) {
         buf.insert(buf.end(), username.begin(), username.end());
     }
-
+    
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
@@ -253,27 +359,29 @@ void ClientProtocol::send_join_room(uint8_t room_id) {
 void ClientProtocol::send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races) {
     uint8_t code = CODE_C2S_START_GAME;
     uint8_t qty = (uint8_t)races.size();
-
+    
     std::vector<uint8_t> buf;
-    buf.reserve(2);
+    buf.reserve(2 + races.size() * 50);
     buf.push_back(code);
     buf.push_back(qty);
-
-    for (const auto& r : races) {
-        const std::string& map = r.first;
-        uint8_t route = r.second;
-        uint16_t len = (uint16_t)map.size();
+    
+    for(const auto& race : races) {
+        uint16_t len = (uint16_t)race.first.size();
         uint16_t len_be = htons(len);
-
-        size_t old = buf.size();
-        buf.resize(old + 2);
-        std::memcpy(buf.data() + old, &len_be, 2);
-        if (len > 0) {
-            buf.insert(buf.end(), map.begin(), map.end());
+        
+        size_t off = buf.size();
+        buf.resize(off + 2);
+        std::memcpy(buf.data() + off, &len_be, 2);
+        
+        if(len > 0) {
+            off = buf.size();
+            buf.resize(off + race.first.size());
+            std::memcpy(buf.data() + off, race.first.data(), race.first.size());
         }
-        buf.push_back(route);
+        
+        buf.push_back(race.second);
     }
-
+    
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
