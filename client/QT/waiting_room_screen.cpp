@@ -12,32 +12,63 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
     QLabel* title = new QLabel("Sala de Espera", this);
-    title->setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 10px;");
+    title->setAlignment(Qt::AlignCenter);
+    title->setStyleSheet(
+        "font-size: 26px; font-weight: 900; letter-spacing: 1px;"
+        "color: #FF00C8; padding: 8px 6px;"
+        "border-bottom: 2px solid rgba(255,0,200,0.35);"
+    );
     mainLayout->addWidget(title);
 
     scrollArea = new QScrollArea(this);
+    scrollArea->setStyleSheet(
+        "QScrollArea { background-color: rgba(10,0,25,0.60); border: none; }"
+    );
     container = new QWidget(this);
     layout = new QVBoxLayout(container);
+    layout->setContentsMargins(10,10,10,10);
+    layout->setSpacing(8);
     container->setLayout(layout);
     scrollArea->setWidget(container);
     scrollArea->setWidgetResizable(true);
     mainLayout->addWidget(scrollArea);
 
-    QPushButton* startButton = new QPushButton("Iniciar partida");
-    startButton->setStyleSheet("padding: 10px; background-color: #0078D7; color: black;");
+    QPushButton* startButton = new QPushButton("INICIAR PARTIDA");
+    startButton->setCursor(Qt::PointingHandCursor);
+    startButton->setStyleSheet(
+        "QPushButton {"
+        "  font-size: 18px; font-weight: 800; letter-spacing: 1px;"
+        "  color: #0afff7; padding: 12px 24px;"
+        "  background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #7300FF, stop:1 #FF00C8);"
+        "  border: 3px solid rgba(255,255,255,0.35); border-radius: 14px;"
+        "}"
+        "QPushButton:hover {"
+        "  background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #FF00C8, stop:1 #00FFE2);"
+        "}"
+        "QPushButton:pressed { background:#280040; }"
+    );
     connect(startButton, &QPushButton::clicked, [this]() {
         std::cout << "[WaitingRoomWindow] Iniciando partida..." << std::endl;
         emit go_to_game_start();
     });
-    mainLayout->addWidget(startButton);
+    mainLayout->addWidget(startButton, 0, Qt::AlignCenter);
 
-    // 🔹 nuevo botón para volver al lobby
-    QPushButton* backButton = new QPushButton("Volver al lobby");
-    backButton->setStyleSheet("padding: 10px; background-color: #d9534f; color: black;");
+    QPushButton* backButton = new QPushButton("VOLVER AL LOBBY");
+    backButton->setCursor(Qt::PointingHandCursor);
+    backButton->setStyleSheet(
+        "QPushButton {"
+        "  font-size: 14px; font-weight: 700;"
+        "  color: #FF00C8; padding: 8px 18px;"
+        "  background-color: rgba(20,0,45,0.70);"
+        "  border: 2px solid #7D00FF; border-radius: 10px;"
+        "}"
+        "QPushButton:hover { border-color:#FF00C8; color:#00FFE2; }"
+        "QPushButton:pressed { background:#280040; }"
+    );
     connect(backButton, &QPushButton::clicked, this, [this]() {
-        emit go_back_to_lobby_screen(); // emite señal al LobbyWindow
+        emit go_back_to_lobby_screen();
     });
-    mainLayout->addWidget(backButton);
+    mainLayout->addWidget(backButton, 0, Qt::AlignCenter);
 
     setLayout(mainLayout);
 
@@ -67,34 +98,29 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
             break;
 
         case ServerMessage::Type::PlayersList: {
-            // Limpiamos los bloques anteriores de jugadores
             QLayoutItem* item;
             while ((item = layout->takeAt(0)) != nullptr) {
                 if (item->widget()) item->widget()->deleteLater();
                 delete item;
             }
-
-            // Agregamos un QLabel para cada jugador
             for (const auto& player : msg.players) {
                 QLabel* playerLabel = new QLabel(QString::fromStdString(player.username), this);
                 playerLabel->setStyleSheet(
-                    "background-color: #e0e0e0; "
-                    "padding: 8px; "
-                    "margin: 4px; "
-                    "border-radius: 5px; "
-                    "font-size: 16px;"
+                    "QLabel {"
+                    "  font-size: 14px; font-weight: 700; color:#E3E3FF;"
+                    "  background-color: rgba(20,0,45,0.70);"
+                    "  padding: 8px 12px; border: 2px solid #7D00FF;"
+                    "  border-radius: 10px;"
+                    "}"
+                    "QLabel:hover { border-color:#FF00C8; }"
                 );
                 layout->addWidget(playerLabel);
-
                 std::cout << "[WaitingRoomWindow] Jugador recibido: "
                           << player.username << " (id=" << player.player_id << ")" << std::endl;
             }
-
-            layout->addStretch(); // empuja los bloques hacia arriba
+            layout->addStretch();
             break;
         }
-
-
         default:
             break;
     }
