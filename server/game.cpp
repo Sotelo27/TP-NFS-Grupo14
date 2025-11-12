@@ -96,6 +96,15 @@ void Game::set_player_name(size_t id, std::string name) {
     players.at(id).set_name(std::move(name));
 }
 
+std::string Game::get_player_name(size_t id) const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
+    auto it = players.find(id);
+    if (it == players.end()) {
+        throw_jugador_no_existe(id);
+    }
+    return it->second.get_name();
+}
+
 uint8_t Game::get_player_health(size_t id) const {
     std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
     auto it = players.find(id);

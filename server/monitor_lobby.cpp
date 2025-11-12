@@ -228,7 +228,7 @@ std::vector<PlayerInfo> MonitorLobby::get_players_in_room_locked(uint8_t room_id
     for (const auto& [conn_id, bind] : bindings) {
         if (bind.first == room_id) {
             size_t player_id = bind.second;
-            std::string username = "Player_" + std::to_string(player_id);
+            std::string username = itr->second.game.get_player_name(player_id);
             
             // Obtener vida y tiempo del Game si está disponible
             uint8_t health = 100;  // Valor por defecto

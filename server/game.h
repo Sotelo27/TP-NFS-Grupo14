@@ -86,6 +86,11 @@ public:
     void set_player_name(size_t id, std::string name);
 
     /*
+     * Obtiene el nombre del jugador
+     */
+    std::string get_player_name(size_t id) const;
+
+    /*
      * Obtiene la vida del jugador (0-100)
      * Retorna 100 por defecto si no está implementado
      */
