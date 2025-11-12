@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "../common/constants.h"
+#include "../../common/constants.h"
 
 #define SERVER_HZ 60
 #define BROADCAST_HZ 30

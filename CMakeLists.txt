@@ -167,6 +167,8 @@ if(TALLER_SERVER)
     add_subdirectory(server)
     add_subdirectory(server/map)
     add_subdirectory(server/Player)
+    add_subdirectory(server/physics)
+    add_subdirectory(server/game)
 
     set_project_warnings(taller_server ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 

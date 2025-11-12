@@ -8,14 +8,14 @@
 #include <utility>
 #include <vector>
 
-#include "../common/dto/movement.h"
-#include "../common/player_aux.h"
+#include "../../common/dto/movement.h"
+#include "../../common/player_aux.h"
 
-#include "Player/player.h"
+#include "../Player/player.h"
 #include "race.h"
 #include "city.h"
-#include "../common/dto/map_config.h"
-#include "../common/dto/map_tick_info.h"
+#include "../../common/dto/map_config.h"
+#include "../../common/dto/map_tick_info.h"
 
 class Game {
 private:
