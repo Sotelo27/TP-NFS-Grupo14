@@ -24,37 +24,37 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
     // Título
     QLabel* titleLabel = new QLabel("Salas Disponibles", this);
     titleLabel->setStyleSheet(
-        "font-size: 26px; font-weight: 900; letter-spacing: 1px;"
-        "color: #FF00C8; padding: 8px 6px;"
-        "border-bottom: 2px solid rgba(255,0,200,0.35);"
+        "font-size: 24px; font-weight: 700;"
+        "color: #B27CE8; padding: 8px;"
+        "background-color: rgba(255,255,255,0.35);"
+        "border: 1px solid rgba(178,124,232,0.4); border-radius: 10px;"
     );
     mainLayout->addWidget(titleLabel);
 
-    // Botón crear sala (estilo vaporwave)
-    QPushButton* createButton = new QPushButton("CREAR NUEVA SALA");
-    createButton->setCursor(Qt::PointingHandCursor);
+    // Botón crear sala 
+    QPushButton* createButton = new QPushButton("Crear nueva sala");
     createButton->setStyleSheet(
         "QPushButton {"
-        "  font-size: 18px; font-weight: 800; letter-spacing: 1px;"
-        "  color: #0afff7;"
-        "  padding: 10px 18px;"
-        "  background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #7300FF, stop:1 #FF00C8);"
-        "  border: 3px solid rgba(255,255,255,0.35);"
-        "  border-radius: 12px;"
+        "  font-size: 16px; font-weight: 600;"
+        "  color: #3B3B44;"
+        "  padding: 8px 18px;"
+        "  background: linear-gradient(135deg, rgba(255,159,217,0.55), rgba(178,124,232,0.55));"
+        "  border: 2px solid rgba(178,124,232,0.45);"
+        "  border-radius: 10px;"
         "}"
         "QPushButton:hover {"
-        "  background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #FF00C8, stop:1 #00FFE2);"
+        "  background: linear-gradient(135deg, rgba(255,159,217,0.70), rgba(120,230,224,0.65));"
         "}"
-        "QPushButton:pressed {"
-        "  background:#280040;"
-        "}"
+        "QPushButton:pressed { background: rgba(178,124,232,0.55); }"
     );
     connect(createButton, &QPushButton::clicked, this, &LobbyScreen::create_new_room);
     mainLayout->addWidget(createButton, 0, Qt::AlignLeft);
 
     // Área de scroll para salas (tono oscuro sin imagen)
     scrollArea = new QScrollArea(this);
-    scrollArea->setStyleSheet("QScrollArea { background-color: rgba(10,0,25,0.60); border: none; }");
+    scrollArea->setStyleSheet(
+        "QScrollArea { background-color: rgba(240,240,245,0.55); border: 1px solid rgba(178,124,232,0.35); border-radius: 12px; }"
+    );
     container = new QWidget();
     layout = new QVBoxLayout(container);
     layout->setContentsMargins(10, 10, 10, 10);
@@ -65,10 +65,9 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
     mainLayout->addWidget(scrollArea);
 
     QLabel* emptyLabel = new QLabel("No hay salas disponibles. ¡Crea una!", this);
-    emptyLabel->setAlignment(Qt::AlignCenter);
     emptyLabel->setStyleSheet(
-        "font-size: 14px; font-weight: 700;"
-        "color: #FF00C8; padding: 16px;"
+        "font-size: 14px; font-weight: 600;"
+        "color: #B27CE8; padding: 14px;"
     );
     layout->addWidget(emptyLabel);
 
@@ -122,10 +121,9 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
 
     if (rooms.empty()) {
         QLabel* emptyLabel = new QLabel("No hay salas disponibles. ¡Crea una!");
-        emptyLabel->setAlignment(Qt::AlignCenter);
         emptyLabel->setStyleSheet(
-            "font-size: 14px; font-weight: 700;"
-            "color: #FF00C8; padding: 16px;"
+            "font-size: 14px; font-weight: 600;"
+            "color: #B27CE8; padding: 14px;"
         );
         layout->addWidget(emptyLabel);
     } else {
@@ -133,13 +131,11 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
             QWidget* row = new QWidget();
             row->setStyleSheet(
                 "QWidget {"
-                "  background-color: rgba(20,0,45,0.70);"
-                "  padding: 10px; margin: 5px; border: 2px solid #7D00FF;"
+                "  background-color: rgba(255,255,255,0.70);"
+                "  padding: 8px; margin: 4px; border: 1px solid rgba(178,124,232,0.45);"
                 "  border-radius: 10px;"
                 "}"
-                "QWidget:hover {"
-                "  border-color: #FF00C8;"
-                "}"
+                "QWidget:hover { border-color: rgba(255,159,217,0.65); }"
             );
             QHBoxLayout* rowLayout = new QHBoxLayout(row);
             rowLayout->setContentsMargins(8, 6, 8, 6);
@@ -151,31 +147,28 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
 
             QLabel* roomInfo = new QLabel(info);
             roomInfo->setStyleSheet(
-                "font-size: 14px; font-weight: 800; color: #E3E3FF;"
+                "font-size: 13px; font-weight: 600; color: #3B3B44;"
             );
             rowLayout->addWidget(roomInfo);
 
-            QPushButton* enterButton = new QPushButton("INGRESAR");
-            enterButton->setCursor(Qt::PointingHandCursor);
+            QPushButton* enterButton = new QPushButton("Ingresar");
             enterButton->setStyleSheet(
                 "QPushButton {"
-                "  font-size: 14px; font-weight: 800; letter-spacing: 1px;"
-                "  color: #0afff7;"
+                "  font-size: 13px; font-weight: 600;"
+                "  color: #3B3B44;"
                 "  padding: 6px 14px;"
-                "  background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #7300FF, stop:1 #FF00C8);"
-                "  border: 2px solid rgba(255,255,255,0.35);"
-                "  border-radius: 10px;"
+                "  background: linear-gradient(135deg, rgba(255,159,217,0.50), rgba(178,124,232,0.50));"
+                "  border: 2px solid rgba(178,124,232,0.40);"
+                "  border-radius: 8px;"
                 "}"
                 "QPushButton:hover {"
-                "  background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #FF00C8, stop:1 #00FFE2);"
+                "  background: linear-gradient(135deg, rgba(255,159,217,0.65), rgba(120,230,224,0.60));"
                 "}"
-                "QPushButton:pressed {"
-                "  background:#280040;"
-                "}"
+                "QPushButton:pressed { background: rgba(178,124,232,0.50); }"
                 "QPushButton:disabled {"
-                "  color: rgba(200,200,200,0.4);"
-                "  background: rgba(100,100,100,0.25);"
-                "  border: 2px solid rgba(255,255,255,0.15);"
+                "  color: rgba(90,90,90,0.4);"
+                "  background: rgba(200,200,205,0.35);"
+                "  border: 2px solid rgba(178,124,232,0.20);"
                 "}"
             );
             enterButton->setEnabled(room.current_players < room.max_players);
