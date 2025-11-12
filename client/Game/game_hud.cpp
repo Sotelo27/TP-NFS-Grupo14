@@ -21,43 +21,8 @@ GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_
         life_bar_sprites(window),
         car_sprites(car_sprites),
         speed_hud(window),
-        position_hud(window) {}
-
-void GameHud::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
-                                  int mini_map_height) {
-    int border = 4;
-    Rgb color(0, 0, 0, 255);
-
-    Area top(x_dest_mini_map - border, y_dest_mini_map - border, mini_map_width + border * 2,
-             border);
-    Area bottom(x_dest_mini_map - border, y_dest_mini_map + mini_map_height,
-                mini_map_width + border * 2, border);
-    Area left(x_dest_mini_map - border, y_dest_mini_map, border, mini_map_height);
-    Area right(x_dest_mini_map + mini_map_width, y_dest_mini_map, border, mini_map_height);
-
-    SdlDrawFill draw_fill(window);
-    draw_fill.fill(top, color);
-    draw_fill.fill(bottom, color);
-    draw_fill.fill(left, color);
-    draw_fill.fill(right, color);
-}
-
-void GameHud::renderPositionMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
-                                    int mini_map_height) {
-    const PlayerTickInfo& info_my_car = info_players[client_id].info_car;
-    int x_car_mini_map =
-            x_dest_mini_map + (info_my_car.x * mini_map_width) / map_manager.getCurrentMapWidth();
-    int y_car_mini_map =
-            y_dest_mini_map + (info_my_car.y * mini_map_height) / map_manager.getCurrentMapHeight();
-
-    int size_car_point = 16;
-    Area car_dest_area_mini_map(x_car_mini_map - (size_car_point / 2),
-                                y_car_mini_map - (size_car_point / 2), size_car_point,
-                                size_car_point);
-    SdlObjTexture car_mini_map(POINT_RED, window, Rgb(0, 0, 0));
-    car_mini_map.renderEntity(Area(0, 0, car_mini_map.getWidth(), car_mini_map.getHeight()),
-                              car_dest_area_mini_map, info_my_car.angle);
-}
+        position_hud(window),
+        mini_map(client_id, window, map_manager, info_players) {}
 
 void GameHud::renderMiniMap() {
     int y_dest_mini_map = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
@@ -66,14 +31,7 @@ void GameHud::renderMiniMap() {
     int mini_map_height =
             mini_map_width * map_manager.getCurrentMapHeight() / map_manager.getCurrentMapWidth();
 
-    Area src_mini_map_area(0, 0, map_manager.getCurrentMapWidth(),
-                           map_manager.getCurrentMapHeight());
-    Area dest_mini_map_area(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
-    map_manager.render(src_mini_map_area, dest_mini_map_area);
-
-    renderMiniMapBorder(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
-
-    renderPositionMiniMap(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
+    mini_map.render(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
 }
 
 void GameHud::renderLifeBarHud() {
