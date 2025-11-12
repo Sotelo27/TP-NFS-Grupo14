@@ -7,6 +7,7 @@
 #include <QPixmap>
 #include <QDebug>
 #include <QFile>
+#include <QLabel> // agregado
 #include "../../common/enum/car_enum.h"
 
 struct CarInfoSprite {
@@ -17,9 +18,22 @@ struct CarInfoSprite {
 SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* parent)
     : QWidget(parent), server_handler(server_handler)
 {
-
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
+
+    // Título estilizado (sin fondo de imagen)
+    QLabel* title = new QLabel("Seleccioná tu auto", this);
+    title->setAlignment(Qt::AlignCenter);
+    title->setStyleSheet(
+        "font-size: 24px; font-weight: 800; letter-spacing: 1px;"
+        "color: #FF00C8;"
+        "padding: 6px 10px; border-bottom: 2px solid rgba(255,0,200,0.35);"
+    );
+    mainLayout->addWidget(title);
+
     QGridLayout* gridLayout = new QGridLayout();
+    gridLayout->setContentsMargins(20, 10, 20, 10);
+    gridLayout->setHorizontalSpacing(16);
+    gridLayout->setVerticalSpacing(16);
     mainLayout->addLayout(gridLayout);
 
     QButtonGroup* buttonGroup = new QButtonGroup(this);
@@ -44,6 +58,22 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
         btn->setCheckable(true);
         btn->setIcon(QIcon(cars[i].imagePath));
         btn->setIconSize(QSize(200, 120));
+        btn->setFixedSize(220, 140);
+        // Estilo vaporwave para cada tarjeta de auto
+        btn->setStyleSheet(
+            "QPushButton {"
+            "  background-color: rgba(10,0,25,0.60);"
+            "  border: 2px solid #7D00FF;"
+            "  border-radius: 12px;"
+            "}"
+            "QPushButton:hover {"
+            "  border-color: #FF00C8;"
+            "}"
+            "QPushButton:checked {"
+            "  border: 3px solid #00FFE2;"
+            "  background-color: rgba(20,0,45,0.70);"
+            "}"
+        );
 
         gridLayout->addWidget(btn, row, col);
         buttonGroup->addButton(btn, i);
@@ -54,8 +84,27 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
         }
     }
 
+    mainLayout->addSpacing(12);
+
     QPushButton* listoBtn = new QPushButton("Listo", this);
-    mainLayout->addWidget(listoBtn);
+    // Estilo vaporwave para botón primario
+    listoBtn->setStyleSheet(
+        "QPushButton {"
+        "  font-size: 18px; font-weight: 800; letter-spacing: 2px;"
+        "  color: #0afff7;"
+        "  padding: 12px 26px;"
+        "  background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #7300FF, stop:1 #FF00C8);"
+        "  border: 3px solid rgba(255,255,255,0.35);"
+        "  border-radius: 14px;"
+        "}"
+        "QPushButton:hover {"
+        "  background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #FF00C8, stop:1 #00FFE2);"
+        "}"
+        "QPushButton:pressed {"
+        "  background:#280040;"
+        "}"
+    );
+    mainLayout->addWidget(listoBtn, 0, Qt::AlignCenter);
 
     connect(listoBtn, &QPushButton::clicked, [this, buttonGroup, cars]() {
         int id = buttonGroup->checkedId();
