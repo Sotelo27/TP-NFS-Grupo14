@@ -50,10 +50,13 @@ void GameHud::renderPositionMiniMap(int x_dest_mini_map, int y_dest_mini_map, in
     int y_car_mini_map =
             y_dest_mini_map + (info_my_car.y * mini_map_height) / map_manager.getCurrentMapHeight();
 
-    Area car_area_mini_map(x_car_mini_map - 5, y_car_mini_map - 5, 10, 10);
+    int size_car_point = 16;
+    Area car_dest_area_mini_map(x_car_mini_map - (size_car_point / 2),
+                                y_car_mini_map - (size_car_point / 2), size_car_point,
+                                size_car_point);
     SdlObjTexture car_mini_map(POINT_RED, window, Rgb(0, 0, 0));
     car_mini_map.renderEntity(Area(0, 0, car_mini_map.getWidth(), car_mini_map.getHeight()),
-                              car_area_mini_map, info_my_car.angle);
+                              car_dest_area_mini_map, info_my_car.angle);
 }
 
 void GameHud::renderMiniMap() {
@@ -96,8 +99,7 @@ void GameHud::render() {
 
     speed_hud.render(999, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);
 
-    position_hud.render(3, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD,
-                        SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    position_hud.render(3, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
     time_hud.render(600, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
