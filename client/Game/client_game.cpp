@@ -117,6 +117,9 @@ void ClientGame::update_state_from_position() {
             }
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
+            this->running = false;
+            std::cout << "[ClientGame] Received Unknown message from server, probably disconnected. Exiting..."
+                      << std::endl;
         }
         msg_count++;
     }

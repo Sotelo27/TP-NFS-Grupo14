@@ -106,6 +106,6 @@ ServerMessage ServerHandler::recv_response_from_server() {
         std::cout << "[ServerHandler] Received message type: " << (int)msg.type << std::endl;
         return msg;
     }
-    msg.type = ServerMessage::Type::Unknown;
+    msg.type = ServerMessage::Type::Empty;
     return msg;
 }

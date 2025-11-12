@@ -23,7 +23,8 @@ struct ServerMessage {
         PlayersList,
         GameOver,
         MapInfo,
-        RaceStart // NUEVO: para indicar inicio de carrera
+        RaceStart, // NUEVO: para indicar inicio de carrera
+        Empty
     };
 
     Type type;

@@ -14,23 +14,18 @@ void ServerThreadRecv::run() {
             std::cout.flush();
             
             ServerMessage msg = protocol.receive();
-            
-            std::cout << "[ServerThreadRecv] protocol.receive() returned, type=" << (int)msg.type << std::endl;
-            std::cout.flush();
-            
-            if (protocol.is_recv_closed()) {
-                std::cout << "[ServerThreadRecv] Connection closed by server" << std::endl;
-                std::cout.flush();
-                break;
-            }
 
             std::cout << "[ServerThreadRecv] Received message type=" << (int)msg.type << std::endl;
             std::cout.flush();
             
-            if (msg.type != ServerMessage::Type::Unknown) {
-                server_actions.push(msg);
-                std::cout << "[ServerThreadRecv] Pushed message to queue" << std::endl;
+            server_actions.push(msg);
+            std::cout << "[ServerThreadRecv] Pushed message to queue" << std::endl;
+            std::cout.flush();
+
+            if (protocol.is_recv_closed()) {
+                std::cout << "[ServerThreadRecv] Connection closed by server" << std::endl;
                 std::cout.flush();
+                break;
             }
         } catch (const std::exception& e) {
             if (!should_keep_running()) {
