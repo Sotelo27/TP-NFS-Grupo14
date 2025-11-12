@@ -22,7 +22,8 @@ struct ServerMessage {
         PlayerName,
         PlayersList,
         GameOver,
-        MapInfo
+        MapInfo,
+        RaceStart // NUEVO: para indicar inicio de carrera
     };
 
     Type type;
@@ -42,7 +43,7 @@ struct ServerMessage {
     ServerMessage();
 };
 
-enum class ServerOutType {
+enum class ServerOutType : uint8_t {
     Ok,
     Pos,
     YourId,
@@ -57,7 +58,7 @@ enum class ServerOutType {
 };
 
 struct ServerOutMsg {
-    ServerOutType type{ServerOutType::Ok};
+    ServerOutType type = ServerOutType::Ok;
 
     // Payloads básicos
     uint32_t id{0};
@@ -75,8 +76,7 @@ struct ServerOutMsg {
 
     // RaceStart
     std::string map_name;
-    uint8_t amount_checkpoints{0};
-    std::vector<std::pair<int32_t,int32_t>> checkpoints;
+    std::vector<std::pair<int32_t, int32_t>> checkpoints;
 
     // Results
     std::vector<PlayerResultCurrent> results_current;
