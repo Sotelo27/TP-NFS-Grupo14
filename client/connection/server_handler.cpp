@@ -79,6 +79,13 @@ void ServerHandler::send_join_room(uint8_t room_id) {
     messages_send.try_push(msg);
 }
 
+void ServerHandler::send_choose_car(uint8_t id_car) {
+    ClientMessage msg;
+    msg.car_id = id_car;
+    std::cout << "[ServerHandler] Sending choose id car " << (int)id_car << std::endl;
+    messages_send.try_push(msg);
+}
+
 ServerMessage ServerHandler::recv_response_from_server() {
     ServerMessage msg;
     if (messages_recv.try_pop(msg)) {
