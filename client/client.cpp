@@ -18,9 +18,14 @@ void Client::start() {
     int n = 0;
     QApplication app(n, nullptr);
 
-    size_t my_id;
+    size_t my_id = SIZE_MAX;
     game_window_start = new GameWindow(server_handler, my_id, true);
     game_window_start->exec();
+
+    if (my_id == SIZE_MAX) {
+        std::cout << "[Client] Exiting..." << std::endl;
+        return;
+    }
 
     std::cout << "[Client] Starting game loop..." << std::endl;
     std::cout << "[Client] My client ID is: " << my_id << std::endl;
