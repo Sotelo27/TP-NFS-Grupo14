@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QMessageBox>
+#include <QDebug>
 
 LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent)
     : QWidget(parent),
