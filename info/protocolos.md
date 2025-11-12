@@ -74,6 +74,7 @@
     - IS-READY byte indicando si está listo (0x00=no, 0x01=sí).
     - HEALTH byte con la vida actual del jugador (0-100).
     - RACE-TIME cuatro bytes big endian con el tiempo de carrera en milisegundos.
+  - Nota: provisoriamente, el “admin” de la sala se determina como el jugador con menor PLAYER-ID presente en la lista. Este jugador verá habilitado el botón “Iniciar partida”.
 
 - **Todos los autos disponibles**
 - 0x22 <NUMBER-CARS> [<CAR-INFO>]
