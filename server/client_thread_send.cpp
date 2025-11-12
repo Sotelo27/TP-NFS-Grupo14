@@ -56,7 +56,7 @@ void ClientThreadSend::run() {
                     protocol.send_cars_list(msg.cars);
                     break;
                 case ServerOutType::RaceStart:
-                    protocol.send_race_start(msg.map_name, msg.amount_checkpoints, msg.checkpoints);
+                    protocol.send_race_start(msg.map_name, (uint8_t)msg.checkpoints.size(), msg.checkpoints);
                     break;
                 case ServerOutType::Results:
                     protocol.send_results(msg.results_current, msg.results_total);
