@@ -11,9 +11,10 @@
 
 #include "constants.h"
 
-ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler):
+ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over) :
         client_id(client_id),
         server_handler(server_handler),
+        game_is_over(game_is_over),
         running(false),
         src_area_map(0, 0, 0, 0),
         dest_area_map(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT),
@@ -82,6 +83,10 @@ void ClientGame::update_state_from_position() {
             case SDL_QUIT:
                 std::cout << "[ClientGame] Quit event received" << std::endl;
                 running = false;
+
+                // esto se debe borrar cuando se maneje el fin del juego
+                game_is_over = true;
+                
                 break;
         }
     }
@@ -121,6 +126,9 @@ void ClientGame::update_state_from_position() {
             std::cout << "[ClientGame] Received Unknown message from server, probably disconnected. Exiting..."
                       << std::endl;
         }
+        // se debería recibir el fin del juego
+        // game_is_over = true;
+
         msg_count++;
     }
 }

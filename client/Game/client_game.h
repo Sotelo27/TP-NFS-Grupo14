@@ -18,6 +18,7 @@ class ClientGame {
 private:
     size_t client_id;
     ServerHandler& server_handler;
+    bool& game_is_over;
     bool running;
     Area src_area_map;
     Area dest_area_map;
@@ -35,7 +36,7 @@ private:
     void render_cars(const CarSpriteSheet& car_sprites);
 
 public:
-    explicit ClientGame(size_t client_id, ServerHandler& server_handler);
+    explicit ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over);
 
     void start();
 

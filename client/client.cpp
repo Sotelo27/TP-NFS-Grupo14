@@ -29,8 +29,14 @@ void Client::start() {
 
     std::cout << "[Client] Starting game loop..." << std::endl;
     std::cout << "[Client] My client ID is: " << my_id << std::endl;
-    ClientGame game(my_id, server_handler);
+    bool game_is_over = false;
+    ClientGame game(my_id, server_handler, game_is_over);
     game.start();
+
+    if (!game_is_over) {
+        std::cout << "[Client] Game ended unexpectedly. Exiting..." << std::endl;
+        return;
+    }
 
     game_window_end = new GameWindow(server_handler, my_id, false);
     game_window_end->exec();
