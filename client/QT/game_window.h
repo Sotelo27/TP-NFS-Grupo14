@@ -19,13 +19,16 @@ private:
     ServerHandler& server_handler;
     size_t& my_id;
     QStackedWidget *stack;
-    QSound* sound;
+    QSound* sound = nullptr; // inicializado para evitar UB
     LoginScreen *login_screen;
     LobbyScreen *lobby_screen;
     WaitingRoomScreen *waiting_room_screen;
     SelectionCarScreen *selection_car_screen;
     SelectionMapScreen *selection_map_screen;
     ResultFinishScreen *result_finish_screen;
+    // NUEVO: pantalla inicial
+    class StartScreen; // forward decl local (definida en .cpp)
+    StartScreen* start_screen;
 
 private slots:
     void go_to_lobby() const;
