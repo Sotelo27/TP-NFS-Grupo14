@@ -43,13 +43,13 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
         std::cout << "El archivo no existe en la ruta:" << std::endl;
     }
     QVector<CarInfoSprite> cars = {
-        {CarSpriteID::CommonGreenCar, "assets/cars/cars_images/autoVerde.webp"},
-        {CarSpriteID::RedCar, "assets/cars/cars_images/autoRojoDeportivo.jpg"},
-        {CarSpriteID::RedSportsCar, "assets/cars/cars_images/autoTojoPorche.jpeg"},
-        {CarSpriteID::SpecialCar, ":assets/cars/cars_images/autoAzulClari.jpg"},
-        {CarSpriteID::FourByFourConvertible, "assets/cars/cars_images/jeepRojo.jpg"},
-        {CarSpriteID::PickupTruck, ":assets/cars/cars_images/camionetaAzul.avif"},
-        {CarSpriteID::Limousine, "assets/cars/cars_images/limusina.jpg"}
+        {CarSpriteID::CommonGreenCar, "assets/cars/cars_images/autoVerde.png"},
+        {CarSpriteID::RedCar, "assets/cars/cars_images/autoRojoDeportivo.png"},
+        {CarSpriteID::RedSportsCar, "assets/cars/cars_images/autoTojoPorche.png"},
+        {CarSpriteID::SpecialCar, "assets/cars/cars_images/autoAzulClaro.png"},
+        {CarSpriteID::FourByFourConvertible, "assets/cars/cars_images/jeepRojo.png"},
+        {CarSpriteID::PickupTruck, ":assets/cars/cars_images/camionetaAzul.png"},
+        {CarSpriteID::Limousine, "assets/cars/cars_images/limusina.png"}
     };
 
     int row = 0, col = 0;
