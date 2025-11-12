@@ -134,6 +134,10 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
 void LobbyScreen::create_new_room() const {
     std::cout << "[LobbyWindow] Solicitando creación de sala..." << std::endl;
     server_handler.send_create_room();
+
+    QTimer::singleShot(0, const_cast<LobbyScreen*>(this), [this]() {
+        const_cast<LobbyScreen*>(this)->open_waiting_room(0);
+    });
 }
 
 void LobbyScreen::open_waiting_room(uint8_t id_room) {
