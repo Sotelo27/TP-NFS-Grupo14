@@ -344,7 +344,7 @@ void ServerProtocol::init_recv_dispatch() {
     };
 }
 
-// ------------------ NUEVO: Handlers individuales ------------------
+//NUEVO: Handlers 
 ClientMessage ServerProtocol::parse_name() {
     ClientMessage dto; dto.type = ClientMessage::Type::Name;
     uint16_t len_be=0; skt.recvall(&len_be,2);

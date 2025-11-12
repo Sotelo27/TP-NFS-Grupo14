@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <functional>
+#include <unordered_map>
 
 #include "../common/constants.h"
 #include "../common/socket.h"
@@ -14,9 +16,23 @@
 class ClientProtocol {
 private:
     Socket skt;
+    std::unordered_map<uint8_t, std::function<ServerMessage()>> recv_dispatch;
+    void init_recv_dispatch();
+    ServerMessage parse_ok();
+    ServerMessage parse_pos();
+    ServerMessage parse_rooms();
+    ServerMessage parse_player_name();
+    ServerMessage parse_your_id();
+    ServerMessage parse_room_created();
+    ServerMessage parse_players_list();
+    ServerMessage parse_game_over();
+    ServerMessage parse_car_list();     // no setea type (igual que antes)
+    ServerMessage parse_race_start();   // no setea type (igual que antes)
+    ServerMessage parse_results();      // no setea type (igual que antes)
+    ServerMessage parse_map_info();
 
 public:
-    explicit ClientProtocol(Socket&& skt): skt(std::move(skt)) {}
+    explicit ClientProtocol(Socket&& skt);
 
     // Send username (string)
     void send_name(const std::string& username);
