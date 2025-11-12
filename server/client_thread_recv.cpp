@@ -29,29 +29,40 @@ void ClientThreadRecv::run() {
             std::cout << "[ClientThreadRecv] Received message type=" << (int)received.type << " from client " << id << "\n";
             std::cout.flush();
 
-            if (received.type == ClientMessage::Type::Move) {
-                ClientAction msg = {id, received.movement};
-                actiones_clients.push(msg);
-                std::cout << "[ClientThreadRecv] Pushed MOVE action from client " << id << "\n";
-                std::cout.flush();
-            } else if (received.type == ClientMessage::Type::Name) {
-                ClientAction msg = {id, std::move(received.username)};
-                actiones_clients.push(msg);
-                std::cout << "[ClientThreadRecv] Pushed NAME('" << msg.username << "') action from client " << id << "\n";
-                std::cout.flush();
-            } else if (received.type == ClientMessage::Type::Room) {
-                ClientAction msg;
-                msg.type = ClientAction::Type::Room;
-                msg.id = id;
-                msg.room_cmd = received.room_cmd;
-                msg.room_id = received.room_id;
-                actiones_clients.push(msg);
-                std::cout << "[ClientThreadRecv] Pushed ROOM action from client " << id << " (cmd=" << (int)received.room_cmd << ")\n";
-                std::cout.flush();
-            } else {
-                std::cout << "[ClientThreadRecv] Unhandled message type " << (int)received.type << " from client " << id << "\n";
-                std::cout.flush();
+            ClientAction action;
+
+            switch (received.type) {
+                case ClientMessage::Type::Move: {
+                    action = ClientAction(id, received.movement);
+                    std::cout << "[ClientThreadRecv] Pushed MOVE action from client " << id << "\n";
+                    break;
+                }
+                case ClientMessage::Type::Name: {
+                    action = ClientAction(id, std::move(received.username));
+                    std::cout << "[ClientThreadRecv] Pushed NAME('" << action.username << "') action from client " << id << "\n";
+                    break;
+                }
+                case ClientMessage::Type::Room: {
+                    action.type = ClientAction::Type::Room;
+                    action.id = id;
+                    action.room_cmd = received.room_cmd;
+                    action.room_id = received.room_id;
+                    std::cout << "[ClientThreadRecv] Pushed ROOM action from client " << id << " (cmd=" << (int)received.room_cmd << ")\n";
+                    break;
+                }
+                case ClientMessage::Type::StartGame: {
+                    std::cout << "[ClientThreadRecv] START_GAME from conn_id=" << id 
+                              << " races=" << received.races.size() << "\n";
+                    action = ClientAction(id, received.races);
+                    actiones_clients.push(action);
+                    break;
+                }
+                default:
+                    std::cout << "[ClientThreadRecv] Unhandled message type " << (int)received.type << " from client " << id << "\n";
+                    continue;
             }
+            
+            actiones_clients.push(action);
         } catch (const ClosedQueue&) {
             std::cout << "[ClientThreadRecv] Queue closed for client " << id << "\n";
             std::cout.flush();
