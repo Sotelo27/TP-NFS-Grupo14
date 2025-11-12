@@ -24,6 +24,7 @@ void MonitorLobby::init_dispatch() {
         {ClientAction::Type::Room, [this](ClientAction act){ handle_room_action(std::move(act)); }},
         {ClientAction::Type::Name, [this](ClientAction act){ handle_name_action(std::move(act)); }},
         {ClientAction::Type::Move, [this](ClientAction act){ handle_move_action(std::move(act)); }},
+        {ClientAction::Type::StartGame, [this](ClientAction act){ handle_start_game(std::move(act)); }} // NUEVO
     };
 }
 
@@ -106,7 +107,69 @@ void MonitorLobby::handle_move_action(ClientAction act) {
                   << ", player_id=" << pid << "\n";
     }
 }
-// ------------------ FIN handlers ------------------
+
+void MonitorLobby::handle_start_game(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    
+    std::cout << "[MonitorLobby] conn_id=" << act.id << " solicitó START_GAME\n";
+    
+    uint8_t target_room_id = 0;
+    bool found = false;
+    
+    auto itb = bindings.find(act.id);
+    if (itb != bindings.end()) {
+        target_room_id = itb->second.first;
+        found = true;
+    }
+    
+    if (!found) {
+        std::cout << "[MonitorLobby] ERROR: conn_id=" << act.id << " no está en ninguna sala\n";
+        return;
+    }
+    
+    auto itr = rooms.find(target_room_id);
+    if (itr == rooms.end()) {
+        std::cout << "[MonitorLobby] ERROR: sala " << (int)target_room_id << " no existe\n";
+        return;
+    }
+    
+    // Validar que sea admin (jugador con menor player_id)
+    size_t min_player_id = std::numeric_limits<size_t>::max();
+    size_t admin_conn_id = 0;
+    
+    for (const auto& [conn, bind] : bindings) {
+        if (bind.first == target_room_id) {
+            if (bind.second < min_player_id) {
+                min_player_id = bind.second;
+                admin_conn_id = conn;
+            }
+        }
+    }
+    
+    if (act.id != admin_conn_id) {
+        std::cout << "[MonitorLobby] ERROR: conn_id=" << act.id << " no es admin (admin=" << admin_conn_id << ")\n";
+        return;
+    }
+    
+    // Obtener mapa
+    std::string map_name = act.races.empty() ? "LibertyCity" : act.races[0].first;
+    std::cout << "[MonitorLobby] Admin inicia partida con mapa: " << map_name << "\n";
+    
+    // Broadcast RaceStart a todos en la sala
+    std::vector<std::pair<int32_t, int32_t>> checkpoints;
+    
+    for (const auto& [conn, bind] : bindings) {
+        if (bind.first == target_room_id) {
+            try {
+                itr->second.clients.get_handler_by_conn(conn)->send_race_start(map_name, checkpoints);
+                std::cout << "[MonitorLobby] RaceStart enviado a conn_id=" << conn << "\n";
+            } catch (const std::exception& e) {
+                std::cerr << "[MonitorLobby] Error enviando RaceStart a conn_id=" << conn << ": " << e.what() << "\n";
+            }
+        }
+    }
+}
+
 
 size_t MonitorLobby::reserve_connection_id() {
     std::lock_guard<std::mutex> lk(m);

@@ -9,7 +9,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <functional>          // NUEVO
+#include <functional>          
+#include <mutex>
 
 #include "../common/constants.h"
 #include "../common/player_aux.h"
@@ -63,6 +64,7 @@ private:
     void handle_room_action(ClientAction act);  // maneja ROOM_CREATE / ROOM_JOIN
     void handle_name_action(ClientAction act);
     void handle_move_action(ClientAction act);
+    void handle_start_game(ClientAction act); 
 
 public:
     explicit MonitorLobby(float nitro_duracion);
