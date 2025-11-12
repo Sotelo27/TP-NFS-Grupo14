@@ -23,6 +23,10 @@ private:
     QVBoxLayout* layout;
     QTimer* pollTimer;
 
+    // control de admin y botón de inicio
+    QPushButton* startButton = nullptr;
+    bool is_admin = false;
+
 public:
     explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent);
     void update_player_list(const std::vector<std::string>& players);

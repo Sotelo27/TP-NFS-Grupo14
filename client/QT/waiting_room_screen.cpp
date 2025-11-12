@@ -2,6 +2,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <iostream>
+#include <limits>
 #include "../../common/enum/car_enum.h"
 #include "../../common/enum/map_enum.h"
 
@@ -34,7 +35,7 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
     scrollArea->setWidgetResizable(true);
     mainLayout->addWidget(scrollArea);
 
-    QPushButton* startButton = new QPushButton("Iniciar partida");
+    startButton = new QPushButton("Iniciar partida");
     startButton->setCursor(Qt::PointingHandCursor);
     startButton->setStyleSheet(
         "QPushButton {"
@@ -50,9 +51,10 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
         "}"
         "QPushButton:pressed { background: rgba(178,124,232,0.55); }"
     );
+    startButton->setVisible(false);
     connect(startButton, &QPushButton::clicked, [this]() {
-        std::cout << "[WaitingRoomWindow] Iniciando partida..." << std::endl;
-        emit go_to_game_start();
+        std::cout << "[WaitingRoomWindow] Admin solicitó iniciar partida..." << std::endl;
+        this->server_handler.send_start_game({{"LibertyCity", 0}});
     });
     mainLayout->addWidget(startButton, 0, Qt::AlignCenter);
 
@@ -90,10 +92,8 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
 void WaitingRoomScreen::onPollTimer() {
     for (int i = 0; i < 10; ++i) {
         ServerMessage msg = server_handler.recv_response_from_server();
-
         if (msg.type == ServerMessage::Type::Unknown)
             break;
-
         processServerMessage(msg);
     }
 }
@@ -111,6 +111,14 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
                 if (item->widget()) item->widget()->deleteLater();
                 delete item;
             }
+
+            size_t min_id = std::numeric_limits<size_t>::max();
+            for (const auto& p : msg.players) {
+                if (p.player_id < min_id) min_id = p.player_id;
+            }
+            is_admin = (my_id == min_id);
+            startButton->setVisible(is_admin);
+
             for (const auto& player : msg.players) {
                 QLabel* playerLabel = new QLabel(QString::fromStdString(player.username), this);
                 playerLabel->setStyleSheet(
@@ -123,12 +131,18 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
                     "QLabel:hover { border-color: rgba(255,159,217,0.60); }"
                 );
                 layout->addWidget(playerLabel);
-                std::cout << "[WaitingRoomWindow] Jugador recibido: "
+                std::cout << "[WaitingRoomWindow] Jugador: "
                           << player.username << " (id=" << player.player_id << ")" << std::endl;
             }
             layout->addStretch();
             break;
         }
+
+        case ServerMessage::Type::RaceStart:
+            std::cout << "[WaitingRoomWindow] RaceStart recibido. Cerrando UI y lanzando juego..." << std::endl;
+            emit go_to_game_start();
+            break;
+
         default:
             break;
     }
@@ -140,13 +154,11 @@ void WaitingRoomScreen::update_player_list(const std::vector<std::string>& playe
         if (item->widget()) item->widget()->deleteLater();
         delete item;
     }
-
     for (const auto& name : players) {
         QLabel* label = new QLabel(QString::fromStdString(name), this);
         label->setStyleSheet("font-size: 16px;");
         layout->addWidget(label);
     }
-
     layout->addStretch();
 }
 
