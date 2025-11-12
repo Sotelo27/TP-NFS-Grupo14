@@ -138,3 +138,14 @@ void ClientHandler::send_map_info_to_client(const std::vector<PlayerTickInfo>& p
     out.events_tick = events;
     mensajes_a_enviar.try_push(std::move(out));
 }
+
+void ClientHandler::send_race_start(const std::string& map, const std::vector<std::pair<int32_t, int32_t>>& checkpoints) {
+    std::cout << "[ClientHandler] Queueing RACE_START for conn_id=" << id << " mapa=" << map << "\n";
+    
+    ServerOutMsg out{};
+    out.type = ServerOutType::RaceStart;
+    out.map_name = map;
+    out.checkpoints = checkpoints;
+    mensajes_a_enviar.try_push(std::move(out));
+}
+
