@@ -21,8 +21,10 @@ private:
 
     void renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                              int mini_map_height);
-    void renderPositionMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
+    void renderPositionsMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                                int mini_map_height);
+    void renderCarOnMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
+                            int mini_map_height, const PlayerTickInfo& info_my_car, bool red);
 
 public:
     explicit MiniMap(size_t client_id, const SdlWindow& window, const MapsTextures& map_manager,
