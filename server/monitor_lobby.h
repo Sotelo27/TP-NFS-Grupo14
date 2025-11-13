@@ -58,6 +58,9 @@ private:
     void stop_room_loop_locked(Match& p);
     void reap_locked();
 
+    // Nuevo: helper para sacar al cliente de su sala actual y pasarlo a pending
+    std::shared_ptr<ClientHandler> detach_from_current_room_locked(size_t conn_id, std::optional<uint8_t>* old_room = nullptr);
+
     //dispatch de acciones
     std::unordered_map<ClientAction::Type, std::function<void(ClientAction)>> action_dispatch;
     void init_dispatch();

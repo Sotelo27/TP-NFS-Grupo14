@@ -32,6 +32,21 @@ void MonitorLobby::handle_room_action(ClientAction act) {
     std::lock_guard<std::mutex> lk(m);
     if (act.room_cmd == ROOM_CREATE) {
         std::cout << "[Lobby] Processing ROOM_CREATE from conn_id=" << act.id << "\n";
+
+        // Si ya estaba en una sala, primero se lo saca y vuelve a 'pending'
+        {
+            std::optional<uint8_t> old_rid;
+            auto handler = detach_from_current_room_locked(act.id, &old_rid);
+            if (handler) {
+                pending.emplace(act.id, handler);
+                std::cout << "[Lobby] Moved conn_id=" << act.id << " from room to pending\n";
+                if (old_rid.has_value()) {
+                    std::cout << "[Lobby] Broadcasting updated players list for old room_id=" << (int)old_rid.value() << "\n";
+                    broadcast_players_in_room_locked(old_rid.value());
+                }
+            }
+        }
+
         uint8_t rid = create_room_locked(/*max_players=*/8);
 
         auto itp = pending.find(act.id);
@@ -277,6 +292,7 @@ void MonitorLobby::broadcast_players_in_room_locked(uint8_t room_id) {
               << " players to room_id=" << (int)room_id << "\n";
     
     // Broadcast a todos los clientes en esta sala
+    // El filtro por binding se hace implícito: solo están en clients los que pertenecen a la sala
     itr->second.clients.broadcast_players_list(players_list);
 }
 
@@ -371,6 +387,39 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     broadcast_players_in_room_locked(room_id);
 
     return true;
+}
+
+std::shared_ptr<ClientHandler> MonitorLobby::detach_from_current_room_locked(size_t conn_id, std::optional<uint8_t>* old_room) {
+    auto itb = bindings.find(conn_id);
+    if (itb == bindings.end()) return nullptr;
+
+    uint8_t rid = itb->second.first;
+    size_t pid = itb->second.second;
+    auto itr = rooms.find(rid);
+    if (itr == rooms.end()) {
+        bindings.erase(itb);
+        return nullptr;
+    }
+
+    if (old_room) *old_room = rid;
+
+    // Quitar de la lista de clientes de la sala y recuperar el handler
+    std::shared_ptr<ClientHandler> handler = itr->second.clients.remover_por_conn_id(conn_id);
+    if (!handler) {
+        bindings.erase(conn_id);
+        return nullptr;
+    }
+
+    // Remover al jugador del Game
+    try {
+        itr->second.game.remove_player(pid);
+        std::cout << "[Lobby] Removed player_id=" << pid << " from room_id=" << (int)rid << "\n";
+    } catch (const std::exception& e) {
+        std::cerr << "[Lobby] Error removing player_id=" << pid << ": " << e.what() << "\n";
+    }
+
+    bindings.erase(conn_id);
+    return handler;
 }
 
 void MonitorLobby::reap_locked() {
