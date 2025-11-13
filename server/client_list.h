@@ -54,6 +54,12 @@ public:
     std::shared_ptr<ClientHandler> get_handler_by_conn(size_t conn_id);
 
     /*
+     * Remueve un cliente de la lista por su conn_id y devuelve su handler.
+     * Retorna nullptr si no se encuentra.
+     */
+    std::shared_ptr<ClientHandler> remover_por_conn_id(size_t conn_id);
+
+    /*
      * Envia la información del mapa (jugadores, NPCs, eventos) a todos los clientes
      * (por ahora la informacion de jugadores es la posicion y la vida)
      */
