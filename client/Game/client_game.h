@@ -24,6 +24,7 @@ private:
     Area dest_area_map;
     std::unordered_map<size_t, CarInfoGame> info_players;
     CarSpriteID current_car = CarSpriteID::CommonGreenCar;
+    std::string map_name;
 
     void update_state_from_position();
 
