@@ -110,7 +110,7 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
     uint8_t count = (uint8_t)players.size();
     
     std::vector<uint8_t> buf;
-    buf.reserve(2 + players.size() * 30); // Estimación aumentada por campos extra
+    buf.reserve(2 + players.size() * 30);
     buf.push_back(code);
     buf.push_back(count);
     
@@ -137,6 +137,9 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
         
         // Ready flag (1 byte)
         buf.push_back(p.is_ready ? 1 : 0);
+        
+        // NUEVO: Admin flag (1 byte)
+        buf.push_back(p.is_admin ? 1 : 0);
         
         // Health (1 byte)
         buf.push_back(p.health);
