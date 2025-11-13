@@ -89,9 +89,8 @@
     - CONTROLLABILITY byte con la controlabilidad del auto.
 
 - **Arranque de carrera**
-- 0x23 <LENGTH> <MAP> <AMOUNT-CHECKPOINTS> [<CHECKPOINT-POSITIONS>]
-    - LENGTH **longitud** del nombre del mapa.
-    - MAP string con el nombre del mapa.
+- 0x23 <MAP-ID> <AMOUNT-CHECKPOINTS> [<CHECKPOINT-POSITIONS>]
+    - MAP-ID byte con el id del mapa (0=LibertyCity, 1=SanAndreas, 2=ViceCity).
     - AMOUNT-CHECKPOINTS byte con la cantidad de checkpoints.
     - CHECKPOINT-POSITIONS ??? a definir.
 
