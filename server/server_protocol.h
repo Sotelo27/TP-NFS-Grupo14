@@ -45,7 +45,7 @@ public:
     void enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje);
     void enviar_rooms_default();
     void send_cars_list(const std::vector<CarInfo>& cars);
-    void send_race_start(const std::string& map, uint8_t amount_checkpoints,
+    void send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
                          const std::vector<std::pair<int32_t,int32_t>>& checkpoints);
     void send_results(const std::vector<PlayerResultCurrent>& current,
                       const std::vector<PlayerResultTotal>& total);

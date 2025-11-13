@@ -102,7 +102,7 @@ public:
      * Envia las posiciones de todos los jugadores al cliente.
      */
     void send_positions_to_all(const std::vector<PlayerPos>& positions);
-    void send_race_start(const std::string& map, const std::vector<std::pair<int32_t, int32_t>>& checkpoints);
+    void send_race_start(uint8_t map_id, const std::vector<std::pair<int32_t, int32_t>>& checkpoints);
 
     ClientHandler(const ClientHandler&) = delete;
     ClientHandler& operator=(const ClientHandler&) = delete;

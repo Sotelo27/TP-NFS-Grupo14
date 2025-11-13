@@ -176,6 +176,18 @@ void MonitorLobby::handle_start_game(ClientAction act) {
     std::string map_name = act.races.empty() ? "LibertyCity" : act.races[0].first;
     std::cout << "[MonitorLobby] Admin (creador) inicia partida con mapa: " << map_name << "\n";
 
+    // Convertir nombre de mapa a id (uint8_t)
+    uint8_t map_id = 0;
+    if (map_name == "LibertyCity") {
+        map_id = 0;
+    } else if (map_name == "SanAndreas") {
+        map_id = 1;
+    } else if (map_name == "ViceCity") {
+        map_id = 2;
+    } else {
+        map_id = 0; // default/fallback
+    }
+
     // Cargar el mapa seleccionado en el Game de la sala
     try {
         itr->second.game.load_map_by_id(map_name); // <-- usa el id/nombre recibido
@@ -189,7 +201,7 @@ void MonitorLobby::handle_start_game(ClientAction act) {
     for (const auto& [conn, bind] : bindings) {
         if (bind.first == target_room_id) {
             try {
-                itr->second.clients.get_handler_by_conn(conn)->send_race_start(map_name, checkpoints);
+                itr->second.clients.get_handler_by_conn(conn)->send_race_start(map_id, checkpoints);
                 std::cout << "[MonitorLobby] RaceStart enviado a conn_id=" << conn << "\n";
             } catch (const std::exception& e) {
                 std::cerr << "[MonitorLobby] Error enviando RaceStart a conn_id=" << conn << ": " << e.what() << "\n";

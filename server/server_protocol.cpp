@@ -205,27 +205,18 @@ void ServerProtocol::send_cars_list(const std::vector<CarInfo>& cars) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_race_start(const std::string& map, uint8_t amount_checkpoints,
+void ServerProtocol::send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
                                      const std::vector<std::pair<int32_t,int32_t>>& checkpoints) {
     uint8_t code = CODE_S2C_RACE_START;
-    uint16_t len = (uint16_t)map.size();
-    uint16_t len_be = htons(len);
-
     std::vector<uint8_t> buf;
-    buf.reserve(1 + 2 + map.size() + 1 + checkpoints.size()*8);
+    buf.reserve(1 + 1 + 1 + checkpoints.size()*8);
     buf.push_back(code);
-
-    size_t off = buf.size();
-    buf.resize(off + 2); std::memcpy(buf.data()+off, &len_be, 2);
-    if (len) {
-        off = buf.size();
-        buf.resize(off + map.size()); std::memcpy(buf.data()+off, map.data(), map.size());
-    }
+    buf.push_back(map_id); // Enviar el id del mapa como byte
     buf.push_back(amount_checkpoints);
     for (const auto& cp : checkpoints) {
         int32_t x_be = htonl(cp.first);
         int32_t y_be = htonl(cp.second);
-        off = buf.size();
+        size_t off = buf.size();
         buf.resize(off + 4); std::memcpy(buf.data()+off, &x_be, 4);
         off = buf.size();
         buf.resize(off + 4); std::memcpy(buf.data()+off, &y_be, 4);
