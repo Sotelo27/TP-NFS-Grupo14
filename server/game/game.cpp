@@ -22,8 +22,8 @@ Game::Game(float nitro_duracion)
             garage()
 {
     map_table.emplace("CollisionTest2", "/CollisionTest2.yaml");
-    map_table.emplace("MapaLibertyCity",    "/MapaLibertyCity.yaml");
-    map_table.emplace("MapaSanAndreas",    "/MapaSanAndreas.yaml");
+    map_table.emplace("LibertyCity",    "/MapaLibertyCity.yaml");
+    map_table.emplace("SanAndreas",     "/MapaSanAndreas.yaml"); // <-- debe ser exactamente así
 }
 
 Game::~Game() {
@@ -214,3 +214,4 @@ void Game::load_map_by_id(const std::string& map_id) {
     
     //city.set_spawns(cfg.spawns);
 }
+
