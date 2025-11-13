@@ -142,7 +142,11 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     connect(selection_car_screen, &SelectionCarScreen::go_to_lobby, this, &GameWindow::go_to_lobby);
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::go_to_waiting_room);
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection);
-    connect(waiting_room_screen, &WaitingRoomScreen::go_back_to_lobby_screen, this, &GameWindow::go_to_lobby);
+    connect(waiting_room_screen, &WaitingRoomScreen::go_back_to_lobby_screen, this, [this]() {
+        std::cout << "[GameWindow] Volviendo al lobby desde WaitingRoom\n";
+        stack->setCurrentWidget(lobby_screen);
+        lobby_screen->startPolling();  // Reiniciar polling para recibir el listado actualizado
+    });
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_game_start, this, &GameWindow::close);
 
 }
