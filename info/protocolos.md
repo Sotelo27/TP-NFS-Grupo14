@@ -25,7 +25,7 @@
   - QUANTITY-RACES es un byte.
   - RACE-INFO es <LENGTH> <MAP> <ROUTE>
     - LENGTH **longitud** del nombre del MAP.
-    - MAP un string con el nombre del mapa 
+    - MAP un string con el nombre del mapa seleccionado por el usuario (ej: "LibertyCity", "SanAndreas", "ViceCity")
     - ROUTE un byte que indica el recorrido elegido.
 
 - **Movimiento del jugador**
