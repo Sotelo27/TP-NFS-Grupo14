@@ -28,6 +28,7 @@ private:
     CarSpriteSheet car_sprites;
     MapsTextures map_manager;
     GameHud game_hud;
+    MapID current_map_id;
 
     void update_state_from_position();
 

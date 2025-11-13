@@ -24,7 +24,8 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         window(WINDOW_WIDTH, WINDOW_HEIGHT),
         car_sprites(window),
         map_manager(window),
-        game_hud(window, map_manager, client_id, info_players, car_sprites) {}
+        game_hud(window, map_manager, client_id, info_players, car_sprites),
+        current_map_id(MapID::LibertyCity) {}
 
 void ClientGame::function() {
     update_state_from_position();
@@ -38,7 +39,28 @@ void ClientGame::function() {
 }
 
 void ClientGame::start() {
-    map_manager.loadMap(MapID::LibertyCity);
+    std::string map_name;
+    while (true) {
+        ServerMessage msg = server_handler.recv_response_from_server();
+        if (msg.type == ServerMessage::Type::RaceStart) {
+            map_name = msg.map_name.empty() ? "LibertyCity" : msg.map_name;
+            break;
+        } else if (msg.type == ServerMessage::Type::Unknown) {
+            std::cout << "[ClientGame] Received Unknown message from server, probably disconnected. Exiting..."
+                      << std::endl;
+            return;
+        }
+    }
+
+    if (map_name == "SanAndreas") {
+        current_map_id = MapID::SanAndreas;
+    } else if (map_name == "LibertyCity") {
+        current_map_id = MapID::LibertyCity;
+    } else if (map_name == "ViceCity") {
+        current_map_id = MapID::ViceCity;
+    }
+
+    map_manager.loadMap(current_map_id);
 
     std::cout << "[ClientGame] Juego iniciado" << std::endl;
    
