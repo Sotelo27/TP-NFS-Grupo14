@@ -410,6 +410,16 @@ std::shared_ptr<ClientHandler> MonitorLobby::detach_from_current_room_locked(siz
         return nullptr;
     }
 
+    // NUEVO: preservar el nombre del jugador para el próximo ingreso (pending_names)
+    try {
+        std::string username = itr->second.game.get_player_name(pid);
+        if (!username.empty()) {
+            pending_names[conn_id] = username;
+        }
+    } catch (...) {
+        // ignorar si no se puede obtener
+    }
+
     // Remover al jugador del Game
     try {
         itr->second.game.remove_player(pid);
