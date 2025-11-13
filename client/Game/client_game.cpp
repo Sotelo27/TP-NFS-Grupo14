@@ -18,19 +18,42 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         running(false),
         src_area_map(0, 0, 0, 0),
         dest_area_map(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT),
-        info_players() {}
+        info_players(),
+        map_name("LibertyCity") // <-- NUEVO: valor por defecto
+{}
 
 void ClientGame::start() {
     this->running = true;
 
-    // init resources
+    // Esperar mensaje RACE_START antes de cargar el mapa
+    while (true) {
+        ServerMessage msg = server_handler.recv_response_from_server();
+        if (msg.type == ServerMessage::Type::RaceStart) {
+            map_name = msg.map_name.empty() ? "LibertyCity" : msg.map_name; // <-- CAMBIA username por map_name
+            break;
+        }
+        // Puedes agregar lógica para salir si hay error/desconexión
+    }
+
     SdlWindow window(WINDOW_WIDTH, WINDOW_HEIGHT);
     window.fill();
 
     CarSpriteSheet car_sprites(window);
 
+    // Convertir map_name a MapID
+    MapID map_id;
+    if (map_name == "SanAndreas") {
+        map_id = MapID::SanAndreas;
+    } else if (map_name == "LibertyCity") {
+        map_id = MapID::LibertyCity;
+    } else if (map_name == "ViceCity") {
+        map_id = MapID::ViceCity;
+    } else {
+        map_id = MapID::LibertyCity; // default
+    }
+
     MapsTextures map_manager(window);
-    map_manager.loadMap(MapID::LibertyCity);
+    map_manager.loadMap(map_id);
 
     std::cout << "[ClientGame] Tamaño real del mapa: " << map_manager.getCurrentMapWidth() << "x"
               << map_manager.getCurrentMapHeight() << std::endl;
