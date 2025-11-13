@@ -40,9 +40,10 @@ public:
     // Send movement (enum Movement)
     void send_move(Movement mov);
 
-    // Rooms: crear / unirse
+    // Rooms: crear / unirse / salir
     void send_create_room();
     void send_join_room(uint8_t room_id);
+    void send_leave_room();  // NUEVO
 
     // Start game: cantidad de carreras y (map, route) por carrera
     void send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races);

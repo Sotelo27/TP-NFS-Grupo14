@@ -32,6 +32,9 @@ public:
     void update_player_list(const std::vector<std::string>& players);
     void start_game();
 
+    void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
+    void stopPolling()  { if (pollTimer &&  pollTimer->isActive()) pollTimer->stop(); }
+
     signals:
         void go_back_to_lobby_screen();
         void go_to_selection_car_screen();

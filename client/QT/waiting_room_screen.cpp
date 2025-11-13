@@ -58,33 +58,40 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
     });
     mainLayout->addWidget(startButton, 0, Qt::AlignCenter);
 
-    QPushButton* backButton = new QPushButton("Volver al lobby");
-    backButton->setCursor(Qt::PointingHandCursor);
+    // NUEVO: Botón para volver al lobby
+    QPushButton* backButton = new QPushButton("Volver al Lobby", this);
     backButton->setStyleSheet(
         "QPushButton {"
         "  font-size: 14px; font-weight: 600;"
-        "  color: #3B3B44;"
-        "  padding: 8px 18px;"
-        "  background-color: rgba(255,255,255,0.55);"
-        "  border: 2px solid rgba(178,124,232,0.40);"
-        "  border-radius: 10px;"
+        "  color: #3B3B44; padding: 8px 16px;"
+        "  background: rgba(255,100,100,0.6);"
+        "  border: 2px solid rgba(200,50,50,0.5);"
+        "  border-radius: 8px;"
         "}"
-        "QPushButton:hover {"
-        "  background-color: rgba(255,255,255,0.75);"
-        "  border-color: rgba(255,159,217,0.60);"
-        "}"
-        "QPushButton:pressed { background-color: rgba(178,124,232,0.40); }"
+        "QPushButton:hover { background: rgba(255,120,120,0.7); }"
+        "QPushButton:pressed { background: rgba(255,80,80,0.5); }"
     );
+
     connect(backButton, &QPushButton::clicked, this, [this]() {
+        std::cout << "[WaitingRoomScreen] Usuario presionó 'Volver al Lobby'\n";
+
+        // CRÍTICO: Enviar LEAVE_ROOM al servidor antes de cambiar de pantalla
+        this->server_handler.send_leave_room();
+
+        // Detener polling
+        stopPolling();
+
+        // Navegar al lobby
         emit go_back_to_lobby_screen();
     });
+
     mainLayout->addWidget(backButton, 0, Qt::AlignCenter);
 
     setLayout(mainLayout);
 
     pollTimer = new QTimer(this);
     connect(pollTimer, &QTimer::timeout, this, &WaitingRoomScreen::onPollTimer);
-    pollTimer->start(50);
+    // No iniciar aquí. Se inicia al navegar a esta pantalla con startPolling()
 
     std::cout << "[WaitingRoomWindow] Esperando mensajes del servidor..." << std::endl;
 }
@@ -92,7 +99,7 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
 void WaitingRoomScreen::onPollTimer() {
     for (int i = 0; i < 10; ++i) {
         ServerMessage msg = server_handler.recv_response_from_server();
-        if (msg.type == ServerMessage::Type::Unknown)
+        if (msg.type == ServerMessage::Type::Unknown || msg.type == ServerMessage::Type::Empty)
             break;
         processServerMessage(msg);
     }

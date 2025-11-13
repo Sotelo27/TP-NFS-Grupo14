@@ -100,3 +100,19 @@ std::shared_ptr<ClientHandler> ClientListProtected::get_handler_by_conn(size_t c
     }
     return nullptr;
 }
+
+std::shared_ptr<ClientHandler> ClientListProtected::remover_por_conn_id(size_t conn_id) {
+    std::lock_guard<std::mutex> lock(m);
+    
+    for (auto it = clients.begin(); it != clients.end(); ++it) {
+        if (*it && (*it)->get_id() == conn_id) {
+            std::shared_ptr<ClientHandler> handler = *it;
+            clients.erase(it);
+            std::cout << "[ClientList] Removed client conn_id=" << conn_id << " from list\n";
+            return handler;
+        }
+    }
+    
+    std::cout << "[ClientList] Client conn_id=" << conn_id << " not found in list\n";
+    return nullptr;
+}
