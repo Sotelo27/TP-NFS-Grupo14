@@ -206,7 +206,8 @@ void LobbyScreen::open_waiting_room(uint8_t id_room) {
 
     std::cout << "[LobbyWindow] Entrando a sala " << (int)id_room << std::endl;
 
-    emit go_to_waiting_room_screen();
+    // emit go_to_waiting_room_screen();
+    emit go_to_selection_map_screen(); // Ir a selección de mapa en vez de sala de espera
 }
 
 

@@ -41,6 +41,7 @@ private slots:
     signals:
     void room_created(uint8_t room_id);
     void go_to_waiting_room_screen();
+    void go_to_selection_map_screen(); 
 };
 
 #endif
