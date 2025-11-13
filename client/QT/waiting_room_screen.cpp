@@ -119,15 +119,23 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
                 delete item;
             }
 
-            size_t min_id = std::numeric_limits<size_t>::max();
+            // NUEVO: buscar si alguno tiene is_admin=true Y es mi_id
+            is_admin = false;
             for (const auto& p : msg.players) {
-                if (p.player_id < min_id) min_id = p.player_id;
+                if (p.player_id == my_id && p.is_admin) {
+                    is_admin = true;
+                    break;
+                }
             }
-            is_admin = (my_id == min_id);
             startButton->setVisible(is_admin);
 
             for (const auto& player : msg.players) {
-                QLabel* playerLabel = new QLabel(QString::fromStdString(player.username), this);
+                QString label_text = QString::fromStdString(player.username);
+                if (player.is_admin) {
+                    label_text += " (Admin)";  // Marcar visualmente al admin
+                }
+                
+                QLabel* playerLabel = new QLabel(label_text, this);
                 playerLabel->setStyleSheet(
                     "QLabel {"
                     "  font-size: 13px; font-weight: 600; color:#3B3B44;"
@@ -139,7 +147,8 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
                 );
                 layout->addWidget(playerLabel);
                 std::cout << "[WaitingRoomWindow] Jugador: "
-                          << player.username << " (id=" << player.player_id << ")" << std::endl;
+                          << player.username << " (id=" << player.player_id 
+                          << ", admin=" << (player.is_admin ? "YES" : "NO") << ")" << std::endl;
             }
             layout->addStretch();
             break;
