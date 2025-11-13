@@ -142,41 +142,50 @@ void MonitorLobby::handle_move_action(ClientAction act) {
 
 void MonitorLobby::handle_start_game(ClientAction act) {
     std::lock_guard<std::mutex> lk(m);
-    
+
     std::cout << "[MonitorLobby] conn_id=" << act.id << " solicitó START_GAME\n";
-    
+
     uint8_t target_room_id = 0;
     bool found = false;
-    
+
     auto itb = bindings.find(act.id);
     if (itb != bindings.end()) {
         target_room_id = itb->second.first;
         found = true;
     }
-    
+
     if (!found) {
         std::cout << "[MonitorLobby] ERROR: conn_id=" << act.id << " no está en ninguna sala\n";
         return;
     }
-    
+
     auto itr = rooms.find(target_room_id);
     if (itr == rooms.end()) {
         std::cout << "[MonitorLobby] ERROR: sala " << (int)target_room_id << " no existe\n";
         return;
     }
-    
-    // NUEVO: Validar que sea el creador de la sala (admin permanente)
+
+    // Validar que sea el creador de la sala (admin permanente)
     if (act.id != itr->second.creator_conn_id) {
         std::cout << "[MonitorLobby] ERROR: conn_id=" << act.id 
                   << " no es el creador/admin (admin=" << itr->second.creator_conn_id << ")\n";
         return;
     }
-    
+
+    // Obtener el nombre del mapa enviado por el cliente
     std::string map_name = act.races.empty() ? "LibertyCity" : act.races[0].first;
     std::cout << "[MonitorLobby] Admin (creador) inicia partida con mapa: " << map_name << "\n";
-    
+
+    // Cargar el mapa seleccionado en el Game de la sala
+    try {
+        itr->second.game.load_map_by_id(map_name); // <-- usa el id/nombre recibido
+        std::cout << "[MonitorLobby] Loaded map by id: " << map_name << "\n";
+    } catch (const std::exception& e) {
+        std::cerr << "[MonitorLobby] Error loading map '" << map_name << "': " << e.what() << "\n";
+    }
+
     std::vector<std::pair<int32_t, int32_t>> checkpoints;
-    
+
     for (const auto& [conn, bind] : bindings) {
         if (bind.first == target_room_id) {
             try {
@@ -317,17 +326,7 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players, size_t creator_con
               << ", max_players=" << (int)max_players 
               << ", creator_conn_id=" << creator_conn_id << "\n";
 
-    try {
-        MapConfig cfg = MapConfigLoader::load_tiled_file(RUTA_MAPA);
-        it->second.game.load_map(cfg);
-        std::cout << "[Lobby] Loaded map from YAML: " << RUTA_MAPA
-              << " (rects=" << cfg.rects.size() << ", polylines=" << cfg.polylines.size()
-              << ", spawns=" << cfg.spawns.size() << ")\n";
-    } catch (const std::exception& e) {
-        std::cerr << "[Lobby] Failed to load map YAML '" << RUTA_MAPA
-                  << "': " << e.what() << "\n";
-    }
-
+    // Ya NO se carga el mapa aquí, se carga en handle_start_game
     start_room_loop_locked(it->second);
     return rid;
 }

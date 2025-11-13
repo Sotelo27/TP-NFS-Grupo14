@@ -79,6 +79,6 @@ SelectionMapScreen::SelectionMapScreen(ServerHandler& server_handler, QWidget* p
 }
 
 void SelectionMapScreen::on_map_selected(const QString& map_name) {
-    (void)map_name;
+    selected_map = map_name; // Guardar selección
     emit go_to_waiting_room_screen();
 }

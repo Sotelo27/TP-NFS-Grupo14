@@ -190,19 +190,17 @@ ServerMessage ClientProtocol::parse_race_start() {
     if(len > 0) {
         skt.recvall(&map_name[0], len);
     }
-    
+    dto.map_name = map_name; // guardar nombre del mapa
+
     uint8_t amount=0;
     skt.recvall(&amount, 1);
-    
     for(uint8_t i=0; i<amount; ++i) {
         int32_t x_be=0, y_be=0;
         skt.recvall(&x_be, 4);
         skt.recvall(&y_be, 4);
     }
-    
     std::cout << "[ClientProtocol] RaceStart recibido: mapa=" << map_name 
               << ", checkpoints=" << (int)amount << std::endl;
-    
     return dto;
 }
 

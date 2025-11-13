@@ -23,7 +23,7 @@ struct ServerMessage {
         PlayersList,
         GameOver,
         MapInfo,
-        RaceStart, // NUEVO: para indicar inicio de carrera
+        RaceStart, // para indicar inicio de carrera
         Empty
     };
 
@@ -33,6 +33,7 @@ struct ServerMessage {
     int16_t y;
     float angle;
     std::string username;
+    std::string map_name; // nombre del mapa recibido en RACE_START
     std::vector<RoomInfo> rooms;
     std::vector<PlayerInfo> players;
     uint8_t room_id;
