@@ -84,7 +84,7 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
 
     pollTimer = new QTimer(this);
     connect(pollTimer, &QTimer::timeout, this, &WaitingRoomScreen::onPollTimer);
-    pollTimer->start(50);
+    // No iniciar aquí. Se inicia al navegar a esta pantalla con startPolling()
 
     std::cout << "[WaitingRoomWindow] Esperando mensajes del servidor..." << std::endl;
 }
@@ -92,7 +92,7 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
 void WaitingRoomScreen::onPollTimer() {
     for (int i = 0; i < 10; ++i) {
         ServerMessage msg = server_handler.recv_response_from_server();
-        if (msg.type == ServerMessage::Type::Unknown)
+        if (msg.type == ServerMessage::Type::Unknown || msg.type == ServerMessage::Type::Empty)
             break;
         processServerMessage(msg);
     }
