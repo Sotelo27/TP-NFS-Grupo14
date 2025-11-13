@@ -33,7 +33,7 @@ struct ServerMessage {
     int16_t y;
     float angle;
     std::string username;
-    std::string map_name; // nombre del mapa recibido en RACE_START
+    uint8_t map_id; // id del mapa recibido en RACE_START
     std::vector<RoomInfo> rooms;
     std::vector<PlayerInfo> players;
     uint8_t room_id;
@@ -77,7 +77,7 @@ struct ServerOutMsg {
     std::vector<CarInfo> cars;
 
     // RaceStart
-    std::string map_name;
+    uint8_t map_id{0}; // id del mapa para RaceStart
     std::vector<std::pair<int32_t, int32_t>> checkpoints;
 
     // Results
