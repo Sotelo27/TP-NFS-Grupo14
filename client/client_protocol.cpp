@@ -407,3 +407,11 @@ void ClientProtocol::send_exit() {
     uint8_t code = CODE_C2S_EXIT;
     skt.sendall(&code, sizeof(code));
 }
+
+void ClientProtocol::send_leave_room() {
+    uint8_t code = CODE_C2S_ROOM;
+    uint8_t sub = 0x04;  // ROOM_LEAVE
+    uint8_t room_id = 0; // ignorado
+    uint8_t buf[3] = {code, sub, room_id};
+    skt.sendall(buf, sizeof(buf));
+}
