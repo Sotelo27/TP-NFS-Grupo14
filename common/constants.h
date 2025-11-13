@@ -44,6 +44,7 @@ constexpr uint8_t CODE_S2C_MAP_INFO   = 0x25;
 // Subcódigos para CODE_C2S_ROOM
 constexpr uint8_t ROOM_CREATE = 0x02;
 constexpr uint8_t ROOM_JOIN   = 0x03;
+constexpr uint8_t ROOM_LEAVE  = 0x04;  // NUEVO
 
 constexpr std::string_view HIT_NITRO = "A car hit the nitro!";
 constexpr std::string_view OUT_NITRO = "A car is out of juice.";
