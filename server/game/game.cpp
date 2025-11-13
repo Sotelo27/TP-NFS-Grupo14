@@ -21,6 +21,7 @@ void Game::throw_jugador_no_existe(size_t id) const {
     throw std::invalid_argument("The player with id " + std::to_string(id) + " does not exist.");
 }
 
+//po rahora lo dejo pero lo tengo que eliminar
 size_t Game::add_player() {
     std::lock_guard<std::mutex> lock(m);
     while (jugador_existe_auxiliar(id_indice)) {
@@ -39,11 +40,51 @@ size_t Game::add_player() {
     return id_indice;
 }
 
+size_t Game::add_player(const std::string& name, uint8_t car_id) {
+    std::lock_guard<std::mutex> lock(m);
+
+    if (!garage.reserve_car(car_id)) {
+        throw std::invalid_argument(
+            "Car ID " + std::to_string(car_id) + " is not available"
+        );
+    }
+
+    while (jugador_existe_auxiliar(id_indice)) {
+        ++id_indice;
+    }
+
+    CarModel model = garage.get_car_model(car_id);
+
+    players.emplace(id_indice, Player{id_indice, name, model});
+    players.at(id_indice).set_car_id(car_id);
+
+    std::cout << "[Game] Added player id=" << id_indice
+              << ", name='" << name
+              << "', car_id=" << static_cast<int>(car_id)
+              << "\n";
+
+
+    size_t spawn_index = (players.size() > 0) ? (players.size() - 1) : 0;
+    SpawnPoint sp = city.get_spawn_for_index(spawn_index);
+
+    race.add_player(id_indice, model, sp.x_px, sp.y_px);
+
+    std::cout << "[Game] Player " << name
+              << " (id=" << id_indice
+              << ") spawned at (" << sp.x_px << ", " << sp.y_px << ")\n";
+
+    return id_indice;
+}
+
 void Game::remove_player(size_t id) {
     std::lock_guard<std::mutex> lock(m);
     if (!jugador_existe_auxiliar(id)) {
         throw_jugador_no_existe(id);
     }
+    Player& p = players.at(id);
+    uint8_t car_id = p.get_car_id();
+    // libero el auto en el garage por si se desconecta antes de en el lobby o en la carrera
+    garage.release_car(car_id);
     players.erase(id);
     race.remove_player(id);
 }

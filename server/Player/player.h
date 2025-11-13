@@ -10,6 +10,7 @@ class Player {
 private:
     size_t id = 0;
     std::string name;
+    uint8_t car_id = 0;
     CarModel car;
 
 public:
@@ -20,7 +21,9 @@ public:
     const std::string& get_name() const;
     void set_name(std::string name);
 
-    // Acceso al modelo (parametros fisicos) del auto
+    uint8_t get_car_id() const noexcept { return car_id; }
+    void set_car_id(uint8_t id) noexcept { car_id = id; }
+
     const CarModel& get_car_model() const noexcept { return car; }
     void set_car_model(const CarModel& c) noexcept { car = c; }
 };
