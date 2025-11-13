@@ -11,6 +11,11 @@ Client::Client(const char* hostname, const char* servname):
     std::cout << "[Client] Connected to server " << hostname << ":" << servname << std::endl;
 }
 
+void Client::open_game_window(size_t& my_id, ServerHandler& server_handler, bool& game_is_over) {
+    ClientGame game(my_id, server_handler, game_is_over);
+    game.start();
+}
+
 void Client::start() {
     std::cout << "[Client] Starting server handler threads..." << std::endl;
     server_handler.start();
@@ -29,9 +34,9 @@ void Client::start() {
 
     std::cout << "[Client] Starting game loop..." << std::endl;
     std::cout << "[Client] My client ID is: " << my_id << std::endl;
+
     bool game_is_over = false;
-    ClientGame game(my_id, server_handler, game_is_over);
-    game.start();
+    open_game_window(my_id, server_handler, game_is_over);
 
     if (!game_is_over) {
         std::cout << "[Client] Game ended unexpectedly. Exiting..." << std::endl;

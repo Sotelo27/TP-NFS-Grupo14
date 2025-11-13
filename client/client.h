@@ -17,6 +17,7 @@ private:
     GameWindow* game_window_start;
     GameWindow* game_window_end;
 
+    void open_game_window(size_t& my_id, ServerHandler& server_handler, bool& game_is_over);
 public:
     explicit Client(const char* host, const char* service);
 
