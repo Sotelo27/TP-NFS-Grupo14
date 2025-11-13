@@ -10,12 +10,16 @@
 #endif
 
 Game::Game(float nitro_duracion)
-    : nitro_tiempo(nitro_duracion),
-      id_indice(0),
-      city(),
-      race(1, city.get_world()),
-      garage(),
-      maps_base_path(COLLISION_PATH)
+        : nitro_tiempo(nitro_duracion),
+            id_indice(0),
+            players(),
+            pending_inputs(),
+            map_table(),
+            maps_base_path(COLLISION_PATH),
+            m(),
+            city(),
+            race(1, city.get_world()),
+            garage()
 {
     map_table.emplace("CollisionTest2", "/CollisionTest2.yaml");
     map_table.emplace("MapaLibertyCity",    "/MapaLibertyCity.yaml");
