@@ -5,6 +5,7 @@ target_sources(taller_server
     game.cpp
     gameloop.cpp
     race.cpp
+    garage.cpp
     PUBLIC
     # .h files
     city.h
@@ -12,4 +13,5 @@ target_sources(taller_server
     gameloop.h
     race.h
     race_participant.h
+    garage.h
     )

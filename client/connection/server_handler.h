@@ -54,6 +54,7 @@ public:
     void send_movement(Movement mov);
     void send_create_room();
     void send_join_room(uint8_t room_id);
+    void send_leave_room();  // NUEVO
     void send_choose_car(uint8_t id_car);
     void send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races);
     void send_start_game(const std::string& map, uint8_t route);

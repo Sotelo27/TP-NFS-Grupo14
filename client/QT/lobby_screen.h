@@ -35,12 +35,13 @@ private slots:
     void onPollTimer();
     void create_new_room() const;
     void open_waiting_room(uint8_t id_room);
-    void processServerMessage(const ServerMessage& msg);
+    bool processServerMessage(const ServerMessage& msg);
     void update_room_list(const std::vector<RoomInfo>& rooms);
 
     signals:
     void room_created(uint8_t room_id);
     void go_to_waiting_room_screen();
+    void go_to_selection_map_screen(); 
 };
 
 #endif

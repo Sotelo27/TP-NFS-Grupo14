@@ -109,3 +109,12 @@ ServerMessage ServerHandler::recv_response_from_server() {
     msg.type = ServerMessage::Type::Empty;
     return msg;
 }
+
+void ServerHandler::send_leave_room() {
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::Room;
+    msg.room_cmd = 0x04;  // ROOM_LEAVE
+    msg.room_id = 0;      // ignorado
+    std::cout << "[ServerHandler] Sending ROOM_LEAVE" << std::endl;
+    messages_send.try_push(msg);
+}

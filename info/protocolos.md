@@ -67,14 +67,15 @@
 - **Lista de jugadores en sala de espera**
 - 0x35 <NUMBER-PLAYERS> [<PLAYER-INFO>]
   - NUMBER-PLAYERS es un byte con la cantidad de jugadores en la sala.
-  - PLAYER-INFO es <PLAYER-ID> <LENGTH> <USERNAME> <IS-READY> <HEALTH> <RACE-TIME>
+  - PLAYER-INFO es <PLAYER-ID> <LENGTH> <USERNAME> <IS-READY> <IS-ADMIN> <HEALTH> <RACE-TIME>
     - PLAYER-ID cuatro bytes big endian con el id del jugador.
     - LENGTH **longitud** del nombre de usuario (dos bytes big endian).
     - USERNAME string con el nombre del usuario.
     - IS-READY byte indicando si está listo (0x00=no, 0x01=sí).
+    - IS-ADMIN byte indicando si es el creador/admin de la sala (0x00=no, 0x01=sí).
     - HEALTH byte con la vida actual del jugador (0-100).
     - RACE-TIME cuatro bytes big endian con el tiempo de carrera en milisegundos.
-  - Nota: provisoriamente, el “admin” de la sala se determina como el jugador con menor PLAYER-ID presente en la lista. Este jugador verá habilitado el botón “Iniciar partida”.
+  - Nota: el admin es siempre el creador de la sala, identificado por IS-ADMIN=0x01. Solo el admin puede iniciar la partida.
 
 - **Todos los autos disponibles**
 - 0x22 <NUMBER-CARS> [<CAR-INFO>]

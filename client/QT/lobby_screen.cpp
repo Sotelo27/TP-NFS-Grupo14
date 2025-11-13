@@ -78,8 +78,7 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
     pollTimer->start(50);
 
     connect(this, &LobbyScreen::room_created, this, [this](uint8_t room_id) {
-        QMessageBox::information(this, "Sala creada",
-                                 "¡La sala fue creada correctamente!");
+        std::cout << "[LobbyWindow] Sala creada con ID: " << (int)room_id << "\n";
         open_waiting_room(room_id);
     });
 
@@ -89,26 +88,31 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
 void LobbyScreen::onPollTimer() {
     for (int i = 0; i < 10; ++i) {
         ServerMessage msg = server_handler.recv_response_from_server();
-        if (msg.type == ServerMessage::Type::Unknown)
+        if (msg.type == ServerMessage::Type::Unknown || msg.type == ServerMessage::Type::Empty)
             break;
-        processServerMessage(msg);
+        // Si processServerMessage devuelve true, cortar inmediatamente para no drenar YOUR_ID/PLAYERS_LIST
+        if (processServerMessage(msg)) {
+            break;
+        }
     }
 }
 
-void LobbyScreen::processServerMessage(const ServerMessage& msg) {
+// Cambiar a bool: true => cortar loop actual (se navega a waiting room)
+bool LobbyScreen::processServerMessage(const ServerMessage& msg) {
     switch (msg.type) {
         case ServerMessage::Type::Rooms:
             update_room_list(msg.rooms);
-            break;
+            return false;
 
         case ServerMessage::Type::RoomCreated:
             std::cout << "[LobbyWindow] Sala creada con ID: " << (int)msg.id << std::endl;
             current_room_id = static_cast<uint8_t>(msg.id);
             emit room_created(current_room_id);
-            break;
+            // Se navega en el slot -> detener el loop actual para no consumir más mensajes
+            return true;
 
         default:
-            break;
+            return false;
     }
 }
 
@@ -176,6 +180,8 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
 
             connect(enterButton, &QPushButton::clicked, [this, room_id = room.id]() {
                 std::cout << "[LobbyWindow] Usuario solicita unirse a sala " << (int)room_id << std::endl;
+                // Importante: detener polling antes de transicionar y de que lleguen YOUR_ID/PLAYERS_LIST
+                if (pollTimer && pollTimer->isActive()) pollTimer->stop();
                 server_handler.send_join_room(room_id);
                 open_waiting_room(room_id);
             });
@@ -190,10 +196,8 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
 void LobbyScreen::create_new_room() const {
     std::cout << "[LobbyWindow] Solicitando creación de sala..." << std::endl;
     server_handler.send_create_room();
-
-    QTimer::singleShot(0, const_cast<LobbyScreen*>(this), [this]() {
-        const_cast<LobbyScreen*>(this)->open_waiting_room(0);
-    });
+    
+    // ELIMINADO: No hacer nada más aquí. El slot de room_created se encargará de todo
 }
 
 void LobbyScreen::open_waiting_room(uint8_t id_room) {
@@ -202,6 +206,8 @@ void LobbyScreen::open_waiting_room(uint8_t id_room) {
 
     std::cout << "[LobbyWindow] Entrando a sala " << (int)id_room << std::endl;
 
-    emit go_to_waiting_room_screen();
+    // emit go_to_waiting_room_screen();
+    emit go_to_selection_map_screen(); // Ir a selección de mapa en vez de sala de espera
 }
+
 

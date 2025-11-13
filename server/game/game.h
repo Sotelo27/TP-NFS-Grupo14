@@ -10,27 +10,33 @@
 
 #include "../../common/dto/movement.h"
 #include "../../common/player_aux.h"
+#include "../../common/dto/map_tick_info.h"
+#include "../../common/dto/map_config.h"
 
 #include "../Player/player.h"
 #include "race.h"
 #include "city.h"
-#include "../../common/dto/map_config.h"
-#include "../../common/dto/map_tick_info.h"
+#include "garage.h" 
 
 class Game {
 private:
     float nitro_tiempo;
-    std::map<size_t, Player> players;
     size_t id_indice = 0;
-    std::mutex m;
-    City city; // ciudad única (mundo físico compartido)
-    Race race{1, city.get_world()}; // Carrera dentro de la ciudad
-    // Inputs acumulados por tick (OR de todos los mensajes recibidos en el frame)
+    
+    std::map<size_t, Player> players;
     std::map<size_t, InputState> pending_inputs;
+    std::map<std::string, std::string> map_table;// nombre mapa, ruta archivo
+    std::string maps_base_path;
+    std::mutex m;
+    
+    City city;
+    Race race;
+    Garage garage;
 
 
     void throw_jugador_no_existe(size_t id) const;
     bool jugador_existe_auxiliar(size_t id);
+    std::string resolve_map_path(const std::string& map_id) const;
 
 public:
     /*
@@ -51,6 +57,13 @@ public:
      * Retorna el ID del jugador agregado.
      */
     size_t add_player();
+
+    /*
+     * Agrega un jugador al game con nombre y carro especificados.
+     *
+     * Retorna el ID del jugador agregado.
+     */
+    size_t add_player(const std::string& name, uint8_t car_id);
 
     /*
      * Elimina un jugador del game.
@@ -106,6 +119,11 @@ public:
      * Carga el MapConfig paredes, edificios en la ciudad.
      */
     void load_map(const MapConfig& cfg);
+
+    /*
+     * Carga el mapa por su ID segun lo que me mande el cliente
+     */
+    void load_map_by_id(const std::string& map_id);
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;

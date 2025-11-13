@@ -141,10 +141,17 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
 
     connect(selection_car_screen, &SelectionCarScreen::go_to_lobby, this, &GameWindow::go_to_lobby);
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::go_to_waiting_room);
+    connect(lobby_screen, &LobbyScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection); // NUEVO
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection);
-    connect(waiting_room_screen, &WaitingRoomScreen::go_back_to_lobby_screen, this, &GameWindow::go_to_lobby);
+    connect(waiting_room_screen, &WaitingRoomScreen::go_back_to_lobby_screen, this, [this]() {
+        std::cout << "[GameWindow] Volviendo al lobby desde WaitingRoom\n";
+        stack->setCurrentWidget(lobby_screen);
+        lobby_screen->startPolling();  // Reiniciar polling para recibir el listado actualizado
+    });
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_game_start, this, &GameWindow::close);
 
+    // NUEVO: conectar selección de mapa a sala de espera
+    connect(selection_map_screen, &SelectionMapScreen::go_to_waiting_room_screen, this, &GameWindow::go_to_waiting_room_from_map);
 }
 
 GameWindow::~GameWindow() {
@@ -155,11 +162,14 @@ GameWindow::~GameWindow() {
 }
 
 void GameWindow::go_to_lobby() const {
+    // Detener polling de la waiting room al volver
+    waiting_room_screen->stopPolling();
     lobby_screen->startPolling();
     stack->setCurrentWidget(lobby_screen);
 }
 
 void GameWindow::go_to_waiting_room() const {
+    waiting_room_screen->startPolling();
     stack->setCurrentWidget(waiting_room_screen);
 }
 
@@ -177,6 +187,11 @@ void GameWindow::go_to_results() const {
 
 void GameWindow::go_to_login() const {
     stack->setCurrentWidget(login_screen);
+}
+
+void GameWindow::go_to_waiting_room_from_map() const {
+    waiting_room_screen->startPolling();
+    stack->setCurrentWidget(waiting_room_screen);
 }
 
 #include "game_window.moc"

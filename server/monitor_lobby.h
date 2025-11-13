@@ -52,11 +52,14 @@ private:
     void broadcast_rooms_to_pending_locked();
     void broadcast_players_in_room_locked(uint8_t room_id);
     std::vector<PlayerInfo> get_players_in_room_locked(uint8_t room_id) const;
-    uint8_t create_room_locked(uint8_t max_players);
+    uint8_t create_room_locked(uint8_t max_players, size_t creator_conn_id);  // MODIFICADO
     bool join_room_locked(size_t conn_id, uint8_t room_id);
     void start_room_loop_locked(Match& p);
     void stop_room_loop_locked(Match& p);
     void reap_locked();
+
+    // helper para sacar al cliente de su sala actual y pasarlo a pending
+    std::shared_ptr<ClientHandler> detach_from_current_room_locked(size_t conn_id, std::optional<uint8_t>* old_room = nullptr);
 
     //dispatch de acciones
     std::unordered_map<ClientAction::Type, std::function<void(ClientAction)>> action_dispatch;
