@@ -7,10 +7,16 @@
 
 class SelectionMapScreen : public QWidget {
     Q_OBJECT
-    public:
+public:
     explicit SelectionMapScreen(ServerHandler& server_handler, QWidget* parent);
 
-    private:
+signals:
+    void go_to_waiting_room_screen();
+
+private slots:
+    void on_map_selected(const QString& map_name);
+
+private:
     ServerHandler& server_handler;
 };
 
