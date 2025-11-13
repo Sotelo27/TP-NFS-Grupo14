@@ -3,8 +3,24 @@
 #include <iostream>
 #include <utility>
 #include "../../common/dto/input_state.h"
+#include "../map/map_config_loader.h"
 
-Game::Game(float nitro_duracion): nitro_tiempo(nitro_duracion) {}
+#ifndef COLLISION_PATH
+#define COLLISION_PATH "."
+#endif
+
+Game::Game(float nitro_duracion)
+    : nitro_tiempo(nitro_duracion),
+      id_indice(0),
+      city(),
+      race(1, city.get_world()),
+      garage(),
+      maps_base_path(COLLISION_PATH)
+{
+    map_table.emplace("CollisionTest2", "/CollisionTest2.yaml");
+    map_table.emplace("MapaLibertyCity",    "/MapaLibertyCity.yaml");
+    map_table.emplace("MapaSanAndreas",    "/MapaSanAndreas.yaml");
+}
 
 Game::~Game() {
     players.clear();
@@ -21,7 +37,15 @@ void Game::throw_jugador_no_existe(size_t id) const {
     throw std::invalid_argument("The player with id " + std::to_string(id) + " does not exist.");
 }
 
-//po rahora lo dejo pero lo tengo que eliminar
+std::string Game::resolve_map_path(const std::string& map_id) const {
+    auto it = map_table.find(map_id);
+    if (it == map_table.end()) {
+        throw std::invalid_argument("[Game] Map ID '" + map_id + "' not found in map table.");
+    }
+    return maps_base_path + it->second;
+}
+
+//TODO por ahora lo dejo pero lo tengo que eliminar
 size_t Game::add_player() {
     std::lock_guard<std::mutex> lock(m);
     while (jugador_existe_auxiliar(id_indice)) {
@@ -40,6 +64,7 @@ size_t Game::add_player() {
     return id_indice;
 }
 
+//TODO: eL MONITOR DEBE USAR ESTA FUNCION
 size_t Game::add_player(const std::string& name, uint8_t car_id) {
     std::lock_guard<std::mutex> lock(m);
 
@@ -124,7 +149,7 @@ void Game::update(float dt) {
     }
     pending_inputs.clear();
 
-    // El step del mundo físico se hace a nivel de ciudad
+    // avanza simulacion del mundo fisico
     city.step(dt);
 }
 
@@ -166,8 +191,22 @@ uint32_t Game::get_player_race_time(size_t id) const {
     return 0; // Por ahora retornar 0
 }
 
-
 void Game::load_map(const MapConfig& cfg) {
     std::lock_guard<std::mutex> lock(m);
     city.load_map(cfg);
+}
+
+//TODO, el monitor debe usar esta funcion SEGUN EL ID QUE HAYA SELCCIONADO EL CLIENTE
+void Game::load_map_by_id(const std::string& map_id) {
+    const std::string ruta = resolve_map_path(map_id);
+
+    MapConfig cfg = MapConfigLoader::load_tiled_file(ruta);
+    load_map(cfg);
+
+    std::cout << "[Game] Loaded map '" << map_id << "' from " << ruta
+              << " (rects=" << cfg.rects.size()
+              << ", polys=" << cfg.polylines.size()
+              << ", spawns=" << cfg.spawns.size() << ")\n";
+    
+    //city.set_spawns(cfg.spawns);
 }
