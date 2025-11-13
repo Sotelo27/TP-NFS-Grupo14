@@ -33,6 +33,8 @@ struct SpawnPoint {
     float y_px{0.f};
     float angle_deg{0.f};
     int   id{-1};
+    int   car_id{-1};
+    std::string race_id{"A"};
 };
 
 struct Checkpoint {
