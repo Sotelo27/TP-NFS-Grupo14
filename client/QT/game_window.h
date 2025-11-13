@@ -37,6 +37,7 @@ private slots:
     void go_to_map_selection() const;
     void go_to_results() const;
     void go_to_login() const;
+    void go_to_waiting_room_from_map() const; 
 };
 
 
