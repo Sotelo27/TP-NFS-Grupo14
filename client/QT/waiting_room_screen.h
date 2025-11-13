@@ -32,7 +32,6 @@ public:
     void update_player_list(const std::vector<std::string>& players);
     void start_game();
 
-    // Nuevo: control explícito del polling
     void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
     void stopPolling()  { if (pollTimer &&  pollTimer->isActive()) pollTimer->stop(); }
 

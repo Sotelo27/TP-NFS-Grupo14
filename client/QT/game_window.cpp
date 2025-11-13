@@ -155,11 +155,14 @@ GameWindow::~GameWindow() {
 }
 
 void GameWindow::go_to_lobby() const {
+    // Detener polling de la waiting room al volver
+    waiting_room_screen->stopPolling();
     lobby_screen->startPolling();
     stack->setCurrentWidget(lobby_screen);
 }
 
 void GameWindow::go_to_waiting_room() const {
+    waiting_room_screen->startPolling();
     stack->setCurrentWidget(waiting_room_screen);
 }
 
