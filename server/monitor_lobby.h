@@ -52,7 +52,7 @@ private:
     void broadcast_rooms_to_pending_locked();
     void broadcast_players_in_room_locked(uint8_t room_id);
     std::vector<PlayerInfo> get_players_in_room_locked(uint8_t room_id) const;
-    uint8_t create_room_locked(uint8_t max_players);
+    uint8_t create_room_locked(uint8_t max_players, size_t creator_conn_id);  // MODIFICADO
     bool join_room_locked(size_t conn_id, uint8_t room_id);
     void start_room_loop_locked(Match& p);
     void stop_room_loop_locked(Match& p);

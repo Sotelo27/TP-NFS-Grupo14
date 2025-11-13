@@ -141,6 +141,11 @@ ServerMessage ClientProtocol::parse_players_list() {
         skt.recvall(&ready, 1);
         p.is_ready = (ready != 0);
         
+        // NUEVO: leer is_admin
+        uint8_t admin=0;
+        skt.recvall(&admin, 1);
+        p.is_admin = (admin != 0);
+        
         uint8_t health=0;
         skt.recvall(&health, 1);
         p.health = health;
