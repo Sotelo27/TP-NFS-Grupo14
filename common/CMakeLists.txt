@@ -6,6 +6,7 @@ target_sources(taller_common
     resolvererror.cpp
     socket.cpp
     foo.cpp
+    constant_rate_loop.cpp
     PUBLIC
     # .h files
     constants.h
@@ -17,6 +18,7 @@ target_sources(taller_common
     thread.h
     foo.h
     car_model.h
+    constant_rate_loop.h
     # --- nuevos DTO usados por los métodos de ServerProtocol ---
     dto/car_info.h
     dto/results_info.h

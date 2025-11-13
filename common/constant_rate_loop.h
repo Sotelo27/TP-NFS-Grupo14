@@ -5,8 +5,9 @@ class ConstantRateLoop {
 protected:
     const double frame_rate;
     bool running;
+    int iteration;
 
-    virtual void function(int it) = 0;
+    virtual void function() = 0;
 
 public:
     explicit ConstantRateLoop(const double frame_rate);
@@ -19,7 +20,7 @@ public:
     ConstantRateLoop(ConstantRateLoop&&) = default;
     ConstantRateLoop& operator=(ConstantRateLoop&&) = default;
 
-    ~ConstantRateLoop() = default;
+    virtual ~ConstantRateLoop() = default;
 };
 
 #endif

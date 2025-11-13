@@ -11,45 +11,38 @@
 
 #include "constants.h"
 
+#define FRAME_RATE 60.0
+
 ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over) :
+        ConstantRateLoop(FRAME_RATE),
         client_id(client_id),
         server_handler(server_handler),
         game_is_over(game_is_over),
-        running(false),
         src_area_map(0, 0, 0, 0),
         dest_area_map(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT),
-        info_players() {}
+        info_players(),
+        window(WINDOW_WIDTH, WINDOW_HEIGHT),
+        car_sprites(window),
+        map_manager(window),
+        game_hud(window, map_manager, client_id, info_players, car_sprites) {}
 
-void ClientGame::start() {
-    this->running = true;
+void ClientGame::function() {
+    update_state_from_position();
 
-    // init resources
-    SdlWindow window(WINDOW_WIDTH, WINDOW_HEIGHT);
+    // Clear display
     window.fill();
 
-    CarSpriteSheet car_sprites(window);
+    update_animation_frames();
 
-    MapsTextures map_manager(window);
+    render_in_z_order();
+}
+
+void ClientGame::start() {
     map_manager.loadMap(MapID::LibertyCity);
 
-    std::cout << "[ClientGame] Tamaño real del mapa: " << map_manager.getCurrentMapWidth() << "x"
-              << map_manager.getCurrentMapHeight() << std::endl;
-
-    GameHud game_hud(window, map_manager, client_id, info_players, car_sprites);
-
-    std::cout << "[ClientGame] Juego iniciado, esperando posiciones del servidor..." << std::endl;
-    while (this->running) {
-        update_state_from_position();
-
-        // Clear display
-        window.fill();
-
-        update_animation_frames(map_manager, car_sprites);
-
-        render_in_z_order(window, map_manager, car_sprites, game_hud);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(16));  // ~60 FPS
-    }
+    std::cout << "[ClientGame] Juego iniciado" << std::endl;
+   
+    ConstantRateLoop::start();
 }
 
 void ClientGame::update_state_from_position() {
@@ -133,7 +126,7 @@ void ClientGame::update_state_from_position() {
     }
 }
 
-void ClientGame::update_map_area(const MapsTextures& map_manager) {
+void ClientGame::update_map_area() {
     const PlayerTickInfo& info_my_car = info_players[client_id].info_car;
 
     int x_map = info_my_car.x - MAP_WIDTH_SIZE / 2;
@@ -158,9 +151,8 @@ void ClientGame::update_map_area(const MapsTextures& map_manager) {
     src_area_map.update(x_map, y_map, MAP_WIDTH_SIZE, MAP_HEIGHT_SIZE);
 }
 
-void ClientGame::update_animation_frames(const MapsTextures& map_manager,
-                                         const CarSpriteSheet& car_sprites) {
-    update_map_area(map_manager);
+void ClientGame::update_animation_frames() {
+    update_map_area();
 
     Area extend_area_map(src_area_map.getX() - CAR_WIDTH_LARGE,
                          src_area_map.getY() - CAR_HEIGHT_LARGE,
@@ -186,7 +178,7 @@ void ClientGame::update_animation_frames(const MapsTextures& map_manager,
     }
 }
 
-void ClientGame::render_cars(const CarSpriteSheet& car_sprites) {
+void ClientGame::render_cars() {
     for (const auto& [id, car]: info_players) {
         if (car.dest_area.getWidth() == 0 || car.dest_area.getHeight() == 0) {
             continue;
@@ -199,12 +191,10 @@ void ClientGame::render_cars(const CarSpriteSheet& car_sprites) {
     }
 }
 
-void ClientGame::render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                                   const CarSpriteSheet& car_sprites, GameHud& game_hud) {
-
+void ClientGame::render_in_z_order() {
     map_manager.render(src_area_map, dest_area_map);
 
-    render_cars(car_sprites);
+    render_cars();
 
     game_hud.render();
 

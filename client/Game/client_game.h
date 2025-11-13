@@ -11,29 +11,34 @@
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 
+#include "../../common/constant_rate_loop.h"
+
 #include "car_info_game.h"
 #include "game_hud.h"
 
-class ClientGame {
+class ClientGame : public ConstantRateLoop {
 private:
     size_t client_id;
     ServerHandler& server_handler;
     bool& game_is_over;
-    bool running;
     Area src_area_map;
     Area dest_area_map;
     std::unordered_map<size_t, CarInfoGame> info_players;
-    CarSpriteID current_car = CarSpriteID::CommonGreenCar;
+    SdlWindow window;
+    CarSpriteSheet car_sprites;
+    MapsTextures map_manager;
+    GameHud game_hud;
 
     void update_state_from_position();
 
-    void update_animation_frames(const MapsTextures& map_manager,
-                                 const CarSpriteSheet& car_sprites);
-    void update_map_area(const MapsTextures& map_manager);
+    void update_animation_frames();
+    void update_map_area();
 
-    void render_in_z_order(SdlWindow& window, const MapsTextures& map_manager,
-                           const CarSpriteSheet& car_sprites, GameHud& game_hud);
-    void render_cars(const CarSpriteSheet& car_sprites);
+    void render_in_z_order();
+    void render_cars();
+
+protected:
+    void function() final;
 
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over);

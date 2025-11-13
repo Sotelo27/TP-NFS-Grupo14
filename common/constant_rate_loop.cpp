@@ -12,10 +12,10 @@ void ConstantRateLoop::start() {
     double frame_time = 1.0 / frame_rate;
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    int it = 0;
+    iteration = 0;
 
     while (running) {
-        function(it);
+        function();
 
         auto t2 = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = t2 - t1;
@@ -27,12 +27,12 @@ void ConstantRateLoop::start() {
             double lost = behind + rest;
             t1 += std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(
                     std::chrono::duration<double>(lost));
-            it += int(lost / frame_time);
+            iteration += int(lost / frame_time);
         }
 
         std::this_thread::sleep_for(std::chrono::duration<double>(rest));
         t1 += std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(
                 std::chrono::duration<double>(frame_time));
-        ++it;
+        ++iteration;
     }
 }
