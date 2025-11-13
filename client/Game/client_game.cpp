@@ -39,11 +39,11 @@ void ClientGame::function() {
 }
 
 void ClientGame::start() {
-    std::string map_name;
+    uint8_t map_id = 0;
     while (true) {
         ServerMessage msg = server_handler.recv_response_from_server();
         if (msg.type == ServerMessage::Type::RaceStart) {
-            map_name = msg.map_name.empty() ? "LibertyCity" : msg.map_name;
+            map_id = msg.map_id;
             break;
         } else if (msg.type == ServerMessage::Type::Unknown) {
             std::cout << "[ClientGame] Received Unknown message from server, probably disconnected. Exiting..."
@@ -52,13 +52,7 @@ void ClientGame::start() {
         }
     }
 
-    if (map_name == "SanAndreas") {
-        current_map_id = MapID::SanAndreas;
-    } else if (map_name == "LibertyCity") {
-        current_map_id = MapID::LibertyCity;
-    } else if (map_name == "ViceCity") {
-        current_map_id = MapID::ViceCity;
-    }
+    current_map_id = static_cast<MapID>(map_id);
 
     map_manager.loadMap(current_map_id);
 

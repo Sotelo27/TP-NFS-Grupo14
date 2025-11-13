@@ -182,16 +182,9 @@ ServerMessage ClientProtocol::parse_car_list() {
 ServerMessage ClientProtocol::parse_race_start() {
     ServerMessage dto;
     dto.type = ServerMessage::Type::RaceStart;
-    
-    uint16_t len_be=0;
-    skt.recvall(&len_be, 2);
-    uint16_t len = ntohs(len_be);
-    std::string map_name(len, '\0');
-    if(len > 0) {
-        skt.recvall(&map_name[0], len);
-    }
-    dto.map_name = map_name; // guardar nombre del mapa
-
+    uint8_t map_id = 0;
+    skt.recvall(&map_id, 1);
+    dto.map_id = map_id; // guardar id del mapa
     uint8_t amount=0;
     skt.recvall(&amount, 1);
     for(uint8_t i=0; i<amount; ++i) {
@@ -199,7 +192,7 @@ ServerMessage ClientProtocol::parse_race_start() {
         skt.recvall(&x_be, 4);
         skt.recvall(&y_be, 4);
     }
-    std::cout << "[ClientProtocol] RaceStart recibido: mapa=" << map_name 
+    std::cout << "[ClientProtocol] RaceStart recibido: map_id=" << (int)map_id 
               << ", checkpoints=" << (int)amount << std::endl;
     return dto;
 }
