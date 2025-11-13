@@ -190,7 +190,7 @@ ServerMessage ClientProtocol::parse_race_start() {
     if(len > 0) {
         skt.recvall(&map_name[0], len);
     }
-    dto.map_name = map_name; // <-- NUEVO: guardar nombre del mapa
+    dto.map_name = map_name; // guardar nombre del mapa
 
     uint8_t amount=0;
     skt.recvall(&amount, 1);
