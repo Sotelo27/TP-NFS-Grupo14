@@ -27,10 +27,13 @@ private:
     QPushButton* startButton = nullptr;
     bool is_admin = false;
 
+    QString selected_map; // NUEVO
+
 public:
     explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent);
     void update_player_list(const std::vector<std::string>& players);
     void start_game();
+    void set_selected_map(const QString& map) { selected_map = map; }
 
     void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
     void stopPolling()  { if (pollTimer &&  pollTimer->isActive()) pollTimer->stop(); }
