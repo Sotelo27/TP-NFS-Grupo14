@@ -37,6 +37,10 @@ void ServerThreadSend::run() {
                     protocol.send_join_room(msg.room_id);
                     std::cout << "[ServerThreadSend] Sent ROOM_JOIN(" << (int)msg.room_id << ")" << std::endl;
                     std::cout.flush();
+                } else if (msg.room_cmd == ROOM_LEAVE) {
+                    protocol.send_leave_room();
+                    std::cout << "[ServerThreadSend] Sent ROOM_LEAVE" << std::endl;
+                    std::cout.flush();
                 }
             } else if (msg.type == ClientMessage::Type::ChooseCar) {
                 protocol.send_choose_car(msg.car_id);
