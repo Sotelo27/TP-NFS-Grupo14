@@ -14,6 +14,11 @@
 
 #define RUTA_MAPA std::string(COLLISION_PATH) + "/CollisionTest2.yaml" // Dejar vacío hasta tener un mapa válido
 
+// Si el protocolo aún no define ROOM_LEAVE, lo definimos localmente
+#ifndef ROOM_LEAVE
+#define ROOM_LEAVE 0x04
+#endif
+
 MonitorLobby::MonitorLobby(float nitro_duracion): actions_in(), nitro_duracion(nitro_duracion) {
     init_dispatch(); // NUEVO
 }
@@ -74,6 +79,28 @@ void MonitorLobby::handle_room_action(ClientAction act) {
         if (join_room_locked(act.id, act.room_id)) {
             broadcast_rooms_to_pending_locked();
         }
+    } else if (act.room_cmd == ROOM_LEAVE) {
+        // NUEVO: salir explícitamente de la sala actual y volver a pending
+        std::cout << "[Lobby] Processing ROOM_LEAVE from conn_id=" << act.id << "\n";
+        std::optional<uint8_t> old_rid;
+        auto handler = detach_from_current_room_locked(act.id, &old_rid);
+        if (handler) {
+            pending.emplace(act.id, handler);
+            std::cout << "[Lobby] Moved conn_id=" << act.id << " from room to pending\n";
+            // Enviar Rooms al que volvió y al resto de pendientes
+            broadcast_rooms_to_pending_locked();
+            // Si quedó gente en la sala, actualizar su PlayersList
+            if (old_rid.has_value()) {
+                broadcast_players_in_room_locked(old_rid.value());
+            }
+        } else {
+            std::cout << "[Lobby] ROOM_LEAVE ignored: conn_id=" << act.id << " had no room\n";
+            // Igual enviar Rooms a pending por robustez
+            broadcast_rooms_to_pending_locked();
+        }
+    } else {
+        std::cout << "[Lobby] Unknown room_cmd=" << (int)act.room_cmd
+                  << " from conn_id=" << act.id << "\n";
     }
 }
 
@@ -386,6 +413,9 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     // NUEVO: Broadcast lista actualizada de jugadores a todos en la sala
     broadcast_players_in_room_locked(room_id);
 
+    // NUEVO: también actualizar el listado de salas para todos los pending (cambia la ocupación)
+    broadcast_rooms_to_pending_locked();
+
     return true;
 }
 
@@ -429,6 +459,25 @@ std::shared_ptr<ClientHandler> MonitorLobby::detach_from_current_room_locked(siz
     }
 
     bindings.erase(conn_id);
+
+    // NUEVO: comprobar si la sala quedó vacía y eliminarla. Si no, actualizar players y rooms.
+    size_t still_in_room = 0;
+    for (const auto& [c, bind] : bindings) {
+        if (bind.first == rid) still_in_room++;
+    }
+
+    if (still_in_room == 0) {
+        std::cout << "[Lobby] Room " << (int)rid << " is now empty. Stopping loop and erasing room.\n";
+        stop_room_loop_locked(itr->second);
+        rooms.erase(itr);
+        // Importante: notificar desaparición/cambio de salas a todos los pending
+        broadcast_rooms_to_pending_locked();
+    } else {
+        // La sala sigue con gente: actualizo lista de jugadores y rooms (cambia ocupación)
+        broadcast_players_in_room_locked(rid);
+        broadcast_rooms_to_pending_locked();
+    }
+
     return handler;
 }
 
@@ -454,9 +503,11 @@ void MonitorLobby::reap_locked() {
             }
         }
         
-        // Si hubo cambios, broadcast actualizado de jugadores
+        // Si hubo cambios, broadcast actualizado de jugadores y de rooms (cambia la ocupación)
         if (room_changed) {
             broadcast_players_in_room_locked(pr.room_id);
+            // NUEVO: actualizar listado de salas a todos los pending
+            broadcast_rooms_to_pending_locked();
         }
 
         // Si sala queda vacía -> cerrar loop y borrar
@@ -468,8 +519,11 @@ void MonitorLobby::reap_locked() {
             }
         }
         if (empty_room) {
+            std::cout << "[Lobby] Reap erasing empty room_id=" << (int)pr.room_id << "\n";
             stop_room_loop_locked(pr);
             it = rooms.erase(it);
+            // NUEVO: notificar desaparición de la sala a pending
+            broadcast_rooms_to_pending_locked();
         } else {
             ++it;
         }
