@@ -65,7 +65,8 @@ public:
      */
     void broadcast_map_info(const std::vector<PlayerTickInfo>& players,
                             const std::vector<NpcTickInfo>& npcs,
-                            const std::vector<EventInfo>& events);
+                            const std::vector<EventInfo>& events,
+                            TimeTickInfo time_info);
 
     ClientListProtected(const ClientListProtected&) = delete;
     ClientListProtected& operator=(const ClientListProtected&) = delete;

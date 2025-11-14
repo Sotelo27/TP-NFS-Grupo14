@@ -91,7 +91,8 @@ public:
      */
     void send_map_info_to_client(const std::vector<PlayerTickInfo>& players,
                                  const std::vector<NpcTickInfo>& npcs,
-                                 const std::vector<EventInfo>& events);
+                                 const std::vector<EventInfo>& events,
+                                 TimeTickInfo time_info);
 
     /*
      * Encola el envío de una posición (id,x,y,angle) al cliente
