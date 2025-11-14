@@ -267,7 +267,8 @@ void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& curren
 
 void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
                                    const std::vector<NpcTickInfo>& npcs,
-                                   const std::vector<EventInfo>& events) {
+                                   const std::vector<EventInfo>& events,
+                                   TimeTickInfo time_info) {
     uint8_t code = CODE_S2C_MAP_INFO;
     std::vector<uint8_t> buf;
     buf.reserve(1);
@@ -294,7 +295,11 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         uint32_t ang_be = htonf32(p.angle);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ang_be, 4);
         buf.push_back(p.health);
+        uint32_t spd_be = htonf32(p.speed_mps);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &spd_be, 4);
     }
+    uint32_t time_be = htonl(time_info.seconds);
+    size_t off_time = buf.size(); buf.resize(off_time + 4); std::memcpy(buf.data()+off_time, &time_be, 4);
     // npcs
     buf.push_back((uint8_t)npcs.size());
     for (const auto& n : npcs) {
