@@ -367,9 +367,6 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     if (current >= itr->second.max_players)
         return false;
 
-    std::shared_ptr<ClientHandler> handler = itp->second;
-    pending.erase(itp);
-
     std::string username;
     uint8_t car_id = 0;
     auto pn = pending_names.find(conn_id);
@@ -379,28 +376,39 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     auto pcid = pending_car_id.find(conn_id);
     if (pcid != pending_car_id.end()) {
         car_id = pcid->second;
-        pending_car_id.erase(pcid);
     }
-    size_t player_id = itr->second.game.add_player(username, car_id);
-    bindings[conn_id] = std::make_pair(room_id, player_id);
+    try {
+        size_t player_id = itr->second.game.add_player(username, car_id);
+        bindings[conn_id] = std::make_pair(room_id, player_id);
 
-    if (handler) {
-        handler->send_player_name_to_client(static_cast<uint32_t>(player_id), username);
+        // Mover al usuario desde pending a la sala solo tras éxito
+        std::shared_ptr<ClientHandler> handler = itp->second;
+        pending.erase(itp);
+
+        if (handler) {
+            handler->send_player_name_to_client(static_cast<uint32_t>(player_id), username);
+        }
+        if (pn != pending_names.end()) {
+            pending_names.erase(pn);
+        }
+        if (pcid != pending_car_id.end()) {
+            pending_car_id.erase(pcid);
+        }
+
+        itr->second.clients.agregar_client(handler);
+        handler->start_send_only();
+        handler->send_your_id_to_client((uint32_t)(player_id));
+        std::cout << "[Lobby] conn_id=" << conn_id << " joined room_id=" << (int)room_id
+                  << " as player_id=" << player_id << ", username='" << username << "', car_id=" << (int)car_id << "\n";
+
+        broadcast_players_in_room_locked(room_id);
+        broadcast_rooms_to_pending_locked();
+
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "[Lobby] ERROR: Could not reserve car_id=" << (int)car_id << " for conn_id=" << conn_id << ": " << e.what() << std::endl;
+        return false;
     }
-    if (pn != pending_names.end()) {
-        pending_names.erase(pn);
-    }
-
-    itr->second.clients.agregar_client(handler);
-    handler->start_send_only();
-    handler->send_your_id_to_client((uint32_t)(player_id));
-    std::cout << "[Lobby] conn_id=" << conn_id << " joined room_id=" << (int)room_id
-              << " as player_id=" << player_id << ", username='" << username << "', car_id=" << (int)car_id << "\n";
-
-    broadcast_players_in_room_locked(room_id);
-    broadcast_rooms_to_pending_locked();
-
-    return true;
 }
 
 std::shared_ptr<ClientHandler> MonitorLobby::detach_from_current_room_locked(size_t conn_id, std::optional<uint8_t>* old_room) {
