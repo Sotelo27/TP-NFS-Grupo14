@@ -5,7 +5,7 @@
 
 #include "../constants.h"
 
-#define TIME_ICON std::string(ASSETS_PATH) + "/images/tiempo2.png"
+#define TIME_ICON std::string(ASSETS_PATH) + "/hud/tiempo.png"
 
 #define SIZE WINDOW_WIDTH / 38
 
