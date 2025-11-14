@@ -1,61 +1,129 @@
 #include "selection_car_screen.h"
 #include <QPushButton>
 #include <QVBoxLayout>
-#include <QGridLayout>
-#include <QButtonGroup>
-#include <QIcon>
+#include <QHBoxLayout>
 #include <QPixmap>
 #include <QDebug>
-#include <QFile>
-#include <QLabel> 
-#include "../../common/enum/car_enum.h"
-
-struct CarInfoSprite {
-    CarSpriteID id;
-    QString imagePath;
-};
+#include <QSizePolicy>
 
 SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* parent)
     : QWidget(parent), server_handler(server_handler)
 {
+    // ------------------------------------
+    // Fondo del garage (pantalla completa)
+    // ------------------------------------
+    backgroundLabel = new QLabel(this);
+    backgroundLabel->setPixmap(QPixmap("assets/images/garage.png"));
+    backgroundLabel->setScaledContents(true);
+    backgroundLabel->setGeometry(0, 0, width(), height());
+    backgroundLabel->lower();
+    backgroundLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+    // ------------------------------------
+    // Layout principal
+    // ------------------------------------
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    // Ajusta márgenes para que el auto se ubique más abajo en la imagen de fondo
+    mainLayout->setContentsMargins(24, 8, 24, 18);
+    mainLayout->setSpacing(8);
 
-    // Título estilizado (sin fondo de imagen)
-    QLabel* title = new QLabel("Seleccionar auto", this);
-    title->setAlignment(Qt::AlignCenter);
-    title->setStyleSheet(
-        "font-size: 22px; font-weight: 700; letter-spacing: 0.5px;"
-        "color: #B27CE8;"
-        "padding: 8px 6px; background-color: rgba(255,255,255,0.35);"
-        "border: 1px solid rgba(178,124,232,0.4); border-radius: 10px;"
+    // Añadimos un stretch arriba para empujar el contenido hacia abajo (más "cerca del suelo")
+    mainLayout->addStretch(3);
+
+    // -----------------------------
+    // Auto (centrado, más abajo)
+    // -----------------------------
+    carLabel = new QLabel();
+    // tamaño razonable para que el auto no ocupe TODO el fondo
+    carLabel->setFixedSize(520, 300);
+    carLabel->setAlignment(Qt::AlignCenter);
+    carLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    // Centrar el carLabel horizontalmente
+    mainLayout->addWidget(carLabel, 0, Qt::AlignHCenter | Qt::AlignVCenter);
+
+    // -----------------------------
+    // Flechas pequeñas debajo del auto
+    // -----------------------------
+    QHBoxLayout* arrowsLayout = new QHBoxLayout();
+    arrowsLayout->setContentsMargins(0, 6, 0, 6);
+    arrowsLayout->setSpacing(18);
+
+    QPushButton* leftBtn = new QPushButton("<");
+    // flechas MÁS pequeñas y con menor "huella" en el fondo
+    leftBtn->setFixedSize(56, 56);
+    leftBtn->setStyleSheet(
+        "QPushButton {"
+        "  background: qlineargradient(x1:0,y1:0, x2:1,y2:1, stop:0 #FFFFFF, stop:1 #C6E4FF );"
+        "  border: 2px solid #9ED0FF;"
+        "  border-radius: 12px;"
+        "  font-size: 28px;"
+        "  font-weight: bold;"
+        "  color: #223;"
+        "}"
+        "QPushButton:hover {"
+        "  background-color: rgba(215,178,255,0.8);"
+        "  border-color: #E080FF;"
+        "  color: #000;"
+        "}"
     );
-    mainLayout->addWidget(title);
 
-    // Contenedor suave para la grilla
-    QWidget* gridFrame = new QWidget(this);
-    gridFrame->setStyleSheet(
-        "background-color: rgba(240,240,245,0.55);"
-        "border: 1px solid rgba(178,124,232,0.35);"
-        "border-radius: 12px; padding: 12px;"
+    QPushButton* rightBtn = new QPushButton(">");
+    rightBtn->setFixedSize(56, 56);
+    rightBtn->setStyleSheet(
+        "QPushButton {"
+        "  background: qlineargradient(x1:0,y1:0, x2:1,y2:1, stop:0 #FFFFFF, stop:1 #C6E4FF );"
+        "  border: 2px solid #9ED0FF;"
+        "  border-radius: 12px;"
+        "  font-size: 28px;"
+        "  font-weight: bold;"
+        "  color: #223;"
+        "}"
+        "QPushButton:hover {"
+        "  background-color: rgba(215,178,255,0.8);"
+        "  border-color: #E080FF;"
+        "  color: #000;"
+        "}"
     );
-    QVBoxLayout* frameLayout = new QVBoxLayout(gridFrame);
-    frameLayout->setContentsMargins(4,4,4,4);
-    frameLayout->setSpacing(8);
 
-    QGridLayout* gridLayout = new QGridLayout();
-    gridLayout->setContentsMargins(10, 6, 10, 6);
-    gridLayout->setHorizontalSpacing(14);
-    gridLayout->setVerticalSpacing(14);
-    frameLayout->addLayout(gridLayout);
-    mainLayout->addWidget(gridFrame);
+    // Spacer para que las flechas no queden pegadas al centro si querés más separación
+    arrowsLayout->addStretch(1);
+    arrowsLayout->addWidget(leftBtn, 0, Qt::AlignCenter);
+    arrowsLayout->addSpacing(18);
+    arrowsLayout->addWidget(rightBtn, 0, Qt::AlignCenter);
+    arrowsLayout->addStretch(1);
 
-    QButtonGroup* buttonGroup = new QButtonGroup(this);
-    buttonGroup->setExclusive(true);
+    mainLayout->addLayout(arrowsLayout);
 
-    if (!QFile::exists("assets/cars/cars_images/limusina.jpg")) {
-        std::cout << "El archivo no existe en la ruta:" << std::endl;
-    }
-    QVector<CarInfoSprite> cars = {
+    // -----------------------------
+    // Botón "Listo" centrado abajo
+    // -----------------------------
+    QPushButton* listoBtn = new QPushButton("Listo");
+    listoBtn->setFixedSize(160, 48);
+    listoBtn->setStyleSheet(
+        "QPushButton {"
+        "  background-color: rgba(255,255,255,0.30);"
+        "  font-size: 18px;"
+        "  font-weight: bold;"
+        "  border: 2px solid #FF84C6;"
+        "  border-radius: 14px;"
+        "  padding: 6px;"
+        "}"
+        "QPushButton:hover {"
+        "  background-color: rgba(255,210,244,0.5);"
+        "}"
+    );
+
+    // Centrar "Listo"
+    mainLayout->addWidget(listoBtn, 0, Qt::AlignHCenter);
+
+    // Añadimos un stretch final para empujar todo ligeramente hacia arriba si hace resize
+    mainLayout->addStretch(2);
+
+    // -----------------------------
+    // Lista de autos (igual que antes)
+    // -----------------------------
+    cars = {
         {CarSpriteID::CommonGreenCar, "assets/cars/cars_images/autoVerde.png"},
         {CarSpriteID::RedCar, "assets/cars/cars_images/autoRojoDeportivo.png"},
         {CarSpriteID::RedSportsCar, "assets/cars/cars_images/autoPorcheRojo.png"},
@@ -65,72 +133,46 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
         {CarSpriteID::Limousine, "assets/cars/cars_images/limusina.png"}
     };
 
-    int row = 0, col = 0;
-    for (int i = 0; i < cars.size(); ++i) {
-        QPushButton* btn = new QPushButton(this);
-        btn->setCheckable(true);
-        btn->setIcon(QIcon(cars[i].imagePath));
-        btn->setIconSize(QSize(200, 120));
-        btn->setFixedSize(220, 140);
-        // Estilo vaporwave para cada tarjeta de auto
-        btn->setStyleSheet(
-            "QPushButton {"
-            "  background-color: rgba(255,255,255,0.70);"
-            "  border: 2px solid rgba(178,124,232,0.55);"
-            "  border-radius: 12px;"
-            "}"
-            "QPushButton:hover {"
-            "  border-color: rgba(255,159,217,0.75);"
-            "  background-color: rgba(255,255,255,0.85);"
-            "}"
-            "QPushButton:checked {"
-            "  border: 3px solid rgba(120,230,224,0.85);"
-            "  background-color: rgba(255,255,255,0.95);"
-            "}"
-        );
+    updateCarImage();
 
-        gridLayout->addWidget(btn, row, col);
-        buttonGroup->addButton(btn, i);
+    // -----------------------------
+    // Señales (misma lógica)
+    // -----------------------------
+    connect(leftBtn,  &QPushButton::clicked, this, &SelectionCarScreen::prevCar);
+    connect(rightBtn, &QPushButton::clicked, this, &SelectionCarScreen::nextCar);
 
-        if (++col >= 3) {
-            col = 0;
-            ++row;
-        }
-    }
-
-    mainLayout->addSpacing(12);
-
-    QPushButton* listoBtn = new QPushButton("Listo", this);
-    // Estilo para boton primario
-    listoBtn->setStyleSheet(
-        "QPushButton {"
-        "  font-size: 16px; font-weight: 700; letter-spacing: 1px;"
-        "  color: #3B3B44;"
-        "  padding: 10px 24px;"
-        "  background: linear-gradient(135deg, rgba(255,159,217,0.65), rgba(178,124,232,0.65));"
-        "  border: 2px solid rgba(178,124,232,0.50);"
-        "  border-radius: 12px;"
-        "}"
-        "QPushButton:hover {"
-        "  background: linear-gradient(135deg, rgba(255,159,217,0.80), rgba(120,230,224,0.70));"
-        "}"
-        "QPushButton:pressed {"
-        "  background: rgba(178,124,232,0.55);"
-        "}"
-    );
-    mainLayout->addWidget(listoBtn, 0, Qt::AlignCenter);
-
-    connect(listoBtn, &QPushButton::clicked, [this, buttonGroup, cars]() {
-        int id = buttonGroup->checkedId();
-        if (id >= 0 && id < cars.size()) {
-            CarSpriteID selectedCar = cars[id].id;
-            qDebug() << "Auto seleccionado:" << static_cast<int>(selectedCar);
-
-            emit car_selected(selectedCar);
-
-            emit go_to_lobby();
-        } else {
-            qDebug() << "No se seleccionó ningún auto";
-        }
+    connect(listoBtn, &QPushButton::clicked, [this]() {
+        emit car_selected(cars[currentIndex].id);
+        emit go_to_lobby();
     });
+}
+
+void SelectionCarScreen::prevCar() {
+    currentIndex = (currentIndex - 1 + cars.size()) % cars.size();
+    updateCarImage();
+}
+
+void SelectionCarScreen::nextCar() {
+    currentIndex = (currentIndex + 1) % cars.size();
+    updateCarImage();
+}
+
+void SelectionCarScreen::updateCarImage() {
+    if (cars.isEmpty() || carLabel == nullptr) return;
+    QPixmap px(cars[currentIndex].imagePath);
+    carLabel->setPixmap(px.scaled(carLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+void SelectionCarScreen::resizeEvent(QResizeEvent* event)
+{
+    QWidget::resizeEvent(event);
+    if (backgroundLabel) {
+        backgroundLabel->setGeometry(0, 0, width(), height());
+    }
+    // Opcional: ajustar tamaño del carLabel en función del ancho de la ventana para mantener proporciones
+    int w = width();
+    int newCarW = qBound(320, w * 45 / 100, 700); // entre 320 y 700 px, relativo al ancho
+    int newCarH = newCarW * 9 / 16; // aproximación 16:9
+    carLabel->setFixedSize(newCarW, newCarH);
+    updateCarImage();
 }
