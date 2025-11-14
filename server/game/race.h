@@ -17,6 +17,8 @@
 class Race {
 private:
     uint32_t id;
+    float race_duration{0.f};
+    bool is_finished{false};
     PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
     std::unordered_map<size_t, std::unique_ptr<Car>> cars;
@@ -57,6 +59,16 @@ public:
      * y limita la velocidad maxima cuando corresponde
      */
     void apply_input(size_t playerId, const InputState& input);
+
+    /*
+     * Avanza el tiempo de la carrera en dt segundos
+     */
+    void advance_time(float dt);
+
+    /*
+     * Devuelve el tiempo transcurrido de la carrera en segundos
+     */
+    uint32_t get_race_time_seconds() const;
 
     /*
      * Construye el snapshot con las posiciones (x,y) y angulos actuales de todos los

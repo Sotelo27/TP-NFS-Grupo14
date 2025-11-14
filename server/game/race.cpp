@@ -2,8 +2,11 @@
 #include "race_participant.h"
 #include <cmath>
 #include <algorithm>
+#include <iostream>
+
 #define  PI 3.14159265358979323846f
 #define PPM 32.f
+#define MAX_DURATION_SECONDS 600.f
 
 Race::Race(uint32_t id, PhysicsWorld& external_world)
     : id(id), physics(external_world) {}
@@ -48,6 +51,28 @@ void Race::apply_input(size_t playerId, const InputState& input) {
     if (itc != cars.end() && itc->second) {
         itc->second->apply_input(throttle, steer);
     }
+}
+
+void Race::advance_time(float dt) {
+    race_duration += dt;
+
+    if (!is_finished && race_duration >= MAX_DURATION_SECONDS) {
+        std::cout << "[TIME FINISH]Race duration exceeded maximum allowed time. Ending race." << std::endl;
+
+        for (auto& [playerId, participant] : parts) {
+            if (participant.state == ParticipantState::Active) {
+                participant.state = ParticipantState::Disqualified;
+            }
+        }
+
+        is_finished = true;
+        // aqui entregaria los resultados de la carrera o cuando todos los jugadores hayan completado todos los checkpoints
+    }
+}
+
+
+uint32_t Race::get_race_time_seconds() const {
+    return (uint32_t)(race_duration);
 }
 
 float Race::resolve_acceleration_input(const InputState& input) {

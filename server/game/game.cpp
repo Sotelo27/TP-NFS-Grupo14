@@ -132,6 +132,8 @@ void Game::update(float dt) {
 
     // avanza simulacion del mundo fisico
     city.step(dt);
+    // avanza el tiempo de la carrera
+    race.advance_time(dt);
 }
 
 void Game::set_player_name(size_t id, std::string name) {
