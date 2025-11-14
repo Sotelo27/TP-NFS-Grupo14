@@ -17,33 +17,34 @@ private:
     ServerHandler& server_handler;
     size_t& my_id;
 
-    QVBoxLayout* playerListLayout;
-    QScrollArea* scrollArea;
-    QWidget* container;
-    QVBoxLayout* layout;
-    QTimer* pollTimer;
+    QScrollArea* scrollArea = nullptr;
+    QWidget* container = nullptr;
+    QVBoxLayout* layout = nullptr;
+    QTimer* pollTimer = nullptr;
 
-    // control de admin y botón de inicio
     QPushButton* startButton = nullptr;
-    bool is_admin = false;
+    QPushButton* backButton = nullptr;
 
-    QString selected_map; // NUEVO
+    bool is_admin = false;
+    QString selected_map;
 
 public:
-    explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent);
+    explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
+
     void update_player_list(const std::vector<std::string>& players);
     void start_game();
     void set_selected_map(const QString& map) { selected_map = map; }
-    bool isAdmin() const { return is_admin; } // <-- Agregado
+    bool isAdmin() const { return is_admin; }
 
+    // Control del polling
     void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
-    void stopPolling()  { if (pollTimer &&  pollTimer->isActive()) pollTimer->stop(); }
+    void stopPolling()  { if (pollTimer && pollTimer->isActive()) pollTimer->stop(); }
 
-    signals:
-        void go_back_to_lobby_screen();
-        void go_to_selection_car_screen();
-        void go_to_selection_map_screen();
-        void go_to_game_start();
+signals:
+    void go_back_to_lobby_screen();
+    void go_to_selection_car_screen();
+    void go_to_selection_map_screen();
+    void go_to_game_start();
 
 private slots:
     void onPollTimer();
@@ -51,3 +52,4 @@ private slots:
 };
 
 #endif
+
