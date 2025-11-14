@@ -35,15 +35,33 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
     // ------------------------------
     QHBoxLayout* bottomRow = new QHBoxLayout();
     bottomRow->setSpacing(25);
-
     QPushButton* leftBtn = new QPushButton("<");
     leftBtn->setFixedSize(70, 70);
+    leftBtn->setStyleSheet(
+        "background-color: rgba(0, 0, 0, 100);"
+        "color: white;"
+        "border-radius: 10px;"
+        "font-size: 28px;"
+    );
 
     QPushButton* listoBtn = new QPushButton("Listo");
     listoBtn->setFixedSize(200, 55);
+    listoBtn->setStyleSheet(
+        "background-color: rgba(0, 0, 0, 100);"
+        "color: white;"
+        "border-radius: 10px;"
+        "font-size: 20px;"
+    );
 
     QPushButton* rightBtn = new QPushButton(">"); 
     rightBtn->setFixedSize(70, 70);
+    rightBtn->setStyleSheet(
+        "background-color: rgba(0, 0, 0, 100);"
+        "color: white;"
+        "border-radius: 10px;"
+        "font-size: 28px;"
+    );
+
 
     bottomRow->addWidget(leftBtn);
     bottomRow->addWidget(listoBtn, 0, Qt::AlignCenter);
