@@ -44,7 +44,7 @@ void GameHud::renderLifeBarHud() {
         const CarData& car_data =
                 car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
-        // falta la vida maxima, que se espera recibir con los checkspoints
+        // falta la vida maxima, que se espera recibir al principio de la partida
         life_bar_sprites.render(
                 100, car.info_car.health,
                 Area(car.dest_area.getX(), car.dest_area.getY() - car_data.width_scale_screen / 5,
