@@ -32,6 +32,7 @@ private:
 public:
     explicit LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
     void startPolling() { pollTimer->start(50); }
+    void on_return_from_waiting_room(); // <-- MOVER AQUÍ: slot público para resetear in_room
 
 private slots:
     void onPollTimer();
@@ -39,7 +40,6 @@ private slots:
     void open_waiting_room(uint8_t id_room);
     bool processServerMessage(const ServerMessage& msg);
     void update_room_list(const std::vector<RoomInfo>& rooms);
-    void on_return_from_waiting_room(); // <-- NUEVO: slot para resetear in_room
 
 signals:
     void room_created(uint8_t room_id);

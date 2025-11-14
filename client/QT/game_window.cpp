@@ -157,7 +157,7 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     connect(waiting_room_screen, &WaitingRoomScreen::go_back_to_lobby_screen, this, [this]() {
         std::cout << "[GameWindow] Volviendo al lobby desde WaitingRoom\n";
         stack->setCurrentWidget(lobby_screen);
-        lobby_screen->startPolling();  // Reiniciar polling para recibir el listado actualizado
+        lobby_screen->on_return_from_waiting_room(); 
     });
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_game_start, this, &GameWindow::close);
 
