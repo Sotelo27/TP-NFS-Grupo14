@@ -1,5 +1,6 @@
 #include "result_finish_screen.h"
 #include <QHeaderView>
+#include <QGraphicsDropShadowEffect>
 
 ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
                                        size_t& my_id,
@@ -14,31 +15,57 @@ ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
 }
 
 void ResultFinishScreen::setup_ui() {
-    setFixedSize(900, 700);
+    setFixedSize(1100, 750);
 
-    // Fondo de pantalla
+    // ---- Fondo ----
     QPalette pal;
     pal.setBrush(QPalette::Window, QPixmap("assets/images/fondo.png"));
     setAutoFillBackground(true);
     setPalette(pal);
 
-    // Layout
+    // ---- Layout principal ----
     auto* layout = new QVBoxLayout(this);
+    layout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+    layout->setContentsMargins(0, 40, 0, 0);
 
-    // Título estilo neón
-    title_label = new QLabel("RANKING", this);
-    title_label->setAlignment(Qt::AlignCenter);
-    title_label->setFixedHeight(120);
-    title_label->setStyleSheet(
-        "font-size: 60px; font-weight: bold; "
-        "color: #ff1ef7; text-shadow: 0 0 20px #ff1ef7;"
+    // ---- Caja contenedora ----
+    QWidget* container = new QWidget(this);
+    container->setFixedSize(850, 580);
+    container->setStyleSheet(
+        "background-color: rgba(10, 0, 30, 200);"
+        "border: 5px solid #ff33cc;"
+        "border-radius: 15px;"
     );
 
-    layout->addWidget(title_label);
+    // Sombra neón
+    auto* glow = new QGraphicsDropShadowEffect(this);
+    glow->setBlurRadius(60);
+    glow->setColor(QColor(255, 0, 180));
+    glow->setOffset(0, 0);
+    container->setGraphicsEffect(glow);
 
-    // Tabla
-    table = new QTableWidget(10, 3, this);
-    table->setFixedSize(700, 500);
+    auto* container_layout = new QVBoxLayout(container);
+    container_layout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+    container_layout->setContentsMargins(20, 20, 20, 20);
+
+    // ---- TÍTULO ----
+    title_label = new QLabel("RANKING", container);
+    title_label->setAlignment(Qt::AlignCenter);
+    title_label->setFixedHeight(110);
+    title_label->setStyleSheet(
+        "background-color: rgba(255, 0, 180, 0.20);"
+        "border: 4px solid #ff33cc;"
+        "font-size: 60px;"
+        "font-weight: bold;"
+        "color: #ff66ff;"
+        "border-radius: 10px;"
+        "padding: 10px;"
+        "text-shadow: 0 0 25px #ff33cc;"
+    );
+
+    // ---- Tabla ----
+    table = new QTableWidget(10, 3, container);
+    table->setFixedHeight(430);
     table->setHorizontalHeaderLabels({"POSICIÓN", "NOMBRE", "TIEMPO"});
     table->verticalHeader()->setVisible(false);
 
@@ -46,34 +73,37 @@ void ResultFinishScreen::setup_ui() {
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setSelectionMode(QAbstractItemView::NoSelection);
 
-    layout->addWidget(table);
+    container_layout->addWidget(title_label);
+    container_layout->addSpacing(15);
+    container_layout->addWidget(table);
+
+    layout->addWidget(container);
 }
 
-
 void ResultFinishScreen::setup_style() {
-    // Estilos neon tipo arcade
+
     table->setStyleSheet(
         "QTableWidget {"
         "   background-color: rgba(20, 0, 40, 180);"
-        "   border: 4px solid #ff1ef7;"
-        "   gridline-color: #ff1ef7;"
+        "   border: 3px solid #ff33cc;"
+        "   gridline-color: #ff33cc;"
         "   font-size: 26px;"
         "   color: #39ff14;"
         "}"
         "QHeaderView::section {"
-        "   background-color: rgba(255, 0, 150, 180);"
+        "   background-color: rgba(255, 0, 150, 200);"
         "   color: white;"
-        "   font-size: 22px;"
-        "   border: 2px solid #ff1ef7;"
+        "   font-size: 24px;"
+        "   border: 2px solid #ff33cc;"
+        "   padding: 6px;"
+        "}"
+        "QTableWidget::item {"
+        "   padding: 12px;"
         "}"
     );
 }
 
-
 void ResultFinishScreen::populate_table() {
-    // Esto después lo llenás con los datos reales que te pase el server
-    // Por ahora te dejo un mock para que veas el estilo:
-
     QString nombres[10] = { "ALEX", "JAMIE", "MARÍA", "PEDRO", "SARA",
                             "CARLA", "MIGUEL", "LAURA", "LUIS", "TOMÁS" };
 
