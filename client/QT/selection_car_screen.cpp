@@ -19,22 +19,26 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
     mainLayout->setContentsMargins(30, 20, 30, 30);
     mainLayout->setSpacing(10);
 
-    mainLayout->addStretch(); // Empuja todo hacia abajo
+    // Empuja todo hacia abajo
+    mainLayout->addStretch();
 
     // ------------------------------
     // AUTO GRANDE
     // ------------------------------
     carLabel = new QLabel();
-    carLabel->setFixedSize(700, 360); // tamaño al estilo de la imagen que pasaste
     carLabel->setAlignment(Qt::AlignCenter);
+    carLabel->setFixedSize(750, 390);   // más grande que antes
+
+    // Añadimos un pequeño espacio para bajarlo más
+    mainLayout->addSpacing(40);
     mainLayout->addWidget(carLabel, 0, Qt::AlignCenter);
 
     // ------------------------------
-    // FLECHAS + LISTO (MISMA FILA)
-    // <-     LISTO     ->
+    // FLECHAS + LISTO
     // ------------------------------
     QHBoxLayout* bottomRow = new QHBoxLayout();
     bottomRow->setSpacing(25);
+
     QPushButton* leftBtn = new QPushButton("<");
     leftBtn->setFixedSize(70, 70);
     leftBtn->setStyleSheet(
@@ -53,7 +57,7 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
         "font-size: 20px;"
     );
 
-    QPushButton* rightBtn = new QPushButton(">"); 
+    QPushButton* rightBtn = new QPushButton(">");
     rightBtn->setFixedSize(70, 70);
     rightBtn->setStyleSheet(
         "background-color: rgba(0, 0, 0, 100);"
@@ -62,12 +66,12 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
         "font-size: 28px;"
     );
 
-
     bottomRow->addWidget(leftBtn);
     bottomRow->addWidget(listoBtn, 0, Qt::AlignCenter);
     bottomRow->addWidget(rightBtn);
 
     mainLayout->addLayout(bottomRow);
+
     // Lista de autos
     cars = {
         {CarSpriteID::CommonGreenCar, "assets/cars/cars_images/autoVerde.png"},
@@ -110,10 +114,10 @@ void SelectionCarScreen::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
     backgroundLabel->setGeometry(0, 0, width(), height());
 
-    // auto grande dinámico
     int w = width();
-    int newWidth = qBound(500, w * 55 / 100, 900);
+    int newWidth = qBound(600, w * 75 / 100, 1200);
     carLabel->setFixedSize(newWidth, newWidth * 0.52);
+
     updateCarImage();
 }
 
