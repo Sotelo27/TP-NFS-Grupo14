@@ -25,7 +25,8 @@ void MonitorLobby::init_dispatch() {
         {ClientAction::Type::Room, [this](ClientAction act){ handle_room_action(std::move(act)); }},
         {ClientAction::Type::Name, [this](ClientAction act){ handle_name_action(std::move(act)); }},
         {ClientAction::Type::Move, [this](ClientAction act){ handle_move_action(std::move(act)); }},
-        {ClientAction::Type::StartGame, [this](ClientAction act){ handle_start_game(std::move(act)); }}
+        {ClientAction::Type::StartGame, [this](ClientAction act){ handle_start_game(std::move(act)); }},
+        {ClientAction::Type::ChooseCar, [this](ClientAction act){ handle_choose_car_action(std::move(act)); }}
     };
 }
 
@@ -210,6 +211,12 @@ void MonitorLobby::handle_start_game(ClientAction act) {
     }
 }
 
+void MonitorLobby::handle_choose_car_action(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    pending_car_id[act.id] = act.car_id;
+    std::cout << "[Lobby] Saved car_id=" << (int)act.car_id << " for conn_id=" << act.id << std::endl;
+}
+
 size_t MonitorLobby::reserve_connection_id() {
     std::lock_guard<std::mutex> lk(m);
     return next_conn_id++;
@@ -363,16 +370,24 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     std::shared_ptr<ClientHandler> handler = itp->second;
     pending.erase(itp);
 
-    size_t player_id = itr->second.game.add_player();
-    bindings[conn_id] = std::make_pair(room_id, player_id);
-
+    std::string username;
+    uint8_t car_id = 0;
     auto pn = pending_names.find(conn_id);
     if (pn != pending_names.end()) {
-        std::cout << "[Lobby] Applying pending name for conn_id=" << conn_id << ": '" << pn->second << "'\n";
-        itr->second.game.set_player_name(player_id, pn->second);
-        if (handler) {
-            handler->send_player_name_to_client(static_cast<uint32_t>(player_id), pn->second);
-        }
+        username = pn->second;
+    }
+    auto pcid = pending_car_id.find(conn_id);
+    if (pcid != pending_car_id.end()) {
+        car_id = pcid->second;
+        pending_car_id.erase(pcid);
+    }
+    size_t player_id = itr->second.game.add_player(username, car_id);
+    bindings[conn_id] = std::make_pair(room_id, player_id);
+
+    if (handler) {
+        handler->send_player_name_to_client(static_cast<uint32_t>(player_id), username);
+    }
+    if (pn != pending_names.end()) {
         pending_names.erase(pn);
     }
 
@@ -380,7 +395,7 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     handler->start_send_only();
     handler->send_your_id_to_client((uint32_t)(player_id));
     std::cout << "[Lobby] conn_id=" << conn_id << " joined room_id=" << (int)room_id
-              << " as player_id=" << player_id << "\n";
+              << " as player_id=" << player_id << ", username='" << username << "', car_id=" << (int)car_id << "\n";
 
     broadcast_players_in_room_locked(room_id);
     broadcast_rooms_to_pending_locked();
@@ -560,10 +575,6 @@ void MonitorLobby::run() {
 MonitorLobby::~MonitorLobby() {
     try {
         stop();
-    } catch (...) {
-    }
-    try {
-        Thread::join();
     } catch (...) {
     }
 }
