@@ -90,7 +90,6 @@ void Game::remove_player(size_t id) {
     if (!jugador_existe_auxiliar(id)) {
         throw_jugador_no_existe(id);
     }
-    Player& p = players.at(id);
     players.erase(id);
     race.remove_player(id);
 }
