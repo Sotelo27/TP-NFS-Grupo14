@@ -20,7 +20,6 @@ private:
     PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
     std::unordered_map<size_t, std::unique_ptr<Car>> cars;
-    std::unordered_map<size_t, uint8_t> car_ids;
 
     /*
      * Devuelve la direccion de aceleración del jugador segun su input

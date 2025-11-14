@@ -12,8 +12,7 @@ void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, flo
     constexpr float PPM = 32.f; // 32 px = 1 metro (tamaño del tile)
     const float spawnX_m = spawnX_px / PPM;
     const float spawnY_m = spawnY_px / PPM;
-    parts[playerId] = RaceParticipant{ParticipantState::Active, &spec};
-    car_ids[playerId] = car_id;
+    parts[playerId] = RaceParticipant{ParticipantState::Active, car_id};
     physics.create_car_body(playerId, spawnX_m, spawnY_m, spec);
     cars[playerId] = std::make_unique<Car>(playerId, spec, physics.get_body(playerId));
 }
@@ -28,11 +27,7 @@ void Race::remove_player(size_t playerId) {
     if (itc != cars.end()) {
         cars.erase(itc);
     }
-    // limpiar car_id asociado
-    auto itid = car_ids.find(playerId);
-    if (itid != car_ids.end()) {
-        car_ids.erase(itid);
-    }
+    
     physics.destroy_body(playerId);
 }
 
@@ -43,7 +38,6 @@ void Race::apply_input(size_t playerId, const InputState& input) {
 
     RaceParticipant& participant = participant_it->second;
     if (participant.state != ParticipantState::Active) return;
-    if (!participant.spec) return;
 
     // Resolver entradas en [-1..1]
     const float throttle = resolve_acceleration_input(input);
@@ -116,11 +110,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
 
         PlayerTickInfo pti;
         pti.username = "";
-        if (auto itid = car_ids.find(playerId); itid != car_ids.end()) {
-            pti.car_id = itid->second;
-        } else {
-            pti.car_id = 0;
-        }
+        pti.car_id = participant.car_id;
         pti.player_id = (uint32_t)(playerId);
         pti.x = x_px;
         pti.y = y_px;
