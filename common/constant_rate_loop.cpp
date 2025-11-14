@@ -7,7 +7,7 @@
 ConstantRateLoop::ConstantRateLoop(const double frame_rate):
         frame_rate(frame_rate), running(false) {}
 
-void ConstantRateLoop::start() {
+void ConstantRateLoop::start_loop() {
     running = true;
     double frame_time = 1.0 / frame_rate;
 

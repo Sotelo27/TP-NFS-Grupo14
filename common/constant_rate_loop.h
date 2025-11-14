@@ -12,7 +12,7 @@ protected:
 public:
     explicit ConstantRateLoop(const double frame_rate);
 
-    void start();
+    void start_loop();
 
     ConstantRateLoop(const ConstantRateLoop&) = delete;
     ConstantRateLoop& operator=(const ConstantRateLoop&) = delete;

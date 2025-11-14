@@ -59,7 +59,7 @@ void ClientGame::start() {
 
     std::cout << "[ClientGame] Juego iniciado" << std::endl;
 
-    ConstantRateLoop::start();
+    ConstantRateLoop::start_loop();
 }
 
 void ClientGame::update_state_from_position() {
