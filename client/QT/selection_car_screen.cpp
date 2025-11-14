@@ -3,95 +3,54 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPixmap>
-#include <QDebug>
 #include <QSizePolicy>
 
 SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* parent)
     : QWidget(parent), server_handler(server_handler)
 {
-    // -------------------------
-    // BACKGROUND fullscreen
-    // -------------------------
+    // Fondo full screen
     backgroundLabel = new QLabel(this);
     backgroundLabel->setPixmap(QPixmap("assets/images/garage.png"));
     backgroundLabel->setScaledContents(true);
     backgroundLabel->lower();
-    backgroundLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-    // -------------------------
-    // MAIN LAYOUT
-    // -------------------------
+    // Layout principal
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(30, 20, 30, 30);
     mainLayout->setSpacing(10);
 
-    mainLayout->addStretch(); // empuja todo hacia abajo
+    mainLayout->addStretch(); // Empuja todo hacia abajo
 
-    // -------------------------
-    // FLECHA - AUTO - FLECHA
-    // -------------------------
-    QHBoxLayout* middleLayout = new QHBoxLayout();
-    middleLayout->setSpacing(25);
+    // ------------------------------
+    // AUTO GRANDE
+    // ------------------------------
+    carLabel = new QLabel();
+    carLabel->setFixedSize(700, 360); // tamaño al estilo de la imagen que pasaste
+    carLabel->setAlignment(Qt::AlignCenter);
+    mainLayout->addWidget(carLabel, 0, Qt::AlignCenter);
+
+    // ------------------------------
+    // FLECHAS + LISTO (MISMA FILA)
+    // <-     LISTO     ->
+    // ------------------------------
+    QHBoxLayout* bottomRow = new QHBoxLayout();
+    bottomRow->setSpacing(25);
 
     QPushButton* leftBtn = new QPushButton("<");
-    leftBtn->setFixedSize(65, 65);
-    leftBtn->setStyleSheet(
-        "QPushButton {"
-        "  background: rgba(255,255,255,0.65);"
-        "  border: 2px solid #9ED0FF;"
-        "  border-radius: 14px;"
-        "  font-size: 28px;"
-        "  font-weight: bold;"
-        "}"
-        "QPushButton:hover { background: rgba(255,255,255,0.85); }"
-    );
+    leftBtn->setFixedSize(70, 70);
 
-    carLabel = new QLabel();
-    carLabel->setFixedSize(520, 260);
-    carLabel->setAlignment(Qt::AlignBottom | Qt::AlignHCenter);
-    carLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    QPushButton* rightBtn = new QPushButton(">");
-    rightBtn->setFixedSize(65, 65);
-    rightBtn->setStyleSheet(
-        "QPushButton {"
-        "  background: rgba(255,255,255,0.65);"
-        "  border: 2px solid #9ED0FF;"
-        "  border-radius: 14px;"
-        "  font-size: 28px;"
-        "  font-weight: bold;"
-        "}"
-        "QPushButton:hover { background: rgba(255,255,255,0.85); }"
-    );
-
-    middleLayout->addWidget(leftBtn, 0, Qt::AlignBottom);
-    middleLayout->addWidget(carLabel, 1, Qt::AlignBottom);
-    middleLayout->addWidget(rightBtn, 0, Qt::AlignBottom);
-
-    mainLayout->addLayout(middleLayout);
-
-    // -------------------------
-    // BOTÓN LISTO
-    // -------------------------
     QPushButton* listoBtn = new QPushButton("Listo");
-    listoBtn->setFixedSize(170, 52);
-    listoBtn->setStyleSheet(
-        "QPushButton {"
-        "  background-color: rgba(255,255,255,0.30);"
-        "  font-size: 19px;"
-        "  font-weight: bold;"
-        "  border: 2px solid #FF84C6;"
-        "  border-radius: 16px;"
-        "}"
-        "QPushButton:hover { background: rgba(255,210,244,0.5); }"
-    );
+    listoBtn->setFixedSize(200, 55);
 
-    mainLayout->addWidget(listoBtn, 0, Qt::AlignCenter);
-    mainLayout->addStretch();
+    QPushButton* rightBtn = new QPushButton(">"); 
+    rightBtn->setFixedSize(70, 70);
 
-    // -------------------------
-    // LISTA DE AUTOS
-    // -------------------------
+    bottomRow->addWidget(leftBtn);
+    bottomRow->addWidget(listoBtn, 0, Qt::AlignCenter);
+    bottomRow->addWidget(rightBtn);
+
+    mainLayout->addLayout(bottomRow);
+    // Lista de autos
     cars = {
         {CarSpriteID::CommonGreenCar, "assets/cars/cars_images/autoVerde.png"},
         {CarSpriteID::RedCar, "assets/cars/cars_images/autoRojoDeportivo.png"},
@@ -104,9 +63,7 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
 
     updateCarImage();
 
-    // -------------------------
-    // SIGNALS
-    // -------------------------
+    // Signals
     connect(leftBtn,  &QPushButton::clicked, this, &SelectionCarScreen::prevCar);
     connect(rightBtn, &QPushButton::clicked, this, &SelectionCarScreen::nextCar);
 
@@ -133,13 +90,12 @@ void SelectionCarScreen::updateCarImage() {
 
 void SelectionCarScreen::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
-    if (backgroundLabel)
-        backgroundLabel->setGeometry(0, 0, width(), height());
+    backgroundLabel->setGeometry(0, 0, width(), height());
 
-    // auto más grande en pantallas grandes
+    // auto grande dinámico
     int w = width();
-    int maxW = qBound(340, w * 42 / 100, 720);
-
-    carLabel->setFixedSize(maxW, maxW * 0.52);
+    int newWidth = qBound(500, w * 55 / 100, 900);
+    carLabel->setFixedSize(newWidth, newWidth * 0.52);
     updateCarImage();
 }
+

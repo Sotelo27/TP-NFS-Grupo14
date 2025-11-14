@@ -40,4 +40,4 @@ private:
     int currentIndex = 0;
 };
 
-#endif // SELECTION_CAR_SCREEN_H
+#endif
