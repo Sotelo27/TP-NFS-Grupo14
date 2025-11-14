@@ -3,13 +3,13 @@
 #include <cmath>
 #include <algorithm>
 #define  PI 3.14159265358979323846f
+#define PPM 32.f
 
 Race::Race(uint32_t id, PhysicsWorld& external_world)
     : id(id), physics(external_world) {}
 
 void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px) {
-    // Conversión directa de píxeles a metros (PPM=32). Evitamos cuantizar a "units" para no introducir offset.
-    constexpr float PPM = 32.f; // 32 px = 1 metro (tamaño del tile)
+    // Conversión directa de píxeles a metros (PPM=32)
     const float spawnX_m = spawnX_px / PPM;
     const float spawnY_m = spawnY_px / PPM;
     parts[playerId] = RaceParticipant{ParticipantState::Active, car_id};
@@ -27,7 +27,7 @@ void Race::remove_player(size_t playerId) {
     if (itc != cars.end()) {
         cars.erase(itc);
     }
-    
+
     physics.destroy_body(playerId);
 }
 
@@ -75,7 +75,6 @@ std::vector<PlayerPos> Race::snapshot_poses() const {
         b2Body* body = physics.get_body(playerId);
         if (!body) continue;
         b2Vec2 p = body->GetPosition();
-        constexpr float PPM = 32.f; // 32 px = 1 m
         const int16_t x_px = (int16_t)std::lround(p.x * PPM);
         const int16_t y_px = (int16_t)std::lround(p.y * PPM);
         player_positions.push_back(PlayerPos{(uint32_t)(playerId), x_px, y_px, body->GetAngle()});
@@ -93,14 +92,14 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             continue;
         }
 
-    b2Body* body = physics.get_body(playerId);
-    if (!body) continue;
-    b2Vec2 p = body->GetPosition();
-    constexpr float PPM = 32.f;
-    const int32_t x_px = (int32_t)std::lround(p.x * PPM);
-    const int32_t y_px = (int32_t)std::lround(p.y * PPM);
+        b2Body* body = physics.get_body(playerId);
+        if (!body) continue;
+        b2Vec2 p = body->GetPosition();
+        const int32_t x_px = (int32_t)std::lround(p.x * PPM);
+        const int32_t y_px = (int32_t)std::lround(p.y * PPM);
         uint8_t hp = 100;
         auto itc = cars.find(playerId);
+        
         if (itc != cars.end() && itc->second) {
             float vida = itc->second->get_vida();
             if (vida < 0.f) vida = 0.f;
@@ -114,7 +113,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         pti.player_id = (uint32_t)(playerId);
         pti.x = x_px;
         pti.y = y_px;
-    pti.angle = body->GetAngle() * 180.0f / PI;
+        pti.angle = body->GetAngle() * 180.0f / PI;
         pti.health = hp;
         out.push_back(pti);
     }

@@ -91,8 +91,6 @@ void Game::remove_player(size_t id) {
         throw_jugador_no_existe(id);
     }
     Player& p = players.at(id);
-    uint8_t car_id = p.get_car_id();
-    garage.release_car(car_id);
     players.erase(id);
     race.remove_player(id);
 }
@@ -179,7 +177,6 @@ void Game::load_map(const MapConfig& cfg) {
     city.load_map(cfg);
 }
 
-//TODO, el monitor debe usar esta funcion SEGUN EL ID QUE HAYA SELCCIONADO EL CLIENTE
 void Game::load_map_by_id(const std::string& map_id) {
     const std::string ruta = resolve_map_path(map_id);
 
