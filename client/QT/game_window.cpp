@@ -159,7 +159,7 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     connect(selection_map_screen, &SelectionMapScreen::go_to_waiting_room_screen, this, [this]() {
         // Guardar el mapa seleccionado para usarlo luego en la sala de espera
         QString selected_map = selection_map_screen->get_selected_map();
-        waiting_room_screen->set_selected_map(selected_map); // Debe agregarse este método en waiting_room_screen
+        waiting_room_screen->set_selected_map(selected_map); // (opcional, para mostrar el nombre)
         go_to_waiting_room_from_map();
     });
 }
