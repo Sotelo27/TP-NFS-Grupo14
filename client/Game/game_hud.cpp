@@ -22,7 +22,8 @@ GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_
         car_sprites(car_sprites),
         speed_hud(window),
         position_hud(window),
-        mini_map(client_id, window, map_manager, info_players) {}
+        mini_map(client_id, window, map_manager, info_players),
+        hint(window) {}
 
 void GameHud::renderMiniMap() {
     int y_dest_mini_map = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
@@ -52,8 +53,14 @@ void GameHud::renderLifeBarHud() {
     }
 }
 
-void GameHud::render() {
+void GameHud::render(int iteration) {
     renderLifeBarHud();
+
+    const CarData& client_car_data = car_sprites.getCarData(
+            static_cast<CarSpriteID>(info_players[client_id].info_car.car_id));
+    hint.render(info_players[client_id].dest_area.getX(), info_players[client_id].dest_area.getY(),
+                100, 0.0, iteration, client_car_data.width_scale_screen,
+                client_car_data.height_scale_screen);
 
     speed_hud.render(999, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);
 

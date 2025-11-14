@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "resources/car_sprite_sheet.h"
+#include "resources/hint.h"
 #include "resources/life_bar.h"
 #include "resources/life_hud.h"
 #include "resources/maps_textures.h"
@@ -31,6 +32,7 @@ private:
     SpeedHud speed_hud;
     PositionHud position_hud;
     MiniMap mini_map;
+    Hint hint;
 
     void renderLifeBarHud();
     void renderMiniMap();
@@ -40,7 +42,7 @@ public:
                      std::unordered_map<size_t, CarInfoGame>& info_players,
                      const CarSpriteSheet& car_sprites);
 
-    void render();
+    void render(int iteration);
 
     GameHud(const GameHud&) = delete;
     GameHud& operator=(const GameHud&) = delete;

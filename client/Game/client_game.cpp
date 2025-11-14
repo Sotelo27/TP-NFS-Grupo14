@@ -13,7 +13,7 @@
 
 #define FRAME_RATE 60.0
 
-ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over) :
+ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over):
         ConstantRateLoop(FRAME_RATE),
         client_id(client_id),
         server_handler(server_handler),
@@ -46,7 +46,8 @@ void ClientGame::start() {
             map_id = msg.map_id;
             break;
         } else if (msg.type == ServerMessage::Type::Unknown) {
-            std::cout << "[ClientGame] Received Unknown message from server, probably disconnected. Exiting..."
+            std::cout << "[ClientGame] Received Unknown message from server, probably "
+                         "disconnected. Exiting..."
                       << std::endl;
             return;
         }
@@ -57,7 +58,7 @@ void ClientGame::start() {
     map_manager.loadMap(current_map_id);
 
     std::cout << "[ClientGame] Juego iniciado" << std::endl;
-   
+
     ConstantRateLoop::start();
 }
 
@@ -95,7 +96,7 @@ void ClientGame::update_state_from_position() {
 
                 // esto se debe borrar cuando se maneje el fin del juego
                 game_is_over = true;
-                
+
                 break;
         }
     }
@@ -132,7 +133,8 @@ void ClientGame::update_state_from_position() {
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
-            std::cout << "[ClientGame] Received Unknown message from server, probably disconnected. Exiting..."
+            std::cout << "[ClientGame] Received Unknown message from server, probably "
+                         "disconnected. Exiting..."
                       << std::endl;
         }
         // se debería recibir el fin del juego
@@ -211,7 +213,7 @@ void ClientGame::render_in_z_order() {
 
     render_cars();
 
-    game_hud.render();
+    game_hud.render(iteration);
 
     window.render();
 }
