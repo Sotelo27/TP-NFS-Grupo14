@@ -12,6 +12,7 @@ struct PlayerTickInfo {
     int32_t y;
     float angle;
     uint8_t health;
+    float speed_mps;
 };
 
 struct NpcTickInfo {

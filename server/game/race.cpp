@@ -99,7 +99,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         const int32_t y_px = (int32_t)std::lround(p.y * PPM);
         uint8_t hp = 100;
         auto itc = cars.find(playerId);
-        
+
         if (itc != cars.end() && itc->second) {
             float vida = itc->second->get_vida();
             if (vida < 0.f) vida = 0.f;
@@ -115,6 +115,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         pti.y = y_px;
         pti.angle = body->GetAngle() * 180.0f / PI;
         pti.health = hp;
+        pti.speed_mps = (itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f;
         out.push_back(pti);
     }
 
