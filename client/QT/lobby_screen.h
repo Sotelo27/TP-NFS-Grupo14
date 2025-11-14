@@ -27,7 +27,7 @@ private:
 
     WaitingRoomScreen* waitingRoom;
 
-    bool in_room{false}; // <-- NUEVO: flag para saber si está en sala
+    bool in_room{false};
 
 public:
     explicit LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
@@ -40,10 +40,11 @@ private slots:
     bool processServerMessage(const ServerMessage& msg);
     void update_room_list(const std::vector<RoomInfo>& rooms);
 
-    signals:
+signals:
     void room_created(uint8_t room_id);
     void go_to_waiting_room_screen();
-    void go_to_selection_map_screen(); 
+    void go_to_selection_map_screen();
 };
 
 #endif
+
