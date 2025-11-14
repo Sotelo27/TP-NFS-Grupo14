@@ -53,10 +53,8 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
     );
     startButton->setVisible(false);
     connect(startButton, &QPushButton::clicked, [this]() {
-        std::cout << "[WaitingRoomWindow] Admin solicitó iniciar partida..." << std::endl;
-        // Usar el mapa seleccionado
-        std::string map = selected_map.isEmpty() ? "LibertyCity" : selected_map.toStdString();
-        this->server_handler.send_start_game({{map, 0}});
+        // En vez de iniciar la partida, mostrar selección de mapa
+        emit go_to_selection_map_screen();
     });
     mainLayout->addWidget(startButton, 0, Qt::AlignCenter);
 

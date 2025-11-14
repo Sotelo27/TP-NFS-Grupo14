@@ -34,6 +34,7 @@ public:
     void update_player_list(const std::vector<std::string>& players);
     void start_game();
     void set_selected_map(const QString& map) { selected_map = map; }
+    bool isAdmin() const { return is_admin; } // <-- Agregado
 
     void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
     void stopPolling()  { if (pollTimer &&  pollTimer->isActive()) pollTimer->stop(); }

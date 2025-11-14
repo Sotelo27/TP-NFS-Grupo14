@@ -18,6 +18,7 @@ struct Match {
     ClientListProtected clients;
     Queue<ClientAction> actions;
     std::optional<Gameloop> loop;
+    bool started{false}; // <-- NUEVO: indica si la sala ya inició
 
     explicit Match(uint8_t id, float nitro_duracion, uint8_t max_players, size_t creator_id):
         room_id(id),
@@ -26,7 +27,9 @@ struct Match {
         game(nitro_duracion),
         clients(),
         actions(),
-        loop(std::nullopt) {}
+        loop(std::nullopt),
+        started(false) // <-- inicializar en false
+    {}
 };
 
 #endif

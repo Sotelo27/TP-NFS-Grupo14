@@ -80,5 +80,8 @@ SelectionMapScreen::SelectionMapScreen(ServerHandler& server_handler, QWidget* p
 
 void SelectionMapScreen::on_map_selected(const QString& map_name) {
     selected_map = map_name; // Guardar selección
+    // Enviar inicio de partida con el mapa seleccionado
+    std::string map = selected_map.isEmpty() ? "LibertyCity" : selected_map.toStdString();
+    server_handler.send_start_game({{map, 0}});
     emit go_to_waiting_room_screen();
 }

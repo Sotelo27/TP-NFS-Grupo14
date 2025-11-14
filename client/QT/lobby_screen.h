@@ -27,6 +27,8 @@ private:
 
     WaitingRoomScreen* waitingRoom;
 
+    bool in_room{false}; // <-- NUEVO: flag para saber si está en sala
+
 public:
     explicit LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
     void startPolling() { pollTimer->start(50); }

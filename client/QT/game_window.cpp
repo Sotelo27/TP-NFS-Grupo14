@@ -147,7 +147,13 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     connect(selection_car_screen, &SelectionCarScreen::go_to_lobby, this, &GameWindow::go_to_lobby);
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::go_to_waiting_room);
     connect(lobby_screen, &LobbyScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection); // NUEVO
-    connect(waiting_room_screen, &WaitingRoomScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection);
+    connect(waiting_room_screen, &WaitingRoomScreen::go_to_selection_map_screen, this, [this]() {
+        // Solo el admin debe navegar a la selección de mapa
+        if (waiting_room_screen->isAdmin()) {
+            go_to_map_selection();
+        }
+        // Los demás no hacen nada, esperan el RaceStart
+    });
     connect(waiting_room_screen, &WaitingRoomScreen::go_back_to_lobby_screen, this, [this]() {
         std::cout << "[GameWindow] Volviendo al lobby desde WaitingRoom\n";
         stack->setCurrentWidget(lobby_screen);
@@ -159,7 +165,7 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     connect(selection_map_screen, &SelectionMapScreen::go_to_waiting_room_screen, this, [this]() {
         // Guardar el mapa seleccionado para usarlo luego en la sala de espera
         QString selected_map = selection_map_screen->get_selected_map();
-        waiting_room_screen->set_selected_map(selected_map); // Debe agregarse este método en waiting_room_screen
+        waiting_room_screen->set_selected_map(selected_map); // (opcional, para mostrar el nombre)
         go_to_waiting_room_from_map();
     });
 }
