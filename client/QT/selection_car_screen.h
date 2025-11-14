@@ -33,8 +33,8 @@ protected:
 private:
     ServerHandler& server_handler;
 
-    QLabel* carLabel;
     QLabel* backgroundLabel;
+    QLabel* carLabel;
 
     QVector<CarInfoSprite> cars;
     int currentIndex = 0;
