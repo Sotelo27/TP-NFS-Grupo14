@@ -20,6 +20,7 @@ private:
     PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
     std::unordered_map<size_t, std::unique_ptr<Car>> cars;
+    std::unordered_map<size_t, uint8_t> car_ids;
 
     /*
      * Devuelve la direccion de aceleración del jugador segun su input
@@ -41,10 +42,10 @@ public:
     Race(uint32_t id, PhysicsWorld& external_world);
 
     /*
-    * Agrega un jugador a la carrera con su CarModel y posicioon inicial
+     * Agrega un jugador a la carrera con su CarModel y posicioon inicial
      * Tambien crea su cuerpo fisico en el mundo de Box2D
      */
-    void add_player(size_t playerId, const CarModel& spec, float spawnX_px, float spawnY_px);
+    void add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px);
     
     
     /*

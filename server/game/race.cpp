@@ -7,12 +7,13 @@
 Race::Race(uint32_t id, PhysicsWorld& external_world)
     : id(id), physics(external_world) {}
 
-void Race::add_player(size_t playerId, const CarModel& spec, float spawnX_px, float spawnY_px) {
+void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px) {
     // Conversión directa de píxeles a metros (PPM=32). Evitamos cuantizar a "units" para no introducir offset.
     constexpr float PPM = 32.f; // 32 px = 1 metro (tamaño del tile)
     const float spawnX_m = spawnX_px / PPM;
     const float spawnY_m = spawnY_px / PPM;
     parts[playerId] = RaceParticipant{ParticipantState::Active, &spec};
+    car_ids[playerId] = car_id;
     physics.create_car_body(playerId, spawnX_m, spawnY_m, spec);
     cars[playerId] = std::make_unique<Car>(playerId, spec, physics.get_body(playerId));
 }
@@ -26,6 +27,11 @@ void Race::remove_player(size_t playerId) {
     auto itc = cars.find(playerId);
     if (itc != cars.end()) {
         cars.erase(itc);
+    }
+    // limpiar car_id asociado
+    auto itid = car_ids.find(playerId);
+    if (itid != car_ids.end()) {
+        car_ids.erase(itid);
     }
     physics.destroy_body(playerId);
 }
@@ -110,7 +116,11 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
 
         PlayerTickInfo pti;
         pti.username = "";
-        pti.car_id = 0; //TODO: mapear id de auto seleccionado
+        if (auto itid = car_ids.find(playerId); itid != car_ids.end()) {
+            pti.car_id = itid->second;
+        } else {
+            pti.car_id = 0;
+        }
         pti.player_id = (uint32_t)(playerId);
         pti.x = x_px;
         pti.y = y_px;
