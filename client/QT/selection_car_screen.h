@@ -33,11 +33,11 @@ protected:
 private:
     ServerHandler& server_handler;
 
-    QLabel* carLabel;
     QLabel* backgroundLabel;
+    QLabel* carLabel;
 
     QVector<CarInfoSprite> cars;
     int currentIndex = 0;
 };
 
-#endif // SELECTION_CAR_SCREEN_H
+#endif
