@@ -12,7 +12,8 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
     : QWidget(parent),
       server_handler(server_handler),
       my_id(my_id),
-      waitingRoom(nullptr)
+      waitingRoom(nullptr),
+      in_room(false) // <-- NUEVO: flag para saber si está en sala
 {
     setWindowTitle("Lobby - Need For Speed");
     setFixedSize(800, 600);
@@ -90,7 +91,8 @@ void LobbyScreen::onPollTimer() {
         ServerMessage msg = server_handler.recv_response_from_server();
         if (msg.type == ServerMessage::Type::Unknown || msg.type == ServerMessage::Type::Empty)
             break;
-        // Si processServerMessage devuelve true, cortar inmediatamente para no drenar YOUR_ID/PLAYERS_LIST
+        // Si el usuario ya está en una sala, no mostrar el lobby ni actualizar la lista de salas
+        if (in_room) break;
         if (processServerMessage(msg)) {
             break;
         }
@@ -101,14 +103,25 @@ void LobbyScreen::onPollTimer() {
 bool LobbyScreen::processServerMessage(const ServerMessage& msg) {
     switch (msg.type) {
         case ServerMessage::Type::Rooms:
+            // Si el usuario ya está en una sala, no actualizar el lobby
+            if (in_room) return true;
             update_room_list(msg.rooms);
             return false;
 
         case ServerMessage::Type::RoomCreated:
             std::cout << "[LobbyWindow] Sala creada con ID: " << (int)msg.id << std::endl;
             current_room_id = static_cast<uint8_t>(msg.id);
+            in_room = true; // <-- NUEVO: ahora está en sala
             emit room_created(current_room_id);
-            // Se navega en el slot -> detener el loop actual para no consumir más mensajes
+            return true;
+
+        case ServerMessage::Type::YourId:
+        case ServerMessage::Type::PlayersList:
+            in_room = true; // <-- NUEVO: si recibe estos, está en sala
+            return true;
+
+        case ServerMessage::Type::RaceStart:
+            in_room = true; // <-- NUEVO: si recibe RaceStart, está en sala/juego
             return true;
 
         default:
@@ -204,6 +217,7 @@ void LobbyScreen::open_waiting_room(uint8_t id_room) {
     if (pollTimer->isActive())
         pollTimer->stop();
 
+    in_room = true; // <-- NUEVO: al entrar a sala, marcar flag
     std::cout << "[LobbyWindow] Entrando a sala " << (int)id_room << std::endl;
 
     emit go_to_waiting_room_screen(); // Ir a sala de espera, NO a selección de mapa

@@ -173,6 +173,13 @@ void MonitorLobby::handle_start_game(ClientAction act) {
         return;
     }
 
+    // NUEVO: marcar sala como iniciada
+    itr->second.started = true;
+    std::cout << "[Lobby] Sala " << (int)target_room_id << " marcada como iniciada\n";
+
+    // Actualizar lobby para todos los clientes pendientes
+    broadcast_rooms_to_pending_locked();
+
     // Obtener el nombre del mapa enviado por el cliente
     std::string map_name = act.races.empty() ? "LibertyCity" : act.races[0].first;
     std::cout << "[MonitorLobby] Admin (creador) inicia partida con mapa: " << map_name << "\n";
@@ -240,6 +247,7 @@ std::vector<RoomInfo> MonitorLobby::list_rooms_locked() const {
     std::vector<RoomInfo> out;
     out.reserve(rooms.size());
     for (const auto& [rid, partida]: rooms) {
+        if (partida.started) continue; // <-- NUEVO: filtrar salas iniciadas
         uint8_t current = 0;
         for (const auto& [conn, bind]: bindings) {
             if (bind.first == rid)
@@ -341,11 +349,11 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players, size_t creator_con
     uint8_t rid = next_room_id++;
 
     auto [it, _] = rooms.try_emplace(rid, rid, nitro_duracion, max_players, creator_conn_id);
+    it->second.started = false; // <-- NUEVO: sala no iniciada
     std::cout << "[Lobby] Created room id=" << (int)rid 
               << ", max_players=" << (int)max_players 
               << ", creator_conn_id=" << creator_conn_id << "\n";
 
-    // Ya NO se carga el mapa aquí, se carga en handle_start_game
     start_room_loop_locked(it->second);
     return rid;
 }
@@ -357,6 +365,9 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
 
     auto itr = rooms.find(room_id);
     if (itr == rooms.end())
+        return false;
+
+    if (itr->second.started) // <-- NUEVO: no permitir unirse si ya inició
         return false;
 
     uint8_t current = 0;
