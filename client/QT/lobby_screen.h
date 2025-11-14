@@ -39,6 +39,7 @@ private slots:
     void open_waiting_room(uint8_t id_room);
     bool processServerMessage(const ServerMessage& msg);
     void update_room_list(const std::vector<RoomInfo>& rooms);
+    void on_return_from_waiting_room(); // <-- NUEVO: slot para resetear in_room
 
 signals:
     void room_created(uint8_t room_id);

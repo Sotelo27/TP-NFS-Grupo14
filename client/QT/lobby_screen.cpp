@@ -120,8 +120,15 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
     pollTimer->start(50);
 
     connect(this, &LobbyScreen::room_created, this, [this](uint8_t room_id) {
+        std::cout << "[LobbyWindow] Sala creada con ID: " << (int)room_id << "\n";
         open_waiting_room(room_id);
     });
+
+    // CONEXIÓN NUEVA: resetear in_room al volver del waiting room
+    // Si ya existe la instancia waitingRoom, conectar su señal
+    // Si no, la conexión debe hacerse en el lugar donde se crea la waitingRoom y navega a ella.
+    // Aquí, para mantener compatibilidad, agregamos un slot público y lo llamamos desde el GameWindow.
+    // connect(waitingRoom, &WaitingRoomScreen::go_back_to_lobby_screen, this, &LobbyScreen::on_return_from_waiting_room);
 
     std::cout << "[LobbyWindow] Ventana creada, polling iniciado" << std::endl;
 }
@@ -264,6 +271,12 @@ void LobbyScreen::open_waiting_room(uint8_t id_room) {
     in_room = true;
     std::cout << "[LobbyWindow] Entrando a sala " << (int)id_room << std::endl;
     emit go_to_waiting_room_screen();
+}
+
+void LobbyScreen::on_return_from_waiting_room() {
+    in_room = false;
+    startPolling();
+    std::cout << "[LobbyWindow] Regresando al lobby, in_room=false" << std::endl;
 }
 
 
