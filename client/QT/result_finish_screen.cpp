@@ -1,6 +1,8 @@
 #include "result_finish_screen.h"
 #include <QHeaderView>
 #include <QGraphicsDropShadowEffect>
+#include <QVBoxLayout>
+#include <QLabel>
 
 ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
                                        size_t& my_id,
@@ -69,14 +71,30 @@ void ResultFinishScreen::setup_ui() {
     table->setHorizontalHeaderLabels({"POSICIÓN", "NOMBRE", "TIEMPO"});
     table->verticalHeader()->setVisible(false);
 
+    auto* header = table->horizontalHeader();
+    header->setVisible(true);
+    header->setMinimumHeight(55);
+    header->setFixedHeight(55);
+    header->setDefaultAlignment(Qt::AlignCenter);
+
+    header->setStyleSheet(
+        "QHeaderView::section {"
+        "   background-color: rgba(255, 0, 150, 200);"
+        "   color: white;"
+        "   font-size: 26px;"
+        "   border: 2px solid #ff33cc;"
+        "   padding: 10px;"
+        "}"
+    );
+
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setSelectionMode(QAbstractItemView::NoSelection);
 
+    // ---- Layout ----
     container_layout->addWidget(title_label);
-    container_layout->addSpacing(15);
+    container_layout->addSpacing(25);
     container_layout->addWidget(table);
-
     layout->addWidget(container);
 }
 
@@ -90,13 +108,7 @@ void ResultFinishScreen::setup_style() {
         "   font-size: 26px;"
         "   color: #39ff14;"
         "}"
-        "QHeaderView::section {"
-        "   background-color: rgba(255, 0, 150, 200);"
-        "   color: white;"
-        "   font-size: 24px;"
-        "   border: 2px solid #ff33cc;"
-        "   padding: 6px;"
-        "}"
+
         "QTableWidget::item {"
         "   padding: 12px;"
         "}"
@@ -104,6 +116,7 @@ void ResultFinishScreen::setup_style() {
 }
 
 void ResultFinishScreen::populate_table() {
+
     QString nombres[10] = { "ALEX", "JAMIE", "MARÍA", "PEDRO", "SARA",
                             "CARLA", "MIGUEL", "LAURA", "LUIS", "TOMÁS" };
 
@@ -111,7 +124,8 @@ void ResultFinishScreen::populate_table() {
                             "1:50", "2:00", "2:10", "2:22", "2:30" };
 
     for (int i = 0; i < 10; i++) {
-        auto* pos = new QTableWidgetItem(QString::number(i + 1) + "º");
+
+        auto* pos  = new QTableWidgetItem(QString::number(i + 1) + "º");
         auto* name = new QTableWidgetItem(nombres[i]);
         auto* time = new QTableWidgetItem(tiempos[i]);
 
