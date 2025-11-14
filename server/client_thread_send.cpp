@@ -62,7 +62,7 @@ void ClientThreadSend::run() {
                     protocol.send_results(msg.results_current, msg.results_total);
                     break;
                 case ServerOutType::MapInfo:
-                    protocol.send_map_info(msg.players_tick, msg.npcs_tick, msg.events_tick);
+                    protocol.send_map_info(msg.players_tick, msg.npcs_tick, msg.events_tick, msg.race_time);
                     break;
                 default:
                     std::cout << "[ClientThreadSend] Unknown message type\n";

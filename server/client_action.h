@@ -10,7 +10,7 @@
 #include "../common/dto/movement.h"
 
 struct ClientAction {
-    enum class Type { Name, Move, Room, StartGame } type;
+    enum class Type { Name, Move, Room, StartGame, ChooseCar } type;
     size_t id;
 
     std::string username;
@@ -23,6 +23,9 @@ struct ClientAction {
     // StartGame
     std::vector<std::pair<std::string, uint8_t>> races;
 
+    // ChooseCar
+    uint8_t car_id{0};
+
     ClientAction(size_t id, Movement mv): type(Type::Move), id(id), movement(mv) {}
 
     ClientAction(size_t id, std::string name):
@@ -34,6 +37,10 @@ struct ClientAction {
     //constructor para StartGame
     ClientAction(size_t id, std::vector<std::pair<std::string, uint8_t>> races):
             type(Type::StartGame), id(id), movement(), races(std::move(races)) {}
+    
+    //constructor para ChooseCar
+    ClientAction(size_t id, uint8_t car_id):
+            type(Type::ChooseCar), id(id), movement(), car_id(car_id) {}
 
     ClientAction() = default;
 };

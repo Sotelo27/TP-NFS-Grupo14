@@ -12,6 +12,7 @@ struct PlayerTickInfo {
     int32_t y;
     float angle;
     uint8_t health;
+    float speed_mps;
 };
 
 struct NpcTickInfo {
@@ -23,6 +24,11 @@ struct NpcTickInfo {
 struct EventInfo {
     uint8_t event_type;
     std::string username;
+};
+
+// Información de tiempo de carrera para enviar en ticks
+struct TimeTickInfo {
+    uint32_t seconds; // segundos transcurridos de la carrera
 };
 
 #endif

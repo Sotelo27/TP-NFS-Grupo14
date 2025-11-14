@@ -25,7 +25,8 @@ void MonitorLobby::init_dispatch() {
         {ClientAction::Type::Room, [this](ClientAction act){ handle_room_action(std::move(act)); }},
         {ClientAction::Type::Name, [this](ClientAction act){ handle_name_action(std::move(act)); }},
         {ClientAction::Type::Move, [this](ClientAction act){ handle_move_action(std::move(act)); }},
-        {ClientAction::Type::StartGame, [this](ClientAction act){ handle_start_game(std::move(act)); }}
+        {ClientAction::Type::StartGame, [this](ClientAction act){ handle_start_game(std::move(act)); }},
+        {ClientAction::Type::ChooseCar, [this](ClientAction act){ handle_choose_car_action(std::move(act)); }}
     };
 }
 
@@ -172,6 +173,13 @@ void MonitorLobby::handle_start_game(ClientAction act) {
         return;
     }
 
+    // NUEVO: marcar sala como iniciada
+    itr->second.started = true;
+    std::cout << "[Lobby] Sala " << (int)target_room_id << " marcada como iniciada\n";
+
+    // Actualizar lobby para todos los clientes pendientes
+    broadcast_rooms_to_pending_locked();
+
     // Obtener el nombre del mapa enviado por el cliente
     std::string map_name = act.races.empty() ? "LibertyCity" : act.races[0].first;
     std::cout << "[MonitorLobby] Admin (creador) inicia partida con mapa: " << map_name << "\n";
@@ -210,6 +218,12 @@ void MonitorLobby::handle_start_game(ClientAction act) {
     }
 }
 
+void MonitorLobby::handle_choose_car_action(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    pending_car_id[act.id] = act.car_id;
+    std::cout << "[Lobby] Saved car_id=" << (int)act.car_id << " for conn_id=" << act.id << std::endl;
+}
+
 size_t MonitorLobby::reserve_connection_id() {
     std::lock_guard<std::mutex> lk(m);
     return next_conn_id++;
@@ -233,6 +247,7 @@ std::vector<RoomInfo> MonitorLobby::list_rooms_locked() const {
     std::vector<RoomInfo> out;
     out.reserve(rooms.size());
     for (const auto& [rid, partida]: rooms) {
+        if (partida.started) continue; // <-- NUEVO: filtrar salas iniciadas
         uint8_t current = 0;
         for (const auto& [conn, bind]: bindings) {
             if (bind.first == rid)
@@ -334,11 +349,11 @@ uint8_t MonitorLobby::create_room_locked(uint8_t max_players, size_t creator_con
     uint8_t rid = next_room_id++;
 
     auto [it, _] = rooms.try_emplace(rid, rid, nitro_duracion, max_players, creator_conn_id);
+    it->second.started = false; // <-- NUEVO: sala no iniciada
     std::cout << "[Lobby] Created room id=" << (int)rid 
               << ", max_players=" << (int)max_players 
               << ", creator_conn_id=" << creator_conn_id << "\n";
 
-    // Ya NO se carga el mapa aquí, se carga en handle_start_game
     start_room_loop_locked(it->second);
     return rid;
 }
@@ -352,6 +367,9 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     if (itr == rooms.end())
         return false;
 
+    if (itr->second.started) // <-- NUEVO: no permitir unirse si ya inició
+        return false;
+
     uint8_t current = 0;
     for (const auto& [conn, bind]: bindings) {
         if (bind.first == room_id)
@@ -360,32 +378,48 @@ bool MonitorLobby::join_room_locked(size_t conn_id, uint8_t room_id) {
     if (current >= itr->second.max_players)
         return false;
 
-    std::shared_ptr<ClientHandler> handler = itp->second;
-    pending.erase(itp);
-
-    size_t player_id = itr->second.game.add_player();
-    bindings[conn_id] = std::make_pair(room_id, player_id);
-
+    std::string username;
+    uint8_t car_id = 0;
     auto pn = pending_names.find(conn_id);
     if (pn != pending_names.end()) {
-        std::cout << "[Lobby] Applying pending name for conn_id=" << conn_id << ": '" << pn->second << "'\n";
-        itr->second.game.set_player_name(player_id, pn->second);
-        if (handler) {
-            handler->send_player_name_to_client(static_cast<uint32_t>(player_id), pn->second);
-        }
-        pending_names.erase(pn);
+        username = pn->second;
     }
+    auto pcid = pending_car_id.find(conn_id);
+    if (pcid != pending_car_id.end()) {
+        car_id = pcid->second;
+    }
+    try {
+        size_t player_id = itr->second.game.add_player(username, car_id);
+        bindings[conn_id] = std::make_pair(room_id, player_id);
 
-    itr->second.clients.agregar_client(handler);
-    handler->start_send_only();
-    handler->send_your_id_to_client((uint32_t)(player_id));
-    std::cout << "[Lobby] conn_id=" << conn_id << " joined room_id=" << (int)room_id
-              << " as player_id=" << player_id << "\n";
+        // Mover al usuario desde pending a la sala solo tras éxito
+        std::shared_ptr<ClientHandler> handler = itp->second;
+        pending.erase(itp);
 
-    broadcast_players_in_room_locked(room_id);
-    broadcast_rooms_to_pending_locked();
+        if (handler) {
+            handler->send_player_name_to_client(static_cast<uint32_t>(player_id), username);
+        }
+        if (pn != pending_names.end()) {
+            pending_names.erase(pn);
+        }
+        if (pcid != pending_car_id.end()) {
+            pending_car_id.erase(pcid);
+        }
 
-    return true;
+        itr->second.clients.agregar_client(handler);
+        handler->start_send_only();
+        handler->send_your_id_to_client((uint32_t)(player_id));
+        std::cout << "[Lobby] conn_id=" << conn_id << " joined room_id=" << (int)room_id
+                  << " as player_id=" << player_id << ", username='" << username << "', car_id=" << (int)car_id << "\n";
+
+        broadcast_players_in_room_locked(room_id);
+        broadcast_rooms_to_pending_locked();
+
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "[Lobby] ERROR: Could not reserve car_id=" << (int)car_id << " for conn_id=" << conn_id << ": " << e.what() << std::endl;
+        return false;
+    }
 }
 
 std::shared_ptr<ClientHandler> MonitorLobby::detach_from_current_room_locked(size_t conn_id, std::optional<uint8_t>* old_room) {
@@ -560,10 +594,6 @@ void MonitorLobby::run() {
 MonitorLobby::~MonitorLobby() {
     try {
         stop();
-    } catch (...) {
-    }
-    try {
-        Thread::join();
     } catch (...) {
     }
 }

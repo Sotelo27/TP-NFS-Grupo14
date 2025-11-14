@@ -51,7 +51,8 @@ public:
                       const std::vector<PlayerResultTotal>& total);
     void send_map_info(const std::vector<PlayerTickInfo>& players,
                        const std::vector<NpcTickInfo>& npcs,
-                       const std::vector<EventInfo>& events);
+                       const std::vector<EventInfo>& events,
+                       TimeTickInfo time_info);
 
     bool is_recv_closed() const { return skt.is_stream_recv_closed(); }
     void shutdown(int mode) { skt.shutdown(mode); }

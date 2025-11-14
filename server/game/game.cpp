@@ -49,26 +49,6 @@ std::string Game::resolve_map_path(const std::string& map_id) const {
     return maps_base_path + it->second;
 }
 
-//TODO por ahora lo dejo pero lo tengo que eliminar
-size_t Game::add_player() {
-    std::lock_guard<std::mutex> lock(m);
-    while (jugador_existe_auxiliar(id_indice)) {
-        id_indice++;
-    }
-
-    players.emplace(id_indice, Player{id_indice});
-    std::cout << "[Game] Added player with id=" << id_indice << "\n";
-
-    // Agregar jugador a la race con su CarModel y el spawn de la ciudad
-    const CarModel& model = players.at(id_indice).get_car_model();
-    size_t spawn_index = (players.size() > 0) ? (players.size() - 1) : 0;
-    SpawnPoint sp = city.get_spawn_for_index(spawn_index);
-    
-    race.add_player(id_indice, model, sp.x_px, sp.y_px);
-    return id_indice;
-}
-
-//TODO: eL MONITOR DEBE USAR ESTA FUNCION
 size_t Game::add_player(const std::string& name, uint8_t car_id) {
     std::lock_guard<std::mutex> lock(m);
 
@@ -96,7 +76,7 @@ size_t Game::add_player(const std::string& name, uint8_t car_id) {
     size_t spawn_index = (players.size() > 0) ? (players.size() - 1) : 0;
     SpawnPoint sp = city.get_spawn_for_index(spawn_index);
 
-    race.add_player(id_indice, model, sp.x_px, sp.y_px);
+    race.add_player(id_indice, model, car_id, sp.x_px, sp.y_px);
 
     std::cout << "[Game] Player " << name
               << " (id=" << id_indice
@@ -110,10 +90,6 @@ void Game::remove_player(size_t id) {
     if (!jugador_existe_auxiliar(id)) {
         throw_jugador_no_existe(id);
     }
-    Player& p = players.at(id);
-    uint8_t car_id = p.get_car_id();
-    // libero el auto en el garage por si se desconecta antes de en el lobby o en la carrera
-    garage.release_car(car_id);
     players.erase(id);
     race.remove_player(id);
 }
@@ -155,6 +131,8 @@ void Game::update(float dt) {
 
     // avanza simulacion del mundo fisico
     city.step(dt);
+    // avanza el tiempo de la carrera
+    race.advance_time(dt);
 }
 
 void Game::set_player_name(size_t id, std::string name) {
@@ -185,14 +163,14 @@ uint8_t Game::get_player_health(size_t id) const {
     return 100; // Por ahora retornar vida completa
 }
 
-uint32_t Game::get_player_race_time(size_t id) const {
+TimeTickInfo Game::get_player_race_time(size_t id) const {
     std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
     auto it = players.find(id);
     if (it == players.end()) {
-        return 0; // Valor por defecto si no existe
+        return TimeTickInfo{0}; // Valor por defecto si no existe
     }
-    // TODO: Implementar cuando se tenga sistema de tiempo de carrera
-    return 0; // Por ahora retornar 0
+    // Por ahora devolvemos el tiempo global de la carrera (no individual)
+    return TimeTickInfo{ race.get_race_time_seconds() };
 }
 
 void Game::load_map(const MapConfig& cfg) {
@@ -200,7 +178,6 @@ void Game::load_map(const MapConfig& cfg) {
     city.load_map(cfg);
 }
 
-//TODO, el monitor debe usar esta funcion SEGUN EL ID QUE HAYA SELCCIONADO EL CLIENTE
 void Game::load_map_by_id(const std::string& map_id) {
     const std::string ruta = resolve_map_path(map_id);
 
@@ -213,5 +190,10 @@ void Game::load_map_by_id(const std::string& map_id) {
               << ", spawns=" << cfg.spawns.size() << ")\n";
     
     //city.set_spawns(cfg.spawns);
+}
+
+TimeTickInfo Game::get_race_time() const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
+    return TimeTickInfo{ race.get_race_time_seconds() };
 }
 

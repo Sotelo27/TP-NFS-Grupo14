@@ -40,6 +40,11 @@ private:
     // Nombres pendientes
     std::unordered_map<size_t, std::string> pending_names;
 
+    // Car ID pendiente por usuario
+    std::unordered_map<size_t, uint8_t> pending_car_id;
+
+    void handle_choose_car_action(ClientAction act);
+
     // Generadores de ids
     size_t next_conn_id{1};
     uint8_t next_room_id{1};

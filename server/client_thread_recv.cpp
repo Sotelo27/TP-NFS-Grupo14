@@ -51,10 +51,17 @@ void ClientThreadRecv::run() {
                     break;
                 }
                 case ClientMessage::Type::StartGame: {
-                    std::cout << "[ClientThreadRecv] START_GAME from conn_id=" << id 
+                    std::cout << "[ClientThreadRecv] START_GAME from conn_id=" << id
                               << " races=" << received.races.size() << "\n";
                     action = ClientAction(id, received.races);
                     actiones_clients.push(action);
+                    break;
+                }
+                case ClientMessage::Type::ChooseCar: {
+                    action.type = ClientAction::Type::ChooseCar;
+                    action.id = id;
+                    action.car_id = received.car_id;
+                    std::cout << "[ClientThreadRecv] Pushed CHOOSE_CAR action from client " << id << " (car_id=" << (int)received.car_id << ")\n";
                     break;
                 }
                 default:

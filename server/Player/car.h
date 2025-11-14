@@ -24,11 +24,6 @@ private:
     b2Vec2 lateral_velocity() const noexcept;
 
     /*
-     * Devuelve la velocidad del auto en metros por segundo
-     */
-    float speed_mps() const noexcept;
-
-    /*
      * Pone un tope a la velocidad lineal (m/s).
      */
     void cap_speed(float vmax_mps) noexcept;
@@ -51,6 +46,11 @@ public:
      * Establece la vida actual del auto
      */
     void set_vida(float v) noexcept;
+
+    /*
+     * Devuelve la velocidad del auto en metros por segundo
+     */
+    float speed_mps() const noexcept;
 
     /*
      * Aplica el movimiento del jugador: acelera, gira segun CarModel

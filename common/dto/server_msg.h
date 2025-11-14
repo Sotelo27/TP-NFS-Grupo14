@@ -41,6 +41,7 @@ struct ServerMessage {
     std::vector<PlayerTickInfo> players_tick;
     std::vector<NpcTickInfo> npcs_tick;
     std::vector<EventInfo> events_tick;
+    TimeTickInfo race_time;
 
     ServerMessage();
 };
@@ -88,6 +89,7 @@ struct ServerOutMsg {
     std::vector<PlayerTickInfo> players_tick;
     std::vector<NpcTickInfo> npcs_tick;
     std::vector<EventInfo> events_tick;
+    TimeTickInfo race_time;
 
     ServerOutMsg();
 };

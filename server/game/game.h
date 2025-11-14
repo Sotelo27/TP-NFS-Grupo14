@@ -52,13 +52,6 @@ public:
     bool player_exists(size_t id);
 
     /*
-     * Agrega un jugador al game.
-     *
-     * Retorna el ID del jugador agregado.
-     */
-    size_t add_player();
-
-    /*
      * Agrega un jugador al game con nombre y carro especificados.
      *
      * Retorna el ID del jugador agregado.
@@ -83,6 +76,11 @@ public:
      */
     void update(float dt);
 
+    /*
+     * Obtiene el tiempo de carrera actual en segundos
+     */
+    TimeTickInfo get_race_time() const;
+    
     /*
      * Devuelve Player {(id, position)} de todos los jugadores
      */
@@ -113,7 +111,7 @@ public:
      * Obtiene el tiempo de carrera del jugador en milisegundos
      * Retorna 0 si no está en carrera
      */
-    uint32_t get_player_race_time(size_t id) const;
+    TimeTickInfo get_player_race_time(size_t id) const;
 
     /*
      * Carga el MapConfig paredes, edificios en la ciudad.

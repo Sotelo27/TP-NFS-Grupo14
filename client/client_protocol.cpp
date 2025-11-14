@@ -252,6 +252,8 @@ ServerMessage ClientProtocol::parse_map_info() {
         skt.recvall(&ang_be, 4);
         uint8_t health=0;
         skt.recvall(&health, 1);
+        uint32_t spd_be=0;
+        skt.recvall(&spd_be, 4);
         
         PlayerTickInfo pti;
         pti.username = std::move(user);
@@ -261,8 +263,13 @@ ServerMessage ClientProtocol::parse_map_info() {
         pti.y = (int32_t)ntohl(y_be);
         pti.angle = ntohf32(ang_be);
         pti.health = health;
+        pti.speed_mps = ntohf32(spd_be);
         dto.players_tick.push_back(std::move(pti));
     }
+    // tiempo de carrera
+    uint32_t time_be=0;
+    skt.recvall(&time_be, 4);
+    dto.race_time.seconds = ntohl(time_be);
     
     uint8_t nn=0;
     skt.recvall(&nn, 1);
