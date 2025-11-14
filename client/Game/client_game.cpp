@@ -183,7 +183,6 @@ void ClientGame::update_animation_frames() {
             continue;
         }
 
-        // el auto debería de pasarlo el server en algún momento
         CarData car_data = car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
         int x_car_screen = (car.info_car.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
