@@ -8,6 +8,7 @@
 #include "result_finish_screen.h"
 #include "selection_car_screen.h"
 #include "selection_map_screen.h"
+#include "menu_screen.h"
 #include <QtMultimedia/QSound>
 
 class GameWindow : public QDialog {
@@ -26,6 +27,7 @@ private:
     SelectionCarScreen *selection_car_screen;
     SelectionMapScreen *selection_map_screen;
     ResultFinishScreen *result_finish_screen;
+    MenuScreen *menu_screen; // <-- cambiar tipo
     // NUEVO: pantalla inicial
     class StartScreen; // forward decl local (definida en .cpp)
     StartScreen* start_screen;
@@ -38,6 +40,7 @@ private slots:
     void go_to_results() const;
     void go_to_login() const;
     void go_to_waiting_room_from_map() const; 
+    void go_to_menu() const; // <-- ya existe
 };
 
 

@@ -89,9 +89,9 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
     connect(leftBtn,  &QPushButton::clicked, this, &SelectionCarScreen::prevCar);
     connect(rightBtn, &QPushButton::clicked, this, &SelectionCarScreen::nextCar);
 
-    connect(listoBtn, &QPushButton::clicked, [this]() {
+    connect(listoBtn, &QPushButton::clicked, this, [this]() {
         emit car_selected(cars[currentIndex].id);
-        emit go_to_lobby();
+        emit go_to_menu();
     });
 }
 
