@@ -37,15 +37,18 @@ bool Garage::reserve_car(uint8_t car_id) {
 
     auto it = cars.find(car_id);
     if (it == cars.end()) {
+    std::cout << "[Garage] User tried to select an invalid car (ID: " << (int)car_id << ") in the garage." << std::endl;
         return false; // car_id invalido, no existe por las dudas
     }
 
     CarSlot& slot = it->second;
     if (slot.reservado) {
+    std::cout << "[Garage] User tried to select a car that is already reserved (ID: " << (int)car_id << ") in the garage." << std::endl;
         return false;
     }
 
     slot.reservado = true;
+    std::cout << "[Garage] User selected the car (ID: " << (int)car_id << ") in the garage." << std::endl;
     return true;
 }
 

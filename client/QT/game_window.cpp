@@ -139,6 +139,11 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
         stack->setCurrentWidget(result_finish_screen);
     }
 
+    connect(selection_car_screen, &SelectionCarScreen::car_selected, this, [this, &server_handler](CarSpriteID car_id) {
+        std::cout << "[GameWindow] Enviando selección de auto al servidor: " << static_cast<int>(car_id) << std::endl;
+        server_handler.send_choose_car(static_cast<uint8_t>(car_id));
+    });
+    
     connect(selection_car_screen, &SelectionCarScreen::go_to_lobby, this, &GameWindow::go_to_lobby);
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::go_to_waiting_room);
     connect(lobby_screen, &LobbyScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection); // NUEVO
