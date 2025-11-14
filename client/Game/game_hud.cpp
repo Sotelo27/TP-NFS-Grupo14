@@ -59,7 +59,7 @@ void GameHud::render(int iteration) {
     const CarData& client_car_data = car_sprites.getCarData(
             static_cast<CarSpriteID>(info_players[client_id].info_car.car_id));
     hint.render(info_players[client_id].dest_area.getX(), info_players[client_id].dest_area.getY(),
-                100, 0.0, iteration, client_car_data.width_scale_screen,
+                2000, 270.0, iteration, client_car_data.width_scale_screen,
                 client_car_data.height_scale_screen);
 
     speed_hud.render(999, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);
