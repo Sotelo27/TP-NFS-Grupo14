@@ -164,14 +164,14 @@ uint8_t Game::get_player_health(size_t id) const {
     return 100; // Por ahora retornar vida completa
 }
 
-uint32_t Game::get_player_race_time(size_t id) const {
+TimeTickInfo Game::get_player_race_time(size_t id) const {
     std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
     auto it = players.find(id);
     if (it == players.end()) {
-        return 0; // Valor por defecto si no existe
+        return TimeTickInfo{0}; // Valor por defecto si no existe
     }
-    // TODO: Implementar cuando se tenga sistema de tiempo de carrera
-    return 0; // Por ahora retornar 0
+    // Por ahora devolvemos el tiempo global de la carrera (no individual)
+    return TimeTickInfo{ race.get_race_time_seconds() };
 }
 
 void Game::load_map(const MapConfig& cfg) {
@@ -191,5 +191,10 @@ void Game::load_map_by_id(const std::string& map_id) {
               << ", spawns=" << cfg.spawns.size() << ")\n";
     
     //city.set_spawns(cfg.spawns);
+}
+
+TimeTickInfo Game::get_race_time() const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
+    return TimeTickInfo{ race.get_race_time_seconds() };
 }
 

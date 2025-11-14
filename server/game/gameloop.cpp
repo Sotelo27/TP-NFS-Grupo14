@@ -97,14 +97,12 @@ void Gameloop::run() {
                 prev += std::chrono::milliseconds(period_ms) * (1 + frames_late);
             }
 
-            //Un solo broadcast si cruzamos el umbral de N ticks
-            const int after = tick_count;
-            const bool crossed =
-                (before / ticks_per_broadcast) < (after / ticks_per_broadcast);
-            if (crossed) {
+            if (tick_count % ticks_per_broadcast == 0) {
                 auto tick_players = game.players_tick_info();
+                auto time_race = game.get_race_time(); 
                 std::vector<NpcTickInfo> npcs;
                 std::vector<EventInfo> events;
+                // TODO agregar al broadcast el tiempo
                 clients.broadcast_map_info(tick_players, npcs, events);
             }
 

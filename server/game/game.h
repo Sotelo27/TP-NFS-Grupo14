@@ -77,6 +77,11 @@ public:
     void update(float dt);
 
     /*
+     * Obtiene el tiempo de carrera actual en segundos
+     */
+    TimeTickInfo get_race_time() const;
+    
+    /*
      * Devuelve Player {(id, position)} de todos los jugadores
      */
     std::vector<PlayerPos> players_positions();
@@ -106,7 +111,7 @@ public:
      * Obtiene el tiempo de carrera del jugador en milisegundos
      * Retorna 0 si no está en carrera
      */
-    uint32_t get_player_race_time(size_t id) const;
+    TimeTickInfo get_player_race_time(size_t id) const;
 
     /*
      * Carga el MapConfig paredes, edificios en la ciudad.
