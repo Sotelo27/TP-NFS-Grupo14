@@ -52,13 +52,6 @@ public:
     bool player_exists(size_t id);
 
     /*
-     * Agrega un jugador al game.
-     *
-     * Retorna el ID del jugador agregado.
-     */
-    size_t add_player();
-
-    /*
      * Agrega un jugador al game con nombre y carro especificados.
      *
      * Retorna el ID del jugador agregado.

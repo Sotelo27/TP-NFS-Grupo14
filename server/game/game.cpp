@@ -49,26 +49,6 @@ std::string Game::resolve_map_path(const std::string& map_id) const {
     return maps_base_path + it->second;
 }
 
-//TODO por ahora lo dejo pero lo tengo que eliminar
-size_t Game::add_player() {
-    std::lock_guard<std::mutex> lock(m);
-    while (jugador_existe_auxiliar(id_indice)) {
-        id_indice++;
-    }
-
-    players.emplace(id_indice, Player{id_indice});
-    std::cout << "[Game] Added player with id=" << id_indice << "\n";
-
-    // Agregar jugador a la race con su CarModel y el spawn de la ciudad
-    const CarModel& model = players.at(id_indice).get_car_model();
-    size_t spawn_index = (players.size() > 0) ? (players.size() - 1) : 0;
-    SpawnPoint sp = city.get_spawn_for_index(spawn_index);
-    
-    race.add_player(id_indice, model, sp.x_px, sp.y_px);
-    return id_indice;
-}
-
-//TODO: eL MONITOR DEBE USAR ESTA FUNCION
 size_t Game::add_player(const std::string& name, uint8_t car_id) {
     std::lock_guard<std::mutex> lock(m);
 
@@ -96,7 +76,7 @@ size_t Game::add_player(const std::string& name, uint8_t car_id) {
     size_t spawn_index = (players.size() > 0) ? (players.size() - 1) : 0;
     SpawnPoint sp = city.get_spawn_for_index(spawn_index);
 
-    race.add_player(id_indice, model, sp.x_px, sp.y_px);
+    race.add_player(id_indice, model, car_id, sp.x_px, sp.y_px);
 
     std::cout << "[Game] Player " << name
               << " (id=" << id_indice
@@ -112,7 +92,6 @@ void Game::remove_player(size_t id) {
     }
     Player& p = players.at(id);
     uint8_t car_id = p.get_car_id();
-    // libero el auto en el garage por si se desconecta antes de en el lobby o en la carrera
     garage.release_car(car_id);
     players.erase(id);
     race.remove_player(id);
