@@ -9,6 +9,7 @@
 #include "../connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
 #include "resources/maps_textures.h"
+#include "resources/cheat_detector.h"
 #include "sdl_wrappers/SdlWindow.h"
 
 #include "../../common/constant_rate_loop.h"
@@ -30,8 +31,12 @@ private:
     GameHud game_hud;
     MapID current_map_id;
     TimeTickInfo time_info;
+    CheatDetector cheat_detector;
 
     void update_state_from_position();
+    void handle_sdl_events();
+    void handle_cheat_detection(const char* key_name);
+    void handle_movement_input();
 
     void update_animation_frames();
     void update_map_area();

@@ -26,7 +26,8 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         map_manager(window),
         game_hud(window, map_manager, client_id, info_players, car_sprites),
         current_map_id(MapID::LibertyCity),
-        time_info() {}
+        time_info(),
+        cheat_detector(5) {}
 
 void ClientGame::function() {
     update_state_from_position();
@@ -63,31 +64,26 @@ void ClientGame::start() {
     ConstantRateLoop::start_loop();
 }
 
-void ClientGame::update_state_from_position() {
-    SDL_Event event;
+void ClientGame::handle_cheat_detection(const char* keyName) {
+    cheat_detector.add_key(keyName);
 
+    if (cheat_detector.check_cheat("EXIT")) {
+        std::cout << "[ClientGame] Cheat code EXIT detected. Exiting game." << std::endl;
+        running = false;
+    }
+}
+
+void ClientGame::handle_sdl_events() {
+    SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_KEYDOWN: {
                 const SDL_KeyboardEvent& keyEvent = (SDL_KeyboardEvent&)event;
-                switch (keyEvent.keysym.sym) {
-                    case SDLK_LEFT:
-                        server_handler.send_movement(Movement::Left);
-                        std::cout << "[ClientGame] LEFT pressed\n";
-                        break;
-                    case SDLK_RIGHT:
-                        server_handler.send_movement(Movement::Right);
-                        std::cout << "[ClientGame] RIGHT pressed\n";
-                        break;
-                    case SDLK_UP:
-                        server_handler.send_movement(Movement::Up);
-                        std::cout << "[ClientGame] UP pressed\n";
-                        break;
-                    case SDLK_DOWN:
-                        server_handler.send_movement(Movement::Down);
-                        std::cout << "[ClientGame] DOWN pressed\n";
-                        break;
-                }
+                
+                const char* keyName = SDL_GetKeyName(keyEvent.keysym.sym);
+                std::cout << "Tecla presionada: " << keyName << std::endl;
+                
+                handle_cheat_detection(keyName);
             } break;
             case SDL_MOUSEMOTION:
                 break;
@@ -101,7 +97,9 @@ void ClientGame::update_state_from_position() {
                 break;
         }
     }
+}
 
+void ClientGame::handle_movement_input() {
     const Uint8* keyboard = SDL_GetKeyboardState(nullptr);
     if (keyboard[SDL_SCANCODE_LEFT]) {
         server_handler.send_movement(Movement::Left);
@@ -115,6 +113,12 @@ void ClientGame::update_state_from_position() {
     if (keyboard[SDL_SCANCODE_DOWN]) {
         server_handler.send_movement(Movement::Down);
     }
+}
+
+void ClientGame::update_state_from_position() {
+    handle_sdl_events();
+
+    handle_movement_input();
 
     // Procesar mensajes del servidor
     bool keep_loop = true;
