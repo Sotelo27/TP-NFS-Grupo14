@@ -1,8 +1,8 @@
 #ifndef HINT_H
 #define HINT_H
 
-#include "../sdl_wrappers/SdlObjTexture.h"
-#include "../sdl_wrappers/SdlWindow.h"
+#include "../../sdl_wrappers/SdlObjTexture.h"
+#include "../../sdl_wrappers/SdlWindow.h"
 
 class Hint {
 private:

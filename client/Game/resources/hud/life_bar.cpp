@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "../constants.h"
+#include "../../constants.h"
 
 #define LIFE_BAR_SPRITE_SHEET_FILE std::string(ASSETS_PATH) + "/hud/barra_de_vida.png"
 

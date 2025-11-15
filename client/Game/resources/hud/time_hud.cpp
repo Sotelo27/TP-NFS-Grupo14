@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "../constants.h"
+#include "../../constants.h"
 
 #define TIME_ICON std::string(ASSETS_PATH) + "/hud/tiempo.png"
 
@@ -26,6 +26,7 @@ void TimeHud::render(int16_t time_seconds, int x, int y) {
     int text_x = x - text.getWidth() / 2;
     text.renderDirect(text_x, y + SIZE / 5, buffer, Rgb(255, 255, 255), true);
 
-    this->texture.render(Area(0, 0, texture.getWidth(), texture.getHeight()),
-                         Area(text_x - SIZE - 5, y, SIZE, SIZE * texture.getHeight() / texture.getWidth()));
+    this->texture.render(
+            Area(0, 0, texture.getWidth(), texture.getHeight()),
+            Area(text_x - SIZE - 5, y, SIZE, SIZE * texture.getHeight() / texture.getWidth()));
 }

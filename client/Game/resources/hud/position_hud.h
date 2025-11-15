@@ -4,10 +4,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "../sdl_wrappers/SdlFont.h"
-#include "../sdl_wrappers/SdlObjTexture.h"
-#include "../sdl_wrappers/SdlWindow.h"
-#include "../utils/Area.h"
+#include "../../sdl_wrappers/SdlFont.h"
+#include "../../sdl_wrappers/SdlObjTexture.h"
+#include "../../sdl_wrappers/SdlWindow.h"
+#include "../../utils/Area.h"
 
 class PositionHud {
 private:
@@ -15,6 +15,7 @@ private:
 
     std::string getOrdinalSuffix(int number);
     std::string getOrdinalString(int number);
+
 public:
     explicit PositionHud(const SdlWindow& window);
 

@@ -1,6 +1,6 @@
 #include "mini_map_hud.h"
 
-#include "../constants.h"
+#include "../../constants.h"
 
 #define CARS_MINI_MAP std::string(ASSETS_PATH) + "/hud/autos.png"
 

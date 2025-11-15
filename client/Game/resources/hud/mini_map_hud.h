@@ -4,12 +4,12 @@
 #include <string>
 #include <unordered_map>
 
-#include "../car_info_game.h"
-#include "../resources/maps_textures.h"
-#include "../sdl_wrappers/SdlDrawFill.h"
-#include "../sdl_wrappers/SdlObjTexture.h"
-#include "../sdl_wrappers/SdlWindow.h"
-#include "../utils/Area.h"
+#include "../../car_info_game.h"
+#include "../../resources/maps_textures.h"
+#include "../../sdl_wrappers/SdlDrawFill.h"
+#include "../../sdl_wrappers/SdlObjTexture.h"
+#include "../../sdl_wrappers/SdlWindow.h"
+#include "../../utils/Area.h"
 
 class MiniMap {
 private:
@@ -22,7 +22,7 @@ private:
     void renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                              int mini_map_height);
     void renderPositionsMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
-                               int mini_map_height);
+                                int mini_map_height);
     void renderCarOnMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                             int mini_map_height, const PlayerTickInfo& info_my_car, bool red);
 

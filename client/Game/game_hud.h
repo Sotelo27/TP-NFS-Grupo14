@@ -7,14 +7,14 @@
 #include <unordered_map>
 
 #include "resources/car_sprite_sheet.h"
-#include "resources/hint.h"
-#include "resources/life_bar.h"
-#include "resources/life_hud.h"
+#include "resources/hud/hint.h"
+#include "resources/hud/life_bar.h"
+#include "resources/hud/life_hud.h"
+#include "resources/hud/mini_map_hud.h"
+#include "resources/hud/position_hud.h"
+#include "resources/hud/speed_hud.h"
+#include "resources/hud/time_hud.h"
 #include "resources/maps_textures.h"
-#include "resources/mini_map_hud.h"
-#include "resources/position_hud.h"
-#include "resources/speed_hud.h"
-#include "resources/time_hud.h"
 #include "sdl_wrappers/SdlWindow.h"
 
 #include "car_info_game.h"

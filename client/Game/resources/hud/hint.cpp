@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
-#include "../constants.h"
-#include "../utils/rgb.h"
+#include "../../constants.h"
+#include "../../utils/rgb.h"
 
 #define HINT_IMAGE_PATH std::string(ASSETS_PATH) + "/hud/flecha.png"
 
@@ -20,7 +20,7 @@ Hint::Hint(const SdlWindow& window):
 
 void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, int iteration,
                   int car_width_scale_screen, int car_height_scale_screen) const {
-    // posible uso o si no sacarlo 
+    // posible uso o si no sacarlo
     iteration = iteration % CLOSENESS_FACTOR;
 
     distance_checkpoint = std::min(MAX_RANGE_CHECKPOINT, distance_checkpoint);

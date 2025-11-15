@@ -1,10 +1,9 @@
 #include "position_hud.h"
 
-#include "../constants.h"
-#include "../utils/rgb.h"
+#include "../../constants.h"
+#include "../../utils/rgb.h"
 
-PositionHud::PositionHud(const SdlWindow& window):
-        text(FONT_STYLE_PX, 100, window) {}
+PositionHud::PositionHud(const SdlWindow& window): text(FONT_STYLE_PX, 100, window) {}
 
 void PositionHud::render(int position, int x, int y) {
     std::string position_str = getOrdinalString(position);

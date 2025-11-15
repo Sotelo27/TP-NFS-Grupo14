@@ -2,8 +2,8 @@
 
 #include <algorithm>
 
-#include "../constants.h"
-#include "../utils/rgb.h"
+#include "../../constants.h"
+#include "../../utils/rgb.h"
 
 #define SIZE WINDOW_WIDTH / 8
 #define SIZE_FONT_NUMBER (SIZE * 22) / 48
