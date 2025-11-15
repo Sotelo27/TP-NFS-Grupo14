@@ -41,21 +41,7 @@ void ClientGame::function() {
 }
 
 void ClientGame::start() {
-    uint8_t map_id = 0;
-    while (true) {
-        ServerMessage msg = server_handler.recv_response_from_server();
-        if (msg.type == ServerMessage::Type::RaceStart) {
-            map_id = msg.map_id;
-            break;
-        } else if (msg.type == ServerMessage::Type::Unknown) {
-            std::cout << "[ClientGame] Received Unknown message from server, probably "
-                         "disconnected. Exiting..."
-                      << std::endl;
-            return;
-        }
-    }
-
-    current_map_id = static_cast<MapID>(map_id);
+    process_server_messages(ServerMessage::Type::RaceStart);
 
     map_manager.loadMap(current_map_id);
 
@@ -115,18 +101,11 @@ void ClientGame::handle_movement_input() {
     }
 }
 
-void ClientGame::update_state_from_position() {
-    handle_sdl_events();
-
-    handle_movement_input();
-
-    // Procesar mensajes del servidor
-    bool keep_loop = true;
+void ClientGame::process_server_messages(ServerMessage::Type expected_type, int msg_limit) {
     int msg_count = 0;
-    static int frame_count = 0;
-    frame_count++;
+    bool keep_loop = true;
 
-    while (keep_loop && msg_count < 10) {
+    while (keep_loop && (msg_limit == -1 || msg_count < msg_limit)) {
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::MapInfo) {
@@ -137,18 +116,30 @@ void ClientGame::update_state_from_position() {
             }
 
             time_info = action.race_time;
+        } else if (action.type == ServerMessage::Type::RaceStart) {
+            current_map_id = static_cast<MapID>(action.map_id);
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
             std::cout << "[ClientGame] Received Unknown message from server, probably "
                          "disconnected. Exiting..."
                       << std::endl;
+        }  
+        
+        if (action.type == expected_type) {
+            keep_loop = false;
         }
-        // se debería recibir el fin del juego
-        // game_is_over = true;
 
         msg_count++;
     }
+}
+
+void ClientGame::update_state_from_position() {
+    handle_sdl_events();
+
+    handle_movement_input();
+
+    process_server_messages(ServerMessage::Type::Empty, 10);
 }
 
 void ClientGame::update_map_area() {

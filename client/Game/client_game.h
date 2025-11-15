@@ -36,6 +36,7 @@ private:
     void handle_sdl_events();
     void handle_cheat_detection(const char* key_name);
     void handle_movement_input();
+    void process_server_messages(ServerMessage::Type expected_type, int msg_limit = -1);
 
     void update_animation_frames();
     void update_map_area();
