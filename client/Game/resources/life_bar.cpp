@@ -4,7 +4,7 @@
 
 #include "../constants.h"
 
-#define LIFE_BAR_SPRITE_SHEET_FILE std::string(ASSETS_PATH) + "/images/barra_de_vida.png"
+#define LIFE_BAR_SPRITE_SHEET_FILE std::string(ASSETS_PATH) + "/hud/barra_de_vida.png"
 
 LifeBarSpriteSheet::LifeBarSpriteSheet(const SdlWindow& window):
         texture_life_bar(LIFE_BAR_SPRITE_SHEET_FILE, window,

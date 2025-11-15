@@ -22,7 +22,8 @@ GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_
         car_sprites(car_sprites),
         speed_hud(window),
         position_hud(window),
-        mini_map(client_id, window, map_manager, info_players) {}
+        mini_map(client_id, window, map_manager, info_players),
+        hint(window) {}
 
 void GameHud::renderMiniMap() {
     int y_dest_mini_map = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
@@ -44,7 +45,7 @@ void GameHud::renderLifeBarHud() {
         const CarData& car_data =
                 car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
-        // falta la vida maxima, que se espera recibir con los checkspoints
+        // falta la vida maxima, que se espera recibir al principio de la partida
         life_bar_sprites.render(
                 100, car.info_car.health,
                 Area(car.dest_area.getX(), car.dest_area.getY() - car_data.width_scale_screen / 5,
@@ -52,8 +53,14 @@ void GameHud::renderLifeBarHud() {
     }
 }
 
-void GameHud::render() {
+void GameHud::render(int iteration) {
     renderLifeBarHud();
+
+    const CarData& client_car_data = car_sprites.getCarData(
+            static_cast<CarSpriteID>(info_players[client_id].info_car.car_id));
+    hint.render(info_players[client_id].dest_area.getX(), info_players[client_id].dest_area.getY(),
+                2000, 270.0, iteration, client_car_data.width_scale_screen,
+                client_car_data.height_scale_screen);
 
     speed_hud.render(999, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);
 

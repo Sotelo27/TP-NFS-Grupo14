@@ -1,0 +1,53 @@
+#include "hint.h"
+
+#include <algorithm>
+#include <cmath>
+
+#include "../constants.h"
+#include "../utils/rgb.h"
+
+#define HINT_IMAGE_PATH std::string(ASSETS_PATH) + "/hud/flecha.png"
+
+#define CLOSENESS_FACTOR 10
+#define MAX_RANGE_CHECKPOINT 1500
+#define ARROW_RANGE_FACTOR (MAX_RANGE_CHECKPOINT / 425)
+
+#define MIN_FACTOR_ACHICAR 0.53
+
+Hint::Hint(const SdlWindow& window):
+        texture(HINT_IMAGE_PATH, window,
+                Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)) {}
+
+void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, int iteration,
+                  int car_width_scale_screen, int car_height_scale_screen) const {
+    // posible uso o si no sacarlo 
+    iteration = iteration % CLOSENESS_FACTOR;
+
+    distance_checkpoint = std::min(MAX_RANGE_CHECKPOINT, distance_checkpoint);
+    int distance_arrow = static_cast<float>(distance_checkpoint) /
+                         ARROW_RANGE_FACTOR;  // rango de aparicion de la flecha
+
+    // se recupera la verdadera posicion del auto en el mapa
+    x_car += car_width_scale_screen / 2;
+    y_car += car_height_scale_screen / 2;
+
+    for (uint i = 0; i < 5; i++) {
+        int current_x_arrow = x_car;
+        int current_y_arrow = y_car;
+        // se mueve la flecha hacia la posicion del checkpoint
+        float angle_rad = angle * M_PI / 180.0f;  // a radianes
+        current_x_arrow += std::cos(angle_rad) *
+                           ((distance_arrow * (CLOSENESS_FACTOR - i)) / CLOSENESS_FACTOR);
+        current_y_arrow += std::sin(angle_rad) *
+                           ((distance_arrow * (CLOSENESS_FACTOR - i)) / CLOSENESS_FACTOR);
+
+        float t = static_cast<float>(distance_checkpoint) / MAX_RANGE_CHECKPOINT;
+        float arrow_size_adjustment_factor = std::cbrt(t);
+        float offset_img_width = texture.getWidth() * arrow_size_adjustment_factor / 2;
+        float offset_img_height = texture.getHeight() * arrow_size_adjustment_factor / 2;
+        Area dest(current_x_arrow - offset_img_width, current_y_arrow - offset_img_height,
+                  texture.getWidth() * arrow_size_adjustment_factor,
+                  texture.getHeight() * arrow_size_adjustment_factor);
+        texture.renderEntity(Area(0, 0, texture.getWidth(), texture.getHeight()), dest, angle);
+    }
+}

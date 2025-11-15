@@ -9,6 +9,7 @@ target_sources(taller_client
     speed_hud.cpp
     position_hud.cpp
     mini_map_hud.cpp
+    hint.cpp
     PUBLIC
     # .h files
     car_sprite_sheet.h
@@ -19,4 +20,5 @@ target_sources(taller_client
     speed_hud.h
     position_hud.h
     mini_map_hud.h
+    hint.h
     )

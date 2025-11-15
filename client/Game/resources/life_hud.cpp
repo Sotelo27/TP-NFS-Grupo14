@@ -5,7 +5,7 @@
 
 #define SIZE WINDOW_WIDTH / 43
 
-#define LIFE_ICON std::string(ASSETS_PATH) + "/images/vida.png"
+#define LIFE_ICON std::string(ASSETS_PATH) + "/hud/vida.png"
 
 LifeHud::LifeHud(const SdlWindow& window):
         texture(LIFE_ICON, window, Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),

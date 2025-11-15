@@ -2,7 +2,7 @@
 
 #include "../constants.h"
 
-#define CARS_MINI_MAP std::string(ASSETS_PATH) + "/images/autos.png"
+#define CARS_MINI_MAP std::string(ASSETS_PATH) + "/hud/autos.png"
 
 #define WIDTH_CAR_TEXTURE 184
 #define HEIGHT_CAR_TEXTURE 112
