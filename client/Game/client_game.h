@@ -29,6 +29,7 @@ private:
     MapsTextures map_manager;
     GameHud game_hud;
     MapID current_map_id;
+    TimeTickInfo time_info;
 
     void update_state_from_position();
 

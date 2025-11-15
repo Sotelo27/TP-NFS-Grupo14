@@ -25,7 +25,8 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         car_sprites(window),
         map_manager(window),
         game_hud(window, map_manager, client_id, info_players, car_sprites),
-        current_map_id(MapID::LibertyCity) {}
+        current_map_id(MapID::LibertyCity),
+        time_info() {}
 
 void ClientGame::function() {
     update_state_from_position();
@@ -130,6 +131,8 @@ void ClientGame::update_state_from_position() {
             for (const auto& p_info: action.players_tick) {
                 info_players[p_info.player_id] = CarInfoGame{p_info, Area()};
             }
+
+            time_info = action.race_time;
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
@@ -213,7 +216,7 @@ void ClientGame::render_in_z_order() {
 
     render_cars();
 
-    game_hud.render(iteration);
+    game_hud.render(iteration, time_info.seconds);
 
     window.render();
 }

@@ -53,7 +53,7 @@ void GameHud::renderLifeBarHud() {
     }
 }
 
-void GameHud::render(int iteration) {
+void GameHud::render(int iteration, int time_seconds) {
     renderLifeBarHud();
 
     const CarData& client_car_data = car_sprites.getCarData(
@@ -66,7 +66,7 @@ void GameHud::render(int iteration) {
 
     position_hud.render(3, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
-    time_hud.render(600, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    time_hud.render(time_seconds, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
     int current_life = info_players[client_id].info_car.health;
     // falta obtener la vida maxima
