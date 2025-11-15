@@ -121,3 +121,25 @@ void SelectionCarScreen::resizeEvent(QResizeEvent* event) {
     updateCarImage();
 }
 
+void SelectionCarScreen::setSelectedCarIndex(int idx) {
+    if (idx >= 0 && idx < cars.size()) {
+        currentIndex = idx;
+        updateCarImage();
+    }
+}
+
+int SelectionCarScreen::getSelectedCarIndex() const {
+    return currentIndex;
+}
+
+CarSpriteID SelectionCarScreen::getSelectedCarId() const {
+    return cars[currentIndex].id;
+}
+
+int SelectionCarScreen::findCarIndexById(CarSpriteID id) const {
+    for (int i = 0; i < cars.size(); ++i) {
+        if (cars[i].id == id) return i;
+    }
+    return 0; // por defecto
+}
+
