@@ -10,6 +10,7 @@
 #include "../connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
 #include "resources/cheat_detector.h"
+#include "resources/intermission.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 
@@ -21,6 +22,7 @@ private:
     size_t client_id;
     ServerHandler& server_handler;
     bool& game_is_over;
+    bool intermediate_state;
     Area src_area_map;
     Area dest_area_map;
     std::unordered_map<size_t, CarInfoGame> info_players;
@@ -31,6 +33,7 @@ private:
     MapID current_map_id;
     TimeTickInfo time_info;
     CheatDetector cheat_detector;
+    Intermission intermission_manager;
 
     void update_state_from_position();
     void handle_sdl_events();
