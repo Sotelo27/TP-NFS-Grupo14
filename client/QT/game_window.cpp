@@ -143,18 +143,30 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     }
 
     connect(selection_car_screen, &SelectionCarScreen::car_selected, this, [this](CarSpriteID car_id) {
-        (void)car_id;
+        int idx = selection_car_screen->findCarIndexById(car_id);
+        menu_screen->setSelectedCarIndex(idx);
         stack->setCurrentWidget(menu_screen);
     });
 
     connect(menu_screen, &MenuScreen::go_to_lobby_screen, this, &GameWindow::go_to_lobby);
-    connect(menu_screen, &MenuScreen::go_to_selection_car_screen, this, &GameWindow::go_to_car_selection);
+    connect(menu_screen, &MenuScreen::go_to_selection_car_screen, this, [this]() {
+        // Al volver a selección de auto, mostrar el último auto elegido
+        selection_car_screen->setSelectedCarIndex(menu_screen->getSelectedCarIndex());
+        stack->setCurrentWidget(selection_car_screen);
+    });
+
+    connect(selection_car_screen, &SelectionCarScreen::car_selected, this, [this](CarSpriteID car_id) {
+        int idx = selection_car_screen->findCarIndexById(car_id);
+        menu_screen->setSelectedCarIndex(idx); // Actualiza el índice en el menú
+        stack->setCurrentWidget(menu_screen);
+    });
+
     connect(selection_car_screen, &SelectionCarScreen::car_selected, this, [this, &server_handler](CarSpriteID car_id) {
         std::cout << "[GameWindow] Enviando selección de auto al servidor: " << static_cast<int>(car_id) << std::endl;
         server_handler.send_choose_car(static_cast<uint8_t>(car_id));
     });
     
-    connect(selection_car_screen, &SelectionCarScreen::go_to_lobby, this, &GameWindow::go_to_lobby);
+    connect(selection_car_screen, &SelectionCarScreen::go_to_menu, this, &GameWindow::go_to_menu);
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::go_to_waiting_room);
     connect(lobby_screen, &LobbyScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection); // NUEVO
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_selection_map_screen, this, [this]() {
@@ -178,8 +190,6 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
         waiting_room_screen->set_selected_map(selected_map); // (opcional, para mostrar el nombre)
         go_to_waiting_room_from_map();
     });
-
-    connect(selection_car_screen, &SelectionCarScreen::go_to_menu, this, &GameWindow::go_to_sala_menu);
 }
 
 GameWindow::~GameWindow() {
@@ -222,7 +232,7 @@ void GameWindow::go_to_waiting_room_from_map() const {
     stack->setCurrentWidget(waiting_room_screen);
 }
 
-void GameWindow::go_to_sala_menu() const {
+void GameWindow::go_to_menu() const {
     stack->setCurrentWidget(menu_screen);
 }
 
