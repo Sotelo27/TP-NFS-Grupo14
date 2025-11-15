@@ -6,18 +6,17 @@
 #include <string>
 #include <unordered_map>
 
+#include "../../common/constant_rate_loop.h"
 #include "../connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
-#include "resources/maps_textures.h"
 #include "resources/cheat_detector.h"
+#include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
-
-#include "../../common/constant_rate_loop.h"
 
 #include "car_info_game.h"
 #include "game_hud.h"
 
-class ClientGame : public ConstantRateLoop {
+class ClientGame: public ConstantRateLoop {
 private:
     size_t client_id;
     ServerHandler& server_handler;

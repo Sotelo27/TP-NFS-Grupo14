@@ -79,10 +79,10 @@ void ClientGame::handle_sdl_events() {
         switch (event.type) {
             case SDL_KEYDOWN: {
                 const SDL_KeyboardEvent& keyEvent = (SDL_KeyboardEvent&)event;
-                
+
                 const char* keyName = SDL_GetKeyName(keyEvent.keysym.sym);
                 std::cout << "Tecla presionada: " << keyName << std::endl;
-                
+
                 handle_cheat_detection(keyName);
             } break;
             case SDL_MOUSEMOTION:
