@@ -89,9 +89,9 @@ SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* p
     connect(leftBtn,  &QPushButton::clicked, this, &SelectionCarScreen::prevCar);
     connect(rightBtn, &QPushButton::clicked, this, &SelectionCarScreen::nextCar);
 
-    connect(listoBtn, &QPushButton::clicked, [this]() {
+    connect(listoBtn, &QPushButton::clicked, this, [this]() {
         emit car_selected(cars[currentIndex].id);
-        emit go_to_lobby();
+        emit go_to_menu();
     });
 }
 
@@ -119,5 +119,27 @@ void SelectionCarScreen::resizeEvent(QResizeEvent* event) {
     carLabel->setFixedSize(newWidth, newWidth * 0.52);
 
     updateCarImage();
+}
+
+void SelectionCarScreen::setSelectedCarIndex(int idx) {
+    if (idx >= 0 && idx < cars.size()) {
+        currentIndex = idx;
+        updateCarImage();
+    }
+}
+
+int SelectionCarScreen::getSelectedCarIndex() const {
+    return currentIndex;
+}
+
+CarSpriteID SelectionCarScreen::getSelectedCarId() const {
+    return cars[currentIndex].id;
+}
+
+int SelectionCarScreen::findCarIndexById(CarSpriteID id) const {
+    for (int i = 0; i < cars.size(); ++i) {
+        if (cars[i].id == id) return i;
+    }
+    return 0; // por defecto
 }
 

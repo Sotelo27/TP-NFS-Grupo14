@@ -46,10 +46,8 @@ bool Garage::reserve_car(uint8_t car_id) {
 CarModel Garage::get_car_model(uint8_t car_id) {
     std::lock_guard<std::mutex> lock(m);
     auto it = cars.find(car_id);
-    
     if (it == cars.end()) {
         throw std::invalid_argument("Car ID " + std::to_string(car_id) + " not found.");
     }
-
     return it->second.model;
 }

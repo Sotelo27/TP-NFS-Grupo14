@@ -1,4 +1,5 @@
 #include "game_window.h"
+#include "menu_screen.h"
 
 #include <QFile>
 #include <QVBoxLayout>
@@ -117,6 +118,7 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     selection_car_screen = new SelectionCarScreen(server_handler, this);
     selection_map_screen = new SelectionMapScreen(server_handler, this);
     result_finish_screen = new ResultFinishScreen(server_handler, my_id, this);
+    menu_screen = new MenuScreen(server_handler, this); // <-- instanciar
 
     stack->addWidget(start_screen);
     stack->addWidget(login_screen);
@@ -125,6 +127,7 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     stack->addWidget(selection_car_screen);
     stack->addWidget(selection_map_screen);
     stack->addWidget(result_finish_screen);
+    stack->addWidget(menu_screen); // <-- agregar al stack
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(stack);
@@ -139,12 +142,31 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
         stack->setCurrentWidget(result_finish_screen);
     }
 
+    connect(selection_car_screen, &SelectionCarScreen::car_selected, this, [this](CarSpriteID car_id) {
+        int idx = selection_car_screen->findCarIndexById(car_id);
+        menu_screen->setSelectedCarIndex(idx);
+        stack->setCurrentWidget(menu_screen);
+    });
+
+    connect(menu_screen, &MenuScreen::go_to_lobby_screen, this, &GameWindow::go_to_lobby);
+    connect(menu_screen, &MenuScreen::go_to_selection_car_screen, this, [this]() {
+        // Al volver a selección de auto, mostrar el último auto elegido
+        selection_car_screen->setSelectedCarIndex(menu_screen->getSelectedCarIndex());
+        stack->setCurrentWidget(selection_car_screen);
+    });
+
+    connect(selection_car_screen, &SelectionCarScreen::car_selected, this, [this](CarSpriteID car_id) {
+        int idx = selection_car_screen->findCarIndexById(car_id);
+        menu_screen->setSelectedCarIndex(idx); // Actualiza el índice en el menú
+        stack->setCurrentWidget(menu_screen);
+    });
+
     connect(selection_car_screen, &SelectionCarScreen::car_selected, this, [this, &server_handler](CarSpriteID car_id) {
         std::cout << "[GameWindow] Enviando selección de auto al servidor: " << static_cast<int>(car_id) << std::endl;
         server_handler.send_choose_car(static_cast<uint8_t>(car_id));
     });
     
-    connect(selection_car_screen, &SelectionCarScreen::go_to_lobby, this, &GameWindow::go_to_lobby);
+    connect(selection_car_screen, &SelectionCarScreen::go_to_menu, this, &GameWindow::go_to_menu);
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::go_to_waiting_room);
     connect(lobby_screen, &LobbyScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection); // NUEVO
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_selection_map_screen, this, [this]() {
@@ -208,6 +230,10 @@ void GameWindow::go_to_login() const {
 void GameWindow::go_to_waiting_room_from_map() const {
     waiting_room_screen->startPolling();
     stack->setCurrentWidget(waiting_room_screen);
+}
+
+void GameWindow::go_to_menu() const {
+    stack->setCurrentWidget(menu_screen);
 }
 
 #include "game_window.moc"
