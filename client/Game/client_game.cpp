@@ -53,7 +53,7 @@ void ClientGame::start() {
 void ClientGame::handle_cheat_detection(const char* keyName) {
     cheat_detector.add_key(keyName);
 
-    if (cheat_detector.check_cheat("EXIT")) {
+    if (cheat_detector.check_cheat("Q")) {
         std::cout << "[ClientGame] Cheat code EXIT detected. Exiting game." << std::endl;
         running = false;
     }
