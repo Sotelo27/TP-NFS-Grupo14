@@ -21,8 +21,7 @@ public:
     void setSelectedCarIndex(int idx);
     int getSelectedCarIndex() const;
     CarSpriteID getSelectedCarId() const;
-    int findCarIndexById(CarSpriteID id) const; // <-- nuevo método público
-
+    int findCarIndexById(CarSpriteID id) const; 
 signals:
     void car_selected(CarSpriteID car_id);
     void go_to_menu(); // <-- esta es la señal que se usará
