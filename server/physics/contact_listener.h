@@ -2,17 +2,17 @@
 #define PHYSICS_CONTACT_LISTENER_H
 
 #include <box2d/box2d.h>
+#include <vector>
 #include "Entidad.h"
-
-class PhysicsWorld;
+#include "checkpoint_event.h"
 
 class ContactListener: public b2ContactListener {
 private:
-    PhysicsWorld* world;
+    std::vector<CheckpointEvent> events_;
 
 public:
 
-    explicit ContactListener(PhysicsWorld* world);
+    ContactListener() = default;
 
     /*
      * Notificación de colisión. Se usa BeginContact para aplicar
@@ -26,6 +26,11 @@ public:
      * Maneja el evento de cruce de checkpoint entre un Car y un Checkpoint
      */
     void handle_checkpoint_contact(Entidad* a, Entidad* b);
+
+    /*
+     * Consume y limpia los eventos de cruce de checkpoint registrados
+     */
+    std::vector<CheckpointEvent> consume_checkpoint_events();
 };
 
 #endif

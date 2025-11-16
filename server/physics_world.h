@@ -16,12 +16,7 @@
 #include "physics/border_entity.h"
 #include "physics/checkpoint_entity.h"
 #include "physics/contact_listener.h"
-
-struct CheckpointEvent {
-    size_t car_id;
-    std::string race_id;
-    size_t checkpoint_index;
-};
+#include "physics/checkpoint_event.h"
 
 class PhysicsWorld {
 private:
@@ -29,7 +24,6 @@ private:
     std::unordered_map<size_t, b2Body*> bodies;
     std::vector<b2Body*> static_bodies; // walls, boundaries, checkpoints
     std::vector<std::unique_ptr<Entidad>> static_entities;
-    std::vector<CheckpointEvent> checkpoint_events;
     size_t next_static_id_{1};
 
     /*
@@ -37,6 +31,7 @@ private:
      * de PhysicsWorld. Su responsabilidad actual:
      *   - Car vs Car: aplica daño base a ambos
      *   - Car vs (Building|Border): aplica daño al Car
+     *   - Car vs Checkpoint: registra evento de cruce de checkpoint
      */
     ContactListener contact_listener;
 
@@ -125,11 +120,6 @@ public:
      * Convierte de pixeles a metros usando cfg.pixels_per_meter
      */
     void load_static_geometry(const MapConfig& cfg);
-
-    /*
-     * Registra un evento de cruce de checkpoint
-     */
-    void push_checkpoint_event(size_t car_id, const std::string& race_id, size_t checkpoint_index);
 
     /*
      * Obtiene todos los eventos de cruce de checkpoint registrados

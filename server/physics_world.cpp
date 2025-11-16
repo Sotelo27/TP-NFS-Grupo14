@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdint>
 
-PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)), contact_listener(this) {
+PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)), contact_listener() {
     world.SetContactListener(&contact_listener);
 }
 
@@ -50,14 +50,8 @@ void PhysicsWorld::step(float dt) {
     world.Step(dt, velocityIterations, positionIterations);
 }
 
-void PhysicsWorld::push_checkpoint_event(size_t car_id, const std::string& race_id, size_t checkpoint_index) {
-    checkpoint_events.emplace_back(car_id, race_id, checkpoint_index);
-}
-
 std::vector<CheckpointEvent> PhysicsWorld::consume_checkpoint_events() {
-    std::vector<CheckpointEvent> events;
-    events.swap(checkpoint_events);
-    return events;
+    return contact_listener.consume_checkpoint_events();
 }
 
 

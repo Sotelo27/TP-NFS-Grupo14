@@ -1,6 +1,6 @@
 #include "contact_listener.h"
 #include "checkpoint_entity.h"
-#include "../physics_world.h"
+#include "checkpoint_event.h"
 
 #include <algorithm>
 
@@ -13,11 +13,8 @@ inline Entidad* entidadFromFixture(const b2Fixture* fix) noexcept {
 }
 }
 
-ContactListener::ContactListener(PhysicsWorld* world) : world(world) {}
 
 void ContactListener::BeginContact(b2Contact* contact) {
-    if (!world) return;
-
     if (!contact) return;
 
     Entidad* a = entidadFromFixture(contact->GetFixtureA());
@@ -44,10 +41,12 @@ void ContactListener::handle_checkpoint_contact(Entidad* a, Entidad* b) {
         return;
     }
 
-    world->push_checkpoint_event(
-        ent_car->get_id(),
-        ent_cp->get_race_id(),
-        ent_cp->get_index()
-    );
+    events_.emplace_back(ent_car->get_id(), ent_cp->get_race_id(), ent_cp->get_index());
+}
+
+std::vector<CheckpointEvent> ContactListener::consume_checkpoint_events() {
+    std::vector<CheckpointEvent> out;
+    out.swap(events_);
+    return out;
 }
 
