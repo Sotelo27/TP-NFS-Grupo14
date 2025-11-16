@@ -83,7 +83,6 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
 
         if (p.next_checkpoint_idx == track.checkpoint_count) {
             p.state = ParticipantState::Finished;
-            p.finished = true;
             std::cout << "[Race] Player " << player_id << " FINISHED route='"
                       << track.route_id << "' total_cp=" << track.checkpoint_count << "\n";
         } else {
