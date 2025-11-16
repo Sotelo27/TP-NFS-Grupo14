@@ -12,7 +12,9 @@ void City::step(float dt) {
 
 void City::load_map(const MapConfig& cfg) {
     physics_world.load_static_geometry(cfg);
-    spawns = cfg.spawns;
+    for (const auto& s : cfg.spawns) {
+        spawns_by_route[s.race_id].push_back(s);
+    }
     checkpoints_by_route = cfg.checkpoints;
     
 }
@@ -32,20 +34,23 @@ Track City::build_track(const std::string& route_id) const {
     return t;
 }
 
-SpawnPoint City::get_spawn_for_index(size_t index) const {
-    // Sirve para retornar posicion por defecto
-    if (spawns.empty()) {
-        SpawnPoint default_spawn;
-        default_spawn.x_px = 400.0f;
-        default_spawn.y_px = 300.0f;
-        default_spawn.angle_deg = 0.0f;
-        default_spawn.id = 0;
-        return default_spawn;
-    }
+SpawnPoint City::get_spawn_for_index(size_t index, const std::string& route_id) const {
+    const std::vector<SpawnPoint>* vec = nullptr;
     
-    // Usar módulo para ciclar entre los spawns disponibles
-    size_t spawn_idx = index % spawns.size();
-    return spawns[spawn_idx];
+    auto it = spawns_by_route.find(route_id);
+    if (it != spawns_by_route.end() && !it->second.empty()) {
+        vec = &it->second;
+    } else {
+        for (const auto& kv : spawns_by_route) {
+            if (!kv.second.empty()) {
+                vec = &kv.second;
+                break;
+            }
+        }
+    }
+
+    size_t spawn_idx = index % vec->size();
+    return (*vec)[spawn_idx];
 }
 
 const std::vector<Checkpoint>& City::get_checkpoints_for_route(const std::string& route_id) const {
@@ -55,8 +60,4 @@ const std::vector<Checkpoint>& City::get_checkpoints_for_route(const std::string
     }
     static const std::vector<Checkpoint> empty_checkpoints;
     return empty_checkpoints;
-}
-
-void City::set_spawns(const std::vector<SpawnPoint>& new_spawns) {
-    spawns = new_spawns;
 }

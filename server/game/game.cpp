@@ -205,13 +205,14 @@ void Game::start_current_race() {
     std::lock_guard<std::mutex> lock(m);
 
     Race& r = get_current_race();
+    const std::string& route = r.get_route_id();
 
     size_t spawn_index = 0;
     for (auto& kv : players) {
         const size_t player_id = kv.first;
         Player& player = kv.second;
 
-        SpawnPoint sp = city.get_spawn_for_index(spawn_index++);
+    SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
 
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
     }

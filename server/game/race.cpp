@@ -82,6 +82,10 @@ bool Race::is_finished() const noexcept {
     return is_finished_;
 }
 
+const std::string& Race::get_route_id() const {
+    return track.route_id;
+}
+
 void Race::advance_time(float dt) {
     race_duration += dt;
 

@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <string>
 #include <memory>
 #include <vector>
 
@@ -64,6 +65,11 @@ public:
      * Establece el track de la carrera
      */
     void set_track(const Track& new_track);
+
+    /*
+     * Obtiene el ID de la ruta del track actual  
+     */
+    const std::string& get_route_id() const;
 
     /*
      * Avanza el tiempo de la carrera en dt segundos

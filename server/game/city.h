@@ -8,8 +8,8 @@
 class City {
 private:
     PhysicsWorld physics_world;
-    std::vector<SpawnPoint> spawns;
     std::unordered_map<std::string, std::vector<Checkpoint>> checkpoints_by_route; 
+    std::unordered_map<std::string, std::vector<SpawnPoint>> spawns_by_route;
 
 public:
     City();
@@ -33,12 +33,7 @@ public:
      * Obtiene un spawn point según el índice
      * Si no hay spawns, retorna una posición por defecto
      */
-    SpawnPoint get_spawn_for_index(size_t index) const;
-
-    /*
-     * Configura los puntos de spawn
-     */
-    void set_spawns(const std::vector<SpawnPoint>& new_spawns);
+    SpawnPoint get_spawn_for_index(size_t index,const std::string& route_id) const;
 
     /*
      * Construye el track de la ciudad para una ruta específica
