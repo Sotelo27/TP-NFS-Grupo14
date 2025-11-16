@@ -17,14 +17,19 @@
 #include "physics/checkpoint_entity.h"
 #include "physics/contact_listener.h"
 
+struct CheckpointEvent {
+    size_t car_id;
+    std::string race_id;
+    size_t checkpoint_index;
+};
 
 class PhysicsWorld {
 private:
     b2World world;
     std::unordered_map<size_t, b2Body*> bodies;
     std::vector<b2Body*> static_bodies; // walls, boundaries, checkpoints
-    
     std::vector<std::unique_ptr<Entidad>> static_entities;
+    std::vector<CheckpointEvent> checkpoint_events;
     size_t next_static_id_{1};
 
     /*
@@ -120,6 +125,16 @@ public:
      * Convierte de pixeles a metros usando cfg.pixels_per_meter
      */
     void load_static_geometry(const MapConfig& cfg);
+
+    /*
+     * Registra un evento de cruce de checkpoint
+     */
+    void push_checkpoint_event(size_t car_id, const std::string& race_id, size_t checkpoint_index);
+
+    /*
+     * Obtiene todos los eventos de cruce de checkpoint registrados
+     */
+    std::vector<CheckpointEvent> consume_checkpoint_events();
 
     /*
      * Limpia toda la geometria estatica previamente cargada
