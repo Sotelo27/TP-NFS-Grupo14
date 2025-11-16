@@ -5924,9 +5924,9 @@ layers:
     rotation: 270.101
     type: ''
     visible: true
-    width: 101.157
-    x: 2756.51
-    y: 882.543
+    width: 80.0278
+    x: 2756.53
+    y: 873.666
   - height: 31.5
     id: 733
     name: Normal
@@ -5943,9 +5943,9 @@ layers:
     rotation: 0.25397
     type: ''
     visible: true
-    width: 105.503
-    x: 3263.59
-    y: 1042.57
+    width: 102.502
+    x: 3266.59
+    y: 1042.58
   - height: 31.5
     id: 735
     name: Normal
@@ -5962,10 +5962,10 @@ layers:
     rotation: 270.299
     type: ''
     visible: true
-    width: 130.856
+    width: 123.523
     x: 3196.25
     y: 1545.67
-  - height: 116
+  - height: 109.456
     id: 736
     name: Normal
     properties:
@@ -5984,7 +5984,7 @@ layers:
     width: 46.6667
     x: 2877.77
     y: 1917.64
-  - height: 116
+  - height: 109.333
     id: 739
     name: Normal
     properties:
@@ -6001,8 +6001,8 @@ layers:
     type: ''
     visible: true
     width: 46.6667
-    x: 2444.71
-    y: 2397.44
+    x: 2441.04
+    y: 2397.43
   - height: 31.5
     id: 740
     name: Normal
@@ -6019,8 +6019,8 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 81.5
-    x: 1775.75
+    width: 73.5
+    x: 1780.75
     y: 2549.25
   - height: 31.5
     id: 741
@@ -6040,7 +6040,7 @@ layers:
     visible: true
     width: 122.611
     x: 2128.96
-    y: 2648.18
+    y: 2654.18
   opacity: 1
   type: objectgroup
   visible: true
@@ -6343,7 +6343,7 @@ layers:
   draworder: topdown
   id: 5
   locked: true
-  name: Spawns
+  name: Spawns_A
   objects:
   - height: 0
     id: 167
