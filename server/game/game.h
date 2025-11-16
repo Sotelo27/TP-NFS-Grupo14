@@ -18,6 +18,12 @@
 #include "city.h"
 #include "garage.h" 
 
+enum class GameState {
+    Lobby,
+    Racing,
+    Finished
+};
+
 class Game {
 private:
     float nitro_tiempo;
@@ -30,6 +36,7 @@ private:
     std::string maps_base_path;
     std::vector<Race> races;
     size_t current_race_index;
+    GameState state;
     bool is_finished;
     
     City city;
@@ -121,6 +128,11 @@ public:
      * Obtiene la carrera actual
      */
     Race& get_current_race();
+
+    /*
+     * Verifica si hay una carrera activa en curso
+     */
+    bool has_active_race() const;
 
     /*
      * Carga el MapConfig paredes, edificios en la ciudad.

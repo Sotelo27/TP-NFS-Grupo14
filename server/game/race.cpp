@@ -53,8 +53,18 @@ void Race::apply_input(size_t playerId, const InputState& input) {
     }
 }
 void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint32_t checkpoint_id) {
-    //si no es mi recorrido ignoro
-    if (race_id != track.route_id) return;
+    // Log básico del evento recibido
+    std::cout << "[Race] CP event: route='" << race_id
+              << "' player_id=" << player_id
+              << " checkpoint_id=" << checkpoint_id
+              << " (track_route='" << track.route_id << "')\n";
+
+    // si no es mi recorrido ignoro
+    if (race_id != track.route_id) {
+        std::cout << "[Race] Ignored: route mismatch (event='" << race_id
+                  << "' vs track='" << track.route_id << "')\n";
+        return;
+    }
 
     auto it = parts.find(player_id);
     if (it == parts.end()) return;
@@ -63,6 +73,10 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
     if (p.state != ParticipantState::Active) return;
 
     // evito que el jugador pueda repetir checkpoints
+    std::cout << "[Race] Player " << player_id << " status before: curr="
+              << p.current_checkpoint << ", next=" << p.next_checkpoint_idx
+              << "/" << track.checkpoint_count << "\n";
+
     if (checkpoint_id == p.next_checkpoint_idx) {
         p.current_checkpoint = checkpoint_id;
         ++p.next_checkpoint_idx;
@@ -70,12 +84,24 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
         if (p.next_checkpoint_idx == track.checkpoint_count) {
             p.state = ParticipantState::Finished;
             p.finished = true;
+            std::cout << "[Race] Player " << player_id << " FINISHED route='"
+                      << track.route_id << "' total_cp=" << track.checkpoint_count << "\n";
+        } else {
+            std::cout << "[Race] Player " << player_id << " advanced to checkpoint "
+                      << p.current_checkpoint << " (next=" << p.next_checkpoint_idx
+                      << "/" << track.checkpoint_count << ")\n";
         }
+    } else {
+        std::cout << "[Race] Ignored: wrong order for player " << player_id
+                  << " (got=" << checkpoint_id << ", expected=" << p.next_checkpoint_idx
+                  << ")\n";
     }
 }
 
 void Race::set_track(const Track& new_track) {
     track = new_track;
+    std::cout << "[Race] Track set: route='" << track.route_id
+              << "' checkpoints=" << track.checkpoint_count << "\n";
 }
 
 bool Race::is_finished() const noexcept {
