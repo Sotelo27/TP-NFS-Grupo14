@@ -18,10 +18,11 @@ class Race {
 private:
     uint32_t id;
     float race_duration{0.f};
-    bool is_finished{false};
+    bool is_finished_{false};
     PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
     std::unordered_map<size_t, std::unique_ptr<Car>> cars;
+    Track track;
 
     /*
      * Devuelve la direccion de aceleración del jugador segun su input
@@ -48,7 +49,6 @@ public:
      */
     void add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px);
     
-    
     /*
      * Marca al jugador como desconectado y destruye su body fisico removiendolo de la carrera
      */
@@ -61,14 +61,25 @@ public:
     void apply_input(size_t playerId, const InputState& input);
 
     /*
+     * Establece el track de la carrera
+     */
+    void set_track(const Track& new_track);
+
+    /*
      * Avanza el tiempo de la carrera en dt segundos
      */
     void advance_time(float dt);
 
     /*
+     * Maneja la logica cuando un auto cruza un checkpoint
+     */
+    void on_car_checkpoint(const std::string& race_id, size_t player_id, uint32_t checkpoint_id);   
+    /*
      * Devuelve el tiempo transcurrido de la carrera en segundos
      */
     uint32_t get_race_time_seconds() const;
+
+    bool is_finished() const noexcept;
 
     /*
      * Construye el snapshot con las posiciones (x,y) y angulos actuales de todos los

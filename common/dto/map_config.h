@@ -33,8 +33,9 @@ struct SpawnPoint {
     float y_px{0.f};
     float angle_deg{0.f};
     int   id{-1};
+    int   car_id{-1};
+    std::string race_id{"A"};
 };
-
 struct Checkpoint {
     float x_px{0.f};
     float y_px{0.f};
@@ -45,6 +46,12 @@ struct Checkpoint {
     std::string type{"normal"};
     std::string race_id{"A"};
     bool  is_sensor{true};
+};
+
+struct Track {
+    std::string route_id;
+    std::vector<Checkpoint> checkpoints;
+    uint32_t checkpoint_count;
 };
 
 struct MapConfig {

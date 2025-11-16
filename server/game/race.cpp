@@ -9,7 +9,7 @@
 #define MAX_DURATION_SECONDS 600.f
 
 Race::Race(uint32_t id, PhysicsWorld& external_world)
-    : id(id), physics(external_world) {}
+    : id(id), physics(external_world), track() {}
 
 void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px) {
     // Conversión directa de píxeles a metros (PPM=32)
@@ -52,11 +52,41 @@ void Race::apply_input(size_t playerId, const InputState& input) {
         itc->second->apply_input(throttle, steer);
     }
 }
+void Race::on_car_checkpoint(const std::string& race_id,
+                             size_t player_id,
+                             uint32_t checkpoint_id) {
+    // 1) si no es mi recorrido, ignoro
+    if (race_id != track.route_id) return;
+
+    auto it = parts.find(player_id);
+    if (it == parts.end()) return;
+
+    RaceParticipant& p = it->second;
+    if (p.state != ParticipantState::Active) return;
+
+    // 2) validación de orden
+    if (checkpoint_id == p.current_checkpoint + 1) {
+        p.current_checkpoint = checkpoint_id;
+
+        if (checkpoint_id + 1 == track.checkpoint_count) {
+            p.state = ParticipantState::Finished;
+            p.finished = true;
+        }
+    }
+}
+
+void Race::set_track(const Track& new_track) {
+    track = new_track;
+}
+
+bool Race::is_finished() const noexcept {
+    return is_finished_;
+}
 
 void Race::advance_time(float dt) {
     race_duration += dt;
 
-    if (!is_finished && race_duration >= MAX_DURATION_SECONDS) {
+    if (!is_finished_ && race_duration >= MAX_DURATION_SECONDS) {
         std::cout << "[TIME FINISH]Race duration exceeded maximum allowed time. Ending race." << std::endl;
 
         for (auto& [playerId, participant] : parts) {
@@ -65,8 +95,7 @@ void Race::advance_time(float dt) {
             }
         }
 
-        is_finished = true;
-        // aqui entregaria los resultados de la carrera o cuando todos los jugadores hayan completado todos los checkpoints
+        is_finished_ = true;
     }
 }
 
