@@ -260,7 +260,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             player.hint_angle_deg = 0.0f;
         }
         
-        ranking.push_back(RankInfo{(uint32_t)(playerId),participant.current_checkpoint,distance_px});
+        ranking.push_back(RankInfo{(uint32_t)(playerId), participant.next_checkpoint_idx, distance_px, participant.finish_time_seconds});
         out.push_back(player);
     }
 
