@@ -11,5 +11,10 @@ void CheatDetector::add_key(const char* key_name) {
 }
 
 bool CheatDetector::check_cheat(const std::string& code) {
-    return input_buffer.find(code) != std::string::npos;
+    if (input_buffer.find(code) == std::string::npos) {
+        return false;
+    }
+
+    input_buffer.clear();
+    return true;
 }
