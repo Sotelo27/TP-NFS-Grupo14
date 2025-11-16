@@ -21,22 +21,26 @@
 class Game {
 private:
     float nitro_tiempo;
-    size_t id_indice = 0;
+    size_t id_indice;
+    std::mutex m;
     
     std::map<size_t, Player> players;
     std::map<size_t, InputState> pending_inputs;
     std::map<std::string, std::string> map_table;// nombre mapa, ruta archivo
     std::string maps_base_path;
-    std::mutex m;
+    std::vector<Race> races;
+    size_t current_race_index;
+    bool is_finished;
     
     City city;
-    Race race;
     Garage garage;
 
 
     void throw_jugador_no_existe(size_t id) const;
     bool jugador_existe_auxiliar(size_t id);
     std::string resolve_map_path(const std::string& map_id) const;
+    // Inicializa las carreras (races) y sus tracks a partir de la City cargada.
+    void init_races();
 
 public:
     /*
@@ -114,9 +118,19 @@ public:
     TimeTickInfo get_player_race_time(size_t id) const;
 
     /*
+     * Obtiene la carrera actual
+     */
+    Race& get_current_race();
+
+    /*
      * Carga el MapConfig paredes, edificios en la ciudad.
      */
     void load_map(const MapConfig& cfg);
+
+    /*
+     * Maneja la logica cuando la carrera termina
+     */
+    void on_race_ended();
 
     /*
      * Carga el mapa por su ID segun lo que me mande el cliente
