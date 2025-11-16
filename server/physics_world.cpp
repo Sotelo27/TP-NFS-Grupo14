@@ -119,26 +119,26 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
         ++pidx;
     }
 
-    //Cargo los checkpoinst del mapa, solo hay 1 recorrido A
-    auto it = cfg.checkpoints.find("A");
-    if (it != cfg.checkpoints.end()) {
-        const auto& cps_vec = it->second;
-        size_t cidx = 0;
-        for (const auto& cp : cps_vec) {
-            add_checkpoint_body_px(cp, pixel_to_meters);
-            if (cidx < 8) {
-                const float cx_m = (cp.x_px + cp.w_px * 0.5f) * pixel_to_meters;
-                const float cy_m = (cp.y_px + cp.h_px * 0.5f) * pixel_to_meters;
-                std::cout << "[Physics] Checkpoint[" << cidx << "] race=A"
-                          << " idx=" << cp.index << " type=" << cp.type
-                          << " px=(x=" << cp.x_px << ", y=" << cp.y_px
-                          << ", w=" << cp.w_px << ", h=" << cp.h_px
-                          << ") rot_deg=" << cp.rotation_deg
-                          << " center_m=(" << cx_m << ", " << cy_m << ")\n";
+    if (!cfg.checkpoints.empty()) {
+        for (const auto& [route_id, cps_vec] : cfg.checkpoints) {
+            size_t cidx = 0;
+            for (const auto& cp : cps_vec) {
+                add_checkpoint_body_px(cp, pixel_to_meters);
+                if (cidx < 8) {
+                    const float cx_m = (cp.x_px + cp.w_px * 0.5f) * pixel_to_meters;
+                    const float cy_m = (cp.y_px + cp.h_px * 0.5f) * pixel_to_meters;
+                    std::cout << "[Physics] Checkpoint[" << cidx << "] race=" << route_id
+                              << " idx=" << cp.index << " type=" << cp.type
+                              << " px=(x=" << cp.x_px << ", y=" << cp.y_px
+                              << ", w=" << cp.w_px << ", h=" << cp.h_px
+                              << ") rot_deg=" << cp.rotation_deg
+                              << " center_m=(" << cx_m << ", " << cy_m << ")\n";
+                }
+                ++cidx;
             }
-            ++cidx;
+            std::cout << "[Physics] Loaded " << cps_vec.size() << " checkpoints for race '"
+                      << route_id << "'\n";
         }
-        std::cout << "[Physics] Loaded " << cps_vec.size() << " checkpoints for race 'A'\n";
     } else {
         std::cout << "[Physics] No checkpoints found in MapConfig\n";
     }
