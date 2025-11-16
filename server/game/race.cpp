@@ -178,8 +178,8 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         b2Body* body = physics.get_body(playerId);
         if (!body) continue;
         b2Vec2 p = body->GetPosition();
-        const int32_t x_px = (int32_t)std::lround(p.x * PPM);
-        const int32_t y_px = (int32_t)std::lround(p.y * PPM);
+        const int32_t car_x_px = (int32_t)std::lround(p.x * PPM);
+        const int32_t car_y_px = (int32_t)std::lround(p.y * PPM);
         uint8_t hp = 100;
         auto itc = cars.find(playerId);
 
@@ -190,16 +190,47 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             hp = (uint8_t)std::lround(vida);
         }
 
-        PlayerTickInfo pti;
-        pti.username = "";
-        pti.car_id = participant.car_id;
-        pti.player_id = (uint32_t)(playerId);
-        pti.x = x_px;
-        pti.y = y_px;
-        pti.angle = body->GetAngle() * 180.0f / PI;
-        pti.health = hp;
-        pti.speed_mps = (itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f;
-        out.push_back(pti);
+        PlayerTickInfo player;
+        player.username = "";
+        player.car_id = participant.car_id;
+        player.player_id = (uint32_t)(playerId);
+        player.x = car_x_px;
+        player.y = car_y_px;
+        player.angle = body->GetAngle() * 180.0f / PI;
+        player.health = hp;
+        player.speed_mps = (itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f;
+
+        // Siguiente checkpoint
+        player.x_checkpoint = 0;
+        player.y_checkpoint = 0;
+        player.hint_angle_deg = 0.0f;
+        player.position_in_race = 0;
+
+        const uint32_t next_idx = participant.next_checkpoint_idx;
+        if (!track.checkpoints.empty() && next_idx < track.checkpoints.size()) {
+            const auto& cp = track.checkpoints[next_idx];
+            // Centro del rectangulo del checkpoint
+            const float cp_cx_px = cp.x_px + cp.w_px * 0.5f;
+            const float cp_cy_px = cp.y_px + cp.h_px * 0.5f;
+
+            player.x_checkpoint = static_cast<uint16_t>(std::lround(cp_cx_px));
+            player.y_checkpoint = static_cast<uint16_t>(std::lround(cp_cy_px));
+
+            // Distancia en píxeles entre auto y checkpoint
+            const float dx_px = cp_cx_px - car_x_px;
+            const float dy_px = cp_cy_px - car_y_px;
+
+            // Angulo del hint hacia el checkpoint
+            const float angle_rad = std::atan2(dy_px, dx_px);
+            player.hint_angle_deg = angle_rad * 180.0f / PI;
+        } else{
+            // No hay mas checkpoints, dejamos los valores por defecto
+            player.x_checkpoint = 0;
+            player.y_checkpoint = 0;
+            player.hint_angle_deg = 0.0f;
+        }
+        
+        out.push_back(player);
     }
 
     return out;
