@@ -73,24 +73,6 @@ size_t Game::add_player(const std::string& name, uint8_t car_id) {
               << ", name='" << name
               << "', car_id=" << static_cast<int>(car_id)
               << "\n";
-
-
-    //TODO ESTO DE ABAJO DEBE SER ELIMINADO
-    size_t spawn_index = (players.size() > 0) ? (players.size() - 1) : 0;
-    SpawnPoint sp = city.get_spawn_for_index(spawn_index);
-
-    
-    if (races.empty()) {
-        // Aseguramos que exista al menos una carrera antes de agregar jugadores.
-        init_races();
-    }
-    races[current_race_index].add_player(id_indice, model, car_id, sp.x_px, sp.y_px);
-
-    std::cout << "[Game] Player " << name
-              << " (id=" << id_indice
-              << ") spawned at (" << sp.x_px << ", " << sp.y_px << ")\n";
-
-    // TODO ESTO DE ARRIBA DEBE SER ELIMINADO
     return id_indice;
 }
 
@@ -216,14 +198,31 @@ TimeTickInfo Game::get_player_race_time(size_t id) const {
 }
 
 Race& Game::get_current_race(){
-    std::lock_guard<std::mutex> lock(m);
     return races.at(current_race_index);
+}
+
+void Game::start_current_race() {
+    std::lock_guard<std::mutex> lock(m);
+
+    Race& r = get_current_race();
+
+    size_t spawn_index = 0;
+    for (auto& kv : players) {
+        const size_t player_id = kv.first;
+        Player& player = kv.second;
+
+        SpawnPoint sp = city.get_spawn_for_index(spawn_index++);
+
+        r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
+    }
+
+    std::cout << "[Game] Race " << current_race_index << " started with "
+              << players.size() << " players\n";
 }
 
 void Game::load_map(const MapConfig& cfg) {
     std::lock_guard<std::mutex> lock(m);
     city.load_map(cfg);
-    // Crear/actualizar las carreras en base a los checkpoints disponibles del mapa.
     init_races();
 }
 
@@ -246,13 +245,8 @@ TimeTickInfo Game::get_race_time() const {
 
 void Game::init_races() {
     PhysicsWorld& world = city.get_world();
-
     races.emplace_back(0, world);
     races.back().set_track(city.build_track("A"));
-
-    // si después querés otra:
-    // races.emplace_back(1, world);
-    // races.back().set_track(city.build_track("B"));
 }
 
 

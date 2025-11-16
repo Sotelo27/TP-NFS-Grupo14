@@ -137,6 +137,12 @@ public:
      */
     void load_map_by_id(const std::string& map_id);
 
+    /*
+     * Inicia la carrera actual agregando todos los players al Race
+     * y posicionandolos segun los spawns definidos en city
+     */
+    void start_current_race();
+
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
 
