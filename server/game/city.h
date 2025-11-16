@@ -9,6 +9,7 @@ class City {
 private:
     PhysicsWorld physics_world;
     std::vector<SpawnPoint> spawns;
+    std::unordered_map<std::string, std::vector<Checkpoint>> checkpoints_by_route; 
 
 public:
     City();
@@ -38,6 +39,16 @@ public:
      * Configura los puntos de spawn
      */
     void set_spawns(const std::vector<SpawnPoint>& new_spawns);
+
+    /*
+     * Construye el track de la ciudad para una ruta específica
+     */
+    Track build_track(const std::string& route_id) const;
+
+    /*
+     * Obtiene los checkpoints para una ruta especifica
+    */
+    const std::vector<Checkpoint>& get_checkpoints_for_route(const std::string& route_id) const;
 };
 
 #endif
