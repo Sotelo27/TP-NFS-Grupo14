@@ -18,11 +18,11 @@ void Intermission::render() {
         iterations = 1;
     }
 
-    if (iterations < AMOUNT_FRAMES_ANIMATION) {
+    if (iterations <= AMOUNT_FRAMES_ANIMATION) {
         int y_animation = (background_texture.getHeight() * iterations) / AMOUNT_FRAMES_ANIMATION;
         int y_window = (WINDOW_HEIGHT * iterations) / AMOUNT_FRAMES_ANIMATION;
         background_texture.renderEntity(
-                Area(0, y_animation, background_texture.getWidth(), background_texture.getHeight()),
+                Area(0, background_texture.getHeight() - y_animation, background_texture.getWidth(), background_texture.getHeight()),
                 Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
         iterations++;
     }
