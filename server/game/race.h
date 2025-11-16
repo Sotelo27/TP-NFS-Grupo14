@@ -98,6 +98,16 @@ public:
      * participantes activos/terminados, para ser enviado a los clientes
      */
     std::vector<PlayerTickInfo> snapshot_ticks() const;
+
+    /*
+     * Compara dos jugadores segun su RankInfo y determina si el primero es mejor que el segundo
+     */
+    static bool compare_rank(const RankInfo& a, const RankInfo& b);
+    
+    /*
+     * Calcula y asigna las posiciones en la carrera de cada jugador
+     */
+    void calculate_ranking_positions(std::vector<PlayerTickInfo>& ticks, std::vector<RankInfo>& ranking) const;
 };
 
 #endif

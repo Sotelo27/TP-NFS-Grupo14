@@ -20,4 +20,10 @@ struct RaceParticipant {
     uint32_t next_checkpoint_idx{0};
 };
 
+struct RankInfo {
+    uint32_t player_id;
+    uint32_t checkpoints_done;
+    float distance_to_next_px;
+};
+
 #endif

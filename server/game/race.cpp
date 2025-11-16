@@ -166,9 +166,38 @@ std::vector<PlayerPos> Race::snapshot_poses() const {
     return player_positions;
 }
 
+bool Race::compare_rank(const RankInfo& a, const RankInfo& b) {
+    if (a.checkpoints_done != b.checkpoints_done)
+        // mientras mas checkpoints - mejor tendra su posicion
+        return a.checkpoints_done > b.checkpoints_done;
+    // Si empatan en checkpoints, gana el que este mas cerca al siguiente checkpoint
+    return a.distance_to_next_px < b.distance_to_next_px;
+}
+
+void Race::calculate_ranking_positions(std::vector<PlayerTickInfo>& player_tick_info,
+                                 std::vector<RankInfo>& ranking) const {
+
+    std::sort(ranking.begin(), ranking.end(),compare_rank);
+
+    for (std::size_t i = 0; i < ranking.size(); ++i) {
+        const uint32_t pid = ranking[i].player_id;
+        const uint16_t pos = (uint16_t)(i + 1);
+
+        for (auto& player : player_tick_info) {
+            if (player.player_id == pid) {
+                player.position_in_race = pos;
+                break;
+            }
+        }
+    }
+}
+
 std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
     std::vector<PlayerTickInfo> out;
     out.reserve(parts.size());
+
+    std::vector<RankInfo> ranking;
+    ranking.reserve(parts.size());
 
     for (const auto& [playerId, participant] : parts) {
         if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished) {
@@ -205,20 +234,22 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         player.y_checkpoint = 0;
         player.hint_angle_deg = 0.0f;
         player.position_in_race = 0;
-
+        
         const uint32_t next_idx = participant.next_checkpoint_idx;
+        float distance_px = 0.0f;
         if (!track.checkpoints.empty() && next_idx < track.checkpoints.size()) {
             const auto& cp = track.checkpoints[next_idx];
             // Centro del rectangulo del checkpoint
             const float cp_cx_px = cp.x_px + cp.w_px * 0.5f;
             const float cp_cy_px = cp.y_px + cp.h_px * 0.5f;
 
-            player.x_checkpoint = static_cast<uint16_t>(std::lround(cp_cx_px));
-            player.y_checkpoint = static_cast<uint16_t>(std::lround(cp_cy_px));
+            player.x_checkpoint = (uint16_t)(std::lround(cp_cx_px));
+            player.y_checkpoint = (uint16_t)(std::lround(cp_cy_px));
 
             // Distancia en píxeles entre auto y checkpoint
             const float dx_px = cp_cx_px - car_x_px;
             const float dy_px = cp_cy_px - car_y_px;
+            distance_px = std::sqrt(dx_px * dx_px + dy_px * dy_px);
 
             // Angulo del hint hacia el checkpoint
             const float angle_rad = std::atan2(dy_px, dx_px);
@@ -230,8 +261,11 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             player.hint_angle_deg = 0.0f;
         }
         
+        ranking.push_back(RankInfo{(uint32_t)(playerId),participant.current_checkpoint,distance_px});
         out.push_back(player);
     }
+
+    calculate_ranking_positions(out, ranking);
 
     return out;
 }
