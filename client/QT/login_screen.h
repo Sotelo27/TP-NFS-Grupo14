@@ -25,6 +25,7 @@ signals:
 
 private:
     ServerHandler& server_handler;
+    QLabel* background;
     size_t& my_id;
     QLabel* title;
     QLabel* usernameLabel;
@@ -40,6 +41,8 @@ private:
     void createUsernameLabel();
     void createButtonLogIn();
     void createContainer();
+
+    void resizeEvent(QResizeEvent* event) override;
 };
 
 #endif // LOGIN_WINDOW_H

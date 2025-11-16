@@ -26,9 +26,9 @@ void LoginScreen::createTitle() {
 }
 
 void LoginScreen::createWindowBackground() {
-    QLabel* background = new QLabel(this);
+    background = new QLabel(this);
     background->setPixmap(
-        QPixmap("assets/images/nfs_most_wanted.png").scaled( // asegurar misma imagen que StartScreen
+        QPixmap("assets/images/nfs_most_wanted.png").scaled(
             size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
         )
     );
@@ -107,7 +107,6 @@ void LoginScreen::setupStyles() {
 
 void LoginScreen::setupUi() {
     setWindowTitle("Login");
-    setFixedSize(WIDTH_SIZE_WINDOW, HEIGHT_SIZE_WINDOW);
 
     createWindowBackground();
     createTitle();
@@ -142,4 +141,50 @@ void LoginScreen::onLoginClicked() {
 
 }
 
+void LoginScreen::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
+
+    int w = width();
+    int h = height();
+
+    // -------------------
+    // Fondo
+    // -------------------
+    if (background) {
+        background->setGeometry(0, 0, w, h);
+        background->setPixmap(
+            QPixmap("assets/images/nfs_most_wanted.png").scaled(
+                w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+            )
+        );
+    }
+
+    // -------------------
+    // Título (aunque vacío, espacio proporcional)
+    // -------------------
+    if (title) {
+        title->setFixedHeight(h * 0.05); // 5% del alto de ventana
+    }
+
+    // -------------------
+    // Username input y label
+    // -------------------
+    if (usernameLabel) {
+        usernameLabel->setFixedWidth(w * 0.25);  // 25% del ancho
+        usernameLabel->setFixedHeight(h * 0.06); // 6% del alto
+    }
+
+    if (usernameInput) {
+        usernameInput->setFixedWidth(w * 0.4);   // 40% del ancho
+        usernameInput->setFixedHeight(h * 0.06); // 6% del alto
+    }
+
+    // -------------------
+    // Botón Login
+    // -------------------
+    if (loginButton) {
+        loginButton->setFixedWidth(w * 0.35);    // 35% del ancho
+        loginButton->setFixedHeight(h * 0.08);   // 8% del alto
+    }
+}
 

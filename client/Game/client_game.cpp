@@ -25,7 +25,9 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         car_sprites(window),
         map_manager(window),
         game_hud(window, map_manager, client_id, info_players, car_sprites),
-        current_map_id(MapID::LibertyCity) {}
+        current_map_id(MapID::LibertyCity),
+        time_info(),
+        cheat_detector(5) {}
 
 void ClientGame::function() {
     update_state_from_position();
@@ -39,21 +41,7 @@ void ClientGame::function() {
 }
 
 void ClientGame::start() {
-    uint8_t map_id = 0;
-    while (true) {
-        ServerMessage msg = server_handler.recv_response_from_server();
-        if (msg.type == ServerMessage::Type::RaceStart) {
-            map_id = msg.map_id;
-            break;
-        } else if (msg.type == ServerMessage::Type::Unknown) {
-            std::cout << "[ClientGame] Received Unknown message from server, probably "
-                         "disconnected. Exiting..."
-                      << std::endl;
-            return;
-        }
-    }
-
-    current_map_id = static_cast<MapID>(map_id);
+    process_server_messages(ServerMessage::Type::RaceStart);
 
     map_manager.loadMap(current_map_id);
 
@@ -62,31 +50,26 @@ void ClientGame::start() {
     ConstantRateLoop::start_loop();
 }
 
-void ClientGame::update_state_from_position() {
-    SDL_Event event;
+void ClientGame::handle_cheat_detection(const char* keyName) {
+    cheat_detector.add_key(keyName);
 
+    if (cheat_detector.check_cheat("Q")) {
+        std::cout << "[ClientGame] Cheat code EXIT detected. Exiting game." << std::endl;
+        running = false;
+    }
+}
+
+void ClientGame::handle_sdl_events() {
+    SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_KEYDOWN: {
                 const SDL_KeyboardEvent& keyEvent = (SDL_KeyboardEvent&)event;
-                switch (keyEvent.keysym.sym) {
-                    case SDLK_LEFT:
-                        server_handler.send_movement(Movement::Left);
-                        std::cout << "[ClientGame] LEFT pressed\n";
-                        break;
-                    case SDLK_RIGHT:
-                        server_handler.send_movement(Movement::Right);
-                        std::cout << "[ClientGame] RIGHT pressed\n";
-                        break;
-                    case SDLK_UP:
-                        server_handler.send_movement(Movement::Up);
-                        std::cout << "[ClientGame] UP pressed\n";
-                        break;
-                    case SDLK_DOWN:
-                        server_handler.send_movement(Movement::Down);
-                        std::cout << "[ClientGame] DOWN pressed\n";
-                        break;
-                }
+
+                const char* keyName = SDL_GetKeyName(keyEvent.keysym.sym);
+                std::cout << "Tecla presionada: " << keyName << std::endl;
+
+                handle_cheat_detection(keyName);
             } break;
             case SDL_MOUSEMOTION:
                 break;
@@ -100,7 +83,9 @@ void ClientGame::update_state_from_position() {
                 break;
         }
     }
+}
 
+void ClientGame::handle_movement_input() {
     const Uint8* keyboard = SDL_GetKeyboardState(nullptr);
     if (keyboard[SDL_SCANCODE_LEFT]) {
         server_handler.send_movement(Movement::Left);
@@ -114,14 +99,13 @@ void ClientGame::update_state_from_position() {
     if (keyboard[SDL_SCANCODE_DOWN]) {
         server_handler.send_movement(Movement::Down);
     }
+}
 
-    // Procesar mensajes del servidor
-    bool keep_loop = true;
+void ClientGame::process_server_messages(ServerMessage::Type expected_type, int msg_limit) {
     int msg_count = 0;
-    static int frame_count = 0;
-    frame_count++;
+    bool keep_loop = true;
 
-    while (keep_loop && msg_count < 10) {
+    while (keep_loop && (msg_limit == -1 || msg_count < msg_limit)) {
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::MapInfo) {
@@ -130,18 +114,32 @@ void ClientGame::update_state_from_position() {
             for (const auto& p_info: action.players_tick) {
                 info_players[p_info.player_id] = CarInfoGame{p_info, Area()};
             }
+
+            time_info = action.race_time;
+        } else if (action.type == ServerMessage::Type::RaceStart) {
+            current_map_id = static_cast<MapID>(action.map_id);
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
             std::cout << "[ClientGame] Received Unknown message from server, probably "
                          "disconnected. Exiting..."
                       << std::endl;
+        }  
+        
+        if (action.type == expected_type) {
+            keep_loop = false;
         }
-        // se debería recibir el fin del juego
-        // game_is_over = true;
 
         msg_count++;
     }
+}
+
+void ClientGame::update_state_from_position() {
+    handle_sdl_events();
+
+    handle_movement_input();
+
+    process_server_messages(ServerMessage::Type::Empty, 10);
 }
 
 void ClientGame::update_map_area() {
@@ -213,7 +211,7 @@ void ClientGame::render_in_z_order() {
 
     render_cars();
 
-    game_hud.render(iteration);
+    game_hud.render(iteration, time_info.seconds);
 
     window.render();
 }

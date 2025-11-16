@@ -53,22 +53,24 @@ void GameHud::renderLifeBarHud() {
     }
 }
 
-void GameHud::render(int iteration) {
+void GameHud::render(int iteration, int time_seconds) {
+    const CarInfoGame& client_car = info_players[client_id];
+
     renderLifeBarHud();
 
     const CarData& client_car_data = car_sprites.getCarData(
-            static_cast<CarSpriteID>(info_players[client_id].info_car.car_id));
-    hint.render(info_players[client_id].dest_area.getX(), info_players[client_id].dest_area.getY(),
+            static_cast<CarSpriteID>(client_car.info_car.car_id));
+    hint.render(client_car.dest_area.getX(), client_car.dest_area.getY(),
                 2000, 270.0, iteration, client_car_data.width_scale_screen,
                 client_car_data.height_scale_screen);
 
-    speed_hud.render(999, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);
+    speed_hud.render(client_car.info_car.speed_mps, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);
 
     position_hud.render(3, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
-    time_hud.render(600, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    time_hud.render(time_seconds, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
-    int current_life = info_players[client_id].info_car.health;
+    int current_life = client_car.info_car.health;
     // falta obtener la vida maxima
     life_hud.render(100, current_life, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
 

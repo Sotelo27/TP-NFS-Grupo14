@@ -17,7 +17,7 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
     setFixedSize(1100, 750);
 
     // =============================================================
-    // FONDO NEÓN 
+    // FONDO NEÓN
     // =============================================================
     QPalette pal;
     pal.setBrush(QPalette::Window, QPixmap("assets/images/fondo.png"));

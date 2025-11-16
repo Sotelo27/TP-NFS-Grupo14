@@ -18,9 +18,14 @@ class SelectionCarScreen : public QWidget {
 public:
     explicit SelectionCarScreen(ServerHandler& server_handler, QWidget* parent = nullptr);
 
+    void setSelectedCarIndex(int idx);
+    int getSelectedCarIndex() const;
+    CarSpriteID getSelectedCarId() const;
+    int findCarIndexById(CarSpriteID id) const; 
 signals:
-    void go_to_lobby();
-    void car_selected(CarSpriteID id);
+    void car_selected(CarSpriteID car_id);
+    void go_to_menu(); // <-- esta es la señal que se usará
+    void go_to_lobby(); // (puedes dejarla si la usas en otro lado)
 
 private slots:
     void nextCar();

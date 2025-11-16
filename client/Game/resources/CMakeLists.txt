@@ -10,6 +10,7 @@ target_sources(taller_client
     position_hud.cpp
     mini_map_hud.cpp
     hint.cpp
+    cheat_detector.cpp
     PUBLIC
     # .h files
     car_sprite_sheet.h
@@ -21,4 +22,5 @@ target_sources(taller_client
     position_hud.h
     mini_map_hud.h
     hint.h
+    cheat_detector.h
     )

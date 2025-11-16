@@ -42,7 +42,7 @@ public:
                      std::unordered_map<size_t, CarInfoGame>& info_players,
                      const CarSpriteSheet& car_sprites);
 
-    void render(int iteration);
+    void render(int iteration, int time_seconds);
 
     GameHud(const GameHud&) = delete;
     GameHud& operator=(const GameHud&) = delete;
