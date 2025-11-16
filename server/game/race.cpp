@@ -52,10 +52,8 @@ void Race::apply_input(size_t playerId, const InputState& input) {
         itc->second->apply_input(throttle, steer);
     }
 }
-void Race::on_car_checkpoint(const std::string& race_id,
-                             size_t player_id,
-                             uint32_t checkpoint_id) {
-    // 1) si no es mi recorrido, ignoro
+void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint32_t checkpoint_id) {
+    //si no es mi recorrido ignoro
     if (race_id != track.route_id) return;
 
     auto it = parts.find(player_id);
@@ -64,11 +62,12 @@ void Race::on_car_checkpoint(const std::string& race_id,
     RaceParticipant& p = it->second;
     if (p.state != ParticipantState::Active) return;
 
-    // 2) validación de orden
-    if (checkpoint_id == p.current_checkpoint + 1) {
+    // evito que el jugador pueda repetir checkpoints
+    if (checkpoint_id == p.next_checkpoint_idx) {
         p.current_checkpoint = checkpoint_id;
+        ++p.next_checkpoint_idx;
 
-        if (checkpoint_id + 1 == track.checkpoint_count) {
+        if (p.next_checkpoint_idx == track.checkpoint_count) {
             p.state = ParticipantState::Finished;
             p.finished = true;
         }
