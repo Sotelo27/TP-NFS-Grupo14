@@ -53,6 +53,12 @@ void GameHud::renderLifeBarHud() {
     }
 }
 
+int GameHud::distanceBetweenCarAndCheckpoint(const CarInfoGame& car_info) const {
+    int dx = car_info.info_car.x_checkpoint - car_info.info_car.x;
+    int dy = car_info.info_car.y_checkpoint - car_info.info_car.y;
+    return static_cast<int>(std::sqrt(dx * dx + dy * dy));
+}
+
 void GameHud::render(int iteration, int time_seconds) {
     const CarInfoGame& client_car = info_players[client_id];
 
@@ -61,7 +67,7 @@ void GameHud::render(int iteration, int time_seconds) {
     const CarData& client_car_data = car_sprites.getCarData(
             static_cast<CarSpriteID>(client_car.info_car.car_id));
     hint.render(client_car.dest_area.getX(), client_car.dest_area.getY(),
-                2000, 270.0, iteration, client_car_data.width_scale_screen,
+                distanceBetweenCarAndCheckpoint(client_car), client_car.info_car.hint_angle_deg, iteration, client_car_data.width_scale_screen,
                 client_car_data.height_scale_screen);
 
     speed_hud.render(client_car.info_car.speed_mps, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);

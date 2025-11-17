@@ -37,6 +37,8 @@ private:
     void renderLifeBarHud();
     void renderMiniMap();
 
+    int distanceBetweenCarAndCheckpoint(const CarInfoGame& car_info) const;
+
 public:
     explicit GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
                      std::unordered_map<size_t, CarInfoGame>& info_players,
