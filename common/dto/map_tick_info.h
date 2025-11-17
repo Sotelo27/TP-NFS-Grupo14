@@ -13,6 +13,13 @@ struct PlayerTickInfo {
     float angle;
     uint8_t health;
     float speed_mps;
+    
+    uint16_t x_checkpoint;
+    uint16_t y_checkpoint;
+    float hint_angle_deg;
+
+    uint16_t position_in_race;
+     
 };
 
 struct NpcTickInfo {

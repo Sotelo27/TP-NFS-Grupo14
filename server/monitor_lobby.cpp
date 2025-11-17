@@ -199,7 +199,9 @@ void MonitorLobby::handle_start_game(ClientAction act) {
     // Cargar el mapa seleccionado en el Game de la sala
     try {
         itr->second.game.load_map_by_id(map_name); // <-- usa el id/nombre recibido
-        std::cout << "[MonitorLobby] Loaded map by id: " << map_name << "\n";
+        std::cout << "[MonitorLobby] Loaded map by id: " << map_name << "\n";        
+        itr->second.game.start_current_race();
+        std::cout << "[MonitorLobby] Started current race with map: " << map_name << "\n";
     } catch (const std::exception& e) {
         std::cerr << "[MonitorLobby] Error loading map '" << map_name << "': " << e.what() << "\n";
     }

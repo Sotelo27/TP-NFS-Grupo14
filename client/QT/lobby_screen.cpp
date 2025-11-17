@@ -17,19 +17,24 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
       in_room(false)
 {
     setWindowTitle("Lobby - Need For Speed");
-    setFixedSize(1100, 750);
+    // eliminamos el setFixedSize para permitir redimensionar
+    // setFixedSize(1100, 750);
 
-    // FONDO 
-    QPalette pal;
-    pal.setBrush(QPalette::Window, QPixmap("assets/images/fondo.png"));
-    setAutoFillBackground(true);
-    setPalette(pal);
+    // FONDO
+    background = new QLabel(this);
+    background->setPixmap(
+        QPixmap("assets/images/fondo.png").scaled(
+            size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+        )
+    );
+    background->setGeometry(0, 0, width(), height());
+    background->lower();
 
     mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 30, 0, 0);
     mainLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 
-    // TITULO 
+    // TITULO
     QLabel* titleLabel = new QLabel("SALAS DISPONIBLES", this);
     titleLabel->setFixedSize(820, 110);
     titleLabel->setAlignment(Qt::AlignCenter);
@@ -51,7 +56,7 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
 
     mainLayout->addWidget(titleLabel);
 
-    // BOTÓN CREAR SALA 
+    // BOTÓN CREAR SALA
     QPushButton* createButton = new QPushButton("CREAR NUEVA SALA");
     createButton->setFixedSize(420, 90);
     createButton->setStyleSheet(
@@ -123,12 +128,6 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
         std::cout << "[LobbyWindow] Sala creada con ID: " << (int)room_id << "\n";
         open_waiting_room(room_id);
     });
-
-    // CONEXIÓN NUEVA: resetear in_room al volver del waiting room
-    // Si ya existe la instancia waitingRoom, conectar su señal
-    // Si no, la conexión debe hacerse en el lugar donde se crea la waitingRoom y navega a ella.
-    // Aquí, para mantener compatibilidad, agregamos un slot público y lo llamamos desde el GameWindow.
-    // connect(waitingRoom, &WaitingRoomScreen::go_back_to_lobby_screen, this, &LobbyScreen::on_return_from_waiting_room);
 
     std::cout << "[LobbyWindow] Ventana creada, polling iniciado" << std::endl;
 }
@@ -279,5 +278,23 @@ void LobbyScreen::on_return_from_waiting_room() {
     std::cout << "[LobbyWindow] Regresando al lobby, in_room=false" << std::endl;
 }
 
+void LobbyScreen::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
 
+    // Escalar fondo
+    if (background) {
+        background->setGeometry(0, 0, width(), height());
+        background->setPixmap(
+            QPixmap("assets/images/fondo.png").scaled(
+                size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+            )
+        );
+    }
+
+    // Ajustar contenedor de salas
+    if (scrollArea) {
+        scrollArea->setFixedWidth(width() * 0.77);  // 77% del ancho
+        scrollArea->setFixedHeight(height() * 0.55); // 55% del alto
+    }
+}
 

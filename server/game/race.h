@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <string>
 #include <memory>
 #include <vector>
 
@@ -18,10 +19,11 @@ class Race {
 private:
     uint32_t id;
     float race_duration{0.f};
-    bool is_finished{false};
+    bool is_finished_{false};
     PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
     std::unordered_map<size_t, std::unique_ptr<Car>> cars;
+    Track track;
 
     /*
      * Devuelve la direccion de aceleración del jugador segun su input
@@ -48,7 +50,6 @@ public:
      */
     void add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px);
     
-    
     /*
      * Marca al jugador como desconectado y destruye su body fisico removiendolo de la carrera
      */
@@ -61,14 +62,30 @@ public:
     void apply_input(size_t playerId, const InputState& input);
 
     /*
+     * Establece el track de la carrera
+     */
+    void set_track(const Track& new_track);
+
+    /*
+     * Obtiene el ID de la ruta del track actual  
+     */
+    const std::string& get_route_id() const;
+
+    /*
      * Avanza el tiempo de la carrera en dt segundos
      */
     void advance_time(float dt);
 
     /*
+     * Maneja la logica cuando un auto cruza un checkpoint
+     */
+    void on_car_checkpoint(const std::string& race_id, size_t player_id, uint32_t checkpoint_id);   
+    /*
      * Devuelve el tiempo transcurrido de la carrera en segundos
      */
     uint32_t get_race_time_seconds() const;
+
+    bool is_finished() const noexcept;
 
     /*
      * Construye el snapshot con las posiciones (x,y) y angulos actuales de todos los
@@ -81,6 +98,16 @@ public:
      * participantes activos/terminados, para ser enviado a los clientes
      */
     std::vector<PlayerTickInfo> snapshot_ticks() const;
+
+    /*
+     * Compara dos jugadores segun su RankInfo y determina si el primero es mejor que el segundo
+     */
+    static bool compare_rank(const RankInfo& a, const RankInfo& b);
+    
+    /*
+     * Calcula y asigna las posiciones en la carrera de cada jugador
+     */
+    void calculate_ranking_positions(std::vector<PlayerTickInfo>& ticks, std::vector<RankInfo>& ranking) const;
 };
 
 #endif

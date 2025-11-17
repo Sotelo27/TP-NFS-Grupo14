@@ -27,9 +27,9 @@ const std::string& CheckpointEntity::get_cp_type() const noexcept {
 void CheckpointEntity::onCollision(Entidad* other) {
     if (!other) return;
     if (other->type() == Type::Car) {
-        std::cout << "Car ID " << other->get_id()
-                  << " atravesó checkpoint " << get_index()
-                  << " (race " << get_race_id()
-                  << ", tipo=" << get_cp_type() << ")\n";
+        std::cout << "[CheckpointContact] "<< "Car ID " << other->get_id()
+          << " atraveso checkpoint " << get_index()
+          << " (race " << get_race_id()
+          << ", tipo=" << get_cp_type() << ")\n";
     }
 }

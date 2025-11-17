@@ -9,7 +9,7 @@
 #define MAX_DURATION_SECONDS 600.f
 
 Race::Race(uint32_t id, PhysicsWorld& external_world)
-    : id(id), physics(external_world) {}
+    : id(id), physics(external_world), track() {}
 
 void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px) {
     // Conversión directa de píxeles a metros (PPM=32)
@@ -52,11 +52,64 @@ void Race::apply_input(size_t playerId, const InputState& input) {
         itc->second->apply_input(throttle, steer);
     }
 }
+void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint32_t checkpoint_id) {
+    // Log básico del evento recibido
+    std::cout << "[Race] CP event: route='" << race_id
+              << "' player_id=" << player_id
+              << " checkpoint_id=" << checkpoint_id
+              << " (track_route='" << track.route_id << "')\n";
+
+    // si no es mi recorrido ignoro
+    if (race_id != track.route_id) {
+        std::cout << "[Race] Ignored: route mismatch (event='" << race_id
+                  << "' vs track='" << track.route_id << "')\n";
+        return;
+    }
+
+    auto it = parts.find(player_id);
+    if (it == parts.end()) return;
+
+    RaceParticipant& p = it->second;
+    if (p.state != ParticipantState::Active) return;
+
+    if (checkpoint_id == p.next_checkpoint_idx) {
+        p.current_checkpoint = checkpoint_id;
+        ++p.next_checkpoint_idx;
+
+        if (p.next_checkpoint_idx == track.checkpoint_count) {
+            p.state = ParticipantState::Finished;
+            std::cout << "[Race] Player " << player_id << " FINISHED route='"
+                      << track.route_id << "' total_cp=" << track.checkpoint_count << "\n";
+        } else {
+            std::cout << "[Race] Player " << player_id << " advanced to checkpoint "
+                      << p.current_checkpoint << " (next=" << p.next_checkpoint_idx
+                      << "/" << track.checkpoint_count << ")\n";
+        }
+    } else {
+        std::cout << "[Race] Ignored: wrong order for player " << player_id
+                  << " (got=" << checkpoint_id << ", expected=" << p.next_checkpoint_idx
+                  << ")\n";
+    }
+}
+
+void Race::set_track(const Track& new_track) {
+    track = new_track;
+    std::cout << "[Race] Track set: route='" << track.route_id
+              << "' checkpoints=" << track.checkpoint_count << "\n";
+}
+
+bool Race::is_finished() const noexcept {
+    return is_finished_;
+}
+
+const std::string& Race::get_route_id() const {
+    return track.route_id;
+}
 
 void Race::advance_time(float dt) {
     race_duration += dt;
 
-    if (!is_finished && race_duration >= MAX_DURATION_SECONDS) {
+    if (!is_finished_ && race_duration >= MAX_DURATION_SECONDS) {
         std::cout << "[TIME FINISH]Race duration exceeded maximum allowed time. Ending race." << std::endl;
 
         for (auto& [playerId, participant] : parts) {
@@ -65,8 +118,7 @@ void Race::advance_time(float dt) {
             }
         }
 
-        is_finished = true;
-        // aqui entregaria los resultados de la carrera o cuando todos los jugadores hayan completado todos los checkpoints
+        is_finished_ = true;
     }
 }
 
@@ -108,9 +160,38 @@ std::vector<PlayerPos> Race::snapshot_poses() const {
     return player_positions;
 }
 
+bool Race::compare_rank(const RankInfo& a, const RankInfo& b) {
+    if (a.checkpoints_done != b.checkpoints_done)
+        // mientras mas checkpoints - mejor tendra su posicion
+        return a.checkpoints_done > b.checkpoints_done;
+    // Si empatan en checkpoints, gana el que este mas cerca al siguiente checkpoint
+    return a.distance_to_next_px < b.distance_to_next_px;
+}
+
+void Race::calculate_ranking_positions(std::vector<PlayerTickInfo>& player_tick_info,
+                                 std::vector<RankInfo>& ranking) const {
+
+    std::sort(ranking.begin(), ranking.end(),compare_rank);
+
+    for (std::size_t i = 0; i < ranking.size(); ++i) {
+        const uint32_t pid = ranking[i].player_id;
+        const uint16_t pos = (uint16_t)(i + 1);
+
+        for (auto& player : player_tick_info) {
+            if (player.player_id == pid) {
+                player.position_in_race = pos;
+                break;
+            }
+        }
+    }
+}
+
 std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
     std::vector<PlayerTickInfo> out;
     out.reserve(parts.size());
+
+    std::vector<RankInfo> ranking;
+    ranking.reserve(parts.size());
 
     for (const auto& [playerId, participant] : parts) {
         if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished) {
@@ -120,8 +201,8 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         b2Body* body = physics.get_body(playerId);
         if (!body) continue;
         b2Vec2 p = body->GetPosition();
-        const int32_t x_px = (int32_t)std::lround(p.x * PPM);
-        const int32_t y_px = (int32_t)std::lround(p.y * PPM);
+        const int32_t car_x_px = (int32_t)std::lround(p.x * PPM);
+        const int32_t car_y_px = (int32_t)std::lround(p.y * PPM);
         uint8_t hp = 100;
         auto itc = cars.find(playerId);
 
@@ -132,17 +213,53 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             hp = (uint8_t)std::lround(vida);
         }
 
-        PlayerTickInfo pti;
-        pti.username = "";
-        pti.car_id = participant.car_id;
-        pti.player_id = (uint32_t)(playerId);
-        pti.x = x_px;
-        pti.y = y_px;
-        pti.angle = body->GetAngle() * 180.0f / PI;
-        pti.health = hp;
-        pti.speed_mps = (itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f;
-        out.push_back(pti);
+        PlayerTickInfo player;
+        player.username = "";
+        player.car_id = participant.car_id;
+        player.player_id = (uint32_t)(playerId);
+        player.x = car_x_px;
+        player.y = car_y_px;
+        player.angle = body->GetAngle() * 180.0f / PI;
+        player.health = hp;
+        player.speed_mps = (itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f;
+
+        // Siguiente checkpoint
+        player.x_checkpoint = 0;
+        player.y_checkpoint = 0;
+        player.hint_angle_deg = 0.0f;
+        player.position_in_race = 0;
+        
+        const uint32_t next_idx = participant.next_checkpoint_idx;
+        float distance_px = 0.0f;
+        if (!track.checkpoints.empty() && next_idx < track.checkpoints.size()) {
+            const auto& cp = track.checkpoints[next_idx];
+            // Centro del rectangulo del checkpoint
+            const float cp_cx_px = cp.x_px + cp.w_px * 0.5f;
+            const float cp_cy_px = cp.y_px + cp.h_px * 0.5f;
+
+            player.x_checkpoint = (uint16_t)(std::lround(cp_cx_px));
+            player.y_checkpoint = (uint16_t)(std::lround(cp_cy_px));
+
+            // Distancia en píxeles entre auto y checkpoint
+            const float dx_px = cp_cx_px - car_x_px;
+            const float dy_px = cp_cy_px - car_y_px;
+            distance_px = std::sqrt(dx_px * dx_px + dy_px * dy_px);
+
+            // Angulo del hint hacia el checkpoint
+            const float angle_rad = std::atan2(dy_px, dx_px);
+            player.hint_angle_deg = angle_rad * 180.0f / PI;
+        } else{
+            // No hay mas checkpoints, dejamos los valores por defecto
+            player.x_checkpoint = 0;
+            player.y_checkpoint = 0;
+            player.hint_angle_deg = 0.0f;
+        }
+        
+        ranking.push_back(RankInfo{(uint32_t)(playerId), participant.next_checkpoint_idx, distance_px, participant.finish_time_seconds});
+        out.push_back(player);
     }
+
+    calculate_ranking_positions(out, ranking);
 
     return out;
 }

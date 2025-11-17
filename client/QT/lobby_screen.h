@@ -5,7 +5,9 @@
 #include <QTimer>
 #include <QScrollArea>
 #include <QVBoxLayout>
-#include <vector>
+#include <QPushButton>
+#include <QLabel>
+#include <QResizeEvent>
 #include "../../common/dto/server_msg.h"
 #include "../connection/server_handler.h"
 #include "waiting_room_screen.h"
@@ -13,26 +15,13 @@
 class LobbyScreen : public QWidget {
     Q_OBJECT
 
-private:
-    ServerHandler& server_handler;
-    size_t& my_id;
-
-    QVBoxLayout* mainLayout;
-    QScrollArea* scrollArea;
-    QWidget* container;
-    QVBoxLayout* layout;
-    QTimer* pollTimer;
-
-    uint8_t current_room_id;
-
-    WaitingRoomScreen* waitingRoom;
-
-    bool in_room{false};
-
 public:
     explicit LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
     void startPolling() { pollTimer->start(50); }
-    void on_return_from_waiting_room(); // <-- MOVER AQUÍ: slot público para resetear in_room
+    void on_return_from_waiting_room(); // slot público
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 
 private slots:
     void onPollTimer();
@@ -41,11 +30,29 @@ private slots:
     bool processServerMessage(const ServerMessage& msg);
     void update_room_list(const std::vector<RoomInfo>& rooms);
 
-signals:
-    void room_created(uint8_t room_id);
+    signals:
+        void room_created(uint8_t room_id);
     void go_to_waiting_room_screen();
     void go_to_selection_map_screen();
+
+private:
+    ServerHandler& server_handler;
+    size_t& my_id;
+
+    QLabel* background;
+    QVBoxLayout* mainLayout;
+    QScrollArea* scrollArea;
+    QWidget* container;
+    QVBoxLayout* layout;
+    QTimer* pollTimer;
+
+    uint8_t current_room_id;
+    WaitingRoomScreen* waitingRoom;
+    bool in_room{false};
+
+    void setupUi();
+    void setupConnections();
+    void setupStyles();
 };
 
-#endif
-
+#endif // LOBBY_WINDOW_H
