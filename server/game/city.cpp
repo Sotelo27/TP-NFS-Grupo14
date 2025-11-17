@@ -1,4 +1,5 @@
 #include "city.h"
+#include <algorithm>
 
 City::City() : physics_world() {}
 
@@ -14,6 +15,13 @@ void City::load_map(const MapConfig& cfg) {
     physics_world.load_static_geometry(cfg);
     for (const auto& s : cfg.spawns) {
         spawns_by_route[s.race_id].push_back(s);
+    }
+    
+    for (auto& kv : spawns_by_route) {
+        auto& vec = kv.second;
+        std::sort(vec.begin(), vec.end(), [](const SpawnPoint& a, const SpawnPoint& b) {
+            return a.car_id < b.car_id;
+        });
     }
     checkpoints_by_route = cfg.checkpoints;
     
