@@ -60,14 +60,14 @@ void ServerProtocol::send_your_id(const ServerOutMsg& msg) {
     skt.sendall(buf, sizeof(buf));
 }
 
-void ServerProtocol::send_player_name(uint32_t id, const std::string& username) {
+void ServerProtocol::send_player_name(const ServerOutMsg& msg) {
     uint8_t code = CODE_S2C_PLAYER_NAME;
-    uint32_t id_be = htonl(id);
-    uint16_t len = (uint16_t)username.size();
+    uint32_t id_be = htonl(msg.id);
+    uint16_t len = (uint16_t)msg.username.size();
     uint16_t len_be = htons(len);
 
     std::vector<uint8_t> buf;
-    buf.reserve(1 + 4 + 2 + username.size());
+    buf.reserve(1 + 4 + 2 + len);
     buf.push_back(code);
 
     size_t off = buf.size();
@@ -76,8 +76,8 @@ void ServerProtocol::send_player_name(uint32_t id, const std::string& username) 
     buf.resize(off + 2); std::memcpy(buf.data() + off, &len_be, 2);
     if (len > 0) {
         off = buf.size();
-        buf.resize(off + username.size());
-        std::memcpy(buf.data() + off, username.data(), username.size());
+        buf.resize(off + len);
+        std::memcpy(buf.data() + off, msg.username.data(), len);
     }
 
     skt.sendall(buf.data(), (unsigned int)buf.size());

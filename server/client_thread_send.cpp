@@ -40,7 +40,7 @@ void ClientThreadSend::run() {
                     break;
                 case ServerOutType::PlayerName:
                     std::cout << "[ClientThreadSend] Sending PLAYER_NAME to conn_id=" << id << "\n";
-                    protocol.send_player_name(msg.id, msg.username);
+                    protocol.send_player_name(msg);
                     break;
                 case ServerOutType::RoomCreated:
                     std::cout << "[ClientThreadSend] Sending ROOM_CREATED(" << (int)msg.room_id << ") to conn_id=" << id << "\n";
