@@ -72,11 +72,6 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
     RaceParticipant& p = it->second;
     if (p.state != ParticipantState::Active) return;
 
-    // evito que el jugador pueda repetir checkpoints
-    std::cout << "[Race] Player " << player_id << " status before: curr="
-              << p.current_checkpoint << ", next=" << p.next_checkpoint_idx
-              << "/" << track.checkpoint_count << "\n";
-
     if (checkpoint_id == p.next_checkpoint_idx) {
         p.current_checkpoint = checkpoint_id;
         ++p.next_checkpoint_idx;

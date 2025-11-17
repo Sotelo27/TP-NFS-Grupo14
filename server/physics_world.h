@@ -35,22 +35,9 @@ private:
      */
     ContactListener contact_listener;
 
-    // Ajuste/tolerancia para colisionadores rectangulares: reducimos 2px por lado
-    // para evitar contactos "tempranos" respecto al arte de los edificios.
-    static constexpr float rect_collider_margin_px = 0;
-
-    static inline float toMeters(int16_t units) {
-        constexpr float UNITS_PER_METER = 128.0f;
-        return static_cast<float>(units) / UNITS_PER_METER;
-    }
-    static inline int16_t toUnits(float meters) {
-        constexpr float UNITS_PER_METER = 128.0f;
-        return static_cast<int16_t>(meters * UNITS_PER_METER);
-    }
-
     /*
-     * Crea un cuerpo estático rectangular a partir de un RectCollider (coordenadas en pixeles)
-     * - Aplica rect_collider_margin_px para un debug visual
+     * Crea un rectangulo que simula el edificio a partir de medidas en pixeles
+     * pixel_to_meters = 1 / PPM  (factor para convertir px en metros)
      */
     void add_static_rect_body_px(const RectCollider& r, float invPPM);
 
@@ -67,13 +54,6 @@ private:
      * aplicando el offset (x_px, y_px) del objeto.
      */
     std::vector<b2Vec2> make_polyline_vertices_m(const PolylineCollider& pl, float invPPM) const;
-
-    /*
-     * Calcula ghost vertices para una lista de vertices (en metros)
-     * Implementación actual: usa los extremos (sin extrapolación) para simplicidad
-     * Útil para cadenas abiertas en Box2D (b2ChainShape::CreateChain)
-     */
-    void compute_ghost_vertices(const std::vector<b2Vec2>& verts, b2Vec2& ghostA, b2Vec2& ghostB) const;
 
     /*
      * Crea un cuerpo eststico sensor para un checkpoint rectangular
@@ -101,19 +81,10 @@ public:
     void step(float dt);
 
     /*
-     * Obtiene la posicion del body completa (posicion + angulo)
-     */
-    Pose get_pose(size_t id) const;
-
-    /*
      * Obtiene el puntero al body de Box2D asociado a un id
      * Retorna nullptr si no existe
      */
-    b2Body* get_body(size_t id) const {
-        auto it = bodies.find(id);
-        if (it == bodies.end()) return nullptr;
-        return it->second;
-    }
+    b2Body* get_body(size_t id) const;
 
     /*
      * Carga geotrica estatica (paredes, bordes) al mundo fisico desde MapConfig

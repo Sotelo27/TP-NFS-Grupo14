@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstdint>
 
+#define PPM 32.f
+
 PhysicsWorld::PhysicsWorld() : world(b2Vec2(0.0f, 0.0f)), contact_listener() {
     world.SetContactListener(&contact_listener);
 }
@@ -36,6 +38,12 @@ void PhysicsWorld::create_car_body(size_t id, float x_meters, float y_meters, co
     bodies[id] = body;
 }
 
+b2Body* PhysicsWorld::get_body(size_t id) const {
+    auto it = bodies.find(id);
+    if (it == bodies.end()) return nullptr;
+    return it->second;
+}
+
 void PhysicsWorld::destroy_body(size_t id) {
     auto it = bodies.find(id);
     if (it != bodies.end()) {
@@ -54,15 +62,6 @@ std::vector<CheckpointEvent> PhysicsWorld::consume_checkpoint_events() {
     return contact_listener.consume_checkpoint_events();
 }
 
-
-//TODO, ELIMINAR ESTA FUNCION
-Pose PhysicsWorld::get_pose(size_t id) const {
-    auto it = bodies.find(id);
-    if (it == bodies.end()) return Pose{0, 0, 0.f};
-    b2Vec2 p = it->second->GetPosition();
-    return Pose{toUnits(p.x), toUnits(p.y), it->second->GetAngle()};
-}
-
 void PhysicsWorld::clear_static_geometry() {
     for (b2Body* b : static_bodies) {
         if (b) world.DestroyBody(b);
@@ -76,15 +75,16 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
     //antes de cargar limpio, servira cuando se cambie de mapa
     clear_static_geometry();
 
-    const float PPM = (cfg.pixels_per_meter > 0.f) ? cfg.pixels_per_meter : 32.f;
+    //const float PPM = (cfg.pixels_per_meter > 0.f) ? cfg.pixels_per_meter : 32.f;
     const float pixel_to_meters = 1.0f / PPM;
+    //LOG PARA VER LA CARGA--------------------------
     size_t total_checkpoints = 0;
     for (const auto& kv : cfg.checkpoints) total_checkpoints += kv.second.size();
     std::cout << "[Physics] Loading static geometry: PPM=" << PPM
               << " rects=" << cfg.rects.size()
               << " polylines=" << cfg.polylines.size()
               << " checkpoints=" << total_checkpoints << "\n";
-
+    //----------------------------------------------- 
     // cARGO los rectaugos del mapa
     size_t ridx = 0;
     for (const auto& r : cfg.rects) {
@@ -144,8 +144,6 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
     }
 }
 
-// Crea un rectangulo que simula el edificio a partir de medidas en pixeles
-// pixel_to_meters = 1 / PPM  (factor para convertir px en metros)
 void PhysicsWorld::add_static_rect_body_px(const RectCollider& rect, float pixel_to_meters) {
     b2BodyDef bodyDef;
     bodyDef.type = b2_staticBody;
@@ -155,22 +153,15 @@ void PhysicsWorld::add_static_rect_body_px(const RectCollider& rect, float pixel
     const float centerY_m = (rect.y_px + rect.h_px * 0.5f) * pixel_to_meters;
     bodyDef.position.Set(centerX_m, centerY_m);
 
+    bodyDef.angle = rect.rotation_deg * b2_pi / 180.0f;
+
     b2Body* body = world.CreateBody(&bodyDef);
 
-    // Debug, luego capaz lo borre si soluciono esto, estoy achicando el cuerpo para evitar colisiones tempranas 
-    const float halfWidth_px  = std::max(0.0f, rect.w_px * 0.5f - rect_collider_margin_px);
-    const float halfHeight_px = std::max(0.0f, rect.h_px * 0.5f - rect_collider_margin_px);
-
     b2PolygonShape boxShape;
-    const float halfWidth_m  = halfWidth_px  * pixel_to_meters;
-    const float halfHeight_m = halfHeight_px * pixel_to_meters;
-    const float angle_rad = rect.rotation_deg * b2_pi / 180.0f;
+    const float halfWidth_m  = (rect.w_px * 0.5f) * pixel_to_meters;
+    const float halfHeight_m = (rect.h_px * 0.5f) * pixel_to_meters;
 
-    // La forma se rota alrededor del origen del body (el centro del rectángulo)
-    boxShape.SetAsBox(std::max(halfWidth_m, 0.001f),
-                      std::max(halfHeight_m, 0.001f),
-                      b2Vec2(0.0f, 0.0f),
-                      angle_rad);
+    boxShape.SetAsBox(halfWidth_m, halfHeight_m);
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape       = &boxShape;
@@ -202,54 +193,52 @@ std::vector<b2Vec2> PhysicsWorld::make_polyline_vertices_m(const PolylineCollide
     return vertices_m;
 }
 
-void PhysicsWorld::compute_ghost_vertices(const std::vector<b2Vec2>& verts, b2Vec2& ghostA, b2Vec2& ghostB) const {
-    const int n = static_cast<int>(verts.size());
-    if (n <= 1) { ghostA = verts.front(); ghostB = verts.back(); return; }
-    ghostA = verts[0];
-    ghostB = verts[n - 1];
-}
-
 void PhysicsWorld::add_static_polyline_bodies_px(const PolylineCollider& pl, float pixel_to_meters) {
+    // Necesitamos al menos 2 puntos
     if (pl.points_px.size() < 2) return;
 
+    // Convertir puntos de pixeles → metros
     auto verts = make_polyline_vertices_m(pl, pixel_to_meters);
 
+    //creo body pero en estatico
     b2BodyDef bd;
     bd.type = b2_staticBody;
     b2Body* body = world.CreateBody(&bd);
 
+    // Definir propiedades del fixture
     b2FixtureDef fd;
-    fd.friction = pl.friction;
+    fd.friction    = pl.friction;
     fd.restitution = pl.restitution;
-    fd.isSensor = pl.is_sensor;
+    fd.isSensor    = pl.is_sensor;
+
+    // Forma chain (borde)
+    b2ChainShape chain;
 
     if (pl.loop) {
-        b2ChainShape chain;
-        chain.CreateLoop(verts.data(), static_cast<int>(verts.size()));
-        fd.shape = &chain;
-        body->CreateFixture(&fd);
+        // Perimetro cerrado (ej: límites de un edificio)
+        chain.CreateLoop(verts.data(), (int32)(verts.size()));
     } else {
-        b2Vec2 ghostA, ghostB;
-        compute_ghost_vertices(verts, ghostA, ghostB);
+        // (lado A)
+        b2Vec2 prevF = verts.front();
+        b2Vec2 nextF = verts.back();
 
-        {
-            b2ChainShape chain;
-            chain.CreateChain(verts.data(), static_cast<int32>(verts.size()), ghostA, ghostB);
-            fd.shape = &chain;
-            body->CreateFixture(&fd);
-        }
-        {
-            std::vector<b2Vec2> revVerts(verts.rbegin(), verts.rend());
-            b2Vec2 ghostRA, ghostRB;
-            compute_ghost_vertices(revVerts, ghostRA, ghostRB);
-            b2ChainShape chain2;
-            chain2.CreateChain(revVerts.data(), static_cast<int32>(revVerts.size()), ghostRA, ghostRB);
-            fd.shape = &chain2;
-            body->CreateFixture(&fd);
-        }
+        b2ChainShape chainFwd;
+        chainFwd.CreateChain(verts.data(), (int32)verts.size(), prevF, nextF);
+        fd.shape = &chainFwd;
+        body->CreateFixture(&fd);
+
+        // (lado B)
+        std::vector<b2Vec2> revVerts(verts.rbegin(), verts.rend());
+        b2Vec2 prevR = revVerts.front();
+        b2Vec2 nextR = revVerts.back();
+
+        b2ChainShape chainRev;
+        chainRev.CreateChain(revVerts.data(), (int32)revVerts.size(), prevR, nextR);
+        fd.shape = &chainRev;
+        body->CreateFixture(&fd);
     }
 
-    // añado el borde al user data del body
+    // Crear entidad BorderEntity
     auto ent = std::make_unique<BorderEntity>(next_static_id_++, body);
     body->GetUserData().pointer = reinterpret_cast<uintptr_t>(ent.get());
     static_entities.push_back(std::move(ent));
@@ -257,21 +246,26 @@ void PhysicsWorld::add_static_polyline_bodies_px(const PolylineCollider& pl, flo
     static_bodies.push_back(body);
 }
 
+
 void PhysicsWorld::add_checkpoint_body_px(const Checkpoint& cp, float pixel_to_meters) {
     b2BodyDef bodyDef;
     bodyDef.type = b2_staticBody;
 
+    // Centro del checkpoint en metros
     const float centerX_m = (cp.x_px + cp.w_px * 0.5f) * pixel_to_meters;
     const float centerY_m = (cp.y_px + cp.h_px * 0.5f) * pixel_to_meters;
     bodyDef.position.Set(centerX_m, centerY_m);
 
+    // Rotación del body (igual que en los rects)
+    bodyDef.angle = cp.rotation_deg * b2_pi / 180.0f;
+
     b2Body* body = world.CreateBody(&bodyDef);
 
+    // Caja en metros
     b2PolygonShape boxShape;
-    const float halfWidth_m  = std::max(0.001f, (cp.w_px * 0.5f) * pixel_to_meters);
-    const float halfHeight_m = std::max(0.001f, (cp.h_px * 0.5f) * pixel_to_meters);
-    const float angle_rad = cp.rotation_deg * b2_pi / 180.0f;
-    boxShape.SetAsBox(halfWidth_m, halfHeight_m, b2Vec2(0.0f, 0.0f), angle_rad);
+    const float halfWidth_m  = (cp.w_px * 0.5f) * pixel_to_meters;
+    const float halfHeight_m = (cp.h_px * 0.5f) * pixel_to_meters;
+    boxShape.SetAsBox(halfWidth_m, halfHeight_m);
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape       = &boxShape;
@@ -281,9 +275,15 @@ void PhysicsWorld::add_checkpoint_body_px(const Checkpoint& cp, float pixel_to_m
 
     body->CreateFixture(&fixtureDef);
 
-    auto ent = std::make_unique<CheckpointEntity>(next_static_id_++, body, cp.index, cp.race_id, cp.type);
+    auto ent = std::make_unique<CheckpointEntity>(
+        next_static_id_++,
+        body,
+        cp.index,
+        cp.race_id,
+        cp.type
+    );
     body->GetUserData().pointer = reinterpret_cast<uintptr_t>(ent.get());
     static_entities.push_back(std::move(ent));
-
     static_bodies.push_back(body);
 }
+
