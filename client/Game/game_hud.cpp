@@ -54,17 +54,15 @@ void GameHud::renderLifeBarHud() {
     }
 }
 
-int GameHud::distanceBetweenCarAndCheckpoint(const CarInfoGame& car_info) const {
-    int dx = car_info.info_car.x_checkpoint - car_info.info_car.x;
-    int dy = car_info.info_car.y_checkpoint - car_info.info_car.y;
-    return static_cast<int>(std::sqrt(dx * dx + dy * dy));
-}
-
 void GameHud::renderHint(const CarInfoGame& client_car, int iteration) {
+    if (client_car.info_car.distance_to_checkpoint < 405) {
+        return;
+    }
+
     const CarData& client_car_data = car_sprites.getCarData(
             static_cast<CarSpriteID>(client_car.info_car.car_id));
     hint.render(client_car.dest_area.getX(), client_car.dest_area.getY(),
-                distanceBetweenCarAndCheckpoint(client_car), client_car.info_car.hint_angle_deg, iteration, client_car_data.width_scale_screen,
+                client_car.info_car.distance_to_checkpoint, client_car.info_car.hint_angle_deg, iteration, client_car_data.width_scale_screen,
                 client_car_data.height_scale_screen);
 }
 

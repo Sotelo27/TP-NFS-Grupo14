@@ -40,8 +40,6 @@ private:
     void renderMiniMap();
     void renderHint(const CarInfoGame& client_car, int iteration);
 
-    int distanceBetweenCarAndCheckpoint(const CarInfoGame& car_info) const;
-
 public:
     explicit GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
                      std::unordered_map<size_t, CarInfoGame>& info_players,
