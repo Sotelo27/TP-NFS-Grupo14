@@ -308,7 +308,11 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
 
         uint16_t pos_be = htons(p.position_in_race);
         off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &pos_be, 2);
+
+        uint32_t dist_be = htonf32(p.distance_to_checkpoint);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &dist_be, 4);
     }
+    
     uint32_t time_be = htonl(time_info.seconds);
     size_t off_time = buf.size(); buf.resize(off_time + 4); std::memcpy(buf.data()+off_time, &time_be, 4);
     // npcs

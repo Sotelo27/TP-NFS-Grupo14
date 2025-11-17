@@ -261,6 +261,8 @@ ServerMessage ClientProtocol::parse_map_info() {
         skt.recvall(&hint_be, 4);
         uint16_t pos_be=0;
         skt.recvall(&pos_be, 2);
+        uint32_t dist_be=0;
+        skt.recvall(&dist_be, 4);
         
         PlayerTickInfo pti;
         pti.username = std::move(user);
@@ -275,6 +277,7 @@ ServerMessage ClientProtocol::parse_map_info() {
         pti.y_checkpoint = ntohs(ycp_be);
         pti.hint_angle_deg = ntohf32(hint_be);
         pti.position_in_race = ntohs(pos_be);
+        pti.distance_to_checkpoint = ntohf32(dist_be);
         dto.players_tick.push_back(std::move(pti));
     }
     // tiempo de carrera

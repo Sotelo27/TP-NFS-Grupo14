@@ -228,6 +228,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         player.y_checkpoint = 0;
         player.hint_angle_deg = 0.0f;
         player.position_in_race = 0;
+        player.distance_to_checkpoint = 0.0f;
         
         const uint32_t next_idx = participant.next_checkpoint_idx;
         float distance_px = 0.0f;
@@ -244,6 +245,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             const float dx_px = cp_cx_px - car_x_px;
             const float dy_px = cp_cy_px - car_y_px;
             distance_px = std::sqrt(dx_px * dx_px + dy_px * dy_px);
+            player.distance_to_checkpoint = distance_px;
 
             // Angulo del hint hacia el checkpoint
             const float angle_rad = std::atan2(dy_px, dx_px);
