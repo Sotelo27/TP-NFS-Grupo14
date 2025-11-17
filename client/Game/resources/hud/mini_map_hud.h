@@ -14,6 +14,7 @@
 class MiniMap {
 private:
     SdlObjTexture texture_cars_mini_map;
+    SdlObjTexture texture_checkpoint_mini_map;
     SdlDrawFill draw_fill;
     size_t client_id;
     const MapsTextures& map_manager;
@@ -25,6 +26,9 @@ private:
                                 int mini_map_height);
     void renderCarOnMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
                             int mini_map_height, const PlayerTickInfo& info_my_car, bool red);
+
+    void renderCheckpointOnMiniMap(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
+                                   int mini_map_height);
 
 public:
     explicit MiniMap(size_t client_id, const SdlWindow& window, const MapsTextures& map_manager,

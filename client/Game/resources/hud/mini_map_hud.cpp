@@ -3,6 +3,7 @@
 #include "../../constants.h"
 
 #define CARS_MINI_MAP std::string(ASSETS_PATH) + "/hud/autos.png"
+#define CHECKPOINT_MINI_MAP std::string(ASSETS_PATH) + "/hud/punto_rojo.png"
 
 #define WIDTH_CAR_TEXTURE 184
 #define HEIGHT_CAR_TEXTURE 112
@@ -14,6 +15,9 @@ MiniMap::MiniMap(size_t client_id, const SdlWindow& window, const MapsTextures& 
                  std::unordered_map<size_t, CarInfoGame>& info_players):
         texture_cars_mini_map(CARS_MINI_MAP, window,
                               Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
+        texture_checkpoint_mini_map(
+                CHECKPOINT_MINI_MAP, window,
+                Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
         draw_fill(window),
         client_id(client_id),
         map_manager(map_manager),
@@ -29,6 +33,8 @@ void MiniMap::render(int x_dest_mini_map, int y_dest_mini_map, int mini_map_widt
     renderMiniMapBorder(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
 
     renderPositionsMiniMap(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
+
+    renderCheckpointOnMiniMap(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height);
 }
 
 void MiniMap::renderMiniMapBorder(int x_dest_mini_map, int y_dest_mini_map, int mini_map_width,
@@ -82,4 +88,24 @@ void MiniMap::renderPositionsMiniMap(int x_dest_mini_map, int y_dest_mini_map, i
     const PlayerTickInfo& info_my_car = info_players[client_id].info_car;
     renderCarOnMiniMap(x_dest_mini_map, y_dest_mini_map, mini_map_width, mini_map_height,
                        info_my_car, true);
+}
+
+void MiniMap::renderCheckpointOnMiniMap(int x_dest_mini_map, int y_dest_mini_map,
+                                        int mini_map_width, int mini_map_height) {
+    const PlayerTickInfo& info_my_car = info_players[client_id].info_car;
+
+    int x_checkpoint_mini_map = x_dest_mini_map + (info_my_car.x_checkpoint * mini_map_width) /
+                                                          map_manager.getCurrentMapWidth();
+    int y_checkpoint_mini_map = y_dest_mini_map + (info_my_car.y_checkpoint * mini_map_height) /
+                                                          map_manager.getCurrentMapHeight();
+
+    int size_checkpoint_width = 15;
+    int size_checkpoint_height = 15;
+    Area checkpoint_dest_area_mini_map(x_checkpoint_mini_map - (size_checkpoint_width / 2),
+                                       y_checkpoint_mini_map - (size_checkpoint_height / 2),
+                                       size_checkpoint_width, size_checkpoint_height);
+
+    texture_checkpoint_mini_map.render(Area(0, 0, texture_checkpoint_mini_map.getWidth(),
+                                            texture_checkpoint_mini_map.getHeight()),
+                                       checkpoint_dest_area_mini_map);
 }
