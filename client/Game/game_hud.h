@@ -14,6 +14,7 @@
 #include "resources/hud/position_hud.h"
 #include "resources/hud/speed_hud.h"
 #include "resources/hud/time_hud.h"
+#include "resources/hud/checkpoint.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 
@@ -33,9 +34,11 @@ private:
     PositionHud position_hud;
     MiniMap mini_map;
     Hint hint;
+    Checkpoint checkpoint;
 
     void renderLifeBarHud();
     void renderMiniMap();
+    void renderHint(const CarInfoGame& client_car, int iteration);
 
     int distanceBetweenCarAndCheckpoint(const CarInfoGame& car_info) const;
 
@@ -44,7 +47,7 @@ public:
                      std::unordered_map<size_t, CarInfoGame>& info_players,
                      const CarSpriteSheet& car_sprites);
 
-    void render(int iteration, int time_seconds);
+    void render(int iteration, int time_seconds, const Area& src_area_map);
 
     GameHud(const GameHud&) = delete;
     GameHud& operator=(const GameHud&) = delete;

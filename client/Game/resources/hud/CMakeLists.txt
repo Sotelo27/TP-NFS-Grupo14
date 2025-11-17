@@ -8,6 +8,7 @@ target_sources(taller_client
     position_hud.cpp
     mini_map_hud.cpp
     hint.cpp
+    checkpoint.cpp
     PUBLIC
     # .h files
     life_bar.h
@@ -17,4 +18,5 @@ target_sources(taller_client
     position_hud.h
     mini_map_hud.h
     hint.h
+    checkpoint.h
     )

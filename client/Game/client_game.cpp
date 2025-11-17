@@ -229,7 +229,7 @@ void ClientGame::render_in_z_order() {
 
     render_cars();
 
-    game_hud.render(iteration, time_info.seconds);
+    game_hud.render(iteration, time_info.seconds, src_area_map);
 
     window.render();
 }

@@ -23,7 +23,8 @@ GameHud::GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_
         speed_hud(window),
         position_hud(window),
         mini_map(client_id, window, map_manager, info_players),
-        hint(window) {}
+        hint(window),
+        checkpoint(window) {}
 
 void GameHud::renderMiniMap() {
     int y_dest_mini_map = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
@@ -59,16 +60,22 @@ int GameHud::distanceBetweenCarAndCheckpoint(const CarInfoGame& car_info) const 
     return static_cast<int>(std::sqrt(dx * dx + dy * dy));
 }
 
-void GameHud::render(int iteration, int time_seconds) {
-    const CarInfoGame& client_car = info_players[client_id];
-
-    renderLifeBarHud();
-
+void GameHud::renderHint(const CarInfoGame& client_car, int iteration) {
     const CarData& client_car_data = car_sprites.getCarData(
             static_cast<CarSpriteID>(client_car.info_car.car_id));
     hint.render(client_car.dest_area.getX(), client_car.dest_area.getY(),
                 distanceBetweenCarAndCheckpoint(client_car), client_car.info_car.hint_angle_deg, iteration, client_car_data.width_scale_screen,
                 client_car_data.height_scale_screen);
+}
+
+void GameHud::render(int iteration, int time_seconds, const Area& src_area_map) {
+    const CarInfoGame& client_car = info_players[client_id];
+
+    checkpoint.render(client_car.info_car.x_checkpoint, client_car.info_car.y_checkpoint, src_area_map);
+
+    renderLifeBarHud();
+
+    renderHint(client_car, iteration);
 
     speed_hud.render(client_car.info_car.speed_mps, WINDOW_WIDTH - WINDOW_WIDTH / 7, WINDOW_HEIGHT - 210);
 
