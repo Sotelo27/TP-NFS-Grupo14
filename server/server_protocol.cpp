@@ -99,9 +99,9 @@ void ServerProtocol::send_rooms(const std::vector<RoomInfo>& rooms) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_room_created(uint8_t room_id) {
+void ServerProtocol::send_room_created(const ServerOutMsg& msg) {
     uint8_t code = CODE_S2C_ROOM_CREATED;
-    uint8_t buf[2] = {code, room_id};
+    uint8_t buf[2] = {code, msg.room_id};
     skt.sendall(buf, sizeof(buf));
 }
 

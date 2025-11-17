@@ -44,7 +44,7 @@ void ClientThreadSend::run() {
                     break;
                 case ServerOutType::RoomCreated:
                     std::cout << "[ClientThreadSend] Sending ROOM_CREATED(" << (int)msg.room_id << ") to conn_id=" << id << "\n";
-                    protocol.send_room_created(msg.room_id);
+                    protocol.send_room_created(msg);
                     break;
                 case ServerOutType::PlayersList:
                     std::cout << "[ClientThreadSend] Sending PLAYERS_LIST to conn_id=" << id 

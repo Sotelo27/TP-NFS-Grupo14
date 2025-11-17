@@ -40,7 +40,7 @@ public:
     void send_your_id(const ServerOutMsg& msg); 
     void send_player_name(const ServerOutMsg& msg);
     void send_rooms(const std::vector<RoomInfo>& rooms);
-    void send_room_created(uint8_t room_id);
+    void send_room_created(const ServerOutMsg& msg);
     void send_players_list(const std::vector<PlayerInfo>& players);
     ClientMessage receive();
     void enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje);
