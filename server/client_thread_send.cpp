@@ -24,8 +24,8 @@ void ClientThreadSend::run() {
 
             switch (msg.type) {
                 case ServerOutType::Pos: {
-                    float angle_deg = msg.angle * 180.0f / PI;
-                    protocol.send_pos(msg.id, msg.x, msg.y, angle_deg);
+                    // Ya no hace falta convertir el ángulo aquí, debe estar en msg.angle
+                    protocol.send_pos(msg);
                 } break;
                 case ServerOutType::Rooms:
                     std::cout << "[ClientThreadSend] Sending ROOMS to conn_id=" << id << "\n";
