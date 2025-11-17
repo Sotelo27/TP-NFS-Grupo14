@@ -37,7 +37,7 @@ public:
 
     void send_ok();
     void send_pos(const ServerOutMsg& msg);
-    void send_your_id(uint32_t id);
+    void send_your_id(const ServerOutMsg& msg); 
     void send_player_name(uint32_t id, const std::string& username);
     void send_rooms(const std::vector<RoomInfo>& rooms);
     void send_room_created(uint8_t room_id);

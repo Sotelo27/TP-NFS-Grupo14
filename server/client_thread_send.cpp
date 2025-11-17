@@ -24,7 +24,6 @@ void ClientThreadSend::run() {
 
             switch (msg.type) {
                 case ServerOutType::Pos: {
-                    // Ya no hace falta convertir el ángulo aquí, debe estar en msg.angle
                     protocol.send_pos(msg);
                 } break;
                 case ServerOutType::Rooms:
@@ -37,7 +36,7 @@ void ClientThreadSend::run() {
                     break;
                 case ServerOutType::YourId:
                     std::cout << "[ClientThreadSend] Sending YOUR_ID(" << msg.your_id << ") to conn_id=" << id << "\n";
-                    protocol.send_your_id(msg.your_id);
+                    protocol.send_your_id(msg);
                     break;
                 case ServerOutType::PlayerName:
                     std::cout << "[ClientThreadSend] Sending PLAYER_NAME to conn_id=" << id << "\n";

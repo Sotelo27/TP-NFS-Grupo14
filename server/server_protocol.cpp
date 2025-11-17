@@ -50,9 +50,9 @@ void ServerProtocol::send_pos(const ServerOutMsg& msg) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_your_id(uint32_t id) {
+void ServerProtocol::send_your_id(const ServerOutMsg& msg) {
     uint8_t code = CODE_S2C_YOUR_ID;
-    uint32_t id_be = htonl(id);
+    uint32_t id_be = htonl(msg.your_id);
 
     uint8_t buf[1 + 4];
     buf[0] = code;
