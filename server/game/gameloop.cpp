@@ -1,6 +1,7 @@
 #include "gameloop.h"
 
 #include <chrono>
+#include <algorithm>
 #include <iostream>
 #include <list>
 #include <string>
@@ -14,7 +15,9 @@
 #define BROADCAST_HZ 30
 
 Gameloop::Gameloop(Game& game, ClientListProtected& clients, Queue<ClientAction>& actiones_clients):
-    game(game), clients(clients), actiones_clients(actiones_clients) {}
+    game(game), clients(clients), actiones_clients(actiones_clients), loop(SERVER_HZ) {
+        ticks_per_broadcast = std::max(1, SERVER_HZ / BROADCAST_HZ);
+    }
 
 void Gameloop::procesar_actiones() {
     ClientAction action;
@@ -37,67 +40,23 @@ void Gameloop::procesar_actiones() {
     }
 }
 
-void Gameloop::run() {
-    const int period_ms = std::max(1, 1000 / SERVER_HZ);// esto es casi equivalente a lo que sseri 16ms o 60fps , rate
-    const int ticks_per_broadcast = std::max(1, (SERVER_HZ + BROADCAST_HZ - 1) / BROADCAST_HZ);
-    const int max_catchup_steps = 4;
+void Gameloop::func_tick(int iteration) {
+    procesar_actiones();
+    game.update(1.0f / SERVER_HZ);
 
-    auto prev = std::chrono::steady_clock::now(); // marca ideal del proximo tick, lo que seria el t1 :P
-    int tick_count = 0;
+    if (iteration % ticks_per_broadcast == 0) {
+        auto tick_players = game.players_tick_info();
+        TimeTickInfo time_race = game.get_race_time();
+        std::vector<NpcTickInfo> npcs;
+        std::vector<EventInfo> events;
 
-    while (should_keep_running()) {
-        try {
-            procesar_actiones();
-
-            game.update(1.0f / SERVER_HZ);
-            ++tick_count;
-
-            // Se mide cuanto tardo el tick real
-            auto now   = std::chrono::steady_clock::now(); //Este  es el tiempo 2 -> t2
-            auto spent = std::chrono::duration_cast<std::chrono::milliseconds>(now - prev); // Tiempo transcurrido desde el tick anterior, t2 - t1
-            // calculamos la diferencia entre el tiempo ideal y el real
-            // osea equivale a rest -> 16ms - (t2 - t1)
-            auto delta = std::chrono::milliseconds(period_ms) - spent; 
-            //Entonces:
-            // si-> delta > 0 : Vamos a tiempo
-            // si-> delta < 0 : vamos atradsados y tenemos que "ponernos al dia"
-
-            if (delta > std::chrono::milliseconds(0)) {
-                // Caso “vamos a tiempo”
-                // Dormimos hasta el proximo tick exacto
-                std::this_thread::sleep_for(delta);
-                prev += std::chrono::milliseconds(period_ms); // Avanzamos la marca ideal (next_tick += frame)
-            } else {
-                // Caso “vamos atrasados”
-                // (-delta) = tiempo que estamos atrasados -> es equivalente a a lo que vi en behind
-                auto late_ms = -delta.count();
-                int frames_late = (int)((late_ms + period_ms - 1) / period_ms) + 1; // cuantos frames deberiamos pagar
-
-                // Limitamos el catch-up a unos pocos steps
-                int catchup = std::min(frames_late, max_catchup_steps);
-
-                for (int i = 0; i < catchup; ++i) {
-                    procesar_actiones();
-                    game.update(1.0f / SERVER_HZ);
-                    ++tick_count;
-                }
-
-                //Aquie aplicamos el Rest: osea saltamos los frames que no pudimos pagar, para sincronizarnos
-                prev += std::chrono::milliseconds(period_ms) * (1 + frames_late);
-            }
-
-            if (tick_count % ticks_per_broadcast == 0) {
-                auto tick_players = game.players_tick_info();
-                TimeTickInfo time_race = game.get_race_time();
-                std::vector<NpcTickInfo> npcs;
-                std::vector<EventInfo> events;
-                clients.broadcast_map_info(tick_players, npcs, events, time_race);
-            }
-
-        } catch (const std::exception& err) {
-            std::cerr << "Something went wrong and an exception was caught: " << err.what() << "\n";
-        }
+        clients.broadcast_map_info(tick_players, npcs, events, time_race);
     }
+}
+
+void Gameloop::run() {
+    loop.start_loop([this](int iteration) { func_tick(iteration); },
+                    [this]() { return should_keep_running(); });
 }
 
 Gameloop::~Gameloop() { actiones_clients.close(); }
