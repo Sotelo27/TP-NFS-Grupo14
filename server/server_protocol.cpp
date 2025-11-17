@@ -19,13 +19,13 @@ static inline uint32_t htonf32(float f) {
     return htonl(u);
 }
 
-void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y, float angle) {
+void ServerProtocol::send_pos(const ServerOutMsg& msg) {
     uint8_t code = CODE_S2C_POS;
 
-    uint32_t id_be = htonl(id);
-    uint16_t x_be = htons((uint16_t)x);
-    uint16_t y_be = htons((uint16_t)y);
-    uint32_t ang_be = htonf32(angle);
+    uint32_t id_be = htonl(msg.id);
+    uint16_t x_be = htons((uint16_t)msg.x);
+    uint16_t y_be = htons((uint16_t)msg.y);
+    uint32_t ang_be = htonf32(msg.angle);
 
     std::vector<uint8_t> buf;
     buf.reserve(1 + 4 + 2 + 2 + 4);

@@ -11,6 +11,7 @@
 #include "../common/constants.h"
 #include "../common/socket.h"
 #include "../common/dto/client_msg.h"
+#include "../common/dto/server_msg.h"
 #include "../common/dto/room_info.h"
 #include "../common/dto/car_info.h"
 #include "../common/dto/results_info.h"
@@ -35,7 +36,7 @@ public:
     explicit ServerProtocol(Socket&& skt);
 
     void send_ok();
-    void send_pos(uint32_t id, int16_t x, int16_t y, float angle);
+    void send_pos(const ServerOutMsg& msg);
     void send_your_id(uint32_t id);
     void send_player_name(uint32_t id, const std::string& username);
     void send_rooms(const std::vector<RoomInfo>& rooms);
