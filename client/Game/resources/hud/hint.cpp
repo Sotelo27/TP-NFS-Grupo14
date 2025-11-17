@@ -42,7 +42,8 @@ void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, i
                            ((distance_arrow * (CLOSENESS_FACTOR - i)) / CLOSENESS_FACTOR);
 
         float t = static_cast<float>(distance_checkpoint) / MAX_RANGE_CHECKPOINT;
-        float arrow_size_adjustment_factor = std::cbrt(t);
+        // float arrow_size_adjustment_factor = std::cbrt(t);
+        float arrow_size_adjustment_factor = std::sqrt(t);
         float offset_img_width = texture.getWidth() * arrow_size_adjustment_factor / 2;
         float offset_img_height = texture.getHeight() * arrow_size_adjustment_factor / 2;
         Area dest(current_x_arrow - offset_img_width, current_y_arrow - offset_img_height,
