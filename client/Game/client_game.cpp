@@ -71,6 +71,9 @@ void ClientGame::handle_cheat_detection(const char* keyName) {
 
         // esto se borra después
         intermediate_state = intermediate_state ? false : true;
+        if (!intermediate_state) {
+            intermission_manager.reset();
+        }
     }
 }
 
