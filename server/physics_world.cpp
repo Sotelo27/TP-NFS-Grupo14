@@ -124,16 +124,6 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
             size_t cidx = 0;
             for (const auto& cp : cps_vec) {
                 add_checkpoint_body_px(cp, pixel_to_meters);
-                if (cidx < 8) {
-                    const float cx_m = (cp.x_px + cp.w_px * 0.5f) * pixel_to_meters;
-                    const float cy_m = (cp.y_px + cp.h_px * 0.5f) * pixel_to_meters;
-                    std::cout << "[Physics] Checkpoint[" << cidx << "] race=" << route_id
-                              << " idx=" << cp.index << " type=" << cp.type
-                              << " px=(x=" << cp.x_px << ", y=" << cp.y_px
-                              << ", w=" << cp.w_px << ", h=" << cp.h_px
-                              << ") rot_deg=" << cp.rotation_deg
-                              << " center_m=(" << cx_m << ", " << cy_m << ")\n";
-                }
                 ++cidx;
             }
             std::cout << "[Physics] Loaded " << cps_vec.size() << " checkpoints for race '"
@@ -251,9 +241,15 @@ void PhysicsWorld::add_checkpoint_body_px(const Checkpoint& cp, float pixel_to_m
     b2BodyDef bodyDef;
     bodyDef.type = b2_staticBody;
 
-    // Centro del checkpoint en metros
-    const float centerX_m = (cp.x_px + cp.w_px * 0.5f) * pixel_to_meters;
-    const float centerY_m = (cp.y_px + cp.h_px * 0.5f) * pixel_to_meters;
+    // Centro del checkpoint considerando rotacion)
+    // px = (x, y) + R(a) * (w/2, h/2)
+    const float a = cp.rotation_deg * b2_pi / 180.0f;
+    const float halfW_px = cp.w_px * 0.5f;
+    const float halfH_px = cp.h_px * 0.5f;
+    const float cx_px = cp.x_px + std::cos(a) * halfW_px - std::sin(a) * halfH_px;
+    const float cy_px = cp.y_px + std::sin(a) * halfW_px + std::cos(a) * halfH_px;
+    const float centerX_m = cx_px * pixel_to_meters;
+    const float centerY_m = cy_px * pixel_to_meters;
     bodyDef.position.Set(centerX_m, centerY_m);
 
     // Rotación del body (igual que en los rects)

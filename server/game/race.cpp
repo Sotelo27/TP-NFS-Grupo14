@@ -234,16 +234,19 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         float distance_px = 0.0f;
         if (!track.checkpoints.empty() && next_idx < track.checkpoints.size()) {
             const auto& cp = track.checkpoints[next_idx];
-            // Centro del rectangulo del checkpoint
-            const float cp_cx_px = cp.x_px + cp.w_px * 0.5f;
-            const float cp_cy_px = cp.y_px + cp.h_px * 0.5f;
+            
+            const float a = cp.rotation_deg * PI / 180.0f;
+            const float halfW = cp.w_px * 0.5f;
+            const float halfH = cp.h_px * 0.5f;
+                                   //[Oringen] + [rotacion]
+            const float checkp_center_x_px = cp.x_px + std::cos(a) * halfW - std::sin(a) * halfH;
+            const float checkp_center_y_px = cp.y_px + std::sin(a) * halfW + std::cos(a) * halfH;
 
-            player.x_checkpoint = (uint16_t)(std::lround(cp_cx_px));
-            player.y_checkpoint = (uint16_t)(std::lround(cp_cy_px));
-
+            player.x_checkpoint = (uint16_t)(std::lround(checkp_center_x_px));
+            player.y_checkpoint = (uint16_t)(std::lround(checkp_center_y_px));
             // Distancia en píxeles entre auto y checkpoint
-            const float dx_px = cp_cx_px - car_x_px;
-            const float dy_px = cp_cy_px - car_y_px;
+            const float dx_px = checkp_center_x_px - car_x_px;
+            const float dy_px = checkp_center_y_px - car_y_px;
             distance_px = std::sqrt(dx_px * dx_px + dy_px * dy_px);
             player.distance_to_checkpoint = distance_px;
 
