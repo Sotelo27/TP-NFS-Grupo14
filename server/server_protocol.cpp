@@ -246,6 +246,7 @@ void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& curren
         uint16_t time_be = htons(p.time_seconds);
         off = buf.size();
         buf.resize(off + 2); std::memcpy(buf.data()+off, &time_be, 2);
+        buf.push_back(p.position);
     }
     // TOTAL
     for (const auto& p : total) {
@@ -261,6 +262,7 @@ void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& curren
         uint32_t tbe = htonl(p.total_time_seconds);
         off = buf.size();
         buf.resize(off + 4); std::memcpy(buf.data()+off, &tbe, 4);
+        buf.push_back(p.position);
     }
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
