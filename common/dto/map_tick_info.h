@@ -19,7 +19,7 @@ struct PlayerTickInfo {
     float hint_angle_deg;
 
     uint16_t position_in_race;
-     
+    float distance_to_checkpoint;
 };
 
 struct NpcTickInfo {
