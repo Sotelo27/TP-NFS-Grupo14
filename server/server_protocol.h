@@ -43,8 +43,8 @@ public:
     void send_room_created(const ServerOutMsg& msg);
     void send_players_list(const std::vector<PlayerInfo>& players);
     ClientMessage receive();
-    void send_nitro(const ServerOutMsg& msg); // Renombrado y cambiado parámetro
-    void enviar_rooms_default();
+    void send_nitro(const ServerOutMsg& msg); 
+    void send_rooms_default(); // Renombrado
     void send_cars_list(const std::vector<CarInfo>& cars);
     void send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
                          const std::vector<std::pair<int32_t,int32_t>>& checkpoints);

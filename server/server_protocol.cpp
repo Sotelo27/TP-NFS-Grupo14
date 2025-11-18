@@ -156,33 +156,33 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
 }
 
 void ServerProtocol::send_nitro(const ServerOutMsg& msg) {
-    uint8_t codigo = CODE_SERVER_MSG;
-    uint16_t cantidad_be = htons(msg.nitros_activos); 
-    uint8_t mensaje = msg.nitro_msg;                  
+    uint8_t code = CODE_SERVER_MSG;
+    uint16_t cant = htons(msg.active_nitros); 
+    uint8_t msg_type = msg.nitro_msg;                  
 
-    std::vector<uint8_t> paquete(sizeof(codigo) + sizeof(cantidad_be) + sizeof(mensaje));
+    std::vector<uint8_t> paquete(sizeof(code) + sizeof(cant) + sizeof(msg_type));
     size_t offset = 0;
-    std::memcpy(paquete.data() + offset, &codigo, sizeof(codigo));
-    offset += sizeof(codigo);
-    std::memcpy(paquete.data() + offset, &cantidad_be, sizeof(cantidad_be));
-    offset += sizeof(cantidad_be);
-    std::memcpy(paquete.data() + offset, &mensaje, sizeof(mensaje));
+    std::memcpy(paquete.data() + offset, &code, sizeof(code));
+    offset += sizeof(code);
+    std::memcpy(paquete.data() + offset, &cant, sizeof(cant));
+    offset += sizeof(cant);
+    std::memcpy(paquete.data() + offset, &msg_type, sizeof(msg_type));
 
     skt.sendall(paquete.data(), (unsigned int)paquete.size());
 }
 
-void ServerProtocol::enviar_rooms_default() {
-    uint8_t codigo = CODE_SERVER_MSG;
-    uint16_t cantidad_be = htons((uint16_t)0);
-    uint8_t mensaje = (uint8_t)ERROR_MESSAGE;
+void ServerProtocol::send_rooms_default() {
+    uint8_t code = CODE_SERVER_MSG;
+    uint16_t cant = htons((uint16_t)0);
+    uint8_t msg_type = (uint8_t)ERROR_MESSAGE;
 
-    std::vector<uint8_t> paquete(sizeof(codigo) + sizeof(cantidad_be) + sizeof(mensaje));
+    std::vector<uint8_t> paquete(sizeof(code) + sizeof(cant) + sizeof(msg_type));
     size_t offset = 0;
-    std::memcpy(paquete.data() + offset, &codigo, sizeof(codigo));
-    offset += sizeof(codigo);
-    std::memcpy(paquete.data() + offset, &cantidad_be, sizeof(cantidad_be));
-    offset += sizeof(cantidad_be);
-    std::memcpy(paquete.data() + offset, &mensaje, sizeof(mensaje));
+    std::memcpy(paquete.data() + offset, &code, sizeof(code));
+    offset += sizeof(code);
+    std::memcpy(paquete.data() + offset, &cant, sizeof(cant));
+    offset += sizeof(cant);
+    std::memcpy(paquete.data() + offset, &msg_type, sizeof(msg_type));
 
     skt.sendall(paquete.data(), (unsigned int)paquete.size());
 }
