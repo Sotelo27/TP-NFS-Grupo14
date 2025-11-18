@@ -53,7 +53,7 @@ public:
     void send_choose_car(const ClientMessage& msg);
 
     // Mejoras de auto
-    void send_improvement(uint8_t improvement);
+    void send_improvement(const ClientMessage& msg);
 
     // Cheats
     void send_cheat(uint8_t cheat_code);

@@ -425,9 +425,9 @@ void ClientProtocol::send_choose_car(const ClientMessage& msg) {
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_improvement(uint8_t improvement) {
+void ClientProtocol::send_improvement(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_IMPROVEMENT;
-    uint8_t buf[2] = {code, improvement};
+    uint8_t buf[2] = {code, msg.improvement};
     skt.sendall(buf, sizeof(buf));
 }
 

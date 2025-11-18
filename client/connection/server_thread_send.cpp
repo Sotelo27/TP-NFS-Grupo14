@@ -50,6 +50,10 @@ void ServerThreadSend::run() {
                 protocol.send_start_game(msg);
                 std::cout << "[ServerThreadSend] Sent START_GAME with " << msg.races.size() << " race(s)" << std::endl;
                 std::cout.flush();
+            } else if (msg.type == ClientMessage::Type::Improvement) {
+                protocol.send_improvement(msg);
+                std::cout << "[ServerThreadSend] Sent IMPROVEMENT" << std::endl;
+                std::cout.flush();
             }
 
         } catch (const std::exception& e) {
