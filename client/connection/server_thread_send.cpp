@@ -34,7 +34,7 @@ void ServerThreadSend::run() {
                     std::cout << "[ServerThreadSend] Sent ROOM_CREATE" << std::endl;
                     std::cout.flush();
                 } else if (msg.room_cmd == ROOM_JOIN) {
-                    protocol.send_join_room(msg.room_id);
+                    protocol.send_join_room(msg);
                     std::cout << "[ServerThreadSend] Sent ROOM_JOIN(" << (int)msg.room_id << ")" << std::endl;
                     std::cout.flush();
                 } else if (msg.room_cmd == ROOM_LEAVE) {

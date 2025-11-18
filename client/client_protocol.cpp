@@ -383,10 +383,10 @@ void ClientProtocol::send_create_room() {
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_join_room(uint8_t room_id) {
+void ClientProtocol::send_join_room(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_ROOM;
     uint8_t sub = ROOM_JOIN;
-    uint8_t buf[3] = {code, sub, room_id};
+    uint8_t buf[3] = {code, sub, msg.room_id};
     skt.sendall(buf, sizeof(buf));
 }
 
