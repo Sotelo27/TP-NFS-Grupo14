@@ -17,6 +17,7 @@
 #include "race.h"
 #include "city.h"
 #include "garage.h" 
+#include "market.h"
 
 enum class GameState {
     Lobby,
@@ -42,6 +43,7 @@ private:
     
     City city;
     Garage garage;
+    Market market;
 
 
     void throw_jugador_no_existe(size_t id) const;

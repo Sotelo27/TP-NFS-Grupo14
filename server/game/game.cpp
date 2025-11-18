@@ -152,6 +152,7 @@ void Game::on_race_ended() {
 
     RaceResult results = get_current_race().build_race_results();
 
+    auto penalties_upgrades = market.consume_penalties_for_race();
     // 2) Destruir los autos actuales del PhysicsWorld
     //get_current_race().clear_cars();  // método que llame a physics.destroy_body para cada player
 

@@ -37,6 +37,12 @@ public:
      */
     CarModel apply_upgrades_to_model(std::size_t player_id, const CarModel& base) const;
 
+    /*
+     * Consume y devuelve las penalizaciones de tiempo acumuladas
+     * por cada jugador para la carrera actual
+     */
+    std::unordered_map<std::size_t, std::uint32_t> consume_penalties_for_race();
+
     PlayerMarketInfo get_total_player_info(size_t player_id) const;
 
     std::vector<UpgradeId> get_upgrades(size_t player_id) const;

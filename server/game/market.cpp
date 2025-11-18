@@ -44,7 +44,7 @@ CarModel Market::apply_upgrades_to_model(std::size_t player_id, const CarModel& 
 
     for (UpgradeId id : p_info_market.upgrades) {
         const UpgradeInfo& upgrade = find_info_upgrade(id);
-        
+
         switch (id) {
         case UpgradeId::Life:
             result.life += upgrade.value;
@@ -61,4 +61,22 @@ CarModel Market::apply_upgrades_to_model(std::size_t player_id, const CarModel& 
     return result;
 }
 
+std::unordered_map<std::size_t, std::uint32_t> Market::consume_penalties_for_race(){
+    std::unordered_map<std::size_t, std::uint32_t> penalties_seconds; // player_id -> seconds de penelizacion
+
+    for (const auto& kv : player_market_info) {
+        std::size_t player_id          = kv.first;
+        const PlayerMarketInfo& pinfo  = kv.second;
+
+        if (pinfo.total_time_penalty <= 0.0f) continue;
+
+        penalties_seconds.emplace(player_id, pinfo.total_time_penalty);
+
+    }
+
+    // una vez consumido lo reseteo
+    player_market_info.clear();
+
+    return penalties_seconds;
+}
 
