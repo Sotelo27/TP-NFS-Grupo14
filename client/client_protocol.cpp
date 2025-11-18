@@ -419,9 +419,9 @@ void ClientProtocol::send_start_game(const ClientMessage& msg) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ClientProtocol::send_choose_car(uint8_t car_id) {
+void ClientProtocol::send_choose_car(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_CHOOSE_CAR;
-    uint8_t buf[2] = {code, car_id};
+    uint8_t buf[2] = {code, msg.car_id};
     skt.sendall(buf, sizeof(buf));
 }
 

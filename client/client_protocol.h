@@ -50,7 +50,7 @@ public:
     void send_start_game(const ClientMessage& msg);
 
     // Elegir auto
-    void send_choose_car(uint8_t car_id);
+    void send_choose_car(const ClientMessage& msg);
 
     // Mejoras de auto
     void send_improvement(uint8_t improvement);

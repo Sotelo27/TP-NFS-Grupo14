@@ -43,7 +43,7 @@ void ServerThreadSend::run() {
                     std::cout.flush();
                 }
             } else if (msg.type == ClientMessage::Type::ChooseCar) {
-                protocol.send_choose_car(msg.car_id);
+                protocol.send_choose_car(msg);
                 std::cout << "[ServerThreadSend] Sent CHOOSE CAR" << std::endl;
                 std::cout.flush();
             } else if (msg.type == ClientMessage::Type::StartGame) {
