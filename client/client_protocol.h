@@ -26,9 +26,9 @@ private:
     ServerMessage parse_room_created();
     ServerMessage parse_players_list();
     ServerMessage parse_game_over();
-    ServerMessage parse_car_list();     // no setea type (igual que antes)
-    ServerMessage parse_race_start();   // no setea type (igual que antes)
-    ServerMessage parse_results();      // no setea type (igual que antes)
+    ServerMessage parse_car_list();     
+    ServerMessage parse_race_start();   
+    ServerMessage parse_results();      
     ServerMessage parse_map_info();
 
 public:
