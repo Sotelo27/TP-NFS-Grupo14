@@ -1,5 +1,3 @@
-cd /usr/bin
+PORT="${1:-8080}"
 
-#export MIJUEGO_CLIENT_CONFIG_FILE="/etc/mi_juego/client_config.yaml"
-
-./server 8080
+server "$PORT"
