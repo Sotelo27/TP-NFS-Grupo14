@@ -10,6 +10,7 @@
 #include "car_info.h"
 #include "results_info.h"
 #include "map_tick_info.h"
+#include "car_improvement.h" 
 
 struct ServerMessage {
     enum class Type {
