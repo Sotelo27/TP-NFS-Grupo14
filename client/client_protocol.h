@@ -12,6 +12,7 @@
 #include "../common/dto/movement.h"
 #include "../common/dto/server_msg.h"
 #include "../common/dto/player_info.h" 
+#include "../common/dto/client_msg.h" 
 
 class ClientProtocol {
 private:
@@ -35,7 +36,7 @@ public:
     explicit ClientProtocol(Socket&& skt);
 
     // Send username (string)
-    void send_name(const std::string& username);
+    void send_name(const ClientMessage& msg);
 
     // Send movement (enum Movement)
     void send_move(Movement mov);

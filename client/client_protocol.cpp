@@ -349,23 +349,23 @@ ServerMessage ClientProtocol::receive() {
     return dto;
 }
 
-void ClientProtocol::send_name(const std::string& username) {
+void ClientProtocol::send_name(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_NAME;
-    uint16_t len = (uint16_t)username.size();
+    uint16_t len = (uint16_t)msg.username.size();
     uint16_t len_be = htons(len);
-    
+
     std::vector<uint8_t> buf;
-    buf.reserve(1 + 2 + username.size());
+    buf.reserve(1 + 2 + len);
     buf.push_back(code);
-    
+
     size_t off = buf.size();
     buf.resize(off + 2);
     std::memcpy(buf.data() + off, &len_be, 2);
-    
+
     if(len > 0) {
-        buf.insert(buf.end(), username.begin(), username.end());
+        buf.insert(buf.end(), msg.username.begin(), msg.username.end());
     }
-    
+
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 

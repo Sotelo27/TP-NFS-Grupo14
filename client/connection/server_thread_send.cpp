@@ -21,7 +21,7 @@ void ServerThreadSend::run() {
             std::cout.flush();
 
             if (msg.type == ClientMessage::Type::Name) {
-                protocol.send_name(msg.username);
+                protocol.send_name(msg);
                 std::cout << "[ServerThreadSend] Sent NAME: '" << msg.username << "'" << std::endl;
                 std::cout.flush();
             } else if (msg.type == ClientMessage::Type::Move) {
