@@ -21,6 +21,7 @@
 enum class GameState {
     Lobby,
     Racing,
+    Marketplace,
     Finished
 };
 
@@ -91,11 +92,6 @@ public:
      * Obtiene el tiempo de carrera actual en segundos
      */
     TimeTickInfo get_race_time() const;
-    
-    /*
-     * Devuelve Player {(id, position)} de todos los jugadores
-     */
-    std::vector<PlayerPos> players_positions();
 
     /*
      * Devuelve informacion del jugador para el tick del mapa (posiciones + salud por ahora)

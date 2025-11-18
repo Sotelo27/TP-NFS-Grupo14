@@ -75,28 +75,13 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
     //antes de cargar limpio, servira cuando se cambie de mapa
     clear_static_geometry();
 
-    //const float PPM = (cfg.pixels_per_meter > 0.f) ? cfg.pixels_per_meter : 32.f;
     const float pixel_to_meters = 1.0f / PPM;
-    //LOG PARA VER LA CARGA--------------------------
-    size_t total_checkpoints = 0;
-    for (const auto& kv : cfg.checkpoints) total_checkpoints += kv.second.size();
-    std::cout << "[Physics] Loading static geometry: PPM=" << PPM
-              << " rects=" << cfg.rects.size()
-              << " polylines=" << cfg.polylines.size()
-              << " checkpoints=" << total_checkpoints << "\n";
+
     //----------------------------------------------- 
     // cARGO los rectaugos del mapa
     size_t ridx = 0;
     for (const auto& r : cfg.rects) {
         add_static_rect_body_px(r, pixel_to_meters);
-        if (ridx < 8) {
-            const float cx_m = (r.x_px + r.w_px * 0.5f) * pixel_to_meters;
-            const float cy_m = (r.y_px + r.h_px * 0.5f) * pixel_to_meters;
-            std::cout << "[Physics] Rect[" << ridx << "] px=(x=" << r.x_px << ", y=" << r.y_px
-                      << ", w=" << r.w_px << ", h=" << r.h_px
-                      << ") rot_deg=" << r.rotation_deg
-                      << " center_m=(" << cx_m << ", " << cy_m << ")\n";
-        }
         ++ridx;
     }
 
@@ -106,16 +91,6 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
         if (pl.points_px.size() < 2) continue;
         auto verts = make_polyline_vertices_m(pl, pixel_to_meters);
         add_static_polyline_bodies_px(pl, pixel_to_meters);
-        if (pidx < 8 && !verts.empty()) {
-            float minx = verts[0].x, miny = verts[0].y, maxx = verts[0].x, maxy = verts[0].y;
-            for (const auto& v : verts) {
-                minx = std::min(minx, v.x); maxx = std::max(maxx, v.x);
-                miny = std::min(miny, v.y); maxy = std::max(maxy, v.y);
-            }
-            std::cout << "[Physics] Polyline[" << pidx << "] verts=" << verts.size()
-                      << " loop=" << (pl.loop ? 1 : 0)
-                      << " bbox_m=[(" << minx << "," << miny << ")- (" << maxx << "," << maxy << ")]\n";
-        }
         ++pidx;
     }
 
@@ -126,8 +101,6 @@ void PhysicsWorld::load_static_geometry(const MapConfig& cfg) {
                 add_checkpoint_body_px(cp, pixel_to_meters);
                 ++cidx;
             }
-            std::cout << "[Physics] Loaded " << cps_vec.size() << " checkpoints for race '"
-                      << route_id << "'\n";
         }
     } else {
         std::cout << "[Physics] No checkpoints found in MapConfig\n";
@@ -205,7 +178,7 @@ void PhysicsWorld::add_static_polyline_bodies_px(const PolylineCollider& pl, flo
     b2ChainShape chain;
 
     if (pl.loop) {
-        // Perimetro cerrado (ej: límites de un edificio)
+        // Perimetro cerrado
         chain.CreateLoop(verts.data(), (int32)(verts.size()));
     } else {
         // (lado A)
@@ -241,7 +214,7 @@ void PhysicsWorld::add_checkpoint_body_px(const Checkpoint& cp, float pixel_to_m
     b2BodyDef bodyDef;
     bodyDef.type = b2_staticBody;
 
-    // Centro del checkpoint considerando rotacion)
+    // Centro del checkpoint considerando rotacion
     // px = (x, y) + R(a) * (w/2, h/2)
     const float a = cp.rotation_deg * b2_pi / 180.0f;
     const float halfW_px = cp.w_px * 0.5f;
@@ -252,7 +225,7 @@ void PhysicsWorld::add_checkpoint_body_px(const Checkpoint& cp, float pixel_to_m
     const float centerY_m = cy_px * pixel_to_meters;
     bodyDef.position.Set(centerX_m, centerY_m);
 
-    // Rotación del body (igual que en los rects)
+    // Rotacion del body
     bodyDef.angle = cp.rotation_deg * b2_pi / 180.0f;
 
     b2Body* body = world.CreateBody(&bodyDef);

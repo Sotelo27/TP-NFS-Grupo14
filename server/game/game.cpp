@@ -104,15 +104,6 @@ void Game::apply_player_move(size_t id, Movement movimiento) {
     }
 }
 
-std::vector<PlayerPos> Game::players_positions() {
-    std::lock_guard<std::mutex> lock(m);
-    if (!has_active_race()) {
-        // Sin carrera activa (p. ej., en lobby antes de iniciar): devolver vacío
-        return {};
-    }
-    return races[current_race_index].snapshot_poses();
-}
-
 std::vector<PlayerTickInfo> Game::players_tick_info() {
     std::lock_guard<std::mutex> lock(m);
     if (!has_active_race()) {

@@ -19,7 +19,6 @@ void Garage::initialize_cars() {
 }
 
 std::vector<CarSlot> Garage::get_available_cars() {
-    std::lock_guard<std::mutex> lock(m);
     std::vector<CarSlot> result;
     result.reserve(cars.size());
 
@@ -31,8 +30,6 @@ std::vector<CarSlot> Garage::get_available_cars() {
 }
 
 bool Garage::reserve_car(uint8_t car_id) {
-    std::lock_guard<std::mutex> lock(m);
-
     auto it = cars.find(car_id);
     if (it == cars.end()) {
         std::cout << "[Garage] User tried to select an invalid car (ID: " << (int)car_id << ") in the garage." << std::endl;
@@ -44,7 +41,6 @@ bool Garage::reserve_car(uint8_t car_id) {
 }
 
 CarModel Garage::get_car_model(uint8_t car_id) {
-    std::lock_guard<std::mutex> lock(m);
     auto it = cars.find(car_id);
     if (it == cars.end()) {
         throw std::invalid_argument("Car ID " + std::to_string(car_id) + " not found.");
