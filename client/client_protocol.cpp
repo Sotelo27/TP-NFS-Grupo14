@@ -199,10 +199,13 @@ ServerMessage ClientProtocol::parse_race_start() {
 
 ServerMessage ClientProtocol::parse_results() {
     ServerMessage dto;
-    dto.type = ServerMessage::Type::Unknown;
+    dto.type = ServerMessage::Type::Results;
     uint8_t n=0;
     skt.recvall(&n, 1);
-    
+
+    dto.results_current.clear();
+    dto.results_total.clear();
+
     for(uint8_t i=0; i<n; ++i) {
         uint16_t lbe=0;
         skt.recvall(&lbe, 2);
@@ -211,8 +214,15 @@ ServerMessage ClientProtocol::parse_results() {
         if(l) skt.recvall(&name[0], l);
         uint16_t time_be=0;
         skt.recvall(&time_be, 2);
+        uint8_t pos=0;
+        skt.recvall(&pos, 1);
+        PlayerResultCurrent prc;
+        prc.username = std::move(name);
+        prc.time_seconds = ntohs(time_be);
+        prc.position = pos;
+        dto.results_current.push_back(std::move(prc));
     }
-    
+
     for(uint8_t i=0; i<n; ++i) {
         uint16_t lbe=0;
         skt.recvall(&lbe, 2);
@@ -221,6 +231,13 @@ ServerMessage ClientProtocol::parse_results() {
         if(l) skt.recvall(&name[0], l);
         uint32_t tbe=0;
         skt.recvall(&tbe, 4);
+        uint8_t pos=0;
+        skt.recvall(&pos, 1);
+        PlayerResultTotal prt;
+        prt.username = std::move(name);
+        prt.total_time_seconds = ntohl(tbe);
+        prt.position = pos;
+        dto.results_total.push_back(std::move(prt));
     }
     return dto;
 }
@@ -332,23 +349,23 @@ ServerMessage ClientProtocol::receive() {
     return dto;
 }
 
-void ClientProtocol::send_name(const std::string& username) {
+void ClientProtocol::send_name(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_NAME;
-    uint16_t len = (uint16_t)username.size();
+    uint16_t len = (uint16_t)msg.username.size();
     uint16_t len_be = htons(len);
-    
+
     std::vector<uint8_t> buf;
-    buf.reserve(1 + 2 + username.size());
+    buf.reserve(1 + 2 + len);
     buf.push_back(code);
-    
+
     size_t off = buf.size();
     buf.resize(off + 2);
     std::memcpy(buf.data() + off, &len_be, 2);
-    
+
     if(len > 0) {
-        buf.insert(buf.end(), username.begin(), username.end());
+        buf.insert(buf.end(), msg.username.begin(), msg.username.end());
     }
-    
+
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
@@ -366,57 +383,57 @@ void ClientProtocol::send_create_room() {
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_join_room(uint8_t room_id) {
+void ClientProtocol::send_join_room(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_ROOM;
     uint8_t sub = ROOM_JOIN;
-    uint8_t buf[3] = {code, sub, room_id};
+    uint8_t buf[3] = {code, sub, msg.room_id};
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races) {
+void ClientProtocol::send_start_game(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_START_GAME;
-    uint8_t qty = (uint8_t)races.size();
-    
+    uint8_t qty = (uint8_t)msg.races.size();
+
     std::vector<uint8_t> buf;
-    buf.reserve(2 + races.size() * 50);
+    buf.reserve(2 + msg.races.size() * 50);
     buf.push_back(code);
     buf.push_back(qty);
-    
-    for(const auto& race : races) {
+
+    for(const auto& race : msg.races) {
         uint16_t len = (uint16_t)race.first.size();
         uint16_t len_be = htons(len);
-        
+
         size_t off = buf.size();
         buf.resize(off + 2);
         std::memcpy(buf.data() + off, &len_be, 2);
-        
+
         if(len > 0) {
             off = buf.size();
             buf.resize(off + race.first.size());
             std::memcpy(buf.data() + off, race.first.data(), race.first.size());
         }
-        
+
         buf.push_back(race.second);
     }
-    
+
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ClientProtocol::send_choose_car(uint8_t car_id) {
+void ClientProtocol::send_choose_car(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_CHOOSE_CAR;
-    uint8_t buf[2] = {code, car_id};
+    uint8_t buf[2] = {code, msg.car_id};
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_improvement(uint8_t improvement) {
+void ClientProtocol::send_improvement(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_IMPROVEMENT;
-    uint8_t buf[2] = {code, improvement};
+    uint8_t buf[2] = {code, msg.improvement};
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_cheat(uint8_t cheat_code) {
+void ClientProtocol::send_cheat(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_CHEAT;
-    uint8_t buf[2] = {code, cheat_code};
+    uint8_t buf[2] = {code, msg.cheat};
     skt.sendall(buf, sizeof(buf));
 }
 

@@ -10,6 +10,7 @@
 #include "car_info.h"
 #include "results_info.h"
 #include "map_tick_info.h"
+#include "car_improvement.h" 
 
 struct ServerMessage {
     enum class Type {
@@ -24,7 +25,8 @@ struct ServerMessage {
         GameOver,
         MapInfo,
         RaceStart, // para indicar inicio de carrera
-        Empty
+        Empty,
+        Results // ara resultados de carrera
     };
 
     Type type;
@@ -42,6 +44,10 @@ struct ServerMessage {
     std::vector<NpcTickInfo> npcs_tick;
     std::vector<EventInfo> events_tick;
     TimeTickInfo race_time;
+
+    // resultados de carrera
+    std::vector<PlayerResultCurrent> results_current;
+    std::vector<PlayerResultTotal> results_total;
 
     ServerMessage();
 };
@@ -90,6 +96,9 @@ struct ServerOutMsg {
     std::vector<NpcTickInfo> npcs_tick;
     std::vector<EventInfo> events_tick;
     TimeTickInfo race_time;
+
+    uint16_t active_nitros{0};
+    uint8_t nitro_msg{0};
 
     ServerOutMsg();
 };

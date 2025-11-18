@@ -11,6 +11,7 @@
 #include "../common/constants.h"
 #include "../common/socket.h"
 #include "../common/dto/client_msg.h"
+#include "../common/dto/server_msg.h"
 #include "../common/dto/room_info.h"
 #include "../common/dto/car_info.h"
 #include "../common/dto/results_info.h"
@@ -35,15 +36,15 @@ public:
     explicit ServerProtocol(Socket&& skt);
 
     void send_ok();
-    void send_pos(uint32_t id, int16_t x, int16_t y, float angle);
-    void send_your_id(uint32_t id);
-    void send_player_name(uint32_t id, const std::string& username);
+    void send_pos(const ServerOutMsg& msg);
+    void send_your_id(const ServerOutMsg& msg); 
+    void send_player_name(const ServerOutMsg& msg);
     void send_rooms(const std::vector<RoomInfo>& rooms);
-    void send_room_created(uint8_t room_id);
+    void send_room_created(const ServerOutMsg& msg);
     void send_players_list(const std::vector<PlayerInfo>& players);
     ClientMessage receive();
-    void enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje);
-    void enviar_rooms_default();
+    void send_nitro(const ServerOutMsg& msg); 
+    void send_rooms_default(); 
     void send_cars_list(const std::vector<CarInfo>& cars);
     void send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
                          const std::vector<std::pair<int32_t,int32_t>>& checkpoints);
