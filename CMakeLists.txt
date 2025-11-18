@@ -140,7 +140,7 @@ if(TALLER_CLIENT)
 
     # define ASSETS_PATH assets path
     target_compile_definitions(taller_client PRIVATE
-        ASSETS_PATH="${CMAKE_SOURCE_DIR}/assets"
+            ASSETS_PATH="${CMAKE_BINARY_DIR}/assets"
     )
 
     # Link the taller_common lib target
