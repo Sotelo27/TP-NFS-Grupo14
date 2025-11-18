@@ -155,10 +155,10 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
     std::cout << "[ServerProtocol] Sent PLAYERS_LIST with " << (int)count << " players\n";
 }
 
-void ServerProtocol::enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje) {
+void ServerProtocol::send_nitro(const ServerOutMsg& msg) {
     uint8_t codigo = CODE_SERVER_MSG;
-
-    uint16_t cantidad_be = htons(cantidad_nitros_activos);
+    uint16_t cantidad_be = htons(msg.nitros_activos); 
+    uint8_t mensaje = msg.nitro_msg;                  
 
     std::vector<uint8_t> paquete(sizeof(codigo) + sizeof(cantidad_be) + sizeof(mensaje));
     size_t offset = 0;

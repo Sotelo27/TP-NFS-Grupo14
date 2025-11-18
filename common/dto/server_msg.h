@@ -96,6 +96,9 @@ struct ServerOutMsg {
     std::vector<EventInfo> events_tick;
     TimeTickInfo race_time;
 
+    uint16_t nitros_activos{0};
+    uint8_t nitro_msg{0};
+
     ServerOutMsg();
 };
 
