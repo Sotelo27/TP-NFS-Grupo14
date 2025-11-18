@@ -5,10 +5,6 @@
 #include "../../common/dto/input_state.h"
 #include "../map/map_config_loader.h"
 
-#ifndef COLLISION_PATH
-#define COLLISION_PATH "."
-#endif
-
 Game::Game(float nitro_duracion)
     : nitro_tiempo(nitro_duracion),
       id_indice(0),

@@ -6,10 +6,6 @@
 
 #include "map/map_config_loader.h"
 
-#ifndef COLLISION_PATH
-#define COLLISION_PATH "."
-#endif
-
 #define RUTA_MAPA std::string(COLLISION_PATH) + "/CollisionTest2.yaml"
 
 #ifndef ROOM_LEAVE
