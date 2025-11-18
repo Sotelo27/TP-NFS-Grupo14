@@ -28,7 +28,7 @@ private:
     CheatDetector cheat_detector;
     int iterations;
     SdlObjTexture background_texture;
-    SdlFont text;
+    SdlFont text_head;
 
     void function() final;
 

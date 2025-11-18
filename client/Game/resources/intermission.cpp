@@ -4,7 +4,7 @@
 #include "../utils/rgb.h"
 
 #define BACKGROUND_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
-#define SIZE (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 27.27
+#define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 27.27
 #define AMOUNT_FRAMES_ANIMATION 90
 
 Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, bool& main_running):
@@ -13,9 +13,8 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, boo
         server_handler(server_handler),
         main_running(main_running),
         cheat_detector(5),
-        iterations(1),
         background_texture(BACKGROUND_IMAGE_PATH, window, Rgb(0, 255, 0)),
-        text(FONT_STYLE_PX, SIZE, window) {}
+        text_head(FONT_STYLE_PX, SIZE_TEXT_HEAD, window) {}
 
 void Intermission::function() {
     handle_sdl_events();
@@ -28,7 +27,6 @@ void Intermission::function() {
 }
 
 void Intermission::run() {
-    iterations = 1;
     ConstantRateLoop::start_loop();
 }
 
@@ -43,17 +41,16 @@ void Intermission::show_results() {
     dummy.push_back({7, "Player7", 300, 600});
     dummy.push_back({8, "Player8", 350, 700});
 
-    if (iterations <= AMOUNT_FRAMES_ANIMATION) {
-        int y_animation = (background_texture.getHeight() * iterations) / AMOUNT_FRAMES_ANIMATION;
-        int y_window = (WINDOW_HEIGHT * iterations) / AMOUNT_FRAMES_ANIMATION;
+    if (iteration <= AMOUNT_FRAMES_ANIMATION) {
+        int y_animation = (background_texture.getHeight() * iteration) / AMOUNT_FRAMES_ANIMATION;
+        int y_window = (WINDOW_HEIGHT * iteration) / AMOUNT_FRAMES_ANIMATION;
         background_texture.renderEntity(
                 Area(0, y_animation, background_texture.getWidth(), background_texture.getHeight()),
                 Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
-    } else if (iterations > AMOUNT_FRAMES_ANIMATION + 30) {
+    } else if (iteration > AMOUNT_FRAMES_ANIMATION + 30) {
         text.renderDirect(SIZE, SIZE, "POSITion 123 45 67890", Rgb(0, 255, 0), true,
                           Rgb(255, 0, 0));
     }
-    iterations++;  // esto se saca cuando se use el del bucle principal
 }
 
 void Intermission::process_server_messages(ServerMessage::Type expected_type, int msg_limit) {
@@ -88,6 +85,8 @@ void Intermission::handle_cheat_detection(const char* keyName) {
         std::cout << "[ClientGame] Cheat code EXIT detected. Exiting game." << std::endl;
         running = false;
         main_running = false;
+    } else if (cheat_detector.check_cheat("MID")) {
+        running = false;
     }
 }
 
