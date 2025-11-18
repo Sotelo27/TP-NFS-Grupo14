@@ -89,7 +89,7 @@ void Game::remove_player(size_t id) {
     }
 }
 
-void Game::apply_player_move(size_t id, Movement movimiento) {
+void Game::register_player_move(size_t id, Movement movimiento) {
     std::lock_guard<std::mutex> lock(m);
     if (!jugador_existe_auxiliar(id)) {
         throw_jugador_no_existe(id);
@@ -117,7 +117,7 @@ void Game::update(float dt) {
     // 1) avanzar simulacion del mundo físico SIEMPRE
     city.step(dt);
 
-    // 2) drenar SIEMPRE la cola de eventos de checkpoints del mundo físico (mantener esta línea)
+    // 2) drenar SIEMPRE la cola de eventos de checkpoints del mundo físico
     auto events = city.get_world().consume_checkpoint_events();
 
     // Si todavía no hay carrera activa, descartamos inputs y eventos y salimos.
@@ -188,23 +188,12 @@ std::string Game::get_player_name(size_t id) const {
     return it->second.get_name();
 }
 
-uint8_t Game::get_player_health(size_t id) const {
-    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
-    auto it = players.find(id);
-    if (it == players.end()) {
-        return 100; // Valor por defecto si no existe
-    }
-    // TODO: Implementar cuando Player tenga atributo de vida
-    return 100; // Por ahora retornar vida completa
-}
-
 TimeTickInfo Game::get_player_race_time(size_t id) const {
     std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
     auto it = players.find(id);
     if (it == players.end()) {
-        return TimeTickInfo{0}; // Valor por defecto si no existe
+        return TimeTickInfo{0};
     }
-    // Por ahora devolvemos el tiempo global de la carrera (no individual)
     if (!has_active_race()) {
         return TimeTickInfo{0};
     }
@@ -214,10 +203,7 @@ TimeTickInfo Game::get_player_race_time(size_t id) const {
 Race& Game::get_current_race() {
     if (races.empty()) {
         std::cout << "[Game] ERROR: get_current_race() llamado sin carreras activas\n";
-        // podés:
-        //  - lanzar una excepción más clara:
         throw std::runtime_error("No active races in Game");
-        //  - o devolver una referencia a algún dummy, pero no lo recomiendo.
     }
 
     if (current_race_index >= races.size()) {
@@ -226,7 +212,7 @@ Race& Game::get_current_race() {
         throw std::runtime_error("current_race_index out of range");
     }
 
-    return races[current_race_index]; // o .at(current_race_index) si querés checks extra
+    return races[current_race_index];
 }
 
 bool Game::has_active_race() const {

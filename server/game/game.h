@@ -46,8 +46,15 @@ private:
 
     void throw_jugador_no_existe(size_t id) const;
     bool jugador_existe_auxiliar(size_t id);
+
+    /*
+     * Resuelve la ruta del mapa segun su ID
+     */
     std::string resolve_map_path(const std::string& map_id) const;
-    // Inicializa las carreras (races) y sus tracks a partir de la City cargada.
+
+    /*
+     * Inicializa las carreras del juego, por ahora solo 1
+     */
     void init_races();
 
 public:
@@ -78,9 +85,9 @@ public:
     void remove_player(size_t id);
 
     /*
-     * Aplica un movimiento discreto al jugador
+     * Registra un movimiento de un jugador (UP, DOWN, LEFT, RIGHT) en map de inputs pendientes
      */
-    void apply_player_move(size_t id, Movement movimiento);
+    void register_player_move(size_t id, Movement movimiento);
 
     /*
      * Actualiza el estado del juego, avanzando el tiempo en dt segundos
@@ -107,12 +114,6 @@ public:
      * Obtiene el nombre del jugador
      */
     std::string get_player_name(size_t id) const;
-
-    /*
-     * Obtiene la vida del jugador (0-100)
-     * Retorna 100 por defecto si no está implementado
-     */
-    uint8_t get_player_health(size_t id) const;
 
     /*
      * Obtiene el tiempo de carrera del jugador en milisegundos

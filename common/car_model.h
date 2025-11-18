@@ -6,6 +6,7 @@
 struct CarModel {
     std::string modelo;
     // Ajustes
+    float life{100.f};
     float masaKg{1200.f};
     float fuerzaAceleracionN{250.f};
     float torqueGiro{8.5f};
