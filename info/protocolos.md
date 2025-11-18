@@ -97,14 +97,16 @@
 - **Resultados**
 - 0x24 <NUMBER-PLAYERS> [<PLAYER-RESULTS-CURRENT>] [<PLAYER-RESULTS-TOTAL>]
     - NUMBER-PLAYERS byte con la cantidad de jugadores.
-    - PLAYER-RESULTS-CURRENT es <LENGTH> <USERNAME> <TIME>
+    - PLAYER-RESULTS-CURRENT es <LENGTH> <USERNAME> <TIME> <POSITION>
         - LENGTH **longitud** del nombre de usuario.
         - USERNAME string con el nombre del usuario.
         - TIME dos bytes big endian con el tiempo actual en segundos.
-    - PLAYER-RESULTS-TOTAL es <LENGTH> <USERNAME> <TOTAL-TIME>
+        - POSITION un byte con la posición/ranking del jugador (1=primero, 2=segundo, etc).
+    - PLAYER-RESULTS-TOTAL es <LENGTH> <USERNAME> <TOTAL-TIME> <POSITION>
         - LENGTH **longitud** del nombre de usuario.
         - USERNAME string con el nombre del usuario.
         - TOTAL-TIME cuatro bytes big endian con el tiempo total en segundos.
+        - POSITION un byte con la posición/ranking total.
 
 - **Info del mapa (tick)**
 - 0x25 <NUMBER-PLAYERS> [<PLAYER-INFO>] <NUMBER-NPC> [<NPC-INFO>] <NUMBER-EVENTS> [<EVENTS>]

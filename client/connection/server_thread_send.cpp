@@ -21,7 +21,7 @@ void ServerThreadSend::run() {
             std::cout.flush();
 
             if (msg.type == ClientMessage::Type::Name) {
-                protocol.send_name(msg.username);
+                protocol.send_name(msg);
                 std::cout << "[ServerThreadSend] Sent NAME: '" << msg.username << "'" << std::endl;
                 std::cout.flush();
             } else if (msg.type == ClientMessage::Type::Move) {
@@ -34,7 +34,7 @@ void ServerThreadSend::run() {
                     std::cout << "[ServerThreadSend] Sent ROOM_CREATE" << std::endl;
                     std::cout.flush();
                 } else if (msg.room_cmd == ROOM_JOIN) {
-                    protocol.send_join_room(msg.room_id);
+                    protocol.send_join_room(msg);
                     std::cout << "[ServerThreadSend] Sent ROOM_JOIN(" << (int)msg.room_id << ")" << std::endl;
                     std::cout.flush();
                 } else if (msg.room_cmd == ROOM_LEAVE) {
@@ -43,12 +43,20 @@ void ServerThreadSend::run() {
                     std::cout.flush();
                 }
             } else if (msg.type == ClientMessage::Type::ChooseCar) {
-                protocol.send_choose_car(msg.car_id);
+                protocol.send_choose_car(msg);
                 std::cout << "[ServerThreadSend] Sent CHOOSE CAR" << std::endl;
                 std::cout.flush();
             } else if (msg.type == ClientMessage::Type::StartGame) {
-                protocol.send_start_game(msg.races);
+                protocol.send_start_game(msg);
                 std::cout << "[ServerThreadSend] Sent START_GAME with " << msg.races.size() << " race(s)" << std::endl;
+                std::cout.flush();
+            } else if (msg.type == ClientMessage::Type::Improvement) {
+                protocol.send_improvement(msg);
+                std::cout << "[ServerThreadSend] Sent IMPROVEMENT" << std::endl;
+                std::cout.flush();
+            } else if (msg.type == ClientMessage::Type::Cheat) {
+                protocol.send_cheat(msg);
+                std::cout << "[ServerThreadSend] Sent CHEAT" << std::endl;
                 std::cout.flush();
             }
 

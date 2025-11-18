@@ -24,6 +24,17 @@ private:
     std::unordered_map<size_t, RaceParticipant> parts;
     std::unordered_map<size_t, std::unique_ptr<Car>> cars;
     Track track;
+    
+    /*
+     * Verifica los estados de vida de los jugadores y los descalifica si no tienen vida
+     */
+    void check_health_states();
+
+
+    /*
+     * Verifica si se ha excedido el tiempo maximo de la carrera 
+     */
+    void check_time_limit();
 
     /*
      * Devuelve la direccion de aceleración del jugador segun su input
@@ -80,18 +91,16 @@ public:
      * Maneja la logica cuando un auto cruza un checkpoint
      */
     void on_car_checkpoint(const std::string& race_id, size_t player_id, uint32_t checkpoint_id);   
+    
     /*
      * Devuelve el tiempo transcurrido de la carrera en segundos
      */
     uint32_t get_race_time_seconds() const;
 
-    bool is_finished() const noexcept;
-
     /*
-     * Construye el snapshot con las posiciones (x,y) y angulos actuales de todos los
-     * participantes activos/terminados, para ser enviado a los clientes.
+     * Indica si la carrera ha finalizado
      */
-    std::vector<PlayerPos> snapshot_poses() const;
+    bool is_finished() const noexcept;
 
     /*
      * Construye el snapshot con la informacion ( posiciones y vida) de tick de todos los

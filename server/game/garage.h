@@ -2,8 +2,8 @@
 #define GARAGE_H
 
 #include <map>
-#include <mutex>
 #include <vector>
+#include <cstdint>
 #include "../../common/car_model.h"
 
 struct CarSlot {
@@ -14,7 +14,6 @@ struct CarSlot {
 class Garage {
 private:
     std::map<uint8_t, CarSlot> cars;
-    std::mutex m;
 
     void initialize_cars();
 

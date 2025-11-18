@@ -78,6 +78,8 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
 
         if (p.next_checkpoint_idx == track.checkpoint_count) {
             p.state = ParticipantState::Finished;
+            // Registrar tiempo de llegada del jugador
+            p.finish_time_seconds = race_duration;
             std::cout << "[Race] Player " << player_id << " FINISHED route='"
                       << track.route_id << "' total_cp=" << track.checkpoint_count << "\n";
         } else {
@@ -108,18 +110,46 @@ const std::string& Race::get_route_id() const {
 
 void Race::advance_time(float dt) {
     race_duration += dt;
+    check_health_states();
+    check_time_limit();
+}
 
-    if (!is_finished_ && race_duration >= MAX_DURATION_SECONDS) {
-        std::cout << "[TIME FINISH]Race duration exceeded maximum allowed time. Ending race." << std::endl;
-
-        for (auto& [playerId, participant] : parts) {
-            if (participant.state == ParticipantState::Active) {
-                participant.state = ParticipantState::Disqualified;
-            }
+void Race::check_health_states() {
+    for (auto& [player_id, participant] : parts) {
+        if (participant.state != ParticipantState::Active) {
+            continue;
         }
 
-        is_finished_ = true;
+        auto it_car = cars.find(player_id);
+        if (it_car == cars.end() || !it_car->second) {
+            continue;
+        }
+
+        if (it_car->second->get_vida() <= 0.f) {
+            participant.state = ParticipantState::Disqualified;
+            participant.finish_time_seconds = race_duration;
+
+            std::cout << "[Race] Player " << player_id
+                      << " DISQUALIFIED (no health)\n";
+        }
     }
+}
+
+void Race::check_time_limit() {
+    if (is_finished_ || race_duration < MAX_DURATION_SECONDS) {
+        return;
+    }
+
+    std::cout << "[TIME FINISH] Race duration exceeded maximum allowed time. Ending race.\n";
+
+    for (auto& [player_id, participant] : parts) {
+        if (participant.state == ParticipantState::Active) {
+            participant.state = ParticipantState::Disqualified;
+            participant.finish_time_seconds = race_duration;
+        }
+    }
+
+    is_finished_ = true;
 }
 
 
@@ -139,25 +169,6 @@ float Race::resolve_acceleration_input(const InputState& input) {
 
 float Race::resolve_rotation_input(const InputState& input) {
     return (input.right ? 1.f : 0.f) - (input.left ? 1.f : 0.f);
-}
-
-std::vector<PlayerPos> Race::snapshot_poses() const {
-    std::vector<PlayerPos> player_positions;
-    player_positions.reserve(parts.size());
-
-    for (const auto& [playerId, participant] : parts) {
-        if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished) {
-            continue;
-        }
-        b2Body* body = physics.get_body(playerId);
-        if (!body) continue;
-        b2Vec2 p = body->GetPosition();
-        const int16_t x_px = (int16_t)std::lround(p.x * PPM);
-        const int16_t y_px = (int16_t)std::lround(p.y * PPM);
-        player_positions.push_back(PlayerPos{(uint32_t)(playerId), x_px, y_px, body->GetAngle()});
-    }
-
-    return player_positions;
 }
 
 bool Race::compare_rank(const RankInfo& a, const RankInfo& b) {
@@ -194,7 +205,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
     ranking.reserve(parts.size());
 
     for (const auto& [playerId, participant] : parts) {
-        if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished) {
+        if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished && participant.state != ParticipantState::Disqualified) {
             continue;
         }
 
@@ -234,16 +245,19 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         float distance_px = 0.0f;
         if (!track.checkpoints.empty() && next_idx < track.checkpoints.size()) {
             const auto& cp = track.checkpoints[next_idx];
-            // Centro del rectangulo del checkpoint
-            const float cp_cx_px = cp.x_px + cp.w_px * 0.5f;
-            const float cp_cy_px = cp.y_px + cp.h_px * 0.5f;
+            
+            const float a = cp.rotation_deg * PI / 180.0f;
+            const float halfW = cp.w_px * 0.5f;
+            const float halfH = cp.h_px * 0.5f;
+                                   //[Oringen] + [rotacion]
+            const float checkp_center_x_px = cp.x_px + std::cos(a) * halfW - std::sin(a) * halfH;
+            const float checkp_center_y_px = cp.y_px + std::sin(a) * halfW + std::cos(a) * halfH;
 
-            player.x_checkpoint = (uint16_t)(std::lround(cp_cx_px));
-            player.y_checkpoint = (uint16_t)(std::lround(cp_cy_px));
-
+            player.x_checkpoint = (uint16_t)(std::lround(checkp_center_x_px));
+            player.y_checkpoint = (uint16_t)(std::lround(checkp_center_y_px));
             // Distancia en píxeles entre auto y checkpoint
-            const float dx_px = cp_cx_px - car_x_px;
-            const float dy_px = cp_cy_px - car_y_px;
+            const float dx_px = checkp_center_x_px - car_x_px;
+            const float dy_px = checkp_center_y_px - car_y_px;
             distance_px = std::sqrt(dx_px * dx_px + dy_px * dy_px);
             player.distance_to_checkpoint = distance_px;
 

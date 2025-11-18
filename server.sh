@@ -1,5 +1,3 @@
-cd /usr/bin
-
-#export MIJUEGO_CLIENT_CONFIG_FILE="/etc/mi_juego/client_config.yaml"
-
-./server 8080
+PORT="${1:-8080}"
+cd /usr/bin/NeedForSpeed
+./taller_server "$PORT"

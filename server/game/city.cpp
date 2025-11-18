@@ -1,5 +1,6 @@
 #include "city.h"
 #include <algorithm>
+#include <iostream>
 
 City::City() : physics_world() {}
 
@@ -13,6 +14,7 @@ void City::step(float dt) {
 
 void City::load_map(const MapConfig& cfg) {
     physics_world.load_static_geometry(cfg);
+    spawns_by_route.clear();
     for (const auto& s : cfg.spawns) {
         spawns_by_route[s.race_id].push_back(s);
     }
@@ -57,8 +59,10 @@ SpawnPoint City::get_spawn_for_index(size_t index, const std::string& route_id) 
         }
     }
 
-    size_t spawn_idx = index % vec->size();
-    return (*vec)[spawn_idx];
+    const size_t spawn_idx = index % vec->size();
+    const auto& sp = (*vec)[spawn_idx];
+
+    return sp;
 }
 
 const std::vector<Checkpoint>& City::get_checkpoints_for_route(const std::string& route_id) const {

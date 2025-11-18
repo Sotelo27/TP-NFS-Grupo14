@@ -104,19 +104,9 @@ void Game::apply_player_move(size_t id, Movement movimiento) {
     }
 }
 
-std::vector<PlayerPos> Game::players_positions() {
-    std::lock_guard<std::mutex> lock(m);
-    if (!has_active_race()) {
-        // Sin carrera activa (p. ej., en lobby antes de iniciar): devolver vacío
-        return {};
-    }
-    return races[current_race_index].snapshot_poses();
-}
-
 std::vector<PlayerTickInfo> Game::players_tick_info() {
     std::lock_guard<std::mutex> lock(m);
     if (!has_active_race()) {
-        // Sin carrera activa aún
         return {};
     }
     return races[current_race_index].snapshot_ticks();
@@ -252,6 +242,7 @@ void Game::start_current_race() {
     if (state == GameState::Racing) {
         return;
     }
+    
     Race& r = get_current_race();
     const std::string& route = r.get_route_id();
 
@@ -259,10 +250,13 @@ void Game::start_current_race() {
     for (auto& kv : players) {
         const size_t player_id = kv.first;
         Player& player = kv.second;
-
-    SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
-
+        SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
+        std::cout << "[Game] Spawned player_id=" << player_id
+                  << " at (" << sp.x_px << ", " << sp.y_px << ")"
+                  << " route='" << route << "'"
+                  << " spawn_idx=" << (spawn_index - 1)
+                  << " car_id=" << (int)player.get_car_id() << "\n";
     }
 
     std::cout << "[Game] Race " << current_race_index << " started with "
