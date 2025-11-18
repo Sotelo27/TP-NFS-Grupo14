@@ -29,6 +29,8 @@ private:
     int iterations;
     SdlObjTexture background_texture;
     SdlFont text_head;
+    SdlFont text_position;
+    SdlFont text_rest_info;
 
     void function() final;
 
