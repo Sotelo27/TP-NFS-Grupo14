@@ -47,7 +47,7 @@ void ServerThreadSend::run() {
                 std::cout << "[ServerThreadSend] Sent CHOOSE CAR" << std::endl;
                 std::cout.flush();
             } else if (msg.type == ClientMessage::Type::StartGame) {
-                protocol.send_start_game(msg.races);
+                protocol.send_start_game(msg);
                 std::cout << "[ServerThreadSend] Sent START_GAME with " << msg.races.size() << " race(s)" << std::endl;
                 std::cout.flush();
             }

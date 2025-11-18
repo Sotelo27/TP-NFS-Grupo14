@@ -390,32 +390,32 @@ void ClientProtocol::send_join_room(const ClientMessage& msg) {
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races) {
+void ClientProtocol::send_start_game(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_START_GAME;
-    uint8_t qty = (uint8_t)races.size();
-    
+    uint8_t qty = (uint8_t)msg.races.size();
+
     std::vector<uint8_t> buf;
-    buf.reserve(2 + races.size() * 50);
+    buf.reserve(2 + msg.races.size() * 50);
     buf.push_back(code);
     buf.push_back(qty);
-    
-    for(const auto& race : races) {
+
+    for(const auto& race : msg.races) {
         uint16_t len = (uint16_t)race.first.size();
         uint16_t len_be = htons(len);
-        
+
         size_t off = buf.size();
         buf.resize(off + 2);
         std::memcpy(buf.data() + off, &len_be, 2);
-        
+
         if(len > 0) {
             off = buf.size();
             buf.resize(off + race.first.size());
             std::memcpy(buf.data() + off, race.first.data(), race.first.size());
         }
-        
+
         buf.push_back(race.second);
     }
-    
+
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 

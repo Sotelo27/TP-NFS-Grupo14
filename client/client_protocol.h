@@ -47,7 +47,7 @@ public:
     void send_leave_room();  
 
     // Start game: cantidad de carreras y (map, route) por carrera
-    void send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races);
+    void send_start_game(const ClientMessage& msg);
 
     // Elegir auto
     void send_choose_car(uint8_t car_id);
