@@ -129,11 +129,8 @@ void Race::check_health_states() {
             participant.state = ParticipantState::Disqualified;
             participant.finish_time_seconds = race_duration;
 
-            physics.destroy_body(player_id);
-            cars.erase(it_car);
-
             std::cout << "[Race] Player " << player_id
-                      << " DISQUALIFIED (no health) and car destroyed\n";
+                      << " DISQUALIFIED (no health)\n";
         }
     }
 }
@@ -208,7 +205,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
     ranking.reserve(parts.size());
 
     for (const auto& [playerId, participant] : parts) {
-        if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished) {
+        if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished && participant.state != ParticipantState::Disqualified) {
             continue;
         }
 
