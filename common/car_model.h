@@ -22,7 +22,7 @@ namespace car_factory {
     inline CarModel special_car()      { return {"special_car",      1120.f, 255.f, 8.7f,  5.4f, 0.70f, 5.2f}; }
     inline CarModel four_by_four_convertible()        { return {"four_by_four_convertible",        1500.f, 240.f, 7.2f,  5.0f, 0.78f, 6.0f}; }
     inline CarModel pickup_truck()       { return {"pickup_truck",       1450.f, 235.f, 7.0f,  4.9f, 0.80f, 6.2f}; }
-    inline CarModel limousine()     { return {"limousine",     1550.f, 245.f, 7.3f,  5.0f, 0.79f, 6.1f}; }
+    inline CarModel limousine()     { return {"limousine",     1550.f, 150.f, 7.3f,  4.0f, 0.79f, 6.1f}; }
 }
 
 #endif

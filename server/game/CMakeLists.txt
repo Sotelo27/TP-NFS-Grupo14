@@ -12,6 +12,6 @@ target_sources(taller_server
     game.h
     gameloop.h
     race.h
-    race_participant.h
+    race_info.h
     garage.h
     )

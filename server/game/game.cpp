@@ -149,9 +149,8 @@ void Game::update(float dt) {
 }
 
 void Game::on_race_ended() {
-    // 1) Leer resultados de la race actual (si querés)
-    //    Por ahora podés omitirlo o armar despues.
-    //    Ej: auto results = current_race().results();
+
+    RaceResult results = get_current_race().build_race_results();
 
     // 2) Destruir los autos actuales del PhysicsWorld
     //get_current_race().clear_cars();  // método que llame a physics.destroy_body para cada player
