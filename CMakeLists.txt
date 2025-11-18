@@ -140,7 +140,7 @@ if(TALLER_CLIENT)
 
     # define ASSETS_PATH assets path
     target_compile_definitions(taller_client PRIVATE
-            ASSETS_PATH="${CMAKE_BINARY_DIR}/assets"
+            ASSETS_PATH="assets"
     )
 
     # Link the taller_common lib target
@@ -176,7 +176,7 @@ if(TALLER_SERVER)
 
     # define PATH collision assets path
     target_compile_definitions(taller_server PRIVATE
-        COLLISION_PATH="${CMAKE_SOURCE_DIR}/MapBoundary"
+        COLLISION_PATH="MapBoundary"
     )
 
     # Link the taller_common lib target
