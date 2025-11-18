@@ -1,3 +1,3 @@
 PORT="${1:-8080}"
-
-server "$PORT"
+cd /usr/bin/NeedForSpeed
+./taller_server "$PORT"
