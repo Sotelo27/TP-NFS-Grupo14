@@ -54,6 +54,10 @@ void ServerThreadSend::run() {
                 protocol.send_improvement(msg);
                 std::cout << "[ServerThreadSend] Sent IMPROVEMENT" << std::endl;
                 std::cout.flush();
+            } else if (msg.type == ClientMessage::Type::Cheat) {
+                protocol.send_cheat(msg);
+                std::cout << "[ServerThreadSend] Sent CHEAT" << std::endl;
+                std::cout.flush();
             }
 
         } catch (const std::exception& e) {

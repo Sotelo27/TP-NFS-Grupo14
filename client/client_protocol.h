@@ -56,7 +56,7 @@ public:
     void send_improvement(const ClientMessage& msg);
 
     // Cheats
-    void send_cheat(uint8_t cheat_code);
+    void send_cheat(const ClientMessage& msg);
 
     // Exit match
     void send_exit();

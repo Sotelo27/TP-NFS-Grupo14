@@ -431,9 +431,9 @@ void ClientProtocol::send_improvement(const ClientMessage& msg) {
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_cheat(uint8_t cheat_code) {
+void ClientProtocol::send_cheat(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_CHEAT;
-    uint8_t buf[2] = {code, cheat_code};
+    uint8_t buf[2] = {code, msg.cheat};
     skt.sendall(buf, sizeof(buf));
 }
 
