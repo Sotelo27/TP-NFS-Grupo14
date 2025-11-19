@@ -1,14 +1,19 @@
 #include "intermission.h"
 
 #include <algorithm>
+#include <string>
 
 #include "../constants.h"
 #include "../utils/rgb.h"
 
 #define BACKGROUND_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
+#define NEXT_BUTTON_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/boton_o.png"
+
 #define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_POSITION (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_REST_INFO (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
+
+#define SIZE_NEXT_BUTTON (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 15.0
 
 #define WHITE Rgb(255, 255, 255)
 
@@ -25,9 +30,19 @@
 #define ORANGE_SUNSET Rgb(255, 125, 0)
 #define ORANGE_SUN Rgb(255, 140, 0)
 
+#define ELECTRIC_CYAN Rgb(0, 255, 255)
+#define NEON_LIME Rgb(150, 255, 0)
+#define NEON_YELLOW Rgb(255, 255, 0)
+#define NEON_RED Rgb(255, 0, 0)
+
+#define NEON_YO Rgb(255, 200, 0)
+
 constexpr int AMOUNT_FRAMES_ANIMATION = 90;
 constexpr int AMOUNT_FRAMES_WAITING = 30;
 constexpr int RESULTS = AMOUNT_FRAMES_ANIMATION + 2 * AMOUNT_FRAMES_WAITING;
+
+const char NEXT_BUTTON_TEXT[] = "Next";
+const char KEY_NEXT_BUTTON = NEXT_BUTTON_TEXT[0];
 
 Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, bool& main_running):
         ConstantRateLoop(FRAME_RATE),
@@ -36,6 +51,8 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, boo
         main_running(main_running),
         cheat_detector(5),
         background_texture(BACKGROUND_IMAGE_PATH, window, Rgb(0, 255, 0)),
+        next_button(NEXT_BUTTON_IMAGE_PATH, window,
+                    Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
         text_head(FONT_STYLE_PX, SIZE_TEXT_HEAD, window),
         text_position(FONT_STYLE_VS1, SIZE_TEXT_POSITION, window),
         text_rest_info(FONT_STYLE_CC, SIZE_TEXT_REST_INFO, window) {}
@@ -81,12 +98,15 @@ void Intermission::show_table_results(const std::vector<PlayerInfoI>& player_inf
         return;
     }
 
+    // en un futuro el podio va a estar con colores especiales
+
     int frames = iteration - RESULTS;
     int min = std::min(static_cast<int>(player_infos.size()), 8);
     int n = std::min((frames / AMOUNT_FRAMES_WAITING), min);
+    int y_limit = y_head + static_cast<float>(SIZE_TEXT_HEAD) / 2 + text_head.getHeight();
     for (int i = 0; i < n; i++) {
         const PlayerInfoI& player_info = player_infos[i];
-        int y_info = y_head + SIZE_TEXT_HEAD / 4 + text_head.getHeight() + SIZE_TEXT_REST_INFO * i;
+        int y_info = y_limit + (SIZE_TEXT_REST_INFO + SIZE_TEXT_HEAD / 8) * i;
 
         show_info_center(text_position, std::to_string(player_info.position), x_postion_start,
                          x_position_end, y_info, WHITE, GLITCH_VIOLET);
@@ -100,6 +120,26 @@ void Intermission::show_table_results(const std::vector<PlayerInfoI>& player_inf
         show_info_center(text_rest_info, std::to_string(player_info.total_time_seconds) + "s",
                          x_total_time_start, x_total_time_end, y_info, WHITE, ELECTRIC_PINK);
     }
+}
+
+void Intermission::show_button_next() {
+    int size_width = SIZE_NEXT_BUTTON;
+    int size_height = (size_width * next_button.getHeight()) / next_button.getWidth();
+    int next_button_x = WINDOW_WIDTH - size_width - SIZE_TEXT_HEAD;
+    int next_button_y = WINDOW_HEIGHT - size_height - SIZE_TEXT_HEAD;
+    next_button.renderEntity(Area(0, 0, next_button.getWidth(), next_button.getHeight()),
+                             Area(next_button_x, next_button_y, size_width, size_height), 0.0);
+
+    int x_start = next_button_x;
+    int x_end = next_button_x + size_width;
+    int y_info = next_button_y + SIZE_NEXT_BUTTON / 10;
+    text_head.loadText(NEXT_BUTTON_TEXT, WHITE, true);
+    int x_position_center = x_start + (x_end - x_start) / 2 - text_head.getWidth() / 2;
+    text_head.renderDirect(x_position_center, y_info, NEXT_BUTTON_TEXT, WHITE, true,
+                           SOFT_NEON_PINK);
+
+    text_head.renderDirect(x_position_center, y_info, std::string(1, KEY_NEXT_BUTTON), NEON_YELLOW,
+                           true, WHITE);
 }
 
 void Intermission::show_results() {
@@ -125,6 +165,13 @@ void Intermission::show_results() {
                 Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
     } else if (iteration > AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
         show_table_results(player_infos);
+
+        float frames = iteration - RESULTS;
+        if ((frames / AMOUNT_FRAMES_WAITING) < 9) {
+            return;
+        }
+
+        show_button_next();
     }
 }
 

@@ -28,6 +28,7 @@ private:
     bool& main_running;
     CheatDetector cheat_detector;
     SdlObjTexture background_texture;
+    SdlObjTexture next_button;
     SdlFont text_head;
     SdlFont text_position;
     SdlFont text_rest_info;
@@ -38,6 +39,7 @@ private:
     void show_table_results(const std::vector<PlayerInfoI>& player_infos);
     void show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
                           int y_info, const Rgb& color_front, const Rgb& color_shadow);
+    void show_button_next();
 
     void handle_sdl_events();
     void handle_cheat_detection(const char* keyName);
