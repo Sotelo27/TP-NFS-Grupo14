@@ -1,7 +1,6 @@
 #include "intermission.h"
 
 #include <algorithm>
-#include <vector>
 
 #include "../constants.h"
 #include "../utils/rgb.h"
@@ -53,19 +52,69 @@ void Intermission::function() {
 
 void Intermission::run() { ConstantRateLoop::start_loop(); }
 
+void Intermission::show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
+                                    int y_info, const Rgb& color_front, const Rgb& color_shadow) {
+    font.loadText(info, WHITE, true);
+    int x_position_center = x_start + (x_end - x_start) / 2 - font.getWidth() / 2;
+    font.renderDirect(x_position_center, y_info, info, color_front, true, color_shadow);
+}
+
+void Intermission::show_table_results(const std::vector<PlayerInfoI>& player_infos) {
+    int y_head = SIZE_TEXT_HEAD;
+    int x_postion_start = SIZE_TEXT_HEAD;
+    text_head.renderDirect(x_postion_start, y_head, "POSITION", GLITCH_VIOLET, true, WHITE);
+    int x_position_end = text_head.getWidth() + x_postion_start;
+
+    int x_player_start = x_position_end + SIZE_TEXT_HEAD * 3;
+    text_head.renderDirect(x_player_start, y_head, "PLAYER", PURPLE_NEON_BRIGHT, true, WHITE);
+    int x_player_end = x_player_start + text_head.getWidth();
+
+    int x_race_time_start = x_player_end + SIZE_TEXT_HEAD * 3;
+    text_head.renderDirect(x_race_time_start, y_head, "RACE TIME", MAGENTA_VIBRANT, true, WHITE);
+    int x_race_time_end = x_race_time_start + text_head.getWidth();
+
+    int x_total_time_start = x_race_time_end + SIZE_TEXT_HEAD;
+    text_head.renderDirect(x_total_time_start, y_head, "TOTAL TIME", ELECTRIC_PINK, true, WHITE);
+    int x_total_time_end = x_total_time_start + text_head.getWidth();
+
+    if (iteration <= RESULTS) {
+        return;
+    }
+
+    int frames = iteration - RESULTS;
+    int min = std::min(static_cast<int>(player_infos.size()), 8);
+    int n = std::min((frames / AMOUNT_FRAMES_WAITING), min);
+    for (int i = 0; i < n; i++) {
+        const PlayerInfoI& player_info = player_infos[i];
+        int y_info = y_head + SIZE_TEXT_HEAD / 4 + text_head.getHeight() + SIZE_TEXT_REST_INFO * i;
+
+        show_info_center(text_position, std::to_string(player_info.position), x_postion_start,
+                         x_position_end, y_info, WHITE, GLITCH_VIOLET);
+
+        show_info_center(text_rest_info, player_info.name, x_player_start, x_player_end, y_info,
+                         WHITE, PURPLE_NEON_BRIGHT);
+
+        show_info_center(text_rest_info, std::to_string(player_info.race_time_seconds) + "s",
+                         x_race_time_start, x_race_time_end, y_info, WHITE, MAGENTA_VIBRANT);
+
+        show_info_center(text_rest_info, std::to_string(player_info.total_time_seconds) + "s",
+                         x_total_time_start, x_total_time_end, y_info, WHITE, ELECTRIC_PINK);
+    }
+}
+
 void Intermission::show_results() {
-    std::vector<PlayerInfoI> dummy;  // en un futuro se recibe la lista de jugadores
-    dummy.push_back({1, "Player1", 120, 300});
-    dummy.push_back({2, "Player2", 150, 320});
-    dummy.push_back({3, "Player3", 180, 350});
-    dummy.push_back({4, "Player4", 200, 400});
-    dummy.push_back({5, "Player5", 220, 450});
-    dummy.push_back({6, "Player6", 250, 500});
-    dummy.push_back({7, "Player7", 300, 600});
-    dummy.push_back({8, "Player8", 350, 700});
+    std::vector<PlayerInfoI> player_infos;  // en un futuro se recibe la lista de jugadores
+    player_infos.push_back({1, "Player1", 120, 300});
+    player_infos.push_back({2, "Player2", 150, 320});
+    player_infos.push_back({3, "Player3", 180, 350});
+    player_infos.push_back({4, "Player4", 200, 400});
+    player_infos.push_back({5, "Player5", 220, 450});
+    player_infos.push_back({6, "Player6", 250, 500});
+    player_infos.push_back({7, "Player7", 300, 600});
+    player_infos.push_back({8, "Player8", 350, 700});
     // falta atajar que el string no se pase del ancho de la pantalla
 
-    std::sort(dummy.begin(), dummy.end(),
+    std::sort(player_infos.begin(), player_infos.end(),
               [](const PlayerInfoI& a, const PlayerInfoI& b) { return a.position < b.position; });
 
     if (iteration <= AMOUNT_FRAMES_ANIMATION) {
@@ -75,71 +124,7 @@ void Intermission::show_results() {
                 Area(0, y_animation, background_texture.getWidth(), background_texture.getHeight()),
                 Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
     } else if (iteration > AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
-        int y_head = SIZE_TEXT_HEAD;
-        int x_postion_start = SIZE_TEXT_HEAD;
-        text_head.renderDirect(x_postion_start, y_head, "POSITION", GLITCH_VIOLET, true, WHITE);
-        int x_position_end = text_head.getWidth() + x_postion_start;
-
-        int x_player_start = x_position_end + SIZE_TEXT_HEAD * 3;
-        text_head.renderDirect(x_player_start, y_head, "PLAYER", PURPLE_NEON_BRIGHT, true, WHITE);
-        int x_player_end = x_player_start + text_head.getWidth();
-
-        int x_race_time_start = x_player_end + SIZE_TEXT_HEAD * 3;
-        text_head.renderDirect(x_race_time_start, y_head, "RACE TIME", MAGENTA_VIBRANT, true,
-                               WHITE);
-        int x_race_time_end = x_race_time_start + text_head.getWidth();
-
-        int x_total_time_start = x_race_time_end + SIZE_TEXT_HEAD;
-        text_head.renderDirect(x_total_time_start, y_head, "TOTAL TIME", ELECTRIC_PINK, true,
-                               WHITE);
-        int x_total_time_end = x_total_time_start + text_head.getWidth();
-
-        if (iteration <= RESULTS) {
-            return;
-        }
-
-        int frames = iteration - RESULTS;
-        int min = std::min(static_cast<int>(dummy.size()), 8);
-        int n = std::min((frames / AMOUNT_FRAMES_WAITING), min);
-
-        std::cout << "[yo] iteration: " << iteration << " frames: " << frames << " n: " << n
-                  << std::endl;
-
-        for (int i = 0; i < n; i++) {
-            const PlayerInfoI& player_info = dummy[i];
-            int y_info =
-                    y_head + SIZE_TEXT_HEAD / 4 + text_head.getHeight() + SIZE_TEXT_REST_INFO * i;
-
-            text_position.loadText(std::to_string(player_info.position), WHITE, true);
-            int x_position_center = x_postion_start + (x_position_end - x_postion_start) / 2 -
-                                    text_position.getWidth() / 2;
-            text_position.renderDirect(x_position_center, y_info,
-                                       std::to_string(player_info.position), WHITE, true,
-                                       GLITCH_VIOLET);
-
-            text_rest_info.loadText(player_info.name, WHITE, true);
-            int x_player_center = x_player_start + (x_player_end - x_player_start) / 2 -
-                                  text_rest_info.getWidth() / 2;
-            text_rest_info.renderDirect(x_player_center, y_info, player_info.name, WHITE, true,
-                                        PURPLE_NEON_BRIGHT);
-
-            text_rest_info.loadText(std::to_string(player_info.race_time_seconds) + "s", WHITE,
-                                    true);
-            int x_race_time_center = x_race_time_start + (x_race_time_end - x_race_time_start) / 2 -
-                                     text_rest_info.getWidth() / 2;
-            text_rest_info.renderDirect(x_race_time_center, y_info,
-                                        std::to_string(player_info.race_time_seconds) + "s", WHITE,
-                                        true, MAGENTA_VIBRANT);
-
-            text_rest_info.loadText(std::to_string(player_info.total_time_seconds) + "s", WHITE,
-                                    true);
-            int x_total_time_center = x_total_time_start +
-                                      (x_total_time_end - x_total_time_start) / 2 -
-                                      text_rest_info.getWidth() / 2;
-            text_rest_info.renderDirect(x_total_time_center, y_info,
-                                        std::to_string(player_info.total_time_seconds) + "s", WHITE,
-                                        true, ELECTRIC_PINK);
-        }
+        show_table_results(player_infos);
     }
 }
 

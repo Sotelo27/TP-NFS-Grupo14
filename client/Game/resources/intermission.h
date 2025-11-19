@@ -3,6 +3,7 @@
 
 #include <list>
 #include <string>
+#include <vector>
 
 #include "../../../common/constant_rate_loop.h"
 #include "../../../common/dto/server_msg.h"
@@ -34,6 +35,9 @@ private:
     void function() final;
 
     void show_results();
+    void show_table_results(const std::vector<PlayerInfoI>& player_infos);
+    void show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
+                          int y_info, const Rgb& color_front, const Rgb& color_shadow);
 
     void handle_sdl_events();
     void handle_cheat_detection(const char* keyName);
