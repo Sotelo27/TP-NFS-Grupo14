@@ -32,6 +32,8 @@ private:
     SdlFont text_head;
     SdlFont text_position;
     SdlFont text_rest_info;
+    bool improvement_phase;
+    int iteration_init_improvement_phase;
 
     void function() final;
 
@@ -40,6 +42,8 @@ private:
     void show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
                           int y_info, const Rgb& color_front, const Rgb& color_shadow);
     void show_button_next();
+
+    void show_improvement_phase();
 
     void handle_sdl_events();
     void handle_cheat_detection(const char* keyName);

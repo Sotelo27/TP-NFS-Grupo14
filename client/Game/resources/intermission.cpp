@@ -55,19 +55,28 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, boo
                     Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
         text_head(FONT_STYLE_PX, SIZE_TEXT_HEAD, window),
         text_position(FONT_STYLE_VS1, SIZE_TEXT_POSITION, window),
-        text_rest_info(FONT_STYLE_CC, SIZE_TEXT_REST_INFO, window) {}
+        text_rest_info(FONT_STYLE_CC, SIZE_TEXT_REST_INFO, window),
+        improvement_phase(false),
+        iteration_init_improvement_phase(0) {}
 
 void Intermission::function() {
     handle_sdl_events();
 
     process_server_messages(ServerMessage::Type::Empty, 10);
 
-    show_results();
+    if (!improvement_phase) {
+        show_results();
+    } else {
+        show_improvement_phase();
+    }
 
     window.render();
 }
 
-void Intermission::run() { ConstantRateLoop::start_loop(); }
+void Intermission::run() {
+    improvement_phase = false;
+    ConstantRateLoop::start_loop();
+}
 
 void Intermission::show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
                                     int y_info, const Rgb& color_front, const Rgb& color_shadow) {
@@ -220,7 +229,12 @@ void Intermission::handle_sdl_events() {
                 const SDL_KeyboardEvent& keyEvent = (SDL_KeyboardEvent&)event;
 
                 const char* keyName = SDL_GetKeyName(keyEvent.keysym.sym);
-                std::cout << "Tecla presionada: " << keyName << std::endl;
+
+                if (keyName == std::string(1, KEY_NEXT_BUTTON)) {
+                    iteration_init_improvement_phase =
+                            improvement_phase ? iteration_init_improvement_phase : iteration;
+                    improvement_phase = true;
+                }
 
                 handle_cheat_detection(keyName);
             } break;
@@ -232,5 +246,18 @@ void Intermission::handle_sdl_events() {
                 main_running = false;
                 break;
         }
+    }
+}
+
+void Intermission::show_improvement_phase() {
+    int iteration_phase = iteration - iteration_init_improvement_phase;
+    if (iteration_phase <= AMOUNT_FRAMES_ANIMATION) {
+        int y_animation =
+                (background_texture.getHeight() * iteration_phase) / AMOUNT_FRAMES_ANIMATION;
+        int y_window = (WINDOW_HEIGHT * iteration_phase) / AMOUNT_FRAMES_ANIMATION;
+        background_texture.renderEntity(
+                Area(0, background_texture.getHeight() - y_animation, background_texture.getWidth(),
+                     background_texture.getHeight()),
+                Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
     }
 }
