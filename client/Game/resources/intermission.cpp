@@ -1,5 +1,8 @@
 #include "intermission.h"
 
+#include <algorithm>
+#include <vector>
+
 #include "../constants.h"
 #include "../utils/rgb.h"
 
@@ -7,6 +10,21 @@
 #define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_POSITION (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_REST_INFO (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
+
+#define WHITE Rgb(255, 255, 255)
+
+#define DARK_VIOLET Rgb(45, 0, 75)
+#define VIBRANT_VIOLET Rgb(140, 0, 150)
+#define NEON_MAGENTA Rgb(215, 40, 185)
+#define SOFT_NEON_PINK Rgb(255, 110, 180)
+
+#define GLITCH_VIOLET Rgb(100, 0, 255)
+#define PURPLE_NEON_BRIGHT Rgb(180, 0, 255)
+#define MAGENTA_VIBRANT Rgb(255, 0, 200)
+#define ELECTRIC_PINK Rgb(255, 100, 255)
+
+#define ORANGE_SUNSET Rgb(255, 125, 0)
+#define ORANGE_SUN Rgb(255, 140, 0)
 
 constexpr int AMOUNT_FRAMES_ANIMATION = 90;
 constexpr int AMOUNT_FRAMES_WAITING = 30;
@@ -33,9 +51,7 @@ void Intermission::function() {
     window.render();
 }
 
-void Intermission::run() {
-    ConstantRateLoop::start_loop();
-}
+void Intermission::run() { ConstantRateLoop::start_loop(); }
 
 void Intermission::show_results() {
     std::vector<PlayerInfoI> dummy;  // en un futuro se recibe la lista de jugadores
@@ -47,11 +63,10 @@ void Intermission::show_results() {
     dummy.push_back({6, "Player6", 250, 500});
     dummy.push_back({7, "Player7", 300, 600});
     dummy.push_back({8, "Player8", 350, 700});
+    // falta atajar que el string no se pase del ancho de la pantalla
 
     std::sort(dummy.begin(), dummy.end(),
-              [](const PlayerInfoI& a, const PlayerInfoI& b) {
-                  return a.position < b.position;
-              });
+              [](const PlayerInfoI& a, const PlayerInfoI& b) { return a.position < b.position; });
 
     if (iteration <= AMOUNT_FRAMES_ANIMATION) {
         int y_animation = (background_texture.getHeight() * iteration) / AMOUNT_FRAMES_ANIMATION;
@@ -62,23 +77,21 @@ void Intermission::show_results() {
     } else if (iteration > AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
         int y_head = SIZE_TEXT_HEAD;
         int x_postion_start = SIZE_TEXT_HEAD;
-        text_head.renderDirect(x_postion_start, y_head, "POSITION", Rgb(0, 255, 0), true,
-                          Rgb(255, 0, 0));
+        text_head.renderDirect(x_postion_start, y_head, "POSITION", GLITCH_VIOLET, true, WHITE);
         int x_position_end = text_head.getWidth() + x_postion_start;
 
-        int x_player_start = x_position_end + SIZE_TEXT_HEAD;
-        text_head.renderDirect(x_player_start, y_head, "PLAYER",
-                          Rgb(0, 255, 0), true, Rgb(255, 0, 0));
+        int x_player_start = x_position_end + SIZE_TEXT_HEAD * 3;
+        text_head.renderDirect(x_player_start, y_head, "PLAYER", PURPLE_NEON_BRIGHT, true, WHITE);
         int x_player_end = x_player_start + text_head.getWidth();
 
-        int x_race_time_start = x_player_end + SIZE_TEXT_HEAD;
-        text_head.renderDirect(x_race_time_start, y_head, "RACE TIME",
-                          Rgb(0, 255, 0), true, Rgb(255, 0, 0));
+        int x_race_time_start = x_player_end + SIZE_TEXT_HEAD * 3;
+        text_head.renderDirect(x_race_time_start, y_head, "RACE TIME", MAGENTA_VIBRANT, true,
+                               WHITE);
         int x_race_time_end = x_race_time_start + text_head.getWidth();
 
         int x_total_time_start = x_race_time_end + SIZE_TEXT_HEAD;
-        text_head.renderDirect(x_total_time_start, y_head, "TOTAL TIME",
-                          Rgb(0, 255, 0), true, Rgb(255, 0, 0));
+        text_head.renderDirect(x_total_time_start, y_head, "TOTAL TIME", ELECTRIC_PINK, true,
+                               WHITE);
         int x_total_time_end = x_total_time_start + text_head.getWidth();
 
         if (iteration <= RESULTS) {
@@ -87,37 +100,45 @@ void Intermission::show_results() {
 
         int frames = iteration - RESULTS;
         int min = std::min(static_cast<int>(dummy.size()), 8);
-        int n = std::min((frames / AMOUNT_FRAMES_WAITING), min); 
+        int n = std::min((frames / AMOUNT_FRAMES_WAITING), min);
 
-        std::cout << "[yo] iteration: " << iteration 
-              << " frames: " << frames 
-              << " n: " << n << std::endl;
+        std::cout << "[yo] iteration: " << iteration << " frames: " << frames << " n: " << n
+                  << std::endl;
 
         for (int i = 0; i < n; i++) {
             const PlayerInfoI& player_info = dummy[i];
-            int y_info = y_head + SIZE_TEXT_HEAD / 4 + text_head.getHeight() + SIZE_TEXT_REST_INFO * i;
+            int y_info =
+                    y_head + SIZE_TEXT_HEAD / 4 + text_head.getHeight() + SIZE_TEXT_REST_INFO * i;
 
-            text_position.loadText(std::to_string(player_info.position), Rgb(0, 255, 255), true);
-            int x_position_center = x_postion_start + (x_position_end - x_postion_start) / 2 - text_position.getWidth() / 2;
-            text_position.renderDirect(x_position_center, y_info, std::to_string(player_info.position),
-                                Rgb(0, 255, 255), true, Rgb(255, 0, 0));
+            text_position.loadText(std::to_string(player_info.position), WHITE, true);
+            int x_position_center = x_postion_start + (x_position_end - x_postion_start) / 2 -
+                                    text_position.getWidth() / 2;
+            text_position.renderDirect(x_position_center, y_info,
+                                       std::to_string(player_info.position), WHITE, true,
+                                       GLITCH_VIOLET);
 
-            text_rest_info.loadText(player_info.name, Rgb(0, 255, 255), true);
-            int x_player_center = x_player_start + (x_player_end - x_player_start) / 2 - text_rest_info.getWidth() / 2;
-            text_rest_info.renderDirect(x_player_center, y_info, player_info.name,
-                                Rgb(0, 255, 255), true, Rgb(255, 0, 0));
+            text_rest_info.loadText(player_info.name, WHITE, true);
+            int x_player_center = x_player_start + (x_player_end - x_player_start) / 2 -
+                                  text_rest_info.getWidth() / 2;
+            text_rest_info.renderDirect(x_player_center, y_info, player_info.name, WHITE, true,
+                                        PURPLE_NEON_BRIGHT);
 
-            text_rest_info.loadText(std::to_string(player_info.race_time_seconds) + "s", Rgb(0, 255, 255), true);
-            int x_race_time_center = x_race_time_start + (x_race_time_end - x_race_time_start) / 2 - text_rest_info.getWidth() / 2;
+            text_rest_info.loadText(std::to_string(player_info.race_time_seconds) + "s", WHITE,
+                                    true);
+            int x_race_time_center = x_race_time_start + (x_race_time_end - x_race_time_start) / 2 -
+                                     text_rest_info.getWidth() / 2;
             text_rest_info.renderDirect(x_race_time_center, y_info,
-                                std::to_string(player_info.race_time_seconds) + "s",
-                                Rgb(0, 255, 255), true, Rgb(255, 0, 0));
+                                        std::to_string(player_info.race_time_seconds) + "s", WHITE,
+                                        true, MAGENTA_VIBRANT);
 
-            text_rest_info.loadText(std::to_string(player_info.total_time_seconds) + "s", Rgb(0, 255, 255), true);
-            int x_total_time_center = x_total_time_start + (x_total_time_end - x_total_time_start) / 2 - text_rest_info.getWidth() / 2;
+            text_rest_info.loadText(std::to_string(player_info.total_time_seconds) + "s", WHITE,
+                                    true);
+            int x_total_time_center = x_total_time_start +
+                                      (x_total_time_end - x_total_time_start) / 2 -
+                                      text_rest_info.getWidth() / 2;
             text_rest_info.renderDirect(x_total_time_center, y_info,
-                                std::to_string(player_info.total_time_seconds) + "s",
-                                Rgb(0, 255, 255), true, Rgb(255, 0, 0));
+                                        std::to_string(player_info.total_time_seconds) + "s", WHITE,
+                                        true, ELECTRIC_PINK);
         }
     }
 }
