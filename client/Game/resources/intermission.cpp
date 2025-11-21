@@ -6,7 +6,8 @@
 #include "../constants.h"
 #include "../utils/rgb.h"
 
-#define BACKGROUND_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
+#define BACKGROUND_INFO_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
+#define BACKGROUND_IMPROVEMENT_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/garaje.png"
 #define NEXT_BUTTON_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/boton_o.png"
 
 #define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
@@ -50,7 +51,8 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, boo
         server_handler(server_handler),
         main_running(main_running),
         cheat_detector(5),
-        background_texture(BACKGROUND_IMAGE_PATH, window, Rgb(0, 255, 0)),
+        background_info(BACKGROUND_INFO_IMAGE_PATH, window, Rgb(0, 255, 0)),
+        background_improvement(BACKGROUND_IMPROVEMENT_IMAGE_PATH, window, Rgb(0, 255, 0)),
         next_button(NEXT_BUTTON_IMAGE_PATH, window,
                     Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
         text_head(FONT_STYLE_PX, SIZE_TEXT_HEAD, window),
@@ -167,10 +169,10 @@ void Intermission::show_results() {
               [](const PlayerInfoI& a, const PlayerInfoI& b) { return a.position < b.position; });
 
     if (iteration <= AMOUNT_FRAMES_ANIMATION) {
-        int y_animation = (background_texture.getHeight() * iteration) / AMOUNT_FRAMES_ANIMATION;
+        int y_animation = (background_info.getHeight() * iteration) / AMOUNT_FRAMES_ANIMATION;
         int y_window = (WINDOW_HEIGHT * iteration) / AMOUNT_FRAMES_ANIMATION;
-        background_texture.renderEntity(
-                Area(0, y_animation, background_texture.getWidth(), background_texture.getHeight()),
+        background_info.renderEntity(
+                Area(0, y_animation, background_info.getWidth(), background_info.getHeight()),
                 Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
     } else if (iteration > AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
         show_table_results(player_infos);
@@ -253,11 +255,11 @@ void Intermission::show_improvement_phase() {
     int iteration_phase = iteration - iteration_init_improvement_phase;
     if (iteration_phase <= AMOUNT_FRAMES_ANIMATION) {
         int y_animation =
-                (background_texture.getHeight() * iteration_phase) / AMOUNT_FRAMES_ANIMATION;
+                (background_improvement.getHeight() * iteration_phase) / AMOUNT_FRAMES_ANIMATION;
         int y_window = (WINDOW_HEIGHT * iteration_phase) / AMOUNT_FRAMES_ANIMATION;
-        background_texture.renderEntity(
-                Area(0, background_texture.getHeight() - y_animation, background_texture.getWidth(),
-                     background_texture.getHeight()),
+        background_improvement.renderEntity(
+                Area(0, background_improvement.getHeight() - y_animation,
+                     background_improvement.getWidth(), background_improvement.getHeight()),
                 Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
     }
 }

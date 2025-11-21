@@ -27,7 +27,8 @@ private:
     ServerHandler& server_handler;
     bool& main_running;
     CheatDetector cheat_detector;
-    SdlObjTexture background_texture;
+    SdlObjTexture background_info;
+    SdlObjTexture background_improvement;
     SdlObjTexture next_button;
     SdlFont text_head;
     SdlFont text_position;
