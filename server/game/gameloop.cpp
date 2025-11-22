@@ -24,7 +24,7 @@ void Gameloop::procesar_actiones() {
     while (actiones_clients.try_pop(action)) {
         try {
             if (action.type == ClientAction::Type::Move) {
-                game.apply_player_move(action.id, action.movement);
+                game.register_player_move(action.id, action.movement);
             } else if (action.type == ClientAction::Type::Name) {
                 game.set_player_name(action.id, std::move(action.username));
             } else if (action.type == ClientAction::Type::Room) {
