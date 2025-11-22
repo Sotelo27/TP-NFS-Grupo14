@@ -144,6 +144,11 @@ public:
     void on_race_ended();
 
     /*
+     * Aplica los resultados de la carrera y de las penalizaciones a los jugadores
+     */
+    void apply_race_results_to_players(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds);
+
+    /*
      * Carga el mapa por su ID segun lo que me mande el cliente
      */
     void load_map_by_id(const std::string& map_id);

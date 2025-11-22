@@ -12,6 +12,8 @@ private:
     std::string name;
     uint8_t car_id = 0;
     CarModel car;
+    float race_time_seconds = 0.f;
+    float penalty_time_seconds = 0.f;
 
 public:
     explicit Player(size_t id, std::string name, CarModel car);
@@ -21,11 +23,17 @@ public:
     const std::string& get_name() const;
     void set_name(std::string name);
 
+    
     uint8_t get_car_id() const noexcept { return car_id; }
     void set_car_id(uint8_t id) noexcept { car_id = id; }
-
+    
     const CarModel& get_car_model() const noexcept { return car; }
     void set_car_model(const CarModel& c) noexcept { car = c; }
+
+    /*
+     * SUma el resultado de la carrera para el jugador y las penalizaciones
+     */
+    void register_race_result(float time_seconds, float race_penalty_time_seconds);
 };
 
 #endif

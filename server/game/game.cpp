@@ -156,12 +156,15 @@ void Game::on_race_ended() {
     // 2) Destruir los autos actuales del PhysicsWorld
     //get_current_race().clear_cars();  // método que llame a physics.destroy_body para cada player
 
-    // 3) Avanzar al siguiente Race, si existe
+    // 3) Aplicar resultados de la carrera a los jugadores y sumo las penalizaciones
+    apply_race_results_to_players(results, penalties_upgrades);
+
+    // 4) Avanzar al siguiente Race, si existe
     if (current_race_index + 1 < races.size()) {
         ++current_race_index;
         state = GameState::Racing; // siguiente carrera
 
-        // 4) Respawnear jugadores para la nueva Race
+        // 5) Respawnear jugadores para la nueva Race
         //setup_players_for_race(get_current_race());  // arma los autos en nuevos spawns, race_duration=0, etc.
     } else {
         //game_finished = true;
@@ -170,6 +173,25 @@ void Game::on_race_ended() {
     }
 }
 
+void Game::apply_race_results_to_players(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds) {
+    for (const auto& entry : race_result.result) {
+        auto player_it = players.find(entry.player_id); // busco el player por su ID 
+        if (player_it == players.end())
+            continue;
+
+        Player& player = player_it->second;
+
+        float base_seconds = entry.finish_time_seconds;
+
+        float penalty_seconds = 0.f;
+        auto penalty_it = penalties_seconds.find(entry.player_id);
+        if (penalty_it != penalties_seconds.end()) {
+            penalty_seconds = penalty_it->second;
+        }
+
+        player.register_race_result(base_seconds, penalty_seconds);
+    }
+}
 
 void Game::set_player_name(size_t id, std::string name) {
     std::lock_guard<std::mutex> lock(m);

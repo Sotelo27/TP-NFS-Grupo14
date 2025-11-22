@@ -61,8 +61,8 @@ CarModel Market::apply_upgrades_to_model(std::size_t player_id, const CarModel& 
     return result;
 }
 
-std::unordered_map<std::size_t, std::uint32_t> Market::consume_penalties_for_race(){
-    std::unordered_map<std::size_t, std::uint32_t> penalties_seconds; // player_id -> seconds de penelizacion
+std::unordered_map<std::size_t, float> Market::consume_penalties_for_race(){
+    std::unordered_map<std::size_t, float> penalties_seconds; // player_id -> seconds de penelizacion
 
     for (const auto& kv : player_market_info) {
         std::size_t player_id          = kv.first;
