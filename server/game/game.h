@@ -19,6 +19,8 @@
 #include "garage.h" 
 #include "market.h"
 
+#define MARKET_DURATION 10.0f
+
 enum class GameState {
     Lobby,
     Racing,
@@ -40,6 +42,7 @@ private:
     size_t current_race_index;
     GameState state;
     bool is_finished;
+    float marketplace_time_remaining;
     
     City city;
     Garage garage;
@@ -58,6 +61,17 @@ private:
      * Inicializa las carreras del juego, por ahora solo 1
      */
     void init_races();
+
+    /*
+     * Inicia la fase de marketplace
+    */
+    void start_market_phase();
+
+    /*
+     * Finaliza la fase de marketplace y arranca la siguiente carrera o
+     * marca el juego como finalizado si no quedan mas carreras
+     */
+    void finish_market_phase();
 
 public:
     /*

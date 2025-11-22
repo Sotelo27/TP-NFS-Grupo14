@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <utility>
+#include <unordered_map>
 #include "../../common/dto/input_state.h"
 #include "../map/map_config_loader.h"
 
@@ -21,6 +22,7 @@ Game::Game(float nitro_duracion)
       current_race_index(0),
       state(GameState::Lobby),
       is_finished(false),
+      marketplace_time_remaining(0.f),
       city(),
       garage()
 {
@@ -114,13 +116,31 @@ std::vector<PlayerTickInfo> Game::players_tick_info() {
 
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
-    // 1) avanzar simulacion del mundo físico SIEMPRE
+    // Estados donde no hay simulación de carrera
+    if (state == GameState::Lobby) {
+        pending_inputs.clear();
+        return;
+    }
+
+    if (state == GameState::Finished) {
+        pending_inputs.clear();
+        return;
+    }
+
+    if (state == GameState::Marketplace) {
+        marketplace_time_remaining -= dt;
+        if (marketplace_time_remaining <= 0.0f) {
+            finish_market_phase();
+        }
+        return;
+    }
+
     city.step(dt);
 
     // 2) drenar SIEMPRE la cola de eventos de checkpoints del mundo físico
     auto events = city.get_world().consume_checkpoint_events();
 
-    // Si todavía no hay carrera activa, descartamos inputs y eventos y salimos.
+    // Si todavía no hay carrera activa
     if (!has_active_race()) {
         pending_inputs.clear();
         return;
@@ -153,21 +173,48 @@ void Game::on_race_ended() {
     RaceResult results = get_current_race().build_race_results();
 
     auto penalties_upgrades = market.consume_penalties_for_race();
+    // TODO:
     // 2) Destruir los autos actuales del PhysicsWorld
     //get_current_race().clear_cars();  // método que llame a physics.destroy_body para cada player
 
     // 3) Aplicar resultados de la carrera a los jugadores y sumo las penalizaciones
     apply_race_results_to_players(results, penalties_upgrades);
 
-    // 4) Avanzar al siguiente Race, si existe
+    if (current_race_index + 1 >= races.size()) {
+        std::cout << "[Game] All races finished.\n";
+        state = GameState::Finished;
+        return;
+    }
+
+    // LOGICA DE MARKET:
+    // Iniciar fase de Marketplace para que los jugadores elijan mejoras
+    start_market_phase();
+}
+
+void Game::start_market_phase() {
+    std::cout << "[Game] Entering Marketplace for " << MARKET_DURATION << " seconds\n";
+    marketplace_time_remaining = MARKET_DURATION;
+    state = GameState::Marketplace;
+}
+
+void Game::finish_market_phase() {
+    std::cout << "[Game] Marketplace ended. Applying upgrades and starting next race.\n";
+
+    // Aplicar mejoras compradas a cada jugador
+    for (auto& kv : players) {
+        size_t pid = kv.first;
+        Player& player = kv.second;
+        CarModel updated = market.apply_upgrades_to_model(pid, player.get_car_model());
+        player.set_car_model(updated);
+    }
+
+    // avanzar al siguiente Race, si existe
     if (current_race_index + 1 < races.size()) {
         ++current_race_index;
-        state = GameState::Racing; // siguiente carrera
-
-        // 5) Respawnear jugadores para la nueva Race
-        //setup_players_for_race(get_current_race());  // arma los autos en nuevos spawns, race_duration=0, etc.
+        // FALTA RESPAWNEAR JUGADORES ANTES DE ENVIAR EL START
+        // arrancar la siguiente carrera (start_current_race marcará state=Racing)
+        start_current_race();
     } else {
-        //game_finished = true;
         std::cout << "[GAME] All races finished, game over.\n";
         state = GameState::Finished;
     }
@@ -260,11 +307,6 @@ void Game::start_current_race() {
         Player& player = kv.second;
         SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
-        std::cout << "[Game] Spawned player_id=" << player_id
-                  << " at (" << sp.x_px << ", " << sp.y_px << ")"
-                  << " route='" << route << "'"
-                  << " spawn_idx=" << (spawn_index - 1)
-                  << " car_id=" << (int)player.get_car_id() << "\n";
     }
 
     std::cout << "[Game] Race " << current_race_index << " started with "
