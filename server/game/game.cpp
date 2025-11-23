@@ -117,6 +117,25 @@ std::vector<PlayerTickInfo> Game::players_tick_info() {
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
     // Estados donde no hay simulación de carrera
+
+    //std::cout << "[GameState] state is: ";
+    //switch (state) {
+    //    case GameState::Lobby:
+    //        std::cout << "Lobby\n";
+    //        break;
+    //    case GameState::Racing:
+    //        std::cout << "Racing\n";
+    //        break;
+    //    case GameState::Marketplace:
+    //        std::cout << "Marketplace\n";
+    //        break;
+    //    case GameState::Finished:
+    //        std::cout << "Finished\n";
+    //        break;
+    //    default:
+    //        std::cout << "Unknown\n";
+    //        break;
+    //}
     if (state == GameState::Lobby) {
         pending_inputs.clear();
         return;
