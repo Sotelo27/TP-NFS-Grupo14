@@ -171,7 +171,7 @@ void Intermission::show_results() {
         show_table_results(player_infos);
 
         float frames = iteration - RESULTS;
-        if ((frames / AMOUNT_FRAMES_WAITING) < 9) {
+        if ((frames / AMOUNT_FRAMES_WAITING) < player_infos.size() + 1) {
             return;
         }
 
