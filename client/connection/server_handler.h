@@ -7,6 +7,7 @@
 
 #include "../../common/queue.h"
 #include "../../common/thread.h"
+#include "../../common/enum/car_improvement.h"
 #include "../client_protocol.h"
 
 #include "server_thread_recv.h"
@@ -58,6 +59,7 @@ public:
     void send_choose_car(uint8_t id_car);
     void send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races);
     void send_start_game(const std::string& map, uint8_t route);
+    void send_improvement_choice(CarImprovement improvement);
     ServerMessage recv_response_from_server();
 
     ServerHandler(const ServerHandler&) = delete;
