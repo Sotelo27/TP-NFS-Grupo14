@@ -240,6 +240,17 @@ void Game::apply_race_results_to_players(const RaceResult& race_result, const st
     }
 }
 
+bool Game::buy_upgrade(size_t player_id, CarImprovement improvement) {
+    std::lock_guard<std::mutex> lock(m);
+    if (state != GameState::Marketplace) {
+        return false;
+    }
+    if (!jugador_existe_auxiliar(player_id)) {
+        return false;
+    }
+    return market.buy_upgrade(player_id, improvement);
+}
+
 void Game::set_player_name(size_t id, std::string name) {
     std::lock_guard<std::mutex> lock(m);
     if (!jugador_existe_auxiliar(id)) {

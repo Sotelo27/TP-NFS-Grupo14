@@ -18,6 +18,7 @@
 #include "city.h"
 #include "garage.h" 
 #include "market.h"
+#include "../../common/dto/car_improvement.h"
 
 #define MARKET_DURATION 10.0f
 
@@ -162,6 +163,11 @@ public:
      */
     void apply_race_results_to_players(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds);
 
+    /*
+     * Compra una mejora para un jugador durante Marketplace
+     */
+    bool buy_upgrade(size_t player_id, CarImprovement improvement);
+    
     /*
      * Carga el mapa por su ID segun lo que me mande el cliente
      */
