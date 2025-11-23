@@ -3,13 +3,8 @@
 
 #include <cstdint>
 #include <vector>
+#include "../../common/dto/car_improvement.h"
 
-// solo hay 3 tipos de mejoras por el momento
-enum class UpgradeId {
-    Life,
-    Engine,
-    Turn
-};
 
 // info de cada mejora, cuanto penaliza y cuanto vale
 struct UpgradeInfo {
@@ -20,7 +15,7 @@ struct UpgradeInfo {
 // lo que compra cada jugador
 struct PlayerMarketInfo {
     float total_time_penalty = 0.f;
-    std::vector<UpgradeId> upgrades;
+    std::vector<CarImprovement> upgrades;
 };
 
 

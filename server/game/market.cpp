@@ -1,27 +1,29 @@
 #include "market.h"
 #include <algorithm>
+#include <cmath>
 
 Market::Market(): catalog_upgrades(), player_market_info() {
-    // Inicializar ctalogo de mejoras
-    catalog_upgrades.emplace(UpgradeId::Life, UpgradeInfo{60.0f, 50.0f});
-    catalog_upgrades.emplace(UpgradeId::Engine, UpgradeInfo{180.0f, 4.0f});
-    catalog_upgrades.emplace(UpgradeId::Turn, UpgradeInfo{120.0f, 3.0f});
+    catalog_upgrades.emplace(CarImprovement::Health, UpgradeInfo{60.0f, 50.0f});
+    catalog_upgrades.emplace(CarImprovement::Acceleration, UpgradeInfo{180.0f, 4.0f});
+    catalog_upgrades.emplace(CarImprovement::Speed, UpgradeInfo{120.0f, 0.5f});
+    catalog_upgrades.emplace(CarImprovement::Controllability, UpgradeInfo{90.0f, 2.0f});
+    catalog_upgrades.emplace(CarImprovement::Mass, UpgradeInfo{30.0f, 50.0f});
 }
 
 void Market::reset_upgrades() {
     player_market_info.clear();
 }
 
-const UpgradeInfo& Market::find_info_upgrade(UpgradeId id) const {
+const UpgradeInfo& Market::find_info_upgrade(CarImprovement id) const {
     return catalog_upgrades.at(id);
 }
 
-bool Market::buy_upgrade(std::size_t player_id, UpgradeId id) {
+bool Market::buy_upgrade(std::size_t player_id, CarImprovement id) {
     const UpgradeInfo& upgrade = find_info_upgrade(id);
 
     auto& info = player_market_info[player_id];
 
-    //si ya la tiene, no la vuelve a comprar
+    // si ya la tiene, no la vuelve a comprar
     auto it = std::find(info.upgrades.begin(), info.upgrades.end(), id);
     if (it != info.upgrades.end()) {
         return false;
@@ -42,18 +44,26 @@ CarModel Market::apply_upgrades_to_model(std::size_t player_id, const CarModel& 
 
     const PlayerMarketInfo& p_info_market = it->second;
 
-    for (UpgradeId id : p_info_market.upgrades) {
+    for (CarImprovement id : p_info_market.upgrades) {
         const UpgradeInfo& upgrade = find_info_upgrade(id);
 
         switch (id) {
-        case UpgradeId::Life:
+        case CarImprovement::Health:
             result.life += upgrade.value;
             break;
-        case UpgradeId::Engine:
+        case CarImprovement::Acceleration:
             result.fuerzaAceleracionN += upgrade.value;
             break;
-        case UpgradeId::Turn:
+        case CarImprovement::Speed:
+            result.velocidadMaxMps += upgrade.value;
+            break;
+        case CarImprovement::Controllability:
             result.torqueGiro += upgrade.value;
+            break;
+        case CarImprovement::Mass:
+            result.masaKg = std::max(0.0f, result.masaKg - upgrade.value);
+            break;
+        default:
             break;
         }
     }
@@ -75,7 +85,8 @@ std::unordered_map<std::size_t, float> Market::consume_penalties_for_race(){
     }
 
     // una vez consumido lo reseteo
-    player_market_info.clear();
+    // player_market_info.clear();
+    reset_upgrades();
 
     return penalties_seconds;
 }

@@ -8,10 +8,12 @@
 
 #include "market_info.h"
 #include "../../common/car_model.h"
+#include "../../common/dto/car_improvement.h"
+
 
 class Market {
 private:
-    std::unordered_map<UpgradeId, UpgradeInfo> catalog_upgrades;
+    std::unordered_map<CarImprovement, UpgradeInfo> catalog_upgrades;
     std::unordered_map< size_t, PlayerMarketInfo> player_market_info;
 
 public:
@@ -25,12 +27,12 @@ public:
     /*
      * Compra una mejora para un jugador
      */
-    bool buy_upgrade(size_t player_id, UpgradeId upgrade_id);
+    bool buy_upgrade(size_t player_id, CarImprovement upgrade_id);
     
     /*
      * Busca la informacion de una mejora en el catalogo
      */
-    const UpgradeInfo& find_info_upgrade(UpgradeId id) const;
+    const UpgradeInfo& find_info_upgrade(CarImprovement id) const;
 
     /*
      * Aplica las mejoras compradas por un jugador a su modelo de auto base
@@ -45,7 +47,7 @@ public:
 
     PlayerMarketInfo get_total_player_info(size_t player_id) const;
 
-    std::vector<UpgradeId> get_upgrades(size_t player_id) const;
+    std::vector<CarImprovement> get_upgrades(size_t player_id) const;
     
 };
 
