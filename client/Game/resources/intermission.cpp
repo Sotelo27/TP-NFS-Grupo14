@@ -59,7 +59,8 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, boo
         text_position(FONT_STYLE_VS1, SIZE_TEXT_POSITION, window),
         text_rest_info(FONT_STYLE_CC, SIZE_TEXT_REST_INFO, window),
         improvement_phase(false),
-        iteration_init_improvement_phase(0) {}
+        iteration_init_improvement_phase(0),
+        player_infos() {}
 
 void Intermission::function() {
     handle_sdl_events();
@@ -75,7 +76,8 @@ void Intermission::function() {
     window.render();
 }
 
-void Intermission::run() {
+void Intermission::run(std::vector<PlayerInfoI> player_infos) {
+    this->player_infos = std::move(player_infos);
     improvement_phase = false;
     ConstantRateLoop::start_loop();
 }
@@ -154,15 +156,6 @@ void Intermission::show_button_next() {
 }
 
 void Intermission::show_results() {
-    std::vector<PlayerInfoI> player_infos;  // en un futuro se recibe la lista de jugadores
-    player_infos.push_back({1, "Player1", 120, 300});
-    player_infos.push_back({2, "Player2", 150, 320});
-    player_infos.push_back({3, "Player3", 180, 350});
-    player_infos.push_back({4, "Player4", 200, 400});
-    player_infos.push_back({5, "Player5", 220, 450});
-    player_infos.push_back({6, "Player6", 250, 500});
-    player_infos.push_back({7, "Player7", 300, 600});
-    player_infos.push_back({8, "Player8", 350, 700});
     // falta atajar que el string no se pase del ancho de la pantalla
 
     std::sort(player_infos.begin(), player_infos.end(),

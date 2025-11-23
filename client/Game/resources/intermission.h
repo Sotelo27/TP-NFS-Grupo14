@@ -35,6 +35,7 @@ private:
     SdlFont text_rest_info;
     bool improvement_phase;
     int iteration_init_improvement_phase;
+    std::vector<PlayerInfoI> player_infos;
 
     void function() final;
 
@@ -53,7 +54,7 @@ private:
 public:
     explicit Intermission(SdlWindow& window, ServerHandler& server_handler, bool& main_running);
 
-    void run();
+    void run(std::vector<PlayerInfoI> player_infos);
 
     ~Intermission() = default;
 };

@@ -56,10 +56,17 @@ void ClientGame::handle_cheat_detection(const char* keyName) {
     }
     if (cheat_detector.check_cheat("MID")) {
         std::cout << "[ClientGame] Cheat code MID detected. Intermission!" << std::endl;
-        // acá se debería de mandar a server un mensaje especial para que termine la carrera actual
-
         // esto se borra después
-        intermission_manager.run();
+        std::vector<PlayerInfoI> player_infos;  // en un futuro se recibe la lista de jugadores
+        player_infos.push_back({1, "Player1", 120, 300});
+        player_infos.push_back({2, "Player2", 150, 320});
+        player_infos.push_back({3, "Player3", 180, 350});
+        player_infos.push_back({4, "Player4", 200, 400});
+        player_infos.push_back({5, "Player5", 220, 450});
+        player_infos.push_back({6, "Player6", 250, 500});
+        player_infos.push_back({7, "Player7", 300, 600});
+        player_infos.push_back({8, "Player8", 350, 700});
+        intermission_manager.run(player_infos);
     }
 }
 
@@ -122,6 +129,20 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
             time_info = action.race_time;
         } else if (action.type == ServerMessage::Type::RaceStart) {
             map_manager.loadMap(static_cast<MapID>(action.map_id));
+        } else if (action.type == ServerMessage::Type::Results) {
+            std::cout << "[ClientGame] Received RESULTS from server. Starting intermission."
+                      << std::endl;
+            std::vector<PlayerInfoI> player_infos;  // en un futuro se recibe la lista de jugadores
+            player_infos.push_back({1, "Player1", 120, 300});
+            player_infos.push_back({2, "Player2", 150, 320});
+            player_infos.push_back({3, "Player3", 180, 350});
+            player_infos.push_back({4, "Player4", 200, 400});
+            player_infos.push_back({5, "Player5", 220, 450});
+            player_infos.push_back({6, "Player6", 250, 500});
+            player_infos.push_back({7, "Player7", 300, 600});
+            player_infos.push_back({8, "Player8", 350, 700});
+
+            intermission_manager.run(player_infos);
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
