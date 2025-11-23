@@ -11,6 +11,11 @@ target_sources(taller_server
     server.cpp
     server_protocol.cpp
     monitor_lobby.cpp
+
+    room_manager.cpp       
+    pending_manager.cpp    
+    binding_manager.cpp    
+
     PUBLIC
     # .h files
     acceptor.h
@@ -23,4 +28,8 @@ target_sources(taller_server
     server.h
     server_protocol.h
     monitor_lobby.h
-    )
+
+    room_manager.h         
+    pending_manager.h      
+    binding_manager.h      
+)
