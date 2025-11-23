@@ -44,6 +44,11 @@ constexpr int RESULTS = AMOUNT_FRAMES_ANIMATION + 2 * AMOUNT_FRAMES_WAITING;
 
 const char NEXT_BUTTON_TEXT[] = "Next";
 const char KEY_NEXT_BUTTON = NEXT_BUTTON_TEXT[0];
+const char KEY_IMPROVEMENT_SPEED = 'I';
+const char KEY_IMPROVEMENT_HEALTH = 'H';
+const char KEY_IMPROVEMENT_ACCELERATION = 'A';
+const char KEY_IMPROVEMENT_MASS = 'M';
+const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 
 Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, bool& main_running):
         ConstantRateLoop(FRAME_RATE),
@@ -216,6 +221,28 @@ void Intermission::handle_cheat_detection(const char* keyName) {
     }
 }
 
+void Intermission::handle_key_pressed(const char* keyName) {
+    if (keyName == std::string(1, KEY_NEXT_BUTTON)) {
+        iteration_init_improvement_phase =
+                improvement_phase ? iteration_init_improvement_phase : iteration;
+        improvement_phase = true;
+    } 
+
+    if (improvement_phase) {
+        if (keyName == std::string(1, KEY_IMPROVEMENT_SPEED)) {
+            server_handler.send_improvement_choice(CarImprovement::Speed);
+        } else if (keyName == std::string(1, KEY_IMPROVEMENT_HEALTH)) {
+            server_handler.send_improvement_choice(CarImprovement::Health);
+        } else if (keyName == std::string(1, KEY_IMPROVEMENT_ACCELERATION)) {
+            server_handler.send_improvement_choice(CarImprovement::Acceleration);
+        } else if (keyName == std::string(1, KEY_IMPROVEMENT_MASS)) {
+            server_handler.send_improvement_choice(CarImprovement::Mass);
+        } else if (keyName == std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY)) {
+            server_handler.send_improvement_choice(CarImprovement::Controllability);
+        }
+    }
+}
+
 void Intermission::handle_sdl_events() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -225,11 +252,7 @@ void Intermission::handle_sdl_events() {
 
                 const char* keyName = SDL_GetKeyName(keyEvent.keysym.sym);
 
-                if (keyName == std::string(1, KEY_NEXT_BUTTON)) {
-                    iteration_init_improvement_phase =
-                            improvement_phase ? iteration_init_improvement_phase : iteration;
-                    improvement_phase = true;
-                }
+                handle_key_pressed(keyName);
 
                 handle_cheat_detection(keyName);
             } break;
@@ -255,4 +278,15 @@ void Intermission::show_improvement_phase() {
                      background_improvement.getWidth(), background_improvement.getHeight()),
                 Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
     }
+
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD, "I manda mejora de speed", ORANGE_SUNSET, true,
+                           WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 2, "H manda mejora de health", ELECTRIC_CYAN, true,
+                           WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 3, "A manda mejora de acceleration", NEON_LIME, true,
+                           WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 4, "M manda mejora de mass", NEON_YELLOW, true,
+                           WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 5, "C manda mejora de controllability", NEON_RED, true,
+                           WHITE);
 }

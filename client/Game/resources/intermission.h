@@ -49,6 +49,7 @@ private:
 
     void handle_sdl_events();
     void handle_cheat_detection(const char* keyName);
+    void handle_key_pressed(const char* keyName);
     void process_server_messages(ServerMessage::Type expected_type, int msg_limit);
 
 public:
