@@ -77,9 +77,9 @@ void Intermission::function() {
     process_server_messages(ServerMessage::Type::Empty, 10);
 
     window.fill();
-    if (!improvement_phase) {
-        show_results();
-    } else {
+
+    show_results();
+    if (improvement_phase) {
         show_improvement_phase();
     }
 
