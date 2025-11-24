@@ -34,6 +34,12 @@ public:
      * SUma el resultado de la carrera para el jugador y las penalizaciones
      */
     void register_race_result(float time_seconds, float race_penalty_time_seconds);
+
+    /*
+     * Obtiene el tiempo total acumulado del jugador (carrera + penalizaciones)
+     */
+    float get_total_time_seconds() const noexcept { return race_time_seconds + penalty_time_seconds; }
+
 };
 
 #endif
