@@ -40,6 +40,7 @@ void ClientProtocol::init_recv_dispatch() {
         {CODE_S2C_CAR_LIST,     [this](){ return parse_car_list(); }},
         {CODE_S2C_RACE_START,   [this](){ return parse_race_start(); }},
         {CODE_S2C_RESULTS,      [this](){ return parse_results(); }},
+        {CODE_S2C_RACE_RESULTS_CURRENT, [this](){ return parse_result_race_current(); }},
         {CODE_S2C_MAP_INFO,     [this](){ return parse_map_info(); }}
     };
 }
@@ -239,6 +240,27 @@ ServerMessage ClientProtocol::parse_results() {
         prt.total_time_seconds = ntohl(tbe);
         prt.position = pos;
         dto.results_total.push_back(std::move(prt));
+    }
+    return dto;
+}
+
+ServerMessage ClientProtocol::parse_result_race_current() {
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::Results;
+    uint8_t n=0; skt.recvall(&n, 1);
+    dto.results_current.clear();
+    dto.results_total.clear();
+    for(uint8_t i=0; i<n; ++i) {
+        uint32_t pid_be=0; skt.recvall(&pid_be, 4);
+        uint16_t lbe=0; skt.recvall(&lbe, 2);
+        uint16_t l = ntohs(lbe);
+        std::string name(l,'\0'); if(l) skt.recvall(&name[0], l);
+        uint32_t race_be=0; skt.recvall(&race_be, 4);
+        uint32_t total_be=0; skt.recvall(&total_be, 4);
+        uint8_t pos=0; skt.recvall(&pos,1);
+        PlayerResultCurrent prc; prc.player_id = ntohl(pid_be); prc.username = std::move(name);
+        prc.race_time_seconds = ntohl(race_be); prc.total_time_seconds = ntohl(total_be); prc.position = pos;
+        dto.results_current.push_back(std::move(prc));
     }
     return dto;
 }
