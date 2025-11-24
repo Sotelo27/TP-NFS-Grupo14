@@ -1,6 +1,7 @@
 #ifndef __SDL_OBJ_TEXTURE_H__
 #define __SDL_OBJ_TEXTURE_H__
 #include <string>
+#include <cstdint>
 
 #include "../utils/Area.h"
 #include "../utils/rgb.h"
@@ -24,6 +25,7 @@ public:
                   const Rgb& background_color);
 
     void renderEntity(const Area& src, const Area& dest, double angle) const;
+    void changeAlpha(uint8_t alpha);
 };
 
 #endif

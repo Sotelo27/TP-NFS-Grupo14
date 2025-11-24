@@ -50,10 +50,11 @@ const char KEY_IMPROVEMENT_ACCELERATION = 'A';
 const char KEY_IMPROVEMENT_MASS = 'M';
 const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 
-Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, bool& main_running):
+Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, MapsTextures& map_manager, bool& main_running):
         ConstantRateLoop(FRAME_RATE),
         window(window),
         server_handler(server_handler),
+        map_manager(map_manager),
         main_running(main_running),
         cheat_detector(5),
         background_info(BACKGROUND_INFO_IMAGE_PATH, window, Rgb(0, 255, 0)),
@@ -72,6 +73,7 @@ void Intermission::function() {
 
     process_server_messages(ServerMessage::Type::Empty, 10);
 
+    window.fill();
     if (!improvement_phase) {
         show_results();
     } else {
@@ -95,6 +97,10 @@ void Intermission::show_info_center(SdlFont& font, const std::string& info, int 
 }
 
 void Intermission::show_table_results(const std::vector<PlayerInfoI>& player_infos) {
+    if (iteration <= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
+        return;
+    }
+
     int y_head = SIZE_TEXT_HEAD;
     int x_postion_start = SIZE_TEXT_HEAD;
     text_head.renderDirect(x_postion_start, y_head, "POSITION", GLITCH_VIOLET, true, WHITE);
@@ -166,20 +172,17 @@ void Intermission::show_results() {
     std::sort(player_infos.begin(), player_infos.end(),
               [](const PlayerInfoI& a, const PlayerInfoI& b) { return a.position < b.position; });
 
-    if (iteration <= AMOUNT_FRAMES_ANIMATION) {
-        int y_animation = (background_info.getHeight() * iteration) / AMOUNT_FRAMES_ANIMATION;
-        int y_window = (WINDOW_HEIGHT * iteration) / AMOUNT_FRAMES_ANIMATION;
-        background_info.renderEntity(
-                Area(0, y_animation, background_info.getWidth(), background_info.getHeight()),
-                Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
-    } else if (iteration > AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
-        show_table_results(player_infos);
+    int background_frame_limit = std::min(iteration, AMOUNT_FRAMES_ANIMATION);
+    int y_animation = (background_info.getHeight() * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
+    int y_window = (WINDOW_HEIGHT * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
+    background_info.renderEntity(
+            Area(0, y_animation - 1, background_info.getWidth(), background_info.getHeight()),
+            Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
-        float frames = iteration - RESULTS;
-        if ((frames / AMOUNT_FRAMES_WAITING) < player_infos.size() + 1) {
-            return;
-        }
+    show_table_results(player_infos);
 
+    float frames = iteration - RESULTS;
+    if ((frames / AMOUNT_FRAMES_WAITING) >= player_infos.size() + 1) {
         show_button_next();
     }
 }
@@ -192,7 +195,9 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::RaceStart) {
-            // current_map_id = static_cast<MapID>(action.map_id);
+            map_manager.loadMap(static_cast<MapID>(action.map_id));
+            this->running = false;
+            keep_loop = false;
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
@@ -269,15 +274,15 @@ void Intermission::handle_sdl_events() {
 
 void Intermission::show_improvement_phase() {
     int iteration_phase = iteration - iteration_init_improvement_phase;
-    if (iteration_phase <= AMOUNT_FRAMES_ANIMATION) {
-        int y_animation =
-                (background_improvement.getHeight() * iteration_phase) / AMOUNT_FRAMES_ANIMATION;
-        int y_window = (WINDOW_HEIGHT * iteration_phase) / AMOUNT_FRAMES_ANIMATION;
-        background_improvement.renderEntity(
-                Area(0, background_improvement.getHeight() - y_animation,
-                     background_improvement.getWidth(), background_improvement.getHeight()),
-                Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
-    }
+
+    int background_frame_limit = std::min(iteration_phase, AMOUNT_FRAMES_ANIMATION);
+    int y_animation =
+            (background_improvement.getHeight() * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
+    int y_window = (WINDOW_HEIGHT * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
+    background_improvement.renderEntity(
+            Area(0, background_improvement.getHeight() - y_animation,
+                    background_improvement.getWidth(), background_improvement.getHeight()),
+            Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
     text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD, "I manda mejora de speed", ORANGE_SUNSET, true,
                            WHITE);
