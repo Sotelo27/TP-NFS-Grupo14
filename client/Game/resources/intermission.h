@@ -11,9 +11,9 @@
 #include "../sdl_wrappers/SdlFont.h"
 #include "../sdl_wrappers/SdlObjTexture.h"
 #include "../sdl_wrappers/SdlWindow.h"
-#include "maps_textures.h"
 
 #include "cheat_detector.h"
+#include "maps_textures.h"
 
 struct PlayerInfoI {
     int position;
@@ -45,7 +45,7 @@ private:
     void show_table_results(const std::vector<PlayerInfoI>& player_infos);
     void show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
                           int y_info, const Rgb& color_front, const Rgb& color_shadow);
-    void show_button_next();
+    void show_text_for_next_phase();
 
     void show_improvement_phase();
 
@@ -55,7 +55,8 @@ private:
     void process_server_messages(ServerMessage::Type expected_type, int msg_limit);
 
 public:
-    explicit Intermission(SdlWindow& window, ServerHandler& server_handler, MapsTextures& map_manager, bool& main_running);
+    explicit Intermission(SdlWindow& window, ServerHandler& server_handler,
+                          MapsTextures& map_manager, bool& main_running);
 
     void run(std::vector<PlayerInfoI> player_infos);
 

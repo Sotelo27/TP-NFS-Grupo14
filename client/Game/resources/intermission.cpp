@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <string>
+#include <utility>
 
 #include "../constants.h"
 #include "../utils/rgb.h"
@@ -42,15 +43,17 @@ constexpr int AMOUNT_FRAMES_ANIMATION = 90;
 constexpr int AMOUNT_FRAMES_WAITING = 30;
 constexpr int RESULTS = AMOUNT_FRAMES_ANIMATION + 2 * AMOUNT_FRAMES_WAITING;
 
-const char NEXT_BUTTON_TEXT[] = "Next";
-const char KEY_NEXT_BUTTON = NEXT_BUTTON_TEXT[0];
+#define KEY_NEXT_BUTTON "N"
+const char NEXT_PHASE_TEXT[] = "Press " KEY_NEXT_BUTTON " to continue...";
+
 const char KEY_IMPROVEMENT_SPEED = 'I';
 const char KEY_IMPROVEMENT_HEALTH = 'H';
 const char KEY_IMPROVEMENT_ACCELERATION = 'A';
 const char KEY_IMPROVEMENT_MASS = 'M';
 const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 
-Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, MapsTextures& map_manager, bool& main_running):
+Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
+                           MapsTextures& map_manager, bool& main_running):
         ConstantRateLoop(FRAME_RATE),
         window(window),
         server_handler(server_handler),
@@ -146,24 +149,11 @@ void Intermission::show_table_results(const std::vector<PlayerInfoI>& player_inf
     }
 }
 
-void Intermission::show_button_next() {
-    int size_width = SIZE_NEXT_BUTTON;
-    int size_height = (size_width * next_button.getHeight()) / next_button.getWidth();
-    int next_button_x = WINDOW_WIDTH - size_width - SIZE_TEXT_HEAD;
-    int next_button_y = WINDOW_HEIGHT - size_height - SIZE_TEXT_HEAD;
-    next_button.renderEntity(Area(0, 0, next_button.getWidth(), next_button.getHeight()),
-                             Area(next_button_x, next_button_y, size_width, size_height), 0.0);
-
-    int x_start = next_button_x;
-    int x_end = next_button_x + size_width;
-    int y_info = next_button_y + SIZE_NEXT_BUTTON / 10;
-    text_head.loadText(NEXT_BUTTON_TEXT, WHITE, true);
-    int x_position_center = x_start + (x_end - x_start) / 2 - text_head.getWidth() / 2;
-    text_head.renderDirect(x_position_center, y_info, NEXT_BUTTON_TEXT, WHITE, true,
-                           SOFT_NEON_PINK);
-
-    text_head.renderDirect(x_position_center, y_info, std::string(1, KEY_NEXT_BUTTON), NEON_YELLOW,
-                           true, WHITE);
+void Intermission::show_text_for_next_phase() {
+    text_head.loadText(NEXT_PHASE_TEXT, WHITE, true);
+    int x_position = WINDOW_WIDTH - SIZE_TEXT_HEAD - text_head.getWidth();
+    int y_position = WINDOW_HEIGHT - SIZE_TEXT_HEAD - text_head.getHeight() / 2;
+    text_head.renderDirect(x_position, y_position, NEXT_PHASE_TEXT, ORANGE_SUN, true, WHITE);
 }
 
 void Intermission::show_results() {
@@ -173,7 +163,8 @@ void Intermission::show_results() {
               [](const PlayerInfoI& a, const PlayerInfoI& b) { return a.position < b.position; });
 
     int background_frame_limit = std::min(iteration, AMOUNT_FRAMES_ANIMATION);
-    int y_animation = (background_info.getHeight() * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
+    int y_animation =
+            (background_info.getHeight() * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
     int y_window = (WINDOW_HEIGHT * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
     background_info.renderEntity(
             Area(0, y_animation - 1, background_info.getWidth(), background_info.getHeight()),
@@ -183,7 +174,7 @@ void Intermission::show_results() {
 
     float frames = iteration - RESULTS;
     if ((frames / AMOUNT_FRAMES_WAITING) >= player_infos.size() + 1) {
-        show_button_next();
+        show_text_for_next_phase();
     }
 }
 
@@ -227,11 +218,11 @@ void Intermission::handle_cheat_detection(const char* keyName) {
 }
 
 void Intermission::handle_key_pressed(const char* keyName) {
-    if (keyName == std::string(1, KEY_NEXT_BUTTON)) {
+    if (keyName == std::string(KEY_NEXT_BUTTON)) {
         iteration_init_improvement_phase =
                 improvement_phase ? iteration_init_improvement_phase : iteration;
         improvement_phase = true;
-    } 
+    }
 
     if (improvement_phase) {
         if (keyName == std::string(1, KEY_IMPROVEMENT_SPEED)) {
@@ -281,17 +272,17 @@ void Intermission::show_improvement_phase() {
     int y_window = (WINDOW_HEIGHT * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
     background_improvement.renderEntity(
             Area(0, background_improvement.getHeight() - y_animation,
-                    background_improvement.getWidth(), background_improvement.getHeight()),
+                 background_improvement.getWidth(), background_improvement.getHeight()),
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD, "I manda mejora de speed", ORANGE_SUNSET, true,
-                           WHITE);
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 2, "H manda mejora de health", ELECTRIC_CYAN, true,
-                           WHITE);
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 3, "A manda mejora de acceleration", NEON_LIME, true,
-                           WHITE);
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 4, "M manda mejora de mass", NEON_YELLOW, true,
-                           WHITE);
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 5, "C manda mejora de controllability", NEON_RED, true,
-                           WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD, "I manda mejora de speed", ORANGE_SUNSET,
+                           true, WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 2, "H manda mejora de health",
+                           ELECTRIC_CYAN, true, WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 3, "A manda mejora de acceleration",
+                           NEON_LIME, true, WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 4, "M manda mejora de mass",
+                           NEON_YELLOW, true, WHITE);
+    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 5, "C manda mejora de controllability",
+                           NEON_RED, true, WHITE);
 }
