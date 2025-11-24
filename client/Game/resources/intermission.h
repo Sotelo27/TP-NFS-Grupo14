@@ -11,6 +11,7 @@
 #include "../sdl_wrappers/SdlFont.h"
 #include "../sdl_wrappers/SdlObjTexture.h"
 #include "../sdl_wrappers/SdlWindow.h"
+#include "maps_textures.h"
 
 #include "cheat_detector.h"
 
@@ -25,6 +26,7 @@ class Intermission: public ConstantRateLoop {
 private:
     SdlWindow& window;
     ServerHandler& server_handler;
+    MapsTextures& map_manager;
     bool& main_running;
     CheatDetector cheat_detector;
     SdlObjTexture background_info;
@@ -53,7 +55,7 @@ private:
     void process_server_messages(ServerMessage::Type expected_type, int msg_limit);
 
 public:
-    explicit Intermission(SdlWindow& window, ServerHandler& server_handler, bool& main_running);
+    explicit Intermission(SdlWindow& window, ServerHandler& server_handler, MapsTextures& map_manager, bool& main_running);
 
     void run(std::vector<PlayerInfoI> player_infos);
 

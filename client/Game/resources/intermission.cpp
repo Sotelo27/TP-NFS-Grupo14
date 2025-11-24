@@ -50,10 +50,11 @@ const char KEY_IMPROVEMENT_ACCELERATION = 'A';
 const char KEY_IMPROVEMENT_MASS = 'M';
 const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 
-Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, bool& main_running):
+Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler, MapsTextures& map_manager, bool& main_running):
         ConstantRateLoop(FRAME_RATE),
         window(window),
         server_handler(server_handler),
+        map_manager(map_manager),
         main_running(main_running),
         cheat_detector(5),
         background_info(BACKGROUND_INFO_IMAGE_PATH, window, Rgb(0, 255, 0)),
@@ -192,7 +193,9 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::RaceStart) {
-            // current_map_id = static_cast<MapID>(action.map_id);
+            map_manager.loadMap(static_cast<MapID>(action.map_id));
+            this->running = false;
+            keep_loop = false;
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
