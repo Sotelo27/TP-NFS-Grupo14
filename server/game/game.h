@@ -18,7 +18,7 @@
 #include "city.h"
 #include "garage.h" 
 #include "market.h"
-#include "../../common/dto/car_improvement.h"
+#include "../../common/enum/car_improvement.h"
 #include "../../common/dto/results_info.h"
 
 #define MARKET_DURATION 10.0f

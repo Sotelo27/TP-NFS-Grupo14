@@ -8,7 +8,7 @@
 
 #include "market_info.h"
 #include "../../common/car_model.h"
-#include "../../common/dto/car_improvement.h"
+#include "../../common/enum/car_improvement.h"
 
 
 class Market {

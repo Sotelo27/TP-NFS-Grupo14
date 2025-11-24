@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <vector>
-#include "../../common/dto/car_improvement.h"
+#include "../../common/enum/car_improvement.h"
 
 
 // info de cada mejora, cuanto penaliza y cuanto vale
