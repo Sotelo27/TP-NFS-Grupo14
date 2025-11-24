@@ -9,7 +9,6 @@
 
 #define BACKGROUND_INFO_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
 #define BACKGROUND_IMPROVEMENT_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/garaje.png"
-#define NEXT_BUTTON_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/boton_o.png"
 
 #define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_POSITION (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
@@ -40,7 +39,7 @@
 #define NEON_YO Rgb(255, 200, 0)
 
 constexpr int AMOUNT_FRAMES_ANIMATION = 90;
-constexpr int AMOUNT_FRAMES_WAITING = 30;
+constexpr int AMOUNT_FRAMES_WAITING = 20;
 constexpr int RESULTS = AMOUNT_FRAMES_ANIMATION + 2 * AMOUNT_FRAMES_WAITING;
 
 #define KEY_NEXT_BUTTON "N"
@@ -62,8 +61,6 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
         cheat_detector(5),
         background_info(BACKGROUND_INFO_IMAGE_PATH, window, Rgb(0, 255, 0)),
         background_improvement(BACKGROUND_IMPROVEMENT_IMAGE_PATH, window, Rgb(0, 255, 0)),
-        next_button(NEXT_BUTTON_IMAGE_PATH, window,
-                    Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
         text_head(FONT_STYLE_PX, SIZE_TEXT_HEAD, window),
         text_position(FONT_STYLE_VS1, SIZE_TEXT_POSITION, window),
         text_rest_info(FONT_STYLE_CC, SIZE_TEXT_REST_INFO, window),

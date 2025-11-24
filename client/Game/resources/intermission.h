@@ -31,7 +31,6 @@ private:
     CheatDetector cheat_detector;
     SdlObjTexture background_info;
     SdlObjTexture background_improvement;
-    SdlObjTexture next_button;
     SdlFont text_head;
     SdlFont text_position;
     SdlFont text_rest_info;
