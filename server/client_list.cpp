@@ -84,6 +84,16 @@ void ClientListProtected::broadcast_map_info(const std::vector<PlayerTickInfo>& 
     }
 }
 
+void ClientListProtected::broadcast_results(const std::vector<PlayerResultCurrent>& current) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting RESULTS to " << clients.size() << " clients (n=" << current.size() << ")\n";
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_results_to_client(current);
+        }
+    }
+}
+
 ClientListProtected::~ClientListProtected() {
     for (auto& c: clients) {
         c->hard_kill();

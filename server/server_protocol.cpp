@@ -243,7 +243,7 @@ void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& curren
             buf.resize(off + p.username.size());
             std::memcpy(buf.data()+off, p.username.data(), p.username.size());
         }
-        uint16_t time_be = htons(p.time_seconds);
+        uint16_t time_be = htons(p.race_time_seconds);
         off = buf.size();
         buf.resize(off + 2); std::memcpy(buf.data()+off, &time_be, 2);
         buf.push_back(p.position);

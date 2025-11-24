@@ -150,3 +150,11 @@ void ClientHandler::send_race_start(uint8_t map_id, const std::vector<std::pair<
     mensajes_a_enviar.try_push(std::move(out));
 }
 
+void ClientHandler::send_results_to_client(const std::vector<PlayerResultCurrent>& current) {
+    std::cout << "[ClientHandler] Queueing RESULTS for conn_id=" << id << " players=" << current.size() << "\n";
+    ServerOutMsg out{};
+    out.type = ServerOutType::Results;
+    out.results_current = current;
+    mensajes_a_enviar.try_push(std::move(out));
+}
+

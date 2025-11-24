@@ -105,6 +105,11 @@ public:
     void send_positions_to_all(const std::vector<PlayerPos>& positions);
     void send_race_start(uint8_t map_id, const std::vector<std::pair<int32_t, int32_t>>& checkpoints);
 
+    /*
+     * Envia resultados de carrera (vector current) a este cliente
+     */ 
+    void send_results_to_client(const std::vector<PlayerResultCurrent>& current);
+
     ClientHandler(const ClientHandler&) = delete;
     ClientHandler& operator=(const ClientHandler&) = delete;
 
