@@ -45,3 +45,9 @@ void SdlObjTexture::renderEntity(const Area& src, const Area& dest, double angle
         throw SdlException("Error rendering texture", SDL_GetError());
     }
 }
+
+void SdlObjTexture::changeAlpha(uint8_t alpha) {
+    if (SDL_SetTextureAlphaMod(this->texture, alpha) != 0) {
+        throw SdlException("Error changing texture alpha", SDL_GetError());
+    }
+}
