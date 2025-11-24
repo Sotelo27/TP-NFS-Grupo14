@@ -55,7 +55,7 @@ void GameHud::renderLifeBarHud() {
 }
 
 void GameHud::renderHint(const CarInfoGame& client_car, int iteration) {
-    if (client_car.info_car.distance_to_checkpoint < 405) {
+    if (client_car.info_car.distance_to_checkpoint < 265) {
         return;
     }
 

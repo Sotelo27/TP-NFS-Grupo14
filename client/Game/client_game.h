@@ -22,7 +22,6 @@ private:
     size_t client_id;
     ServerHandler& server_handler;
     bool& game_is_over;
-    bool intermediate_state;
     Area src_area_map;
     Area dest_area_map;
     std::unordered_map<size_t, CarInfoGame> info_players;

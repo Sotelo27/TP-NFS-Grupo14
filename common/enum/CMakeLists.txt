@@ -5,4 +5,5 @@ target_sources(taller_common
     # .h files
     car_enum.h
     map_enum.h
+    car_improvement.h
     )

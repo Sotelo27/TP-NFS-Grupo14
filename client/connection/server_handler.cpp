@@ -118,3 +118,11 @@ void ServerHandler::send_leave_room() {
     std::cout << "[ServerHandler] Sending ROOM_LEAVE" << std::endl;
     messages_send.try_push(msg);
 }
+
+void ServerHandler::send_improvement_choice(CarImprovement improvement) {
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::Improvement;
+    msg.improvement = static_cast<uint8_t>(improvement);
+    std::cout << "[ServerHandler] Sending Improvement choice: " << static_cast<int>(improvement) << std::endl;
+    messages_send.try_push(msg);
+}

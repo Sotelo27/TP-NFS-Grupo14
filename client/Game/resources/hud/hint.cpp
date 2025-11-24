@@ -6,13 +6,14 @@
 #include "../../constants.h"
 #include "../../utils/rgb.h"
 
-#define HINT_IMAGE_PATH std::string(ASSETS_PATH) + "/hud/flecha.png"
+#define HINT_IMAGE_PATH std::string(ASSETS_PATH) + "/hud/hint.png"
 
 #define CLOSENESS_FACTOR 10
 #define MAX_RANGE_CHECKPOINT 1500
 #define ARROW_RANGE_FACTOR (static_cast<float>(MAX_RANGE_CHECKPOINT) / 425)
 
 #define MIN_FACTOR_ACHICAR 0.53
+#define REDUCE_FACTOR_IMAGE 17.92
 
 Hint::Hint(const SdlWindow& window):
         texture(HINT_IMAGE_PATH, window,
@@ -42,12 +43,17 @@ void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, i
                            ((distance_arrow * (CLOSENESS_FACTOR - i)) / CLOSENESS_FACTOR);
 
         float t = static_cast<float>(distance_checkpoint) / MAX_RANGE_CHECKPOINT;
-        float arrow_size_adjustment_factor = std::cbrt(t);
-        float offset_img_width = texture.getWidth() * arrow_size_adjustment_factor / 2;
-        float offset_img_height = texture.getHeight() * arrow_size_adjustment_factor / 2;
+        // float arrow_size_adjustment_factor = std::cbrt(t);
+        float arrow_size_adjustment_factor = std::sqrt(t);
+
+        int max_hint_width = static_cast<float>(texture.getWidth()) / REDUCE_FACTOR_IMAGE;
+        int max_hint_height = static_cast<float>(texture.getHeight()) / REDUCE_FACTOR_IMAGE;
+
+        float offset_img_width = max_hint_width * arrow_size_adjustment_factor / 2;
+        float offset_img_height = max_hint_height * arrow_size_adjustment_factor / 2;
         Area dest(current_x_arrow - offset_img_width, current_y_arrow - offset_img_height,
-                  texture.getWidth() * arrow_size_adjustment_factor,
-                  texture.getHeight() * arrow_size_adjustment_factor);
+                  max_hint_width * arrow_size_adjustment_factor,
+                  max_hint_height * arrow_size_adjustment_factor);
         texture.renderEntity(Area(0, 0, texture.getWidth(), texture.getHeight()), dest, angle);
     }
 }
