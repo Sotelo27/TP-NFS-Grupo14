@@ -217,8 +217,9 @@ ServerMessage ClientProtocol::parse_results() {
         uint8_t pos=0;
         skt.recvall(&pos, 1);
         PlayerResultCurrent prc;
+        // falta añadir mas campos 
         prc.username = std::move(name);
-        prc.time_seconds = ntohs(time_be);
+        prc.race_time_seconds = ntohs(time_be);
         prc.position = pos;
         dto.results_current.push_back(std::move(prc));
     }

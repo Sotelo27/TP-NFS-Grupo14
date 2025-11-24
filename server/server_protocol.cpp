@@ -233,6 +233,7 @@ void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& curren
     buf.push_back(code);
     buf.push_back(nplayers);
     // CURRENT
+    // falta añadir mas campos 
     for (const auto& p : current) {
         uint16_t l = (uint16_t)p.username.size();
         uint16_t lbe = htons(l);
