@@ -130,19 +130,18 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
         } else if (action.type == ServerMessage::Type::RaceStart) {
             map_manager.loadMap(static_cast<MapID>(action.map_id));
         } else if (action.type == ServerMessage::Type::Results) {
-            std::cout << "[ClientGame] Received RESULTS from server. Starting intermission."
-                      << std::endl;
-            std::vector<PlayerInfoI> player_infos;  // en un futuro se recibe la lista de jugadores
-            player_infos.push_back({1, "Player1", 120, 300});
-            player_infos.push_back({2, "Player2", 150, 320});
-            player_infos.push_back({3, "Player3", 180, 350});
-            player_infos.push_back({4, "Player4", 200, 400});
-            player_infos.push_back({5, "Player5", 220, 450});
-            player_infos.push_back({6, "Player6", 250, 500});
-            player_infos.push_back({7, "Player7", 300, 600});
-            player_infos.push_back({8, "Player8", 350, 700});
-
-            intermission_manager.run(player_infos);
+            std::cout << "[ClientGame] Received RESULTS from server (n=" << action.results_current.size() << ")" << std::endl;
+            std::vector<PlayerInfoI> player_infos;
+            player_infos.reserve(action.results_current.size());
+            for (const auto& r : action.results_current) {
+                PlayerInfoI info;
+                info.position = (int)r.position;
+                info.name = r.username;
+                info.race_time_seconds = (int)r.race_time_seconds;
+                info.total_time_seconds = (int)r.total_time_seconds;
+                player_infos.push_back(std::move(info));
+            }
+            intermission_manager.run(std::move(player_infos));
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
