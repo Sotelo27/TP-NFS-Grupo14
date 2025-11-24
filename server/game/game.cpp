@@ -181,6 +181,8 @@ void Game::on_race_ended() {
 
     auto current_results = build_player_result_current(results, penalties_upgrades);
 
+    set_pending_results(std::move(current_results));
+
     if (current_race_index + 1 >= races.size()) {
         std::cout << "[Game] All races finished.\n";
         state = GameState::Finished;
@@ -338,15 +340,20 @@ std::vector<PlayerResultCurrent> Game::build_player_result_current(const RaceRes
     return packed;
 }
 
-bool Game::has_pending_results() const {
+bool Game::has_pending_results() const{
     return pending_results;
 }
 
 bool Game::comsume_pending_results(std::vector<PlayerResultCurrent>& current) {
     if (!pending_results) return false;
-    current = last_results_current;
+    current = std::move(last_results_current);
     pending_results = false;
     return true;
+}
+
+void Game::set_pending_results(std::vector<PlayerResultCurrent>&& current) {
+    last_results_current = std::move(current);
+    pending_results = true;
 }
 
 void Game::start_current_race() {

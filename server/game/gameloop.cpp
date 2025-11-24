@@ -44,6 +44,13 @@ void Gameloop::func_tick(int iteration) {
     procesar_actiones();
     game.update(1.0f / SERVER_HZ);
 
+    if (game.has_pending_results()) {
+        std::vector<PlayerResultCurrent> curr;
+        if (game.comsume_pending_results(curr)) {
+            clients.broadcast_results(curr);
+        }
+    }
+
     if (iteration % ticks_per_broadcast == 0) {
         auto tick_players = game.players_tick_info();
         TimeTickInfo time_race = game.get_race_time();

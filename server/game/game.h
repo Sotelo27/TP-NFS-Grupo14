@@ -172,6 +172,12 @@ public:
      */
     bool buy_upgrade(size_t player_id, CarImprovement improvement);
 
+
+    /*
+     * Setea los resultados de la carrera actual para ser consumidos
+     */
+    void set_pending_results(std::vector<PlayerResultCurrent>&& current);
+
     /*
      * INdica  si hay resultados pendientes para ser consumidos
      */
