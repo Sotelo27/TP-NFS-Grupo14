@@ -38,14 +38,16 @@ void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, i
     for (uint i = 0; i < NUMBER_ARROWS; i++) {
         adjustAlphaForAnimation(i);
 
+        int arrow_to_draw = NUMBER_ARROWS - 1 - i;
+
         int current_x_arrow = x_car;
         int current_y_arrow = y_car;
         // se mueve la flecha hacia la posicion del checkpoint
         float angle_rad = angle * M_PI / 180.0f;  // a radianes
         current_x_arrow += std::cos(angle_rad) *
-                           ((distance_arrow * (CLOSENESS_FACTOR - i)) / CLOSENESS_FACTOR);
+                           ((distance_arrow * (CLOSENESS_FACTOR - arrow_to_draw)) / CLOSENESS_FACTOR);
         current_y_arrow += std::sin(angle_rad) *
-                           ((distance_arrow * (CLOSENESS_FACTOR - i)) / CLOSENESS_FACTOR);
+                           ((distance_arrow * (CLOSENESS_FACTOR - arrow_to_draw)) / CLOSENESS_FACTOR);
 
         float t = static_cast<float>(distance_checkpoint) / MAX_RANGE_CHECKPOINT;
         // float arrow_size_adjustment_factor = std::cbrt(t);
