@@ -233,20 +233,34 @@ void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& curren
     buf.push_back(code);
     buf.push_back(nplayers);
     // CURRENT
-    // falta añadir mas campos 
     for (const auto& p : current) {
+        // player_id
+        uint32_t pid_be = htonl(p.player_id);
+        size_t off = buf.size();
+        buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
+
+        // username
         uint16_t l = (uint16_t)p.username.size();
         uint16_t lbe = htons(l);
-        size_t off = buf.size();
+        off = buf.size();
         buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
         if (l) {
             off = buf.size();
             buf.resize(off + p.username.size());
             std::memcpy(buf.data()+off, p.username.data(), p.username.size());
         }
-        uint16_t time_be = htons(p.race_time_seconds);
+
+        // race_time_seconds (uint32)
+        uint32_t race_be = htonl(p.race_time_seconds);
         off = buf.size();
-        buf.resize(off + 2); std::memcpy(buf.data()+off, &time_be, 2);
+        buf.resize(off + 4); std::memcpy(buf.data()+off, &race_be, 4);
+
+        // total_time_seconds (uint32)
+        uint32_t total_be = htonl(p.total_time_seconds);
+        off = buf.size();
+        buf.resize(off + 4); std::memcpy(buf.data()+off, &total_be, 4);
+
+        // position (uint8)
         buf.push_back(p.position);
     }
     // TOTAL
@@ -339,6 +353,36 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
             buf.resize(off + e.username.size());
             std::memcpy(buf.data()+off, e.username.data(), e.username.size());
         }
+    }
+    skt.sendall(buf.data(), (unsigned int)buf.size());
+}
+
+void ServerProtocol::send_result_race_current(const std::vector<PlayerResultCurrent>& current) {
+    uint8_t code = CODE_S2C_RACE_RESULTS_CURRENT;
+    uint8_t nplayers = (uint8_t)current.size();
+    std::vector<uint8_t> buf;
+    size_t usernames_total_len = 0;
+    for (const auto& p : current) usernames_total_len += p.username.size();
+    // Por jugador: player_id(4) + username_len(2) + race_time(4) + total_time(4) + position(1)
+    // Más la suma real de usernames.
+    buf.reserve(2 + nplayers * (4 + 2 + 4 + 4 + 1) + usernames_total_len);
+    buf.push_back(code);
+    buf.push_back(nplayers);
+    // Formato: [player_id:4][username_len:2][username][race_time_seconds:4][total_time_seconds:4][position:1]
+    for (const auto& p : current) {
+        uint32_t pid_be = htonl(p.player_id);
+        size_t off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
+        uint16_t l = (uint16_t)p.username.size();
+        uint16_t lbe = htons(l);
+        off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
+        if (l) {
+            off = buf.size(); buf.resize(off + p.username.size()); std::memcpy(buf.data()+off, p.username.data(), p.username.size());
+        }
+        uint32_t race_be = htonl(p.race_time_seconds);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &race_be, 4);
+        uint32_t total_be = htonl(p.total_time_seconds);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &total_be, 4);
+        buf.push_back(p.position);
     }
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
