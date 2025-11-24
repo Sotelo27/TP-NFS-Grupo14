@@ -1,6 +1,9 @@
 #ifndef HINT_H
 #define HINT_H
 
+#include <cstdint>
+#include <vector>
+
 #include "../../sdl_wrappers/SdlObjTexture.h"
 #include "../../sdl_wrappers/SdlWindow.h"
 
@@ -8,8 +11,10 @@ class Hint {
 private:
     SdlObjTexture texture;
     int phase;
+    std::vector<uint8_t> alphas;
 
     void adjustAlphaForAnimation(int arrow_index);
+
 public:
     explicit Hint(const SdlWindow& window);
 

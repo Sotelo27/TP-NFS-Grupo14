@@ -2,9 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <vector>
-#include <cstdint>
-#include <iostream>
 
 #include "../../constants.h"
 #include "../../utils/rgb.h"
@@ -20,10 +17,21 @@
 
 #define NUMBER_ARROWS 5
 
+#define ALPHA_MAX 255
+#define ALPHA_MIN 75
+
+#define FRAMES_PER_PHASE 10
+
 Hint::Hint(const SdlWindow& window):
         texture(HINT_IMAGE_PATH, window,
                 Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
-        phase(0) {}
+        phase(0),
+        alphas() {
+    int alpha_step = (ALPHA_MAX - ALPHA_MIN) / (NUMBER_ARROWS);
+    for (int i = 0; i < NUMBER_ARROWS; i++) {
+        alphas.push_back(ALPHA_MAX - (alpha_step * i));
+    }
+}
 
 void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, int iteration,
                   int car_width_scale_screen, int car_height_scale_screen) {
@@ -44,10 +52,12 @@ void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, i
         int current_y_arrow = y_car;
         // se mueve la flecha hacia la posicion del checkpoint
         float angle_rad = angle * M_PI / 180.0f;  // a radianes
-        current_x_arrow += std::cos(angle_rad) *
-                           ((distance_arrow * (CLOSENESS_FACTOR - arrow_to_draw)) / CLOSENESS_FACTOR);
-        current_y_arrow += std::sin(angle_rad) *
-                           ((distance_arrow * (CLOSENESS_FACTOR - arrow_to_draw)) / CLOSENESS_FACTOR);
+        current_x_arrow +=
+                std::cos(angle_rad) *
+                ((distance_arrow * (CLOSENESS_FACTOR - arrow_to_draw)) / CLOSENESS_FACTOR);
+        current_y_arrow +=
+                std::sin(angle_rad) *
+                ((distance_arrow * (CLOSENESS_FACTOR - arrow_to_draw)) / CLOSENESS_FACTOR);
 
         float t = static_cast<float>(distance_checkpoint) / MAX_RANGE_CHECKPOINT;
         // float arrow_size_adjustment_factor = std::cbrt(t);
@@ -64,7 +74,7 @@ void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, i
         texture.renderEntity(Area(0, 0, texture.getWidth(), texture.getHeight()), dest, angle);
     }
 
-    if (iteration % 10 == 0) {
+    if (iteration % FRAMES_PER_PHASE == 0) {
         phase++;
     }
     if (phase >= NUMBER_ARROWS) {
@@ -73,7 +83,6 @@ void Hint::render(int x_car, int y_car, int distance_checkpoint, double angle, i
 }
 
 void Hint::adjustAlphaForAnimation(int arrow_index) {
-    std::vector<uint8_t> alphas = {255, 200, 150, 100, 50};
     int alpha_index = arrow_index - phase;
     if (alpha_index > 0) {
         alpha_index = NUMBER_ARROWS - alpha_index;
