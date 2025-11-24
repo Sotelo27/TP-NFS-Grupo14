@@ -19,6 +19,7 @@
 #include "garage.h" 
 #include "market.h"
 #include "../../common/dto/car_improvement.h"
+#include "../../common/dto/results_info.h"
 
 #define MARKET_DURATION 10.0f
 
@@ -48,6 +49,9 @@ private:
     City city;
     Garage garage;
     Market market;
+
+    std::vector<PlayerResultCurrent> last_results_current;
+    bool pending_results{false};
 
 
     void throw_jugador_no_existe(size_t id) const;
@@ -167,6 +171,21 @@ public:
      * Compra una mejora para un jugador durante Marketplace
      */
     bool buy_upgrade(size_t player_id, CarImprovement improvement);
+
+    /*
+     * INdica  si hay resultados pendientes para ser consumidos
+     */
+    bool has_pending_results() const;
+
+    /*
+     * Obtiene los resultados de la carrera actual
+     */
+    bool comsume_pending_results(std::vector<PlayerResultCurrent>& current);
+    
+    /*
+     * Construye el resultado de la carrera actual para su correcto envio
+     */
+    std::vector<PlayerResultCurrent> build_player_result_current(const RaceResult& race_result,const std::unordered_map<size_t, float>& penalties_seconds) const;
     
     /*
      * Carga el mapa por su ID segun lo que me mande el cliente

@@ -185,6 +185,17 @@ RaceResult Race::build_race_results() const {
             participant.finish_time_seconds
         });
     }
+
+    std::sort(r.result.begin(), r.result.end(),
+              [](const ParticipantResultEntry& a,
+                 const ParticipantResultEntry& b) {
+                  return a.finish_time_seconds < b.finish_time_seconds;
+              });
+
+    uint32_t pos = 1;
+    for (auto& entry : r.result) {
+        entry.position = pos++;
+    }
     return r;
 }
 

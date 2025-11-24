@@ -116,26 +116,6 @@ std::vector<PlayerTickInfo> Game::players_tick_info() {
 
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
-    // Estados donde no hay simulación de carrera
-
-    //std::cout << "[GameState] state is: ";
-    //switch (state) {
-    //    case GameState::Lobby:
-    //        std::cout << "Lobby\n";
-    //        break;
-    //    case GameState::Racing:
-    //        std::cout << "Racing\n";
-    //        break;
-    //    case GameState::Marketplace:
-    //        std::cout << "Marketplace\n";
-    //        break;
-    //    case GameState::Finished:
-    //        std::cout << "Finished\n";
-    //        break;
-    //    default:
-    //        std::cout << "Unknown\n";
-    //        break;
-    //}
     if (state == GameState::Lobby) {
         pending_inputs.clear();
         return;
@@ -198,6 +178,8 @@ void Game::on_race_ended() {
 
     // 3) Aplicar resultados de la carrera a los jugadores y sumo las penalizaciones
     apply_race_results_to_players(results, penalties_upgrades);
+
+    auto current_results = build_player_result_current(results, penalties_upgrades);
 
     if (current_race_index + 1 >= races.size()) {
         std::cout << "[Game] All races finished.\n";
@@ -321,6 +303,51 @@ bool Game::has_active_race() const {
         && state == GameState::Racing;
 }
 
+std::vector<PlayerResultCurrent> Game::build_player_result_current(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds) const {
+    std::vector<PlayerResultCurrent> packed;
+
+    for (const auto& entry : race_result.result) {
+        auto player_it = players.find(entry.player_id);
+        if (player_it == players.end()) {
+            continue;
+        }
+
+        const Player& player = player_it->second;
+
+        float base_seconds = entry.finish_time_seconds;
+
+        float penalty_seconds = 0.f;
+        auto penalty_it = penalties_seconds.find(entry.player_id);
+        if (penalty_it != penalties_seconds.end()) {
+            penalty_seconds = static_cast<float>(penalty_it->second);
+        }
+
+        float race_time = base_seconds + penalty_seconds;
+        float total_time = player.get_total_time_seconds();
+
+        PlayerResultCurrent result{};
+        result.player_id          = entry.player_id;
+        result.username           = player.get_name();
+        result.race_time_seconds  = (uint32_t)(race_time);
+        result.total_time_seconds = (uint32_t)(total_time);
+        result.position           = (uint8_t)(entry.position);
+
+        packed.push_back(result);
+    }
+
+    return packed;
+}
+
+bool Game::has_pending_results() const {
+    return pending_results;
+}
+
+bool Game::comsume_pending_results(std::vector<PlayerResultCurrent>& current) {
+    if (!pending_results) return false;
+    current = last_results_current;
+    pending_results = false;
+    return true;
+}
 
 void Game::start_current_race() {
     std::lock_guard<std::mutex> lock(m);
@@ -338,9 +365,6 @@ void Game::start_current_race() {
         SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
     }
-
-    std::cout << "[Game] Race " << current_race_index << " started with "
-              << players.size() << " players\n";
     state = GameState::Racing;
 }
 
@@ -353,14 +377,8 @@ void Game::load_map(const MapConfig& cfg) {
 
 void Game::load_map_by_id(const std::string& map_id) {
     const std::string ruta = resolve_map_path(map_id);
-
     MapConfig cfg = MapConfigLoader::load_tiled_file(ruta);
     load_map(cfg);
-
-    std::cout << "[Game] Loaded map '" << map_id << "' from " << ruta
-              << " (rects=" << cfg.rects.size()
-              << ", polys=" << cfg.polylines.size()
-              << ", spawns=" << cfg.spawns.size() << ")\n";
 }
 
 TimeTickInfo Game::get_race_time() const {
@@ -376,5 +394,3 @@ void Game::init_races() {
     races.emplace_back(0, world);
     races.back().set_track(city.build_track("A"));
 }
-
-

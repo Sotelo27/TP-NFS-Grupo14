@@ -37,6 +37,7 @@ struct ParticipantResultEntry {
     uint32_t player_id;
     ParticipantState state;
     float finish_time_seconds;
+    uint32_t position;
 };
 
 struct RaceResult {
