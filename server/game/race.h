@@ -129,6 +129,12 @@ public:
      * y el tiempo en segundos en que termino
      */
     RaceResult build_race_results() const;
+
+    /*
+     * Destruye todos los cuerpos de autos en el PhysicsWorld y limpia las estructuras
+     * internas (cars y parts).
+     */
+    void clear_cars();
 };
 
 #endif

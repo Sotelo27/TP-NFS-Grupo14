@@ -199,6 +199,18 @@ RaceResult Race::build_race_results() const {
     return r;
 }
 
+void Race::clear_cars() {
+    std::cout << "[Race] Clearing cars for race id=" << id << " count=" << cars.size() << "\n";
+    // Destruir cuerpos en el mundo físico
+    for (const auto& kv : cars) {
+        size_t pid = kv.first;
+        physics.destroy_body(pid);
+    }
+    cars.clear();
+    parts.clear();
+    std::cout << "[Race] Clear complete for race id=" << id << "\n";
+}
+
 float Race::resolve_acceleration_input(const InputState& input) {
     if (input.up) {
         return 1.f;
