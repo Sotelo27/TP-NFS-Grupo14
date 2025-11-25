@@ -110,6 +110,11 @@ public:
      */ 
     void send_results_to_client(const std::vector<PlayerResultCurrent>& current);
 
+    /*
+     * Envia el ok de compra de mejora al cliente
+     */
+    void send_improvement_ok_to_client(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds);
+
     ClientHandler(const ClientHandler&) = delete;
     ClientHandler& operator=(const ClientHandler&) = delete;
 
