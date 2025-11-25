@@ -80,9 +80,18 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
         iteration_init_improvement_phase(0),
         player_infos(),
         improvement_options() {
+    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_HEALTH), icon_controllability,
+                                   "Health", "Survive more hits", true});
+    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_SPEED), icon_controllability,
+                                   "Speed", "Higher maximum speed", true});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY),
                                    icon_controllability, "Controllability", "Better turning",
                                    true});
+    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_ACCELERATION),
+                                   icon_controllability, "Acceleration", "Quicker 0-100 km/h",
+                                   true});
+    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_MASS), icon_controllability,
+                                   "Mass", "Stronger collisions", true});
 }
 
 void Intermission::function() {
@@ -294,7 +303,7 @@ void Intermission::show_improvement_phase() {
                      SIZE_TEXT_HEAD, NEON_YO, DARK_VIOLET);
 
     int y_start_options = SIZE_TEXT_HEAD * 2 + text_head.getHeight();
-    int y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD - text_head.getHeight();
+    int y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD;
 
     int option_height = improvement_options.size() > 0 ?
                                 (y_limit_options - y_start_options) / improvement_options.size() :
@@ -304,29 +313,32 @@ void Intermission::show_improvement_phase() {
     for (const ImprovementOption& option: improvement_options) {
         int y_option_index = y_start_options + i * option_height;
 
-        int x_limit_option = SIZE_TEXT_HEAD;
-        int button_upgrade_height = static_cast<int>(SIZE_ICON_BUTTON * button_upgrade.getHeight() /
-                                                     button_upgrade.getWidth());
+        int x_limit_option = static_cast<float>(SIZE_TEXT_HEAD) * 7 / 4;
+        int button_upgrade_width = static_cast<int>(SIZE_ICON_BUTTON * button_upgrade.getWidth() /
+                                                    button_upgrade.getHeight());
         button_upgrade.renderEntity(
                 Area(0, 0, button_upgrade.getWidth(), button_upgrade.getHeight()),
-                Area(SIZE_TEXT_HEAD, y_option_index, SIZE_ICON_BUTTON, button_upgrade_height), 0.0);
-        text_keys.renderDirect(SIZE_TEXT_HEAD, y_option_index, option.key, VIBRANT_ORANGE, true,
-                               DARK_VIOLET);
+                Area(x_limit_option, y_option_index, button_upgrade_width, SIZE_ICON_BUTTON), 0.0);
+        show_info_center(text_head, option.key, x_limit_option,
+                         x_limit_option + button_upgrade_width, y_option_index + 8, RED,
+                         DARK_VIOLET);
 
-        x_limit_option += SIZE_TEXT_HEAD + button_upgrade_height;
+        x_limit_option += SIZE_TEXT_HEAD + button_upgrade_width;
         option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
-                                 Area(x_limit_option, y_option_index, SIZE_ICON_BUTTON,
-                                      static_cast<int>(SIZE_ICON_BUTTON * option.icon.getHeight() /
-                                                       option.icon.getWidth())),
+                                 Area(x_limit_option, y_option_index,
+                                      static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() /
+                                                       option.icon.getHeight()),
+                                      SIZE_ICON_BUTTON),
                                  0.0);
 
-        x_limit_option += SIZE_TEXT_HEAD * 2;
-        text_rest_info.renderDirect(x_limit_option, y_option_index, option.improvement, BLUE, true,
-                                    DARK_VIOLET);
+        x_limit_option += static_cast<float>(SIZE_TEXT_HEAD) * 3;
+        show_info_center(text_keys, option.improvement, x_limit_option, x_limit_option + 412,
+                         y_option_index, BLUE, DARK_VIOLET);
 
-        x_limit_option += SIZE_TEXT_HEAD * 4;
-        text_rest_info.renderDirect(x_limit_option, y_option_index, option.description, RED, true,
-                                    DARK_VIOLET);
+        x_limit_option += SIZE_TEXT_HEAD * 6;
+        show_info_center(text_keys, option.description, x_limit_option,
+                         WINDOW_WIDTH - static_cast<float>(SIZE_TEXT_HEAD), y_option_index, RED,
+                         DARK_VIOLET);
 
         i++;
     }
