@@ -16,6 +16,14 @@
 #include "cheat_detector.h"
 #include "maps_textures.h"
 
+struct ImprovementOption {
+    std::string key;
+    SdlObjTexture& icon;
+    std::string improvement;
+    std::string description;
+    bool is_enabled;
+};
+
 class Intermission: public ConstantRateLoop {
 private:
     SdlWindow& window;
@@ -25,12 +33,16 @@ private:
     CheatDetector cheat_detector;
     SdlObjTexture background_info;
     SdlObjTexture background_improvement;
+    SdlObjTexture button_upgrade;
+    SdlObjTexture icon_controllability;
     SdlFont text_head;
     SdlFont text_position;
     SdlFont text_rest_info;
+    SdlFont text_keys;
     bool improvement_phase;
     int iteration_init_improvement_phase;
     std::vector<PlayerResultCurrent> player_infos;
+    std::vector<ImprovementOption> improvement_options;
 
     void function() final;
 

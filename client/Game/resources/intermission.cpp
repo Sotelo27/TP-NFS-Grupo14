@@ -9,12 +9,14 @@
 
 #define BACKGROUND_INFO_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
 #define BACKGROUND_IMPROVEMENT_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/garaje.png"
+#define BUTTON_UPGRADE_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/boton_u.png"
+#define ICON_CONTROLLABILITY_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/control.png"
 
 #define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_POSITION (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_REST_INFO (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 
-#define SIZE_NEXT_BUTTON (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 15.0
+#define SIZE_ICON_BUTTON (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 
 #define WHITE Rgb(255, 255, 255)
 
@@ -31,10 +33,15 @@
 #define ORANGE_SUNSET Rgb(255, 125, 0)
 #define ORANGE_SUN Rgb(255, 140, 0)
 
-#define ELECTRIC_CYAN Rgb(0, 255, 255)
-#define NEON_LIME Rgb(150, 255, 0)
-#define NEON_YELLOW Rgb(255, 255, 0)
+#define ELECTRIC_CYAN Rgb(0, 255, 255)  // a
+#define NEON_LIME Rgb(150, 255, 0)      // a
+#define NEON_YELLOW Rgb(255, 255, 0)    // a
 #define NEON_RED Rgb(255, 0, 0)
+
+#define VIBRANT_ORANGE Rgb(255, 100, 0)      // a
+#define BLUE Rgb(0, 0, 255)                  // a
+#define RED Rgb(255, 0, 0)                   // a
+#define GLITCH_LIGHT_BLUE Rgb(50, 150, 255)  // a
 
 #define NEON_YO Rgb(255, 200, 0)
 
@@ -45,7 +52,7 @@ constexpr int RESULTS = AMOUNT_FRAMES_ANIMATION + 2 * AMOUNT_FRAMES_WAITING;
 #define KEY_NEXT_BUTTON "N"
 const char NEXT_PHASE_TEXT[] = "Press " KEY_NEXT_BUTTON " to continue...";
 
-const char KEY_IMPROVEMENT_SPEED = 'I';
+const char KEY_IMPROVEMENT_SPEED = 'S';
 const char KEY_IMPROVEMENT_HEALTH = 'H';
 const char KEY_IMPROVEMENT_ACCELERATION = 'A';
 const char KEY_IMPROVEMENT_MASS = 'M';
@@ -61,12 +68,22 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
         cheat_detector(5),
         background_info(BACKGROUND_INFO_IMAGE_PATH, window, Rgb(0, 255, 0)),
         background_improvement(BACKGROUND_IMPROVEMENT_IMAGE_PATH, window, Rgb(0, 255, 0)),
+        button_upgrade(BUTTON_UPGRADE_IMAGE_PATH, window,
+                       Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
+        icon_controllability(ICON_CONTROLLABILITY_IMAGE_PATH, window,
+                             Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
         text_head(FONT_STYLE_PX, SIZE_TEXT_HEAD, window),
         text_position(FONT_STYLE_VS1, SIZE_TEXT_POSITION, window),
         text_rest_info(FONT_STYLE_CC, SIZE_TEXT_REST_INFO, window),
+        text_keys(FONT_STYLE_AA, SIZE_TEXT_REST_INFO, window),
         improvement_phase(false),
         iteration_init_improvement_phase(0),
-        player_infos() {}
+        player_infos(),
+        improvement_options() {
+    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY),
+                                   icon_controllability, "Controllability", "Better turning",
+                                   true});
+}
 
 void Intermission::function() {
     handle_sdl_events();
@@ -273,14 +290,44 @@ void Intermission::show_improvement_phase() {
                  background_improvement.getWidth(), background_improvement.getHeight()),
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD, "I manda mejora de speed", ORANGE_SUNSET,
-                           true, WHITE);
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 2, "H manda mejora de health",
-                           ELECTRIC_CYAN, true, WHITE);
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 3, "A manda mejora de acceleration",
-                           NEON_LIME, true, WHITE);
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 4, "M manda mejora de mass",
-                           NEON_YELLOW, true, WHITE);
-    text_head.renderDirect(SIZE_TEXT_HEAD, SIZE_TEXT_HEAD * 5, "C manda mejora de controllability",
-                           NEON_RED, true, WHITE);
+    show_info_center(text_head, "CAR UPGRADE", SIZE_TEXT_HEAD, WINDOW_WIDTH - SIZE_TEXT_HEAD,
+                     SIZE_TEXT_HEAD, NEON_YO, DARK_VIOLET);
+
+    int y_start_options = SIZE_TEXT_HEAD * 2 + text_head.getHeight();
+    int y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD - text_head.getHeight();
+
+    int option_height = improvement_options.size() > 0 ?
+                                (y_limit_options - y_start_options) / improvement_options.size() :
+                                0;
+
+    int i = 0;
+    for (const ImprovementOption& option: improvement_options) {
+        int y_option_index = y_start_options + i * option_height;
+
+        int x_limit_option = SIZE_TEXT_HEAD;
+        int button_upgrade_height = static_cast<int>(SIZE_ICON_BUTTON * button_upgrade.getHeight() /
+                                                     button_upgrade.getWidth());
+        button_upgrade.renderEntity(
+                Area(0, 0, button_upgrade.getWidth(), button_upgrade.getHeight()),
+                Area(SIZE_TEXT_HEAD, y_option_index, SIZE_ICON_BUTTON, button_upgrade_height), 0.0);
+        text_keys.renderDirect(SIZE_TEXT_HEAD, y_option_index, option.key, VIBRANT_ORANGE, true,
+                               DARK_VIOLET);
+
+        x_limit_option += SIZE_TEXT_HEAD + button_upgrade_height;
+        option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
+                                 Area(x_limit_option, y_option_index, SIZE_ICON_BUTTON,
+                                      static_cast<int>(SIZE_ICON_BUTTON * option.icon.getHeight() /
+                                                       option.icon.getWidth())),
+                                 0.0);
+
+        x_limit_option += SIZE_TEXT_HEAD * 2;
+        text_rest_info.renderDirect(x_limit_option, y_option_index, option.improvement, BLUE, true,
+                                    DARK_VIOLET);
+
+        x_limit_option += SIZE_TEXT_HEAD * 4;
+        text_rest_info.renderDirect(x_limit_option, y_option_index, option.description, RED, true,
+                                    DARK_VIOLET);
+
+        i++;
+    }
 }
