@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <utility>
+#include <unordered_map>
 #include "../../common/dto/input_state.h"
 #include "../map/map_config_loader.h"
 
@@ -21,6 +22,7 @@ Game::Game(float nitro_duracion)
       current_race_index(0),
       state(GameState::Lobby),
       is_finished(false),
+      marketplace_time_remaining(0.f),
       city(),
       garage()
 {
@@ -89,7 +91,7 @@ void Game::remove_player(size_t id) {
     }
 }
 
-void Game::apply_player_move(size_t id, Movement movimiento) {
+void Game::register_player_move(size_t id, Movement movimiento) {
     std::lock_guard<std::mutex> lock(m);
     if (!jugador_existe_auxiliar(id)) {
         throw_jugador_no_existe(id);
@@ -114,13 +116,30 @@ std::vector<PlayerTickInfo> Game::players_tick_info() {
 
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
-    // 1) avanzar simulacion del mundo físico SIEMPRE
+    if (state == GameState::Lobby) {
+        pending_inputs.clear();
+        return;
+    }
+
+    if (state == GameState::Finished) {
+        pending_inputs.clear();
+        return;
+    }
+
+    if (state == GameState::Marketplace) {
+        marketplace_time_remaining -= dt;
+        if (marketplace_time_remaining <= 0.0f) {
+            finish_market_phase();
+        }
+        return;
+    }
+
     city.step(dt);
 
-    // 2) drenar SIEMPRE la cola de eventos de checkpoints del mundo físico (mantener esta línea)
+    // 2) drenar SIEMPRE la cola de eventos de checkpoints del mundo físico
     auto events = city.get_world().consume_checkpoint_events();
 
-    // Si todavía no hay carrera activa, descartamos inputs y eventos y salimos.
+    // Si todavía no hay carrera activa
     if (!has_active_race()) {
         pending_inputs.clear();
         return;
@@ -149,27 +168,91 @@ void Game::update(float dt) {
 }
 
 void Game::on_race_ended() {
-    // 1) Leer resultados de la race actual (si querés)
-    //    Por ahora podés omitirlo o armar despues.
-    //    Ej: auto results = current_race().results();
 
+    RaceResult results = get_current_race().build_race_results();
+
+    auto penalties_upgrades = market.consume_penalties_for_race();
+    // TODO:
     // 2) Destruir los autos actuales del PhysicsWorld
     //get_current_race().clear_cars();  // método que llame a physics.destroy_body para cada player
 
-    // 3) Avanzar al siguiente Race, si existe
+    // 3) Aplicar resultados de la carrera a los jugadores y sumo las penalizaciones
+    apply_race_results_to_players(results, penalties_upgrades);
+
+    auto current_results = build_player_result_current(results, penalties_upgrades);
+
+    set_pending_results(std::move(current_results));
+
+    if (current_race_index + 1 >= races.size()) {
+        std::cout << "[Game] All races finished.\n";
+        state = GameState::Finished;
+        return;
+    }
+
+    // LOGICA DE MARKET:
+    // Iniciar fase de Marketplace para que los jugadores elijan mejoras
+    start_market_phase();
+}
+
+void Game::start_market_phase() {
+    std::cout << "[Game] Entering Marketplace for " << MARKET_DURATION << " seconds\n";
+    marketplace_time_remaining = MARKET_DURATION;
+    state = GameState::Marketplace;
+}
+
+void Game::finish_market_phase() {
+    std::cout << "[Game] Marketplace ended. Applying upgrades and starting next race.\n";
+
+    // Aplicar mejoras compradas a cada jugador
+    for (auto& kv : players) {
+        size_t pid = kv.first;
+        Player& player = kv.second;
+        CarModel updated = market.apply_upgrades_to_model(pid, player.get_car_model());
+        player.set_car_model(updated);
+    }
+
+    // avanzar al siguiente Race, si existe
     if (current_race_index + 1 < races.size()) {
         ++current_race_index;
-        state = GameState::Racing; // siguiente carrera
-
-        // 4) Respawnear jugadores para la nueva Race
-        //setup_players_for_race(get_current_race());  // arma los autos en nuevos spawns, race_duration=0, etc.
+        // FALTA RESPAWNEAR JUGADORES ANTES DE ENVIAR EL START
+        // arrancar la siguiente carrera (start_current_race marcará state=Racing)
+        start_current_race();
     } else {
-        //game_finished = true;
         std::cout << "[GAME] All races finished, game over.\n";
         state = GameState::Finished;
     }
 }
 
+void Game::apply_race_results_to_players(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds) {
+    for (const auto& entry : race_result.result) {
+        auto player_it = players.find(entry.player_id); // busco el player por su ID 
+        if (player_it == players.end())
+            continue;
+
+        Player& player = player_it->second;
+
+        float base_seconds = entry.finish_time_seconds;
+
+        float penalty_seconds = 0.f;
+        auto penalty_it = penalties_seconds.find(entry.player_id);
+        if (penalty_it != penalties_seconds.end()) {
+            penalty_seconds = penalty_it->second;
+        }
+
+        player.register_race_result(base_seconds, penalty_seconds);
+    }
+}
+
+bool Game::buy_upgrade(size_t player_id, CarImprovement improvement) {
+    std::lock_guard<std::mutex> lock(m);
+    if (state != GameState::Marketplace) {
+        return false;
+    }
+    if (!jugador_existe_auxiliar(player_id)) {
+        return false;
+    }
+    return market.buy_upgrade(player_id, improvement);
+}
 
 void Game::set_player_name(size_t id, std::string name) {
     std::lock_guard<std::mutex> lock(m);
@@ -189,23 +272,12 @@ std::string Game::get_player_name(size_t id) const {
     return it->second.get_name();
 }
 
-uint8_t Game::get_player_health(size_t id) const {
-    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
-    auto it = players.find(id);
-    if (it == players.end()) {
-        return 100; // Valor por defecto si no existe
-    }
-    // TODO: Implementar cuando Player tenga atributo de vida
-    return 100; // Por ahora retornar vida completa
-}
-
 TimeTickInfo Game::get_player_race_time(size_t id) const {
     std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
     auto it = players.find(id);
     if (it == players.end()) {
-        return TimeTickInfo{0}; // Valor por defecto si no existe
+        return TimeTickInfo{0};
     }
-    // Por ahora devolvemos el tiempo global de la carrera (no individual)
     if (!has_active_race()) {
         return TimeTickInfo{0};
     }
@@ -215,10 +287,7 @@ TimeTickInfo Game::get_player_race_time(size_t id) const {
 Race& Game::get_current_race() {
     if (races.empty()) {
         std::cout << "[Game] ERROR: get_current_race() llamado sin carreras activas\n";
-        // podés:
-        //  - lanzar una excepción más clara:
         throw std::runtime_error("No active races in Game");
-        //  - o devolver una referencia a algún dummy, pero no lo recomiendo.
     }
 
     if (current_race_index >= races.size()) {
@@ -227,7 +296,7 @@ Race& Game::get_current_race() {
         throw std::runtime_error("current_race_index out of range");
     }
 
-    return races[current_race_index]; // o .at(current_race_index) si querés checks extra
+    return races[current_race_index];
 }
 
 bool Game::has_active_race() const {
@@ -236,6 +305,56 @@ bool Game::has_active_race() const {
         && state == GameState::Racing;
 }
 
+std::vector<PlayerResultCurrent> Game::build_player_result_current(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds) const {
+    std::vector<PlayerResultCurrent> packed;
+
+    for (const auto& entry : race_result.result) {
+        auto player_it = players.find(entry.player_id);
+        if (player_it == players.end()) {
+            continue;
+        }
+
+        const Player& player = player_it->second;
+
+        float base_seconds = entry.finish_time_seconds;
+
+        float penalty_seconds = 0.f;
+        auto penalty_it = penalties_seconds.find(entry.player_id);
+        if (penalty_it != penalties_seconds.end()) {
+            penalty_seconds = static_cast<float>(penalty_it->second);
+        }
+
+        float race_time = base_seconds + penalty_seconds;
+        float total_time = player.get_total_time_seconds();
+
+        PlayerResultCurrent result{};
+        result.player_id          = entry.player_id;
+        result.username           = player.get_name();
+        result.race_time_seconds  = (uint32_t)(race_time);
+        result.total_time_seconds = (uint32_t)(total_time);
+        result.position           = (uint8_t)(entry.position);
+
+        packed.push_back(result);
+    }
+
+    return packed;
+}
+
+bool Game::has_pending_results() const{
+    return pending_results;
+}
+
+bool Game::comsume_pending_results(std::vector<PlayerResultCurrent>& current) {
+    if (!pending_results) return false;
+    current = std::move(last_results_current);
+    pending_results = false;
+    return true;
+}
+
+void Game::set_pending_results(std::vector<PlayerResultCurrent>&& current) {
+    last_results_current = std::move(current);
+    pending_results = true;
+}
 
 void Game::start_current_race() {
     std::lock_guard<std::mutex> lock(m);
@@ -252,15 +371,7 @@ void Game::start_current_race() {
         Player& player = kv.second;
         SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
-        std::cout << "[Game] Spawned player_id=" << player_id
-                  << " at (" << sp.x_px << ", " << sp.y_px << ")"
-                  << " route='" << route << "'"
-                  << " spawn_idx=" << (spawn_index - 1)
-                  << " car_id=" << (int)player.get_car_id() << "\n";
     }
-
-    std::cout << "[Game] Race " << current_race_index << " started with "
-              << players.size() << " players\n";
     state = GameState::Racing;
 }
 
@@ -273,14 +384,8 @@ void Game::load_map(const MapConfig& cfg) {
 
 void Game::load_map_by_id(const std::string& map_id) {
     const std::string ruta = resolve_map_path(map_id);
-
     MapConfig cfg = MapConfigLoader::load_tiled_file(ruta);
     load_map(cfg);
-
-    std::cout << "[Game] Loaded map '" << map_id << "' from " << ruta
-              << " (rects=" << cfg.rects.size()
-              << ", polys=" << cfg.polylines.size()
-              << ", spawns=" << cfg.spawns.size() << ")\n";
 }
 
 TimeTickInfo Game::get_race_time() const {
@@ -296,5 +401,3 @@ void Game::init_races() {
     races.emplace_back(0, world);
     races.back().set_track(city.build_track("A"));
 }
-
-

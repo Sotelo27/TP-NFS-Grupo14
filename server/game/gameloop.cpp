@@ -24,7 +24,7 @@ void Gameloop::procesar_actiones() {
     while (actiones_clients.try_pop(action)) {
         try {
             if (action.type == ClientAction::Type::Move) {
-                game.apply_player_move(action.id, action.movement);
+                game.register_player_move(action.id, action.movement);
             } else if (action.type == ClientAction::Type::Name) {
                 game.set_player_name(action.id, std::move(action.username));
             } else if (action.type == ClientAction::Type::Room) {
@@ -43,6 +43,13 @@ void Gameloop::procesar_actiones() {
 void Gameloop::func_tick(int iteration) {
     procesar_actiones();
     game.update(1.0f / SERVER_HZ);
+
+    if (game.has_pending_results()) {
+        std::vector<PlayerResultCurrent> curr;
+        if (game.comsume_pending_results(curr)) {
+            clients.broadcast_results(curr);
+        }
+    }
 
     if (iteration % ticks_per_broadcast == 0) {
         auto tick_players = game.players_tick_info();

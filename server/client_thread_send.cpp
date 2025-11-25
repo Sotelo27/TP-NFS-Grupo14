@@ -58,7 +58,11 @@ void ClientThreadSend::run() {
                     protocol.send_race_start(msg.map_id, (uint8_t)msg.checkpoints.size(), msg.checkpoints);
                     break;
                 case ServerOutType::Results:
-                    protocol.send_results(msg.results_current, msg.results_total);
+                    if (msg.results_total.empty()) { // lo dejo asi pero en un futuro tiene Result deber ser aparte
+                        protocol.send_result_race_current(msg.results_current);
+                    } else {
+                        protocol.send_results(msg.results_current, msg.results_total);
+                    }
                     break;
                 case ServerOutType::MapInfo:
                     protocol.send_map_info(msg.players_tick, msg.npcs_tick, msg.events_tick, msg.race_time);

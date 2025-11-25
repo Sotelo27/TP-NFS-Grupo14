@@ -1,5 +1,5 @@
 #include "race.h"
-#include "race_participant.h"
+#include "race_info.h"
 #include <cmath>
 #include <algorithm>
 #include <iostream>
@@ -101,7 +101,7 @@ void Race::set_track(const Track& new_track) {
 }
 
 bool Race::is_finished() const noexcept {
-    return is_finished_;
+    return state_ == RaceState::Finished;
 }
 
 const std::string& Race::get_route_id() const {
@@ -112,6 +112,7 @@ void Race::advance_time(float dt) {
     race_duration += dt;
     check_health_states();
     check_time_limit();
+    evaluate_finish();
 }
 
 void Race::check_health_states() {
@@ -136,7 +137,7 @@ void Race::check_health_states() {
 }
 
 void Race::check_time_limit() {
-    if (is_finished_ || race_duration < MAX_DURATION_SECONDS) {
+    if (state_ == RaceState::Finished || race_duration < MAX_DURATION_SECONDS) {
         return;
     }
 
@@ -149,12 +150,53 @@ void Race::check_time_limit() {
         }
     }
 
-    is_finished_ = true;
+    state_ = RaceState::Finished;
+}
+
+void Race::evaluate_finish() {
+    if (state_ == RaceState::Finished) return;
+
+    bool any_active = false;
+    for (const auto& [pid, participant] : parts) {
+        if (participant.state == ParticipantState::Active) {
+            any_active = true;
+            break;
+        }
+    }
+
+    if (!any_active) {
+        state_ = RaceState::Finished;
+        std::cout << "[Race] All participants finished/disqualified/disconnected. Race finished." << std::endl;
+    }
 }
 
 
 uint32_t Race::get_race_time_seconds() const {
     return (uint32_t)(race_duration);
+}
+
+RaceResult Race::build_race_results() const {
+    RaceResult r;
+    r.result.reserve(parts.size());
+    for (const auto& [id, participant] : parts) {
+        r.result.push_back(ParticipantResultEntry{
+            (uint32_t)(id),
+            participant.state,
+            participant.finish_time_seconds
+        });
+    }
+
+    std::sort(r.result.begin(), r.result.end(),
+              [](const ParticipantResultEntry& a,
+                 const ParticipantResultEntry& b) {
+                  return a.finish_time_seconds < b.finish_time_seconds;
+              });
+
+    uint32_t pos = 1;
+    for (auto& entry : r.result) {
+        entry.position = pos++;
+    }
+    return r;
 }
 
 float Race::resolve_acceleration_input(const InputState& input) {

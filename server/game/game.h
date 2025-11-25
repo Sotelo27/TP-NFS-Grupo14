@@ -17,6 +17,11 @@
 #include "race.h"
 #include "city.h"
 #include "garage.h" 
+#include "market.h"
+#include "../../common/enum/car_improvement.h"
+#include "../../common/dto/results_info.h"
+
+#define MARKET_DURATION 10.0f
 
 enum class GameState {
     Lobby,
@@ -39,16 +44,39 @@ private:
     size_t current_race_index;
     GameState state;
     bool is_finished;
+    float marketplace_time_remaining;
     
     City city;
     Garage garage;
+    Market market;
+
+    std::vector<PlayerResultCurrent> last_results_current;
+    bool pending_results{false};
 
 
     void throw_jugador_no_existe(size_t id) const;
     bool jugador_existe_auxiliar(size_t id);
+
+    /*
+     * Resuelve la ruta del mapa segun su ID
+     */
     std::string resolve_map_path(const std::string& map_id) const;
-    // Inicializa las carreras (races) y sus tracks a partir de la City cargada.
+
+    /*
+     * Inicializa las carreras del juego, por ahora solo 1
+     */
     void init_races();
+
+    /*
+     * Inicia la fase de marketplace
+    */
+    void start_market_phase();
+
+    /*
+     * Finaliza la fase de marketplace y arranca la siguiente carrera o
+     * marca el juego como finalizado si no quedan mas carreras
+     */
+    void finish_market_phase();
 
 public:
     /*
@@ -78,9 +106,9 @@ public:
     void remove_player(size_t id);
 
     /*
-     * Aplica un movimiento discreto al jugador
+     * Registra un movimiento de un jugador (UP, DOWN, LEFT, RIGHT) en map de inputs pendientes
      */
-    void apply_player_move(size_t id, Movement movimiento);
+    void register_player_move(size_t id, Movement movimiento);
 
     /*
      * Actualiza el estado del juego, avanzando el tiempo en dt segundos
@@ -109,12 +137,6 @@ public:
     std::string get_player_name(size_t id) const;
 
     /*
-     * Obtiene la vida del jugador (0-100)
-     * Retorna 100 por defecto si no está implementado
-     */
-    uint8_t get_player_health(size_t id) const;
-
-    /*
      * Obtiene el tiempo de carrera del jugador en milisegundos
      * Retorna 0 si no está en carrera
      */
@@ -140,6 +162,37 @@ public:
      */
     void on_race_ended();
 
+    /*
+     * Aplica los resultados de la carrera y de las penalizaciones a los jugadores
+     */
+    void apply_race_results_to_players(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds);
+
+    /*
+     * Compra una mejora para un jugador durante Marketplace
+     */
+    bool buy_upgrade(size_t player_id, CarImprovement improvement);
+
+
+    /*
+     * Setea los resultados de la carrera actual para ser consumidos
+     */
+    void set_pending_results(std::vector<PlayerResultCurrent>&& current);
+
+    /*
+     * INdica  si hay resultados pendientes para ser consumidos
+     */
+    bool has_pending_results() const;
+
+    /*
+     * Obtiene los resultados de la carrera actual
+     */
+    bool comsume_pending_results(std::vector<PlayerResultCurrent>& current);
+    
+    /*
+     * Construye el resultado de la carrera actual para su correcto envio
+     */
+    std::vector<PlayerResultCurrent> build_player_result_current(const RaceResult& race_result,const std::unordered_map<size_t, float>& penalties_seconds) const;
+    
     /*
      * Carga el mapa por su ID segun lo que me mande el cliente
      */

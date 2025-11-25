@@ -30,6 +30,7 @@ private:
     ServerMessage parse_car_list();     
     ServerMessage parse_race_start();   
     ServerMessage parse_results();      
+    ServerMessage parse_result_race_current();
     ServerMessage parse_map_info();
 
 public:

@@ -68,6 +68,11 @@ public:
                             const std::vector<EventInfo>& events,
                             TimeTickInfo time_info);
 
+    /*
+     * Envia los resultados de la carrera
+     */
+    void broadcast_results(const std::vector<PlayerResultCurrent>& current);
+
     ClientListProtected(const ClientListProtected&) = delete;
     ClientListProtected& operator=(const ClientListProtected&) = delete;
 
