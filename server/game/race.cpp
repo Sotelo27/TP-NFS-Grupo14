@@ -273,9 +273,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
 
         if (itc != cars.end() && itc->second) {
             float vida = itc->second->get_vida();
-            if (vida < 0.f) vida = 0.f;
-            if (vida > 100.f) vida = 100.f;
-            hp = (uint8_t)std::lround(vida);
+            hp = (uint8_t)(vida);
         }
 
         PlayerTickInfo player;
