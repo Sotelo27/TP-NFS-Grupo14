@@ -83,8 +83,13 @@ void Intermission::function() {
     window.render();
 }
 
-void Intermission::run(std::vector<PlayerInfoI> player_infos) {
+void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
+    std::sort(player_infos.begin(), player_infos.end(),
+              [](const PlayerResultCurrent& a, const PlayerResultCurrent& b) {
+                  return a.position < b.position;
+              });
     this->player_infos = std::move(player_infos);
+
     improvement_phase = false;
     ConstantRateLoop::start_loop();
 }
@@ -96,7 +101,7 @@ void Intermission::show_info_center(SdlFont& font, const std::string& info, int 
     font.renderDirect(x_position_center, y_info, info, color_front, true, color_shadow);
 }
 
-void Intermission::show_table_results(const std::vector<PlayerInfoI>& player_infos) {
+void Intermission::show_table_results() {
     if (iteration <= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
         return;
     }
@@ -129,13 +134,13 @@ void Intermission::show_table_results(const std::vector<PlayerInfoI>& player_inf
     int n = std::min((frames / AMOUNT_FRAMES_WAITING), min);
     int y_limit = y_head + static_cast<float>(SIZE_TEXT_HEAD) / 2 + text_head.getHeight();
     for (int i = 0; i < n; i++) {
-        const PlayerInfoI& player_info = player_infos[i];
+        const PlayerResultCurrent& player_info = player_infos[i];
         int y_info = y_limit + (SIZE_TEXT_REST_INFO + SIZE_TEXT_HEAD / 8) * i;
 
         show_info_center(text_position, std::to_string(player_info.position), x_postion_start,
                          x_position_end, y_info, WHITE, GLITCH_VIOLET);
 
-        show_info_center(text_rest_info, player_info.name, x_player_start, x_player_end, y_info,
+        show_info_center(text_rest_info, player_info.username, x_player_start, x_player_end, y_info,
                          WHITE, PURPLE_NEON_BRIGHT);
 
         show_info_center(text_rest_info, std::to_string(player_info.race_time_seconds) + "s",
@@ -155,10 +160,6 @@ void Intermission::show_text_for_next_phase() {
 
 void Intermission::show_results() {
     // falta atajar que el string no se pase del ancho de la pantalla
-
-    std::sort(player_infos.begin(), player_infos.end(),
-              [](const PlayerInfoI& a, const PlayerInfoI& b) { return a.position < b.position; });
-
     int background_frame_limit = std::min(iteration, AMOUNT_FRAMES_ANIMATION);
     int y_animation =
             (background_info.getHeight() * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
@@ -167,7 +168,7 @@ void Intermission::show_results() {
             Area(0, y_animation - 1, background_info.getWidth(), background_info.getHeight()),
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
-    show_table_results(player_infos);
+    show_table_results();
 
     float frames = iteration - RESULTS;
     if ((frames / AMOUNT_FRAMES_WAITING) >= player_infos.size() + 1) {

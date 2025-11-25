@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../../../common/constant_rate_loop.h"
+#include "../../../common/dto/results_info.h"
 #include "../../../common/dto/server_msg.h"
 #include "../../connection/server_handler.h"
 #include "../sdl_wrappers/SdlFont.h"
@@ -14,13 +15,6 @@
 
 #include "cheat_detector.h"
 #include "maps_textures.h"
-
-struct PlayerInfoI {
-    int position;
-    std::string name;
-    int race_time_seconds;
-    int total_time_seconds;
-};
 
 class Intermission: public ConstantRateLoop {
 private:
@@ -36,12 +30,12 @@ private:
     SdlFont text_rest_info;
     bool improvement_phase;
     int iteration_init_improvement_phase;
-    std::vector<PlayerInfoI> player_infos;
+    std::vector<PlayerResultCurrent> player_infos;
 
     void function() final;
 
     void show_results();
-    void show_table_results(const std::vector<PlayerInfoI>& player_infos);
+    void show_table_results();
     void show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
                           int y_info, const Rgb& color_front, const Rgb& color_shadow);
     void show_text_for_next_phase();
@@ -57,7 +51,7 @@ public:
     explicit Intermission(SdlWindow& window, ServerHandler& server_handler,
                           MapsTextures& map_manager, bool& main_running);
 
-    void run(std::vector<PlayerInfoI> player_infos);
+    void run(std::vector<PlayerResultCurrent> player_infos);
 
     ~Intermission() = default;
 };
