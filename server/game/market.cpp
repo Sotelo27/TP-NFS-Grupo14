@@ -1,6 +1,20 @@
 #include "market.h"
 #include <algorithm>
 #include <cmath>
+#include <iostream>
+
+// Helper para loguear el nombre legible de la mejora
+static const char* improvement_name(CarImprovement id) {
+    switch (id) {
+        case CarImprovement::Health: return "Health";
+        case CarImprovement::Speed: return "Speed";
+        case CarImprovement::Acceleration: return "Acceleration";
+        case CarImprovement::Mass: return "Mass";
+        case CarImprovement::Controllability: return "Controllability";
+        case CarImprovement::Nitro: return "Nitro";
+        default: return "Unknown";
+    }
+}
 
 Market::Market(): catalog_upgrades(), player_market_info() {
     catalog_upgrades.emplace(CarImprovement::Health, UpgradeInfo{60.0f, 50.0f});
@@ -26,11 +40,17 @@ bool Market::buy_upgrade(std::size_t player_id, CarImprovement id) {
     // si ya la tiene, no la vuelve a comprar
     auto it = std::find(info.upgrades.begin(), info.upgrades.end(), id);
     if (it != info.upgrades.end()) {
+        std::cout << "[Market] Player " << player_id << " intenta comprar mejora ya adquirida: "
+                  << improvement_name(id) << "\n";
         return false;
     }
 
     info.upgrades.push_back(id);
     info.total_time_penalty += upgrade.time_penalty;
+
+    std::cout << "[Market] Player " << player_id << " compra mejora " << improvement_name(id)
+              << " (+penalty=" << upgrade.time_penalty << "s, total_penalty="
+              << info.total_time_penalty << "s)" << "\n";
     return true;
 }
 
@@ -39,14 +59,22 @@ CarModel Market::apply_upgrades_to_model(std::size_t player_id, const CarModel& 
 
     auto it = player_market_info.find(player_id);
     if (it == player_market_info.end()) {
+        // Sin mejoras compradas
+        std::cout << "[Build] Player " << player_id << " sin mejoras. CarModel intacto: "
+                  << "life=" << result.life << ", masaKg=" << result.masaKg
+                  << ", acelN=" << result.fuerzaAceleracionN << ", torque=" << result.torqueGiro
+                  << ", vmax=" << result.velocidadMaxMps << "\n";
         return result; // no encontro es porque no compro nada
     }
 
     const PlayerMarketInfo& p_info_market = it->second;
 
+    CarModel before = result;
+    std::vector<std::string> applied_names;
+
     for (CarImprovement id : p_info_market.upgrades) {
         const UpgradeInfo& upgrade = find_info_upgrade(id);
-
+        applied_names.emplace_back(improvement_name(id));
         switch (id) {
         case CarImprovement::Health:
             result.life += upgrade.value;
@@ -67,6 +95,22 @@ CarModel Market::apply_upgrades_to_model(std::size_t player_id, const CarModel& 
             break;
         }
     }
+
+    std::cout << "[Build] Player " << player_id << " aplica mejoras: ";
+    if (applied_names.empty()) {
+        std::cout << "(ninguna)";
+    } else {
+        for (size_t i = 0; i < applied_names.size(); ++i) {
+            std::cout << applied_names[i];
+            if (i + 1 < applied_names.size()) std::cout << ",";
+        }
+    }
+    std::cout << " | CarModel antes: life=" << before.life << ", masaKg=" << before.masaKg
+              << ", acelN=" << before.fuerzaAceleracionN << ", torque=" << before.torqueGiro
+              << ", vmax=" << before.velocidadMaxMps;
+    std::cout << " | CarModel después: life=" << result.life << ", masaKg=" << result.masaKg
+              << ", acelN=" << result.fuerzaAceleracionN << ", torque=" << result.torqueGiro
+              << ", vmax=" << result.velocidadMaxMps << "\n";
 
     return result;
 }

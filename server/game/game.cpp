@@ -404,6 +404,16 @@ TimeTickInfo Game::get_race_time() const {
 
 void Game::init_races() {
     PhysicsWorld& world = city.get_world();
+    races.clear();
+    // Primera carrera: ruta A
     races.emplace_back(0, world);
     races.back().set_track(city.build_track("A"));
+    std::cout << "[Game] Initialized race 0 with route A (checkpoints="
+              << races.back().get_race_time_seconds() << ")" << std::endl;
+    // Segunda carrera: ruta B
+    Track trackB = city.build_track("B");
+    races.emplace_back(1, world);
+    races.back().set_track(trackB);
+    std::cout << "[Game] Initialized race 1 with route B (checkpoints="
+                  << trackB.checkpoint_count << ")" << std::endl;
 }
