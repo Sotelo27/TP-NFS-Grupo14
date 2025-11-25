@@ -356,6 +356,12 @@ void Game::set_pending_results(std::vector<PlayerResultCurrent>&& current) {
     pending_results = true;
 }
 
+float Game::get_player_market_penalty_seconds(size_t player_id) {
+    std::lock_guard<std::mutex> lock(m);
+    auto info = market.get_total_player_info(player_id);
+    return info.total_time_penalty;
+}
+
 void Game::start_current_race() {
     std::lock_guard<std::mutex> lock(m);
     if (state == GameState::Racing) {

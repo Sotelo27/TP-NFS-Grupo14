@@ -194,6 +194,11 @@ public:
     std::vector<PlayerResultCurrent> build_player_result_current(const RaceResult& race_result,const std::unordered_map<size_t, float>& penalties_seconds) const;
     
     /*
+     * Obtiene la penalizacion de tiempo acumulada por un jugador en segundos
+     */
+    float get_player_market_penalty_seconds(size_t player_id);
+    
+    /*
      * Carga el mapa por su ID segun lo que me mande el cliente
      */
     void load_map_by_id(const std::string& map_id);

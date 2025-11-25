@@ -91,3 +91,10 @@ std::unordered_map<std::size_t, float> Market::consume_penalties_for_race(){
     return penalties_seconds;
 }
 
+PlayerMarketInfo Market::get_total_player_info(size_t player_id) const{
+    auto it = player_market_info.find(player_id);
+    if (it == player_market_info.end()) {
+        return PlayerMarketInfo{};
+    }
+    return it->second;
+}
