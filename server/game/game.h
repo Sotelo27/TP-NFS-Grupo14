@@ -45,6 +45,10 @@ private:
     GameState state;
     bool is_finished;
     float marketplace_time_remaining;
+    bool pending_race_start{false};
+    uint8_t current_map_id{0};
+    // Para logs de cuenta regresiva del Marketplace
+    int marketplace_last_logged_second{-1};
     
     City city;
     Garage garage;
@@ -52,6 +56,10 @@ private:
 
     std::vector<PlayerResultCurrent> last_results_current;
     bool pending_results{false};
+
+    // Resultados totales (acumulados al finalizar el juego)
+    std::vector<PlayerResultTotal> last_results_total;
+    bool pending_total_results{false};
 
 
     void throw_jugador_no_existe(size_t id) const;
@@ -187,6 +195,26 @@ public:
      * Obtiene los resultados de la carrera actual
      */
     bool comsume_pending_results(std::vector<PlayerResultCurrent>& current);
+
+    /*
+     * Construye los resultados totales (acumulados) ordenados por tiempo total
+     */
+    std::vector<PlayerResultTotal> build_total_results() const;
+
+    /*
+     * Setea los resultados totales de la partida para ser consumidos
+     */
+    void set_pending_total_results(std::vector<PlayerResultTotal>&& total);
+
+    /*
+     * Indica si hay resultados totales pendientes para ser consumidos
+     */
+    bool has_pending_total_results() const;
+
+    /*
+     * Consume los resultados totales pendientes
+     */
+    bool consume_pending_total_results(std::vector<PlayerResultTotal>& total);
     
     /*
      * Construye el resultado de la carrera actual para su correcto envio
@@ -208,6 +236,11 @@ public:
      * y posicionandolos segun los spawns definidos en city
      */
     void start_current_race();
+
+    /*
+     * Consume el evento de carrera iniciada
+     */
+    bool consume_pending_race_start(uint8_t& map_id);
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;

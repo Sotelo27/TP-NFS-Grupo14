@@ -64,10 +64,23 @@ void Gameloop::func_tick(int iteration) {
     procesar_actiones();
     game.update(1.0f / SERVER_HZ);
 
+    uint8_t next_map_id;
+    if (game.consume_pending_race_start(next_map_id)) {
+            std::cout << "[Gameloop] Consumed pending RaceStart, map_id=" << (int)next_map_id << "\n";
+            clients.broadcast_race_start(next_map_id);
+    }
+
     if (game.has_pending_results()) {
         std::vector<PlayerResultCurrent> curr;
         if (game.comsume_pending_results(curr)) {
             clients.broadcast_results(curr);
+        }
+    }
+
+    if (game.has_pending_total_results()) {
+        std::vector<PlayerResultTotal> total;
+        if (game.consume_pending_total_results(total)) {
+            clients.broadcast_results_total(total);
         }
     }
 
