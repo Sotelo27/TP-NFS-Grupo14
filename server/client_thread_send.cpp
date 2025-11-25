@@ -67,6 +67,9 @@ void ClientThreadSend::run() {
                 case ServerOutType::MapInfo:
                     protocol.send_map_info(msg.players_tick, msg.npcs_tick, msg.events_tick, msg.race_time);
                     break;
+                case ServerOutType::ImprovementOk:
+                    protocol.send_improvement_ok(msg.id, msg.improvement_id, msg.improvement_success, msg.total_penalty_seconds);
+                    break;
                 default:
                     std::cout << "[ClientThreadSend] Unknown message type\n";
                     break;

@@ -41,6 +41,7 @@ constexpr uint8_t CODE_S2C_RACE_START = 0x23;
 constexpr uint8_t CODE_S2C_RESULTS    = 0x24;
 constexpr uint8_t CODE_S2C_MAP_INFO   = 0x25;
 constexpr uint8_t CODE_S2C_RACE_RESULTS_CURRENT = 0x27;
+constexpr uint8_t CODE_S2C_IMPROVEMENT = 0x28;
 
 // Subcódigos para CODE_C2S_ROOM
 constexpr uint8_t ROOM_CREATE = 0x02;
