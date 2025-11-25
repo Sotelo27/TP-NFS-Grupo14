@@ -12,7 +12,11 @@ void Server::start() {
 
     std::string entrada;
     while (std::getline(std::cin, entrada)) {
-        if (entrada == CERRAR_SERVER) break;
+        std::cout << "[Server] stdin line: '" << entrada << "'" << std::endl;
+        if (entrada == CERRAR_SERVER) {
+            std::cout << "[Server] Recibi comando de cierre 'q', saliendo del loop de entrada" << std::endl;
+            break;
+        }
     }
 }
 

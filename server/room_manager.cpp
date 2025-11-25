@@ -159,6 +159,18 @@ bool RoomManager::push_move_to_room(uint8_t room_id, size_t player_id, Movement 
     return true;
 }
 
+bool RoomManager::push_improvement_to_room(uint8_t room_id, size_t player_id, uint8_t improvement_id) {
+    std::lock_guard<std::mutex> lk(m);
+    auto it = rooms.find(room_id);
+    if (it == rooms.end()) return false;
+    ClientAction routed; // usar default y setear campos
+    routed.type = ClientAction::Type::Improvement;
+    routed.id = static_cast<size_t>(player_id);
+    routed.improvement_id = improvement_id;
+    it->second.actions.push(routed);
+    return true;
+}
+
 void RoomManager::reap(BindingManager& bindings, PendingManager& pending) {
     (void)pending;
     std::lock_guard<std::mutex> lk(m);

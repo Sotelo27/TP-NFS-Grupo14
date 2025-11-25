@@ -34,6 +34,8 @@ void Gameloop::procesar_actiones() {
                           << "\n";
             } else if (action.type == ClientAction::Type::Improvement) {
                 // Sólo procesar si estamos en Marketplace
+                std::cout << "[Gameloop] Processing IMPROVEMENT for player_id="
+                          << action.id << " imp=" << (int)action.improvement_id << "\n";
                 bool ok = game.buy_upgrade(action.id, (CarImprovement)(action.improvement_id));
                 if (ok) {
                     float penalty = game.get_player_market_penalty_seconds(action.id);

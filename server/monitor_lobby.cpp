@@ -23,7 +23,8 @@ void MonitorLobby::init_dispatch() {
         {ClientAction::Type::Name, [this](ClientAction act){ handle_name_action(std::move(act)); }},
         {ClientAction::Type::Move, [this](ClientAction act){ handle_move_action(std::move(act)); }},
         {ClientAction::Type::StartGame, [this](ClientAction act){ handle_start_game(std::move(act)); }},
-        {ClientAction::Type::ChooseCar, [this](ClientAction act){ handle_choose_car_action(std::move(act)); }}
+        {ClientAction::Type::ChooseCar, [this](ClientAction act){ handle_choose_car_action(std::move(act)); }},
+        {ClientAction::Type::Improvement, [this](ClientAction act){ handle_improvement_action(std::move(act)); }}
     };
 }
 
@@ -166,6 +167,26 @@ void MonitorLobby::handle_choose_car_action(ClientAction act) {
     std::lock_guard<std::mutex> lk(m);
     pending.store_pending_car(act.id, act.car_id);
     std::cout << "[Lobby] Saved car_id=" << (int)act.car_id << " for conn_id=" << act.id << std::endl;
+}
+
+void MonitorLobby::handle_improvement_action(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    // Debe estar dentro de una sala y con binding ya asignado a un player
+    auto binding = bindings.find_binding(act.id);
+    if (!binding.has_value()) {
+        std::cout << "[Lobby] IMPROVEMENT ignored for conn_id=" << act.id << " (not in room)\n";
+        return;
+    }
+
+    uint8_t rid = binding->first;
+    size_t pid = binding->second;
+    // Route hacia la Match interna para que el gameloop procese la compra (solo tendrá efecto si el Game está en Marketplace)
+    if (!rooms.push_improvement_to_room(rid, pid, act.improvement_id)) {
+        std::cout << "[Lobby] IMPROVEMENT routing failed for conn_id=" << act.id << " room_id=" << (int)rid << "\n";
+    } else {
+        std::cout << "[Lobby] Routed IMPROVEMENT from conn_id=" << act.id << " -> room_id=" << (int)rid
+                  << ", player_id=" << pid << ", improvement_id=" << (int)act.improvement_id << "\n";
+    }
 }
 
 void MonitorLobby::run() {
