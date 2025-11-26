@@ -29,6 +29,23 @@ std::vector<RoomInfo> RoomManager::list_rooms() const {
     return out;
 }
 
+std::vector<RoomInfo> RoomManager::list_rooms_with_counts(const BindingManager& bindings) const {
+    std::lock_guard<std::mutex> lk(m);
+    std::vector<RoomInfo> out;
+    out.reserve(rooms.size());
+
+    for (const auto& [rid, partida] : rooms) {
+        if (partida.started)
+            continue;
+
+        // Count bound connections in this room
+        size_t current = bindings.count_in_room(rid);
+        out.emplace_back(RoomInfo{rid, static_cast<uint8_t>(current), partida.max_players});
+    }
+
+    return out;
+}
+
 
 bool RoomManager::join_room_from_pending(size_t conn_id, uint8_t room_id, PendingManager& pending, BindingManager& bindings) {
     std::lock_guard<std::mutex> lk(m);
@@ -155,6 +172,18 @@ bool RoomManager::push_move_to_room(uint8_t room_id, size_t player_id, Movement 
     auto it = rooms.find(room_id);
     if (it == rooms.end()) return false;
     ClientAction routed(static_cast<size_t>(player_id), movement);
+    it->second.actions.push(routed);
+    return true;
+}
+
+bool RoomManager::push_improvement_to_room(uint8_t room_id, size_t player_id, uint8_t improvement_id) {
+    std::lock_guard<std::mutex> lk(m);
+    auto it = rooms.find(room_id);
+    if (it == rooms.end()) return false;
+    ClientAction routed; // usar default y setear campos
+    routed.type = ClientAction::Type::Improvement;
+    routed.id = static_cast<size_t>(player_id);
+    routed.improvement_id = improvement_id;
     it->second.actions.push(routed);
     return true;
 }

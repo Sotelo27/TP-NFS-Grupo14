@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "../../common/constants.h"
+#include "../../common/enum/car_improvement.h"
 
 #define SERVER_HZ 60
 #define BROADCAST_HZ 30
@@ -31,6 +32,25 @@ void Gameloop::procesar_actiones() {
                 std::cout << "Room action from client " << action.id
                           << " cmd=" << (int)action.room_cmd << " room=" << (int)action.room_id
                           << "\n";
+            } else if (action.type == ClientAction::Type::Improvement) {
+                // Sólo procesar si estamos en Marketplace
+                std::cout << "[Gameloop] Processing IMPROVEMENT for player_id="
+                          << action.id << " imp=" << (int)action.improvement_id << "\n";
+                bool ok = game.buy_upgrade(action.id, (CarImprovement)(action.improvement_id));
+                if (ok) {
+                    float penalty = game.get_player_market_penalty_seconds(action.id);
+                    auto handler = clients.get_handler_by_conn(action.id);
+                    if (handler) {
+                        handler->send_improvement_ok_to_client((uint32_t)action.id, action.improvement_id, true, (uint32_t)penalty);
+                    }
+                } else {
+                    // Compra INVALIDa,
+                    auto handler = clients.get_handler_by_conn(action.id);
+                    if (handler) {
+                        float penalty = game.get_player_market_penalty_seconds(action.id);
+                        handler->send_improvement_ok_to_client((uint32_t)action.id, action.improvement_id, false, (uint32_t)penalty);
+                    }
+                }
             }
 
         } catch (const std::exception& err) {
@@ -44,10 +64,23 @@ void Gameloop::func_tick(int iteration) {
     procesar_actiones();
     game.update(1.0f / SERVER_HZ);
 
+    uint8_t next_map_id;
+    if (game.consume_pending_race_start(next_map_id)) {
+            std::cout << "[Gameloop] Consumed pending RaceStart, map_id=" << (int)next_map_id << "\n";
+            clients.broadcast_race_start(next_map_id);
+    }
+
     if (game.has_pending_results()) {
         std::vector<PlayerResultCurrent> curr;
         if (game.comsume_pending_results(curr)) {
             clients.broadcast_results(curr);
+        }
+    }
+
+    if (game.has_pending_total_results()) {
+        std::vector<PlayerResultTotal> total;
+        if (game.consume_pending_total_results(total)) {
+            clients.broadcast_results_total(total);
         }
     }
 

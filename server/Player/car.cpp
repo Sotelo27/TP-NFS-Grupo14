@@ -18,6 +18,7 @@ Car::Car(size_t id, const CarModel& spec, b2Body* body)
     b->GetUserData().pointer = reinterpret_cast<uintptr_t>(this); // aqui unimos las dos referencias, entonces Car ya se asocia su BODY y en BOdy asociamos el Car
                               // entonces en colisiones podemos recuperar el Car desde el Body, asi evitamos buscar en mapas
     }
+    set_vida(spec_.life);
 }
 
 Entidad::Type Car::type() const {
@@ -33,7 +34,7 @@ float Car::get_vida() const noexcept {
 }
 
 void Car::set_vida(float v) noexcept {
-    vida_ = std::max(0.f, v);
+    vida_ = v;
 }
 
 void Car::apply_input(float throttle, float steer) noexcept {

@@ -23,7 +23,8 @@ void MonitorLobby::init_dispatch() {
         {ClientAction::Type::Name, [this](ClientAction act){ handle_name_action(std::move(act)); }},
         {ClientAction::Type::Move, [this](ClientAction act){ handle_move_action(std::move(act)); }},
         {ClientAction::Type::StartGame, [this](ClientAction act){ handle_start_game(std::move(act)); }},
-        {ClientAction::Type::ChooseCar, [this](ClientAction act){ handle_choose_car_action(std::move(act)); }}
+        {ClientAction::Type::ChooseCar, [this](ClientAction act){ handle_choose_car_action(std::move(act)); }},
+        {ClientAction::Type::Improvement, [this](ClientAction act){ handle_improvement_action(std::move(act)); }}
     };
 }
 
@@ -36,12 +37,12 @@ void MonitorLobby::add_pending_connection(std::shared_ptr<ClientHandler> ch, siz
     std::lock_guard<std::mutex> lk(m);
     pending.add_pending(conn_id, std::move(ch));
     // upon new pending, send current room list and start handler threads (same behavior que antes)
-    pending.start_handler_threads_for(conn_id, rooms.list_rooms());
+    pending.start_handler_threads_for(conn_id, rooms.list_rooms_with_counts(bindings));
 }
 
 std::vector<RoomInfo> MonitorLobby::list_rooms_locked() const {
     // RoomManager se encarga de filtrar salas iniciadas
-    return rooms.list_rooms();
+    return rooms.list_rooms_with_counts(bindings);
 }
 
 void MonitorLobby::handle_room_action(ClientAction act) {
@@ -66,13 +67,13 @@ void MonitorLobby::handle_room_action(ClientAction act) {
             std::cout << "[Lobby] ERROR: No pending handler for conn_id=" << act.id << "\n";
         }
 
-        // broadcast update
-        pending.broadcast_rooms(rooms.list_rooms());
+    // broadcast update
+    pending.broadcast_rooms(rooms.list_rooms_with_counts(bindings));
 
         // auto join creator
         if (pending.has_pending(act.id)) {
             if (rooms.join_room_from_pending(act.id, rid, pending, bindings)) {
-                pending.broadcast_rooms(rooms.list_rooms());
+                pending.broadcast_rooms(rooms.list_rooms_with_counts(bindings));
             } else {
                 std::cout << "[Lobby] ERROR: Auto-join failed for conn_id=" << act.id << "\n";
             }
@@ -81,7 +82,7 @@ void MonitorLobby::handle_room_action(ClientAction act) {
         std::cout << "[Lobby] JOIN request conn_id=" << act.id
                   << " -> room_id=" << (int)act.room_id << "\n";
         if (rooms.join_room_from_pending(act.id, act.room_id, pending, bindings)) {
-            pending.broadcast_rooms(rooms.list_rooms());
+            pending.broadcast_rooms(rooms.list_rooms_with_counts(bindings));
         }
     } else if (act.room_cmd == ROOM_LEAVE) {
         std::cout << "[Lobby] Processing ROOM_LEAVE from conn_id=" << act.id << "\n";
@@ -89,10 +90,10 @@ void MonitorLobby::handle_room_action(ClientAction act) {
         if (handler) {
             pending.add_pending(act.id, handler);
             std::cout << "[Lobby] Moved conn_id=" << act.id << " from room to pending\n";
-            pending.broadcast_rooms(rooms.list_rooms());
+            pending.broadcast_rooms(rooms.list_rooms_with_counts(bindings));
         } else {
             std::cout << "[Lobby] ROOM_LEAVE ignored: conn_id=" << act.id << " had no room\n";
-            pending.broadcast_rooms(rooms.list_rooms());
+            pending.broadcast_rooms(rooms.list_rooms_with_counts(bindings));
         }
     } else {
         std::cout << "[Lobby] Unknown room_cmd=" << (int)act.room_cmd
@@ -122,7 +123,7 @@ void MonitorLobby::handle_move_action(ClientAction act) {
         // re-send rooms list to pending if present
         auto ph = pending.get_pending_handler(act.id);
         if (ph) {
-            ph->send_rooms_to_client(rooms.list_rooms());
+            ph->send_rooms_to_client(rooms.list_rooms_with_counts(bindings));
             std::cout << "[Lobby] MOVE from conn_id=" << act.id
                       << " ignored (not in room). Sent rooms list again.\n";
         }
@@ -159,13 +160,33 @@ void MonitorLobby::handle_start_game(ClientAction act) {
     // mark started, load map, notify, etc.
     rooms.start_room_game(target_room_id, act, bindings, pending);
     // broadcast to pending about updated room state
-    pending.broadcast_rooms(rooms.list_rooms());
+    pending.broadcast_rooms(rooms.list_rooms_with_counts(bindings));
 }
 
 void MonitorLobby::handle_choose_car_action(ClientAction act) {
     std::lock_guard<std::mutex> lk(m);
     pending.store_pending_car(act.id, act.car_id);
     std::cout << "[Lobby] Saved car_id=" << (int)act.car_id << " for conn_id=" << act.id << std::endl;
+}
+
+void MonitorLobby::handle_improvement_action(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    // Debe estar dentro de una sala y con binding ya asignado a un player
+    auto binding = bindings.find_binding(act.id);
+    if (!binding.has_value()) {
+        std::cout << "[Lobby] IMPROVEMENT ignored for conn_id=" << act.id << " (not in room)\n";
+        return;
+    }
+
+    uint8_t rid = binding->first;
+    size_t pid = binding->second;
+    // Route hacia la Match interna para que el gameloop procese la compra (solo tendrá efecto si el Game está en Marketplace)
+    if (!rooms.push_improvement_to_room(rid, pid, act.improvement_id)) {
+        std::cout << "[Lobby] IMPROVEMENT routing failed for conn_id=" << act.id << " room_id=" << (int)rid << "\n";
+    } else {
+        std::cout << "[Lobby] Routed IMPROVEMENT from conn_id=" << act.id << " -> room_id=" << (int)rid
+                  << ", player_id=" << pid << ", improvement_id=" << (int)act.improvement_id << "\n";
+    }
 }
 
 void MonitorLobby::run() {

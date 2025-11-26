@@ -73,6 +73,16 @@ public:
      */
     void broadcast_results(const std::vector<PlayerResultCurrent>& current);
 
+    /*
+     * Envia los resultados totales de la partida (acumulados) a todos los clientes
+     */
+    void broadcast_results_total(const std::vector<PlayerResultTotal>& total);
+
+    /*
+     * Envia el inicio de la carrera a todos los clientes
+     */
+    void broadcast_race_start(uint8_t map_id);
+
     ClientListProtected(const ClientListProtected&) = delete;
     ClientListProtected& operator=(const ClientListProtected&) = delete;
 

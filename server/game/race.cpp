@@ -199,6 +199,18 @@ RaceResult Race::build_race_results() const {
     return r;
 }
 
+void Race::clear_cars() {
+    std::cout << "[Race] Clearing cars for race id=" << id << " count=" << cars.size() << "\n";
+    // Destruir cuerpos en el mundo físico
+    for (const auto& kv : cars) {
+        size_t pid = kv.first;
+        physics.destroy_body(pid);
+    }
+    cars.clear();
+    parts.clear();
+    std::cout << "[Race] Clear complete for race id=" << id << "\n";
+}
+
 float Race::resolve_acceleration_input(const InputState& input) {
     if (input.up) {
         return 1.f;
@@ -261,9 +273,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
 
         if (itc != cars.end() && itc->second) {
             float vida = itc->second->get_vida();
-            if (vida < 0.f) vida = 0.f;
-            if (vida > 100.f) vida = 100.f;
-            hp = (uint8_t)std::lround(vida);
+            hp = (uint8_t)(vida);
         }
 
         PlayerTickInfo player;

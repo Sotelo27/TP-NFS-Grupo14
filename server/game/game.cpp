@@ -1,7 +1,9 @@
 #include "game.h"
 
 #include <iostream>
+#include <cmath>
 #include <utility>
+#include <algorithm>
 #include <unordered_map>
 #include "../../common/dto/input_state.h"
 #include "../map/map_config_loader.h"
@@ -23,6 +25,8 @@ Game::Game(float nitro_duracion)
       state(GameState::Lobby),
       is_finished(false),
       marketplace_time_remaining(0.f),
+      pending_race_start(false),
+      current_map_id(0),
       city(),
       garage()
 {
@@ -128,6 +132,13 @@ void Game::update(float dt) {
 
     if (state == GameState::Marketplace) {
         marketplace_time_remaining -= dt;
+        // debugging de la transicion
+        //int whole = (int)std::ceil(marketplace_time_remaining);
+        //if (whole < 0) whole = 0;
+        //if (whole != marketplace_last_logged_second) {
+        //    marketplace_last_logged_second = whole;
+        //    std::cout << "[Game] Marketplace countdown: " << whole << "s remaining" << std::endl;
+        //}
         if (marketplace_time_remaining <= 0.0f) {
             finish_market_phase();
         }
@@ -172,9 +183,6 @@ void Game::on_race_ended() {
     RaceResult results = get_current_race().build_race_results();
 
     auto penalties_upgrades = market.consume_penalties_for_race();
-    // TODO:
-    // 2) Destruir los autos actuales del PhysicsWorld
-    //get_current_race().clear_cars();  // método que llame a physics.destroy_body para cada player
 
     // 3) Aplicar resultados de la carrera a los jugadores y sumo las penalizaciones
     apply_race_results_to_players(results, penalties_upgrades);
@@ -186,6 +194,9 @@ void Game::on_race_ended() {
     if (current_race_index + 1 >= races.size()) {
         std::cout << "[Game] All races finished.\n";
         state = GameState::Finished;
+        // Construir resultados totales y marcarlos como pendientes para broadcast final
+        auto total_results = build_total_results();
+        set_pending_total_results(std::move(total_results));
         return;
     }
 
@@ -213,10 +224,19 @@ void Game::finish_market_phase() {
 
     // avanzar al siguiente Race, si existe
     if (current_race_index + 1 < races.size()) {
+        try {
+            races[current_race_index].clear_cars();
+        } catch (const std::exception& e) {
+            std::cerr << "[Game] Error clearing previous race cars: " << e.what() << "\n";
+        }
         ++current_race_index;
-        // FALTA RESPAWNEAR JUGADORES ANTES DE ENVIAR EL START
-        // arrancar la siguiente carrera (start_current_race marcará state=Racing)
+        std::cout << "[Game] Advancing to race index=" << current_race_index << " of " << races.size() << " total\n";
+
         start_current_race();
+        std::cout << "[Game] start_current_race() invoked after marketplace. state=" << (int)state << "\n";
+        // Marcar pendiente RaceStart para que el Gameloop haga broadcast
+        pending_race_start = true;
+        std::cout << "[Game] pending_race_start set=true (map_id=" << (int)current_map_id << ")\n";
     } else {
         std::cout << "[GAME] All races finished, game over.\n";
         state = GameState::Finished;
@@ -356,9 +376,54 @@ void Game::set_pending_results(std::vector<PlayerResultCurrent>&& current) {
     pending_results = true;
 }
 
-void Game::start_current_race() {
+std::vector<PlayerResultTotal> Game::build_total_results() const {
+    std::vector<std::pair<std::string, float>> totals;
+    totals.reserve(players.size());
+    for (const auto& kv : players) {
+        const Player& p = kv.second;
+        totals.emplace_back(p.get_name(), p.get_total_time_seconds());
+    }
+    std::sort(totals.begin(), totals.end(), [](const auto& a, const auto& b){ return a.second < b.second; });
+
+    std::vector<PlayerResultTotal> out;
+    out.reserve(totals.size());
+    uint8_t pos = 1;
+    for (const auto& t : totals) {
+        PlayerResultTotal r{};
+        r.username = t.first;
+        r.total_time_seconds = static_cast<uint32_t>(t.second);
+        r.position = pos++;
+        out.push_back(r);
+    }
+    return out;
+}
+
+void Game::set_pending_total_results(std::vector<PlayerResultTotal>&& total) {
+    last_results_total = std::move(total);
+    pending_total_results = true;
+}
+
+bool Game::has_pending_total_results() const {
+    return pending_total_results;
+}
+
+bool Game::consume_pending_total_results(std::vector<PlayerResultTotal>& total) {
+    if (!pending_total_results) return false;
+    total = std::move(last_results_total);
+    pending_total_results = false;
+    return true;
+}
+
+float Game::get_player_market_penalty_seconds(size_t player_id) {
     std::lock_guard<std::mutex> lock(m);
+    auto info = market.get_total_player_info(player_id);
+    return info.total_time_penalty;
+}
+
+void Game::start_current_race() {
+    //std::lock_guard<std::mutex> lock(m);
     if (state == GameState::Racing) {
+        std::cout << "[Game] start_current_race() early exit: already Racing (index=" << current_race_index << ")\n";
         return;
     }
     
@@ -370,9 +435,21 @@ void Game::start_current_race() {
         const size_t player_id = kv.first;
         Player& player = kv.second;
         SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
+        std::cout << "[DebugPlayer] player " << player_id << " car_model.life=" << player.get_car_model().life << "\n";
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
     }
     state = GameState::Racing;
+    std::cout << "[Game] Race " << current_race_index << " started (players=" << players.size() << ") state set=Racing\n";
+}
+
+bool Game::consume_pending_race_start(uint8_t& map_id) {
+    std::lock_guard<std::mutex> lock(m);
+    if (!pending_race_start) {
+        return false;
+    }
+    map_id = current_map_id;
+    pending_race_start = false;
+    return true;
 }
 
 void Game::load_map(const MapConfig& cfg) {
@@ -386,6 +463,11 @@ void Game::load_map_by_id(const std::string& map_id) {
     const std::string ruta = resolve_map_path(map_id);
     MapConfig cfg = MapConfigLoader::load_tiled_file(ruta);
     load_map(cfg);
+    // harcodeo el current_map_id segun el map_id por ahora...
+    if (map_id == "LibertyCity") current_map_id = 0;
+    else if (map_id == "SanAndreas") current_map_id = 1;
+    else if (map_id == "ViceCity") current_map_id = 2;
+    else current_map_id = 0;
 }
 
 TimeTickInfo Game::get_race_time() const {
@@ -398,6 +480,16 @@ TimeTickInfo Game::get_race_time() const {
 
 void Game::init_races() {
     PhysicsWorld& world = city.get_world();
+    races.clear();
+    // Primera carrera: ruta A
     races.emplace_back(0, world);
     races.back().set_track(city.build_track("A"));
+    std::cout << "[Game] Initialized race 0 with route A (checkpoints="
+              << races.back().get_race_time_seconds() << ")" << std::endl;
+    // Segunda carrera: ruta B
+    Track trackB = city.build_track("B");
+    races.emplace_back(1, world);
+    races.back().set_track(trackB);
+    std::cout << "[Game] Initialized race 1 with route B (checkpoints="
+                  << trackB.checkpoint_count << ")" << std::endl;
 }

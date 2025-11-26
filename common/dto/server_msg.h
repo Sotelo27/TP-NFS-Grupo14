@@ -26,7 +26,8 @@ struct ServerMessage {
         MapInfo,
         RaceStart, // para indicar inicio de carrera
         Empty,
-        Results // ara resultados de carrera
+        Results, // resultados de carrera
+        ImprovementOK
     };
 
     Type type;
@@ -48,6 +49,10 @@ struct ServerMessage {
     // resultados de carrera
     std::vector<PlayerResultCurrent> results_current;
     std::vector<PlayerResultTotal> results_total;
+    // Improvement ACK payload
+    uint8_t improvement_id{0};
+    uint8_t improvement_success{0};
+    uint32_t improvement_total_penalty_seconds{0};
 
     ServerMessage();
 };
@@ -63,7 +68,8 @@ enum class ServerOutType : uint8_t {
     CarList,
     RaceStart,
     Results,
-    MapInfo
+    MapInfo,
+    ImprovementOk
 };
 
 struct ServerOutMsg {
@@ -99,6 +105,11 @@ struct ServerOutMsg {
 
     uint16_t active_nitros{0};
     uint8_t nitro_msg{0};
+
+    // ImprovementOK
+    uint8_t improvement_id{0};
+    uint32_t total_penalty_seconds{0};
+    uint8_t improvement_success{0};
 
     ServerOutMsg();
 };

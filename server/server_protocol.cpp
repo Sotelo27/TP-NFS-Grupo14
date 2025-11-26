@@ -387,6 +387,21 @@ void ServerProtocol::send_result_race_current(const std::vector<PlayerResultCurr
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
+void ServerProtocol::send_improvement_ok(uint32_t player_id, uint8_t improvement_id, uint8_t success, uint32_t total_penalty_seconds) {
+    uint8_t code = CODE_S2C_IMPROVEMENT;
+    uint32_t pid_be = htonl(player_id);
+    uint32_t penalty_be = htonl(total_penalty_seconds);
+    std::vector<uint8_t> buf;
+    // code(1)+player_id(4)+improvement_id(1)+success(1)+penalty(4)
+    buf.reserve(1 + 4 + 1 + 1 + 4);
+    buf.push_back(code);
+    size_t off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
+    buf.push_back(improvement_id);
+    buf.push_back(success);
+    off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &penalty_be, 4);
+    skt.sendall(buf.data(), (unsigned int)buf.size());
+}
+
 ServerProtocol::ServerProtocol(Socket&& skt): skt(std::move(skt)) {
     init_recv_dispatch();
 }

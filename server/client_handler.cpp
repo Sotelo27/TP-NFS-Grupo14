@@ -158,3 +158,26 @@ void ClientHandler::send_results_to_client(const std::vector<PlayerResultCurrent
     mensajes_a_enviar.try_push(std::move(out));
 }
 
+void ClientHandler::send_results_total_to_client(const std::vector<PlayerResultTotal>& total) {
+    std::cout << "[ClientHandler] Queueing RESULTS_TOTAL for conn_id=" << id << " players=" << total.size() << "\n";
+    ServerOutMsg out{};
+    out.type = ServerOutType::Results;
+    out.results_total = total;
+    mensajes_a_enviar.try_push(std::move(out));
+}
+
+void ClientHandler::send_improvement_ok_to_client(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds) {
+    std::cout << "[ClientHandler] Queueing IMPROVEMENT for conn_id=" << id
+              << " player_id=" << player_id
+              << " improvement=" << (int)improvement_id
+              << " success=" << (success?1:0)
+              << " total_penalty_seconds=" << total_penalty_seconds << "\n";
+    ServerOutMsg out{};
+    out.type = ServerOutType::ImprovementOk;
+    out.id = player_id;
+    out.improvement_id = improvement_id;
+    out.improvement_success = success?1:0;
+    out.total_penalty_seconds = total_penalty_seconds;
+    mensajes_a_enviar.try_push(std::move(out));
+}
+

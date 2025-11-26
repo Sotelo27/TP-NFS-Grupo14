@@ -41,6 +41,7 @@ void ClientProtocol::init_recv_dispatch() {
         {CODE_S2C_RACE_START,   [this](){ return parse_race_start(); }},
         {CODE_S2C_RESULTS,      [this](){ return parse_results(); }},
         {CODE_S2C_RACE_RESULTS_CURRENT, [this](){ return parse_result_race_current(); }},
+        {CODE_S2C_IMPROVEMENT,  [this](){ return parse_improvement(); }},
         {CODE_S2C_MAP_INFO,     [this](){ return parse_map_info(); }}
     };
 }
@@ -262,6 +263,23 @@ ServerMessage ClientProtocol::parse_result_race_current() {
         prc.race_time_seconds = ntohl(race_be); prc.total_time_seconds = ntohl(total_be); prc.position = pos;
         dto.results_current.push_back(std::move(prc));
     }
+    return dto;
+}
+
+ServerMessage ClientProtocol::parse_improvement() {
+    ServerMessage dto; dto.type = ServerMessage::Type::ImprovementOK;
+    uint32_t pid_be=0; skt.recvall(&pid_be,4);
+    uint8_t imp=0; skt.recvall(&imp,1);
+    uint8_t success=0; skt.recvall(&success,1);
+    uint32_t pen_be=0; skt.recvall(&pen_be,4);
+    dto.id = ntohl(pid_be); // player id
+    dto.improvement_id = imp;
+    dto.improvement_success = success;
+    dto.improvement_total_penalty_seconds = ntohl(pen_be);
+    std::cout << "[ClientProtocol] Improvement ACK player_id=" << dto.id
+              << " improvement=" << (int)imp
+              << " success=" << (int)success
+              << " total_penalty_seconds=" << dto.improvement_total_penalty_seconds << "\n";
     return dto;
 }
 

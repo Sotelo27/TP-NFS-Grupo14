@@ -23,8 +23,11 @@ public:
     // create room and start its loop
     uint8_t create_room(uint8_t max_players, size_t creator_conn_id);
 
-    // list rooms (skips started)
+    // list rooms (skips started) without counts (legacy)
     std::vector<RoomInfo> list_rooms() const;
+
+    // list rooms including current player counts using bindings
+    std::vector<RoomInfo> list_rooms_with_counts(const BindingManager& bindings) const;
 
     // join a room from pending manager - moves handler from pending into room; returns success
     bool join_room_from_pending(size_t conn_id, uint8_t room_id, PendingManager& pending, BindingManager& bindings);
@@ -34,6 +37,8 @@ public:
 
     // push a move action into room's Match.actions (returns success)
     bool push_move_to_room(uint8_t room_id, size_t player_id, Movement movement);
+    // push an improvement action into room's Match.actions (returns success)
+    bool push_improvement_to_room(uint8_t room_id, size_t player_id, uint8_t improvement_id);
 
     // reap disconnected clients in rooms (calls clients.reap and remove players from games)
     void reap(BindingManager& bindings, PendingManager& pending);
