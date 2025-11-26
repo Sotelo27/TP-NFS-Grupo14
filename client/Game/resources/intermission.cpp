@@ -101,12 +101,6 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
                                    ELECTRIC_CYAN});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_MASS), icon_controllability,
                                    "Mass", "Stronger collisions", NEON_WATER_BLUE});
-
-    selected_improvements = {{std::string(1, KEY_IMPROVEMENT_HEALTH), false},
-                             {std::string(1, KEY_IMPROVEMENT_SPEED), false},
-                             {std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY), false},
-                             {std::string(1, KEY_IMPROVEMENT_ACCELERATION), false},
-                             {std::string(1, KEY_IMPROVEMENT_MASS), false}};
 }
 
 void Intermission::function() {
@@ -130,6 +124,12 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
                   return a.position < b.position;
               });
     this->player_infos = std::move(player_infos);
+
+    selected_improvements[std::string(1, KEY_IMPROVEMENT_SPEED)] = false;
+    selected_improvements[std::string(1, KEY_IMPROVEMENT_HEALTH)] = false;
+    selected_improvements[std::string(1, KEY_IMPROVEMENT_ACCELERATION)] = false;
+    selected_improvements[std::string(1, KEY_IMPROVEMENT_MASS)] = false;
+    selected_improvements[std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY)] = false;
 
     improvement_phase = false;
     ConstantRateLoop::start_loop();
