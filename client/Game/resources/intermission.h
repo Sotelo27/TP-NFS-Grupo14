@@ -3,6 +3,7 @@
 
 #include <list>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "../../../common/constant_rate_loop.h"
@@ -22,7 +23,6 @@ struct ImprovementOption {
     std::string improvement;
     std::string description;
     Rgb color;
-    bool is_enabled;
 };
 
 struct RenderContext {
@@ -53,6 +53,7 @@ private:
     int iteration_init_improvement_phase;
     std::vector<PlayerResultCurrent> player_infos;
     std::vector<ImprovementOption> improvement_options;
+    std::unordered_map<std::string, bool> selected_improvements;
 
     void function() final;
 

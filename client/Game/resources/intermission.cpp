@@ -87,19 +87,26 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
         improvement_phase(false),
         iteration_init_improvement_phase(0),
         player_infos(),
-        improvement_options() {
+        improvement_options(),
+        selected_improvements() {
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_HEALTH), icon_controllability,
-                                   "Health", "Survive more hits", NEON_YELLOW, true});
+                                   "Health", "Survive more hits", NEON_YELLOW});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_SPEED), icon_controllability,
-                                   "Speed", "Higher maximum speed", NEON_LIME, true});
+                                   "Speed", "Higher maximum speed", NEON_LIME});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY),
                                    icon_controllability, "Controllability", "Better turning",
-                                   ELECTRIC_MINT_GREEN, true});
+                                   ELECTRIC_MINT_GREEN});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_ACCELERATION),
                                    icon_controllability, "Acceleration", "Quicker 0-100 km/h",
-                                   ELECTRIC_CYAN, true});
+                                   ELECTRIC_CYAN});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_MASS), icon_controllability,
-                                   "Mass", "Stronger collisions", NEON_WATER_BLUE, true});
+                                   "Mass", "Stronger collisions", NEON_WATER_BLUE});
+
+    selected_improvements = {{std::string(1, KEY_IMPROVEMENT_HEALTH), false},
+                             {std::string(1, KEY_IMPROVEMENT_SPEED), false},
+                             {std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY), false},
+                             {std::string(1, KEY_IMPROVEMENT_ACCELERATION), false},
+                             {std::string(1, KEY_IMPROVEMENT_MASS), false}};
 }
 
 void Intermission::function() {
@@ -255,14 +262,19 @@ void Intermission::handle_key_pressed(const char* keyName) {
     if (improvement_phase) {
         if (keyName == std::string(1, KEY_IMPROVEMENT_SPEED)) {
             server_handler.send_improvement_choice(CarImprovement::Speed);
+            selected_improvements[keyName] = true;
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_HEALTH)) {
             server_handler.send_improvement_choice(CarImprovement::Health);
+            selected_improvements[keyName] = true;
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_ACCELERATION)) {
             server_handler.send_improvement_choice(CarImprovement::Acceleration);
+            selected_improvements[keyName] = true;
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_MASS)) {
             server_handler.send_improvement_choice(CarImprovement::Mass);
+            selected_improvements[keyName] = true;
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY)) {
             server_handler.send_improvement_choice(CarImprovement::Controllability);
+            selected_improvements[keyName] = true;
         }
     }
 }
@@ -352,8 +364,14 @@ bool Intermission::render_improvement_options(RenderContext& ctx) {
     int frames = ctx.iteration_phase - (AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3);
     int n = std::min(frames / AMOUNT_FRAMES_WAITING, static_cast<int>(improvement_options.size()));
 
+    int index = 0;
     for (int i = 0; i < n; i++) {
-        render_single_option(improvement_options[i], i, ctx);
+        if (selected_improvements[improvement_options[i].key]) {
+            continue;
+        }
+
+        render_single_option(improvement_options[i], index, ctx);
+        index++;
     }
 
     return true;
