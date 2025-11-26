@@ -35,7 +35,7 @@
 #define ELECTRIC_PINK Rgb(255, 100, 255)
 
 #define ORANGE_SUNSET Rgb(255, 125, 0)
-
+#define BRIGHT_FIRE_YELLOW Rgb(255, 255, 100)
 #define ORANGE_SUN Rgb(255, 140, 0)
 #define GOLDEN_YELLOW Rgb(255, 180, 0)
 #define NEON_YELLOW Rgb(255, 255, 0)
@@ -307,13 +307,19 @@ void Intermission::show_improvement_phase() {
 
     show_improvement_background(iteration_phase);
 
+    int x_start_clock = WINDOW_WIDTH - SIZE_TEXT_HEAD * 3;
+    show_info_center(text_head, "00:00", x_start_clock, WINDOW_WIDTH - SIZE_TEXT_HEAD * 2,
+                     SIZE_TEXT_HEAD / 2, BRIGHT_FIRE_YELLOW, DARK_VIOLET);
+
     int y_offset = SIZE_TEXT_HEAD + SIZE_TEXT_HEAD / 4;
     show_info_center(text_head, "CAR UPGRADE", SIZE_TEXT_HEAD, WINDOW_WIDTH - SIZE_TEXT_HEAD,
                      y_offset, ORANGE_SUN, DARK_VIOLET);
 
+    int time_balance = 300;
     y_offset += text_head.getHeight() + SIZE_TEXT_HEAD / 4;
     text_rest_info.renderDirect(X_LIMIT_OPTION, y_offset,
-            "Time balance 300s", GOLDEN_YELLOW, true, DARK_VIOLET);
+                                "Time balance " + std::to_string(time_balance) + "s", GOLDEN_YELLOW,
+                                true, DARK_VIOLET);
 
     int y_start_options = y_offset + text_rest_info.getHeight() * 1.5;
     int y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD + 40;
