@@ -278,7 +278,7 @@ void RoomManager::start_room_game(uint8_t room_id, const ClientAction& startActi
             auto handler = room.clients.get_handler_by_conn(conn);
             if (handler) {
                 std::vector<std::pair<int32_t,int32_t>> checkpoints; // empty for now
-                handler->send_race_start(map_id, checkpoints);
+                handler->send_race_start(map_id, checkpoints, room.tiempo_partida); // pasar tiempo_partida
                 std::cout << "[RoomManager] RaceStart enviado a conn_id=" << conn << "\n";
             }
         } catch (const std::exception& e) {

@@ -37,6 +37,7 @@ struct ServerMessage {
     float angle;
     std::string username;
     uint8_t map_id; // id del mapa recibido en RACE_START
+    uint32_t tiempo_partida{0}; // NUEVO: tiempo de partida en segundos
     std::vector<RoomInfo> rooms;
     std::vector<PlayerInfo> players;
     uint8_t room_id;
@@ -92,6 +93,7 @@ struct ServerOutMsg {
     // RaceStart
     uint8_t map_id{0}; // id del mapa para RaceStart
     std::vector<std::pair<int32_t, int32_t>> checkpoints;
+    uint32_t tiempo_partida{0}; // NUEVO: tiempo de partida en segundos
 
     // Results
     std::vector<PlayerResultCurrent> results_current;

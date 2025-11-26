@@ -189,13 +189,17 @@ ServerMessage ClientProtocol::parse_race_start() {
     dto.map_id = map_id; // guardar id del mapa
     uint8_t amount=0;
     skt.recvall(&amount, 1);
+    // NUEVO: leer tiempo_partida (4 bytes big endian)
+    uint32_t tiempo_be = 0;
+    skt.recvall(&tiempo_be, 4);
+    dto.tiempo_partida = ntohl(tiempo_be);
     for(uint8_t i=0; i<amount; ++i) {
         int32_t x_be=0, y_be=0;
         skt.recvall(&x_be, 4);
         skt.recvall(&y_be, 4);
     }
     std::cout << "[ClientProtocol] RaceStart recibido: map_id=" << (int)map_id 
-              << ", checkpoints=" << (int)amount << std::endl;
+              << ", checkpoints=" << (int)amount << ", tiempo_partida=" << dto.tiempo_partida << std::endl;
     return dto;
 }
 

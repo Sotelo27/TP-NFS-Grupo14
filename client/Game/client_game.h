@@ -34,6 +34,8 @@ private:
     CheatDetector cheat_detector;
     Intermission intermission_manager;
 
+    uint32_t tiempo_partida_total{0}; // NUEVO: tiempo total de la partida en segundos
+
     void update_state_from_position();
     void handle_sdl_events();
     void handle_cheat_detection(const char* key_name);

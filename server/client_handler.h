@@ -103,7 +103,7 @@ public:
      * Envia las posiciones de todos los jugadores al cliente.
      */
     void send_positions_to_all(const std::vector<PlayerPos>& positions);
-    void send_race_start(uint8_t map_id, const std::vector<std::pair<int32_t, int32_t>>& checkpoints);
+    void send_race_start(uint8_t map_id, const std::vector<std::pair<int32_t, int32_t>>& checkpoints, uint32_t tiempo_partida);
 
     /*
      * Envia resultados de carrera (vector current) a este cliente

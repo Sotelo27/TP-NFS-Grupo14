@@ -206,17 +206,22 @@ void ServerProtocol::send_cars_list(const std::vector<CarInfo>& cars) {
 }
 
 void ServerProtocol::send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
-                                     const std::vector<std::pair<int32_t,int32_t>>& checkpoints) {
+                                     const std::vector<std::pair<int32_t,int32_t>>& checkpoints,
+                                     uint32_t tiempo_partida) {
     uint8_t code = CODE_S2C_RACE_START;
     std::vector<uint8_t> buf;
-    buf.reserve(1 + 1 + 1 + checkpoints.size()*8);
+    buf.reserve(1 + 1 + 1 + 4 + checkpoints.size()*8);
     buf.push_back(code);
     buf.push_back(map_id); // Enviar el id del mapa como byte
     buf.push_back(amount_checkpoints);
+    // NUEVO: enviar tiempo_partida (4 bytes big endian)
+    uint32_t tiempo_be = htonl(tiempo_partida);
+    size_t off = buf.size();
+    buf.resize(off + 4); std::memcpy(buf.data()+off, &tiempo_be, 4);
     for (const auto& cp : checkpoints) {
         int32_t x_be = htonl(cp.first);
         int32_t y_be = htonl(cp.second);
-        size_t off = buf.size();
+        off = buf.size();
         buf.resize(off + 4); std::memcpy(buf.data()+off, &x_be, 4);
         off = buf.size();
         buf.resize(off + 4); std::memcpy(buf.data()+off, &y_be, 4);

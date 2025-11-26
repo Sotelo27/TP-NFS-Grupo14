@@ -55,7 +55,7 @@ void ClientThreadSend::run() {
                     protocol.send_cars_list(msg.cars);
                     break;
                 case ServerOutType::RaceStart:
-                    protocol.send_race_start(msg.map_id, (uint8_t)msg.checkpoints.size(), msg.checkpoints);
+                    protocol.send_race_start(msg.map_id, (uint8_t)msg.checkpoints.size(), msg.checkpoints, msg.tiempo_partida);
                     break;
                 case ServerOutType::Results:
                     if (msg.results_total.empty()) { // lo dejo asi pero en un futuro tiene Result deber ser aparte

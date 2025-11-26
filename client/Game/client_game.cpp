@@ -129,6 +129,8 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
             time_info = action.race_time;
         } else if (action.type == ServerMessage::Type::RaceStart) {
             map_manager.loadMap(static_cast<MapID>(action.map_id));
+            // NUEVO: guardar tiempo_partida
+            tiempo_partida_total = action.tiempo_partida;
         } else if (action.type == ServerMessage::Type::Results) {
             std::cout << "[ClientGame] Received RESULTS from server (n="
                       << action.results_current.size() << ")" << std::endl;
@@ -152,7 +154,6 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
 
 void ClientGame::update_state_from_position() {
     handle_sdl_events();
-
     handle_movement_input();
 
     process_server_messages(ServerMessage::Type::Empty, 10);
@@ -163,34 +164,27 @@ void ClientGame::update_map_area() {
 
     int x_map = info_my_car.x - MAP_WIDTH_SIZE / 2;
     int y_map = info_my_car.y - MAP_HEIGHT_SIZE / 2;
-
     if (x_map < 0) {
         x_map = 0;
     }
-
     if (y_map < 0) {
         y_map = 0;
     }
-
     if (x_map > map_manager.getCurrentMapWidth() - MAP_WIDTH_SIZE) {
         x_map = map_manager.getCurrentMapWidth() - MAP_WIDTH_SIZE;
     }
-
     if (y_map > map_manager.getCurrentMapHeight() - MAP_HEIGHT_SIZE) {
         y_map = map_manager.getCurrentMapHeight() - MAP_HEIGHT_SIZE;
     }
-
     src_area_map.update(x_map, y_map, MAP_WIDTH_SIZE, MAP_HEIGHT_SIZE);
 }
 
 void ClientGame::update_animation_frames() {
     update_map_area();
-
     Area extend_area_map(src_area_map.getX() - CAR_WIDTH_LARGE,
                          src_area_map.getY() - CAR_HEIGHT_LARGE,
                          src_area_map.getWidth() + CAR_WIDTH_LARGE * 2,
                          src_area_map.getHeight() + CAR_HEIGHT_LARGE * 2);
-
     for (auto& [id, car]: info_players) {
         if (car.info_car.x < extend_area_map.getX() ||
             car.info_car.x > extend_area_map.getX() + extend_area_map.getWidth() ||
@@ -198,7 +192,6 @@ void ClientGame::update_animation_frames() {
             car.info_car.y > extend_area_map.getY() + extend_area_map.getHeight()) {
             continue;
         }
-
         CarData car_data = car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
         int x_car_screen = (car.info_car.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
@@ -214,10 +207,8 @@ void ClientGame::render_cars() {
         if (car.dest_area.getWidth() == 0 || car.dest_area.getHeight() == 0) {
             continue;
         }
-
         const CarData& car_data =
                 car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
-
         car_sprites.render(car_data.area, car.dest_area, car.info_car.angle);
     }
 }
@@ -227,7 +218,9 @@ void ClientGame::render_in_z_order() {
 
     render_cars();
 
-    game_hud.render(iteration, time_info.seconds, src_area_map);
+    // NUEVO: calcular tiempo restante
+    int tiempo_restante = std::max(0, (int)tiempo_partida_total - (int)time_info.seconds);
+    game_hud.render(iteration, tiempo_restante, src_area_map);
 
     window.render();
 }
