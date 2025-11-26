@@ -21,6 +21,7 @@ struct ImprovementOption {
     SdlObjTexture& icon;
     std::string improvement;
     std::string description;
+    Rgb color;
     bool is_enabled;
 };
 

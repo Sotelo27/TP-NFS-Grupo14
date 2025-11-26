@@ -20,6 +20,8 @@
 
 #define WHITE Rgb(255, 255, 255)
 
+#define DEEP_INDIGO_VIOLET Rgb(30, 0, 90)
+#define DARK_PURPLE_VIOLET Rgb(60, 0, 60)
 #define DARK_VIOLET Rgb(45, 0, 75)
 #define VIBRANT_VIOLET Rgb(140, 0, 150)
 #define NEON_MAGENTA Rgb(215, 40, 185)
@@ -31,17 +33,21 @@
 #define ELECTRIC_PINK Rgb(255, 100, 255)
 
 #define ORANGE_SUNSET Rgb(255, 125, 0)
-#define ORANGE_SUN Rgb(255, 140, 0)
 
-#define ELECTRIC_CYAN Rgb(0, 255, 255)  // a
-#define NEON_LIME Rgb(150, 255, 0)      // a
-#define NEON_YELLOW Rgb(255, 255, 0)    // a
+#define ORANGE_SUN Rgb(255, 140, 0)
+#define GOLDEN_YELLOW Rgb(255, 180, 0)
+#define NEON_YELLOW Rgb(255, 255, 0)
+#define NEON_LIME Rgb(150, 255, 0)
+#define ELECTRIC_MINT_GREEN Rgb(50, 255, 150)
+#define ELECTRIC_CYAN Rgb(0, 255, 255)
+#define NEON_WATER_BLUE Rgb(0, 180, 255)
+
 #define NEON_RED Rgb(255, 0, 0)
 
-#define VIBRANT_ORANGE Rgb(255, 100, 0)      // a
-#define BLUE Rgb(0, 0, 255)                  // a
-#define RED Rgb(255, 0, 0)                   // a
-#define GLITCH_LIGHT_BLUE Rgb(50, 150, 255)  // a
+#define VIBRANT_ORANGE Rgb(255, 100, 0)
+#define BLUE Rgb(0, 0, 255)
+#define RED Rgb(255, 0, 0)
+#define GLITCH_LIGHT_BLUE Rgb(50, 150, 255)
 
 #define NEON_YO Rgb(255, 200, 0)
 
@@ -81,17 +87,17 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
         player_infos(),
         improvement_options() {
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_HEALTH), icon_controllability,
-                                   "Health", "Survive more hits", true});
+                                   "Health", "Survive more hits", NEON_YELLOW, true});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_SPEED), icon_controllability,
-                                   "Speed", "Higher maximum speed", true});
+                                   "Speed", "Higher maximum speed", NEON_LIME, true});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY),
                                    icon_controllability, "Controllability", "Better turning",
-                                   true});
+                                   ELECTRIC_MINT_GREEN, true});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_ACCELERATION),
                                    icon_controllability, "Acceleration", "Quicker 0-100 km/h",
-                                   true});
+                                   ELECTRIC_CYAN, true});
     improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_MASS), icon_controllability,
-                                   "Mass", "Stronger collisions", true});
+                                   "Mass", "Stronger collisions", NEON_WATER_BLUE, true});
 }
 
 void Intermission::function() {
@@ -300,7 +306,7 @@ void Intermission::show_improvement_phase() {
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
     show_info_center(text_head, "CAR UPGRADE", SIZE_TEXT_HEAD, WINDOW_WIDTH - SIZE_TEXT_HEAD,
-                     SIZE_TEXT_HEAD, NEON_YO, DARK_VIOLET);
+                     SIZE_TEXT_HEAD, ORANGE_SUN, DARK_VIOLET);
 
     int y_start_options = SIZE_TEXT_HEAD * 2 + text_head.getHeight();
     int y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD;
@@ -309,6 +315,7 @@ void Intermission::show_improvement_phase() {
                                 (y_limit_options - y_start_options) / improvement_options.size() :
                                 0;
 
+    int offset_y = 8;
     int i = 0;
     for (const ImprovementOption& option: improvement_options) {
         int y_option_index = y_start_options + i * option_height;
@@ -320,8 +327,8 @@ void Intermission::show_improvement_phase() {
                 Area(0, 0, button_upgrade.getWidth(), button_upgrade.getHeight()),
                 Area(x_limit_option, y_option_index, button_upgrade_width, SIZE_ICON_BUTTON), 0.0);
         show_info_center(text_head, option.key, x_limit_option,
-                         x_limit_option + button_upgrade_width, y_option_index + 8, RED,
-                         DARK_VIOLET);
+                         x_limit_option + button_upgrade_width, y_option_index + 16, option.color,
+                         DEEP_INDIGO_VIOLET);
 
         x_limit_option += SIZE_TEXT_HEAD + button_upgrade_width;
         option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
@@ -333,12 +340,12 @@ void Intermission::show_improvement_phase() {
 
         x_limit_option += static_cast<float>(SIZE_TEXT_HEAD) * 3;
         show_info_center(text_keys, option.improvement, x_limit_option, x_limit_option + 412,
-                         y_option_index, BLUE, DARK_VIOLET);
+                         y_option_index + offset_y, option.color, DARK_PURPLE_VIOLET);
 
         x_limit_option += SIZE_TEXT_HEAD * 6;
         show_info_center(text_keys, option.description, x_limit_option,
-                         WINDOW_WIDTH - static_cast<float>(SIZE_TEXT_HEAD), y_option_index, RED,
-                         DARK_VIOLET);
+                         WINDOW_WIDTH - static_cast<float>(SIZE_TEXT_HEAD),
+                         y_option_index + offset_y, option.color, DARK_VIOLET);
 
         i++;
     }
