@@ -89,17 +89,17 @@ Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
         player_infos(),
         improvement_options(),
         selected_improvements() {
-    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_HEALTH), icon_controllability,
+    improvement_options.push_back({CarImprovement::Health, std::string(1, KEY_IMPROVEMENT_HEALTH), icon_controllability,
                                    "Health", "Survive more hits", NEON_YELLOW});
-    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_SPEED), icon_controllability,
+    improvement_options.push_back({CarImprovement::Speed, std::string(1, KEY_IMPROVEMENT_SPEED), icon_controllability,
                                    "Speed", "Higher maximum speed", NEON_LIME});
-    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY),
+    improvement_options.push_back({CarImprovement::Controllability, std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY),
                                    icon_controllability, "Controllability", "Better turning",
                                    ELECTRIC_MINT_GREEN});
-    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_ACCELERATION),
+    improvement_options.push_back({CarImprovement::Acceleration, std::string(1, KEY_IMPROVEMENT_ACCELERATION),
                                    icon_controllability, "Acceleration", "Quicker 0-100 km/h",
                                    ELECTRIC_CYAN});
-    improvement_options.push_back({std::string(1, KEY_IMPROVEMENT_MASS), icon_controllability,
+    improvement_options.push_back({CarImprovement::Mass, std::string(1, KEY_IMPROVEMENT_MASS), icon_controllability,
                                    "Mass", "Stronger collisions", NEON_WATER_BLUE});
 }
 
@@ -125,11 +125,11 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
               });
     this->player_infos = std::move(player_infos);
 
-    selected_improvements[std::string(1, KEY_IMPROVEMENT_SPEED)] = false;
-    selected_improvements[std::string(1, KEY_IMPROVEMENT_HEALTH)] = false;
-    selected_improvements[std::string(1, KEY_IMPROVEMENT_ACCELERATION)] = false;
-    selected_improvements[std::string(1, KEY_IMPROVEMENT_MASS)] = false;
-    selected_improvements[std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY)] = false;
+    selected_improvements[CarImprovement::Speed] = {false, 0};
+    selected_improvements[CarImprovement::Health] = {false, 0};
+    selected_improvements[CarImprovement::Acceleration] = {false, 0};
+    selected_improvements[CarImprovement::Mass] = {false, 0};
+    selected_improvements[CarImprovement::Controllability] = {false, 0};
 
     improvement_phase = false;
     ConstantRateLoop::start_loop();
@@ -230,6 +230,11 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
             std::cout << "[ClientGame] Received Unknown message from server, probably "
                          "disconnected. Exiting..."
                       << std::endl;
+        } else if (action.type == ServerMessage::Type::ImprovementOK) {
+            if (action.improvement_success) {
+                selected_improvements[static_cast<CarImprovement>(action.improvement_id)] = {
+                        true, static_cast<int>(action.improvement_total_penalty_seconds)};
+            }
         }
 
         if (action.type == expected_type) {
@@ -262,19 +267,19 @@ void Intermission::handle_key_pressed(const char* keyName) {
     if (improvement_phase) {
         if (keyName == std::string(1, KEY_IMPROVEMENT_SPEED)) {
             server_handler.send_improvement_choice(CarImprovement::Speed);
-            selected_improvements[keyName] = true;
+            process_server_messages(ServerMessage::Type::ImprovementOK);
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_HEALTH)) {
             server_handler.send_improvement_choice(CarImprovement::Health);
-            selected_improvements[keyName] = true;
+            process_server_messages(ServerMessage::Type::ImprovementOK);
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_ACCELERATION)) {
             server_handler.send_improvement_choice(CarImprovement::Acceleration);
-            selected_improvements[keyName] = true;
+            process_server_messages(ServerMessage::Type::ImprovementOK);
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_MASS)) {
             server_handler.send_improvement_choice(CarImprovement::Mass);
-            selected_improvements[keyName] = true;
+            process_server_messages(ServerMessage::Type::ImprovementOK);
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY)) {
             server_handler.send_improvement_choice(CarImprovement::Controllability);
-            selected_improvements[keyName] = true;
+            process_server_messages(ServerMessage::Type::ImprovementOK);
         }
     }
 }
@@ -355,6 +360,8 @@ bool Intermission::render_time_balance(RenderContext& ctx) {
                                 "Time balance " + std::to_string(ctx.time_balance) + "s",
                                 GOLDEN_YELLOW, true, DARK_VIOLET);
 
+    
+
     return true;
 }
 
@@ -366,7 +373,7 @@ bool Intermission::render_improvement_options(RenderContext& ctx) {
 
     int index = 0;
     for (int i = 0; i < n; i++) {
-        if (selected_improvements[improvement_options[i].key]) {
+        if (selected_improvements[improvement_options[i].improvement_id].is_selected) {
             continue;
         }
 

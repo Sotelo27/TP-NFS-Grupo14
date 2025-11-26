@@ -9,6 +9,7 @@
 #include "../../../common/constant_rate_loop.h"
 #include "../../../common/dto/results_info.h"
 #include "../../../common/dto/server_msg.h"
+#include "../../../common/enum/car_improvement.h"
 #include "../../connection/server_handler.h"
 #include "../sdl_wrappers/SdlFont.h"
 #include "../sdl_wrappers/SdlObjTexture.h"
@@ -18,6 +19,7 @@
 #include "maps_textures.h"
 
 struct ImprovementOption {
+    CarImprovement improvement_id;
     std::string key;
     SdlObjTexture& icon;
     std::string improvement;
@@ -32,6 +34,11 @@ struct RenderContext {
     int y_start_options;
     int y_limit_options;
     int option_height;
+};
+
+struct DataImprovementOption {
+    bool is_selected;
+    int cost;
 };
 
 class Intermission: public ConstantRateLoop {
@@ -53,7 +60,7 @@ private:
     int iteration_init_improvement_phase;
     std::vector<PlayerResultCurrent> player_infos;
     std::vector<ImprovementOption> improvement_options;
-    std::unordered_map<std::string, bool> selected_improvements;
+    std::unordered_map<CarImprovement, DataImprovementOption> selected_improvements;
 
     void function() final;
 
@@ -76,7 +83,7 @@ private:
     void handle_sdl_events();
     void handle_cheat_detection(const char* keyName);
     void handle_key_pressed(const char* keyName);
-    void process_server_messages(ServerMessage::Type expected_type, int msg_limit);
+    void process_server_messages(ServerMessage::Type expected_type, int msg_limit = -1);
 
 public:
     explicit Intermission(SdlWindow& window, ServerHandler& server_handler,
