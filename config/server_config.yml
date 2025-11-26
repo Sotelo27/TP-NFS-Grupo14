@@ -1,0 +1,4 @@
+nitro_duracion: 3.0
+max_players: 8
+tiempo_partida: 300   # tiempo de partida en segundos (ejemplo: 5 minutos)
+# agregamos lo que hace falta

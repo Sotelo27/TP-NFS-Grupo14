@@ -33,6 +33,7 @@ enum class GameState {
 class Game {
 private:
     float nitro_tiempo;
+    uint32_t tiempo_partida; // nuevo: tiempo máximo de partida en segundos
     size_t id_indice;
     std::mutex m;
     
@@ -80,9 +81,9 @@ private:
 
 public:
     /*
-     * Crea un game con la duracion del nitro especificada en segundos.
+     * Crea un game con la duracion del nitro y tiempo de partida especificada en segundos.
      */
-    explicit Game(float nitro_duracion);
+    explicit Game(float nitro_duracion, uint32_t tiempo_partida_ = 300);
 
     /*
      * Verifica si un jugador existe en el game.
@@ -208,6 +209,8 @@ public:
      * y posicionandolos segun los spawns definidos en city
      */
     void start_current_race();
+
+    uint32_t get_tiempo_partida() const { return tiempo_partida; }
 
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;

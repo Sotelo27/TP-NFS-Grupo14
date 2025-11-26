@@ -10,8 +10,9 @@
 #define COLLISION_PATH "."
 #endif
 
-Game::Game(float nitro_duracion)
+Game::Game(float nitro_duracion, uint32_t tiempo_partida_)
     : nitro_tiempo(nitro_duracion),
+      tiempo_partida(tiempo_partida_),
       id_indice(0),
       m(),
       players(),

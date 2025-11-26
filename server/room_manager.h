@@ -18,10 +18,10 @@
 
 class RoomManager {
 public:
-    explicit RoomManager(float nitro_duracion);
+    RoomManager(float nitro_duracion, uint8_t max_players, uint32_t tiempo_partida);
 
     // create room and start its loop
-    uint8_t create_room(uint8_t max_players, size_t creator_conn_id);
+    uint8_t create_room(uint8_t max_players_param = 0, size_t creator_conn_id = 0);
 
     // list rooms (skips started)
     std::vector<RoomInfo> list_rooms() const;
@@ -63,6 +63,8 @@ private:
     std::map<uint8_t, Match> rooms;
     uint8_t next_room_id{1};
     float nitro_duracion;
+    uint8_t max_players;
+    uint32_t tiempo_partida;
 
     // helpers (need lock)
     void start_room_loop_locked(Match& p);

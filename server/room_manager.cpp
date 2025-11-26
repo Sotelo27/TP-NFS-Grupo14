@@ -1,15 +1,17 @@
 #include "room_manager.h"
 #include <iostream>
 
-RoomManager::RoomManager(float nitro_duracion) : rooms(), next_room_id(1), nitro_duracion(nitro_duracion) {}
+RoomManager::RoomManager(float nitro_duracion, uint8_t max_players, uint32_t tiempo_partida)
+    : rooms(), next_room_id(1), nitro_duracion(nitro_duracion), max_players(max_players), tiempo_partida(tiempo_partida) {}
 
-uint8_t RoomManager::create_room(uint8_t max_players, size_t creator_conn_id) {
+uint8_t RoomManager::create_room(uint8_t max_players_param, size_t creator_conn_id) {
     std::lock_guard<std::mutex> lk(m);
     while (rooms.count(next_room_id)) ++next_room_id;
     uint8_t rid = next_room_id++;
-    auto [it, _] = rooms.try_emplace(rid, rid, nitro_duracion, max_players, creator_conn_id);
+    uint8_t max_p = (max_players_param > 0) ? max_players_param : max_players;
+    auto [it, _] = rooms.try_emplace(rid, rid, nitro_duracion, max_p, creator_conn_id, tiempo_partida);
     it->second.started = false;
-    std::cout << "[RoomManager] Created room id=" << (int)rid << ", max_players=" << (int)max_players << ", creator=" << creator_conn_id << "\n";
+    std::cout << "[RoomManager] Created room id=" << (int)rid << ", max_players=" << (int)max_p << ", creator=" << creator_conn_id << ", tiempo_partida=" << tiempo_partida << "\n";
     start_room_loop_locked(it->second);
     return rid;
 }
