@@ -291,8 +291,25 @@ void Intermission::handle_sdl_events() {
     }
 }
 
-void Intermission::show_improvement_background(int iteration_phase) {
-    int background_frame_limit = std::min(iteration_phase, AMOUNT_FRAMES_ANIMATION);
+void Intermission::show_improvement_phase() {
+    RenderContext ctx;
+    ctx.iteration_phase = iteration - iteration_init_improvement_phase;
+    ctx.time_balance = 300;
+
+    if (!render_background(ctx))
+        return;
+    if (!render_clock(ctx))
+        return;
+    if (!render_title(ctx))
+        return;
+    if (!render_time_balance(ctx))
+        return;
+    if (!render_improvement_options(ctx))
+        return;
+}
+
+bool Intermission::render_background(const RenderContext& ctx) {
+    int background_frame_limit = std::min(ctx.iteration_phase, AMOUNT_FRAMES_ANIMATION);
     int y_animation =
             (background_improvement.getHeight() * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
     int y_window = (WINDOW_HEIGHT * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
@@ -300,77 +317,89 @@ void Intermission::show_improvement_background(int iteration_phase) {
             Area(0, background_improvement.getHeight() - y_animation,
                  background_improvement.getWidth(), background_improvement.getHeight()),
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
+
+    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING;
 }
 
-void Intermission::show_improvement_phase() {
-    int iteration_phase = iteration - iteration_init_improvement_phase;
+bool Intermission::render_clock(const RenderContext& ctx) {
+    show_info_center(text_head, "00:00", WINDOW_WIDTH - SIZE_TEXT_HEAD * 3,
+                     WINDOW_WIDTH - SIZE_TEXT_HEAD * 2, SIZE_TEXT_HEAD / 2, BRIGHT_FIRE_YELLOW,
+                     DARK_VIOLET);
 
-    show_improvement_background(iteration_phase);
+    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 2;
+}
 
-    if (iteration_phase < AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
-        return;
-    }
-    int x_start_clock = WINDOW_WIDTH - SIZE_TEXT_HEAD * 3;
-    show_info_center(text_head, "00:00", x_start_clock, WINDOW_WIDTH - SIZE_TEXT_HEAD * 2,
-                     SIZE_TEXT_HEAD / 2, BRIGHT_FIRE_YELLOW, DARK_VIOLET);
-
-    
-    if (iteration_phase < AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 2) {
-        return;
-    }
-    int y_offset = SIZE_TEXT_HEAD + SIZE_TEXT_HEAD / 4;
+bool Intermission::render_title(RenderContext& ctx) {
+    ctx.y_offset = SIZE_TEXT_HEAD + SIZE_TEXT_HEAD / 4;
     show_info_center(text_head, "CAR UPGRADE", SIZE_TEXT_HEAD, WINDOW_WIDTH - SIZE_TEXT_HEAD,
-                     y_offset, ORANGE_SUN, DARK_VIOLET);
+                     ctx.y_offset, ORANGE_SUN, DARK_VIOLET);
 
-    if (iteration_phase < AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3) {
-        return;
-    }
-    int time_balance = 300;
-    y_offset += text_head.getHeight() + SIZE_TEXT_HEAD / 4;
-    text_rest_info.renderDirect(X_LIMIT_OPTION, y_offset,
-                                "Time balance " + std::to_string(time_balance) + "s", GOLDEN_YELLOW,
-                                true, DARK_VIOLET);
+    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3;
+}
 
-    int y_start_options = y_offset + text_rest_info.getHeight() * 1.5;
-    int y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD + 40;
+bool Intermission::render_time_balance(RenderContext& ctx) {
+    ctx.y_offset += text_head.getHeight() + SIZE_TEXT_HEAD / 4;
+    text_rest_info.renderDirect(X_LIMIT_OPTION, ctx.y_offset,
+                                "Time balance " + std::to_string(ctx.time_balance) + "s",
+                                GOLDEN_YELLOW, true, DARK_VIOLET);
 
-    int option_height = improvement_options.size() > 0 ?
-                                (y_limit_options - y_start_options) / improvement_options.size() :
-                                0;
+    return true;
+}
 
-    int offset_y = 8;
-    int frames = iteration_phase - (AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3);
-    int n = std::min((frames / AMOUNT_FRAMES_WAITING), 5);
+bool Intermission::render_improvement_options(RenderContext& ctx) {
+    calculate_layout(ctx);
+
+    int frames = ctx.iteration_phase - (AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3);
+    int n = std::min(frames / AMOUNT_FRAMES_WAITING, static_cast<int>(improvement_options.size()));
+
     for (int i = 0; i < n; i++) {
-        const ImprovementOption& option = improvement_options[i];
-
-        int y_option_index = y_start_options + i * option_height;
-
-        int x_limit_option = X_LIMIT_OPTION;
-        int button_upgrade_width = static_cast<int>(SIZE_ICON_BUTTON * button_upgrade.getWidth() /
-                                                    button_upgrade.getHeight());
-        button_upgrade.renderEntity(
-                Area(0, 0, button_upgrade.getWidth(), button_upgrade.getHeight()),
-                Area(x_limit_option, y_option_index, button_upgrade_width, SIZE_ICON_BUTTON), 0.0);
-        show_info_center(text_head, option.key, x_limit_option,
-                         x_limit_option + button_upgrade_width, y_option_index + 16, option.color,
-                         DEEP_INDIGO_VIOLET);
-
-        x_limit_option += SIZE_TEXT_HEAD + button_upgrade_width;
-        option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
-                                 Area(x_limit_option, y_option_index,
-                                      static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() /
-                                                       option.icon.getHeight()),
-                                      SIZE_ICON_BUTTON),
-                                 0.0);
-
-        x_limit_option += static_cast<float>(SIZE_TEXT_HEAD) * 3;
-        show_info_center(text_keys, option.improvement, x_limit_option, x_limit_option + 412,
-                         y_option_index + offset_y, option.color, DARK_PURPLE_VIOLET);
-
-        x_limit_option += SIZE_TEXT_HEAD * 6;
-        show_info_center(text_keys, option.description, x_limit_option,
-                         WINDOW_WIDTH - static_cast<float>(SIZE_TEXT_HEAD),
-                         y_option_index + offset_y, option.color, DARK_VIOLET);
+        render_single_option(improvement_options[i], i, ctx);
     }
+
+    return true;
+}
+
+void Intermission::calculate_layout(RenderContext& ctx) {
+    ctx.y_start_options = ctx.y_offset + text_rest_info.getHeight() * 1.5;
+    ctx.y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD + 40;
+    ctx.option_height =
+            improvement_options.size() > 0 ?
+                    (ctx.y_limit_options - ctx.y_start_options) / improvement_options.size() :
+                    0;
+}
+
+void Intermission::render_single_option(const ImprovementOption& option, int index,
+                                        const RenderContext& ctx) {
+    int y_option_index = ctx.y_start_options + index * ctx.option_height;
+    int x_limit_option = X_LIMIT_OPTION;
+    int offset_y = 8;
+
+    int button_upgrade_width = static_cast<int>(SIZE_ICON_BUTTON * button_upgrade.getWidth() /
+                                                button_upgrade.getHeight());
+    button_upgrade.renderEntity(
+            Area(0, 0, button_upgrade.getWidth(), button_upgrade.getHeight()),
+            Area(x_limit_option, y_option_index, button_upgrade_width, SIZE_ICON_BUTTON), 0.0);
+
+    show_info_center(text_head, option.key, x_limit_option, x_limit_option + button_upgrade_width,
+                     y_option_index + 16, option.color, DEEP_INDIGO_VIOLET);
+
+    x_limit_option += SIZE_TEXT_HEAD + button_upgrade_width;
+
+    option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
+                             Area(x_limit_option, y_option_index,
+                                  static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() /
+                                                   option.icon.getHeight()),
+                                  SIZE_ICON_BUTTON),
+                             0.0);
+
+    x_limit_option += static_cast<float>(SIZE_TEXT_HEAD) * 3;
+
+    show_info_center(text_keys, option.improvement, x_limit_option, x_limit_option + 412,
+                     y_option_index + offset_y, option.color, DARK_PURPLE_VIOLET);
+
+    x_limit_option += SIZE_TEXT_HEAD * 6;
+
+    show_info_center(text_keys, option.description, x_limit_option,
+                     WINDOW_WIDTH - static_cast<float>(SIZE_TEXT_HEAD), y_option_index + offset_y,
+                     option.color, DARK_VIOLET);
 }

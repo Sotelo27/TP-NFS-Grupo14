@@ -25,6 +25,15 @@ struct ImprovementOption {
     bool is_enabled;
 };
 
+struct RenderContext {
+    int iteration_phase;
+    int y_offset;
+    int time_balance;
+    int y_start_options;
+    int y_limit_options;
+    int option_height;
+};
+
 class Intermission: public ConstantRateLoop {
 private:
     SdlWindow& window;
@@ -54,7 +63,14 @@ private:
     void show_text_for_next_phase();
 
     void show_improvement_phase();
-    void show_improvement_background(int iteration_phase);
+    bool render_background(const RenderContext& ctx);
+    bool render_clock(const RenderContext& ctx);
+    bool render_title(RenderContext& ctx);
+    bool render_time_balance(RenderContext& ctx);
+    bool render_improvement_options(RenderContext& ctx);
+
+    void calculate_layout(RenderContext& ctx);
+    void render_single_option(const ImprovementOption& option, int index, const RenderContext& ctx);
 
     void handle_sdl_events();
     void handle_cheat_detection(const char* keyName);
