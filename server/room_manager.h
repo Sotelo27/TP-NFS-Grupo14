@@ -23,8 +23,11 @@ public:
     // create room and start its loop
     uint8_t create_room(uint8_t max_players, size_t creator_conn_id);
 
-    // list rooms (skips started)
+    // list rooms (skips started) without counts (legacy)
     std::vector<RoomInfo> list_rooms() const;
+
+    // list rooms including current player counts using bindings
+    std::vector<RoomInfo> list_rooms_with_counts(const BindingManager& bindings) const;
 
     // join a room from pending manager - moves handler from pending into room; returns success
     bool join_room_from_pending(size_t conn_id, uint8_t room_id, PendingManager& pending, BindingManager& bindings);
