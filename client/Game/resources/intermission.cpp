@@ -307,14 +307,24 @@ void Intermission::show_improvement_phase() {
 
     show_improvement_background(iteration_phase);
 
+    if (iteration_phase < AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
+        return;
+    }
     int x_start_clock = WINDOW_WIDTH - SIZE_TEXT_HEAD * 3;
     show_info_center(text_head, "00:00", x_start_clock, WINDOW_WIDTH - SIZE_TEXT_HEAD * 2,
                      SIZE_TEXT_HEAD / 2, BRIGHT_FIRE_YELLOW, DARK_VIOLET);
 
+    
+    if (iteration_phase < AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 2) {
+        return;
+    }
     int y_offset = SIZE_TEXT_HEAD + SIZE_TEXT_HEAD / 4;
     show_info_center(text_head, "CAR UPGRADE", SIZE_TEXT_HEAD, WINDOW_WIDTH - SIZE_TEXT_HEAD,
                      y_offset, ORANGE_SUN, DARK_VIOLET);
 
+    if (iteration_phase < AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3) {
+        return;
+    }
     int time_balance = 300;
     y_offset += text_head.getHeight() + SIZE_TEXT_HEAD / 4;
     text_rest_info.renderDirect(X_LIMIT_OPTION, y_offset,
@@ -329,8 +339,11 @@ void Intermission::show_improvement_phase() {
                                 0;
 
     int offset_y = 8;
-    int i = 0;
-    for (const ImprovementOption& option: improvement_options) {
+    int frames = iteration_phase - (AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3);
+    int n = std::min((frames / AMOUNT_FRAMES_WAITING), 5);
+    for (int i = 0; i < n; i++) {
+        const ImprovementOption& option = improvement_options[i];
+
         int y_option_index = y_start_options + i * option_height;
 
         int x_limit_option = X_LIMIT_OPTION;
@@ -359,7 +372,5 @@ void Intermission::show_improvement_phase() {
         show_info_center(text_keys, option.description, x_limit_option,
                          WINDOW_WIDTH - static_cast<float>(SIZE_TEXT_HEAD),
                          y_option_index + offset_y, option.color, DARK_VIOLET);
-
-        i++;
     }
 }
