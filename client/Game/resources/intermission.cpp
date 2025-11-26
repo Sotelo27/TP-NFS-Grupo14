@@ -18,6 +18,8 @@
 
 #define SIZE_ICON_BUTTON (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 
+#define X_LIMIT_OPTION (static_cast<float>(SIZE_TEXT_HEAD) * 7 / 4)
+
 #define WHITE Rgb(255, 255, 255)
 
 #define DEEP_INDIGO_VIOLET Rgb(30, 0, 90)
@@ -289,9 +291,7 @@ void Intermission::handle_sdl_events() {
     }
 }
 
-void Intermission::show_improvement_phase() {
-    int iteration_phase = iteration - iteration_init_improvement_phase;
-
+void Intermission::show_improvement_background(int iteration_phase) {
     int background_frame_limit = std::min(iteration_phase, AMOUNT_FRAMES_ANIMATION);
     int y_animation =
             (background_improvement.getHeight() * background_frame_limit) / AMOUNT_FRAMES_ANIMATION;
@@ -300,12 +300,23 @@ void Intermission::show_improvement_phase() {
             Area(0, background_improvement.getHeight() - y_animation,
                  background_improvement.getWidth(), background_improvement.getHeight()),
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
+}
 
+void Intermission::show_improvement_phase() {
+    int iteration_phase = iteration - iteration_init_improvement_phase;
+
+    show_improvement_background(iteration_phase);
+
+    int y_offset = SIZE_TEXT_HEAD + SIZE_TEXT_HEAD / 4;
     show_info_center(text_head, "CAR UPGRADE", SIZE_TEXT_HEAD, WINDOW_WIDTH - SIZE_TEXT_HEAD,
-                     SIZE_TEXT_HEAD, ORANGE_SUN, DARK_VIOLET);
+                     y_offset, ORANGE_SUN, DARK_VIOLET);
 
-    int y_start_options = SIZE_TEXT_HEAD * 2 + text_head.getHeight();
-    int y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD;
+    y_offset += text_head.getHeight() + SIZE_TEXT_HEAD / 4;
+    text_rest_info.renderDirect(X_LIMIT_OPTION, y_offset,
+            "Time balance 300s", GOLDEN_YELLOW, true, DARK_VIOLET);
+
+    int y_start_options = y_offset + text_rest_info.getHeight() * 1.5;
+    int y_limit_options = WINDOW_HEIGHT - SIZE_TEXT_HEAD + 40;
 
     int option_height = improvement_options.size() > 0 ?
                                 (y_limit_options - y_start_options) / improvement_options.size() :
@@ -316,7 +327,7 @@ void Intermission::show_improvement_phase() {
     for (const ImprovementOption& option: improvement_options) {
         int y_option_index = y_start_options + i * option_height;
 
-        int x_limit_option = static_cast<float>(SIZE_TEXT_HEAD) * 7 / 4;
+        int x_limit_option = X_LIMIT_OPTION;
         int button_upgrade_width = static_cast<int>(SIZE_ICON_BUTTON * button_upgrade.getWidth() /
                                                     button_upgrade.getHeight());
         button_upgrade.renderEntity(

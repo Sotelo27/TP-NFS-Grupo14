@@ -54,6 +54,7 @@ private:
     void show_text_for_next_phase();
 
     void show_improvement_phase();
+    void show_improvement_background(int iteration_phase);
 
     void handle_sdl_events();
     void handle_cheat_detection(const char* keyName);
