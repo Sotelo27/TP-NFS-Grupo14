@@ -134,10 +134,6 @@ void Intermission::show_info_center(SdlFont& font, const std::string& info, int 
 }
 
 void Intermission::show_table_results() {
-    if (iteration <= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
-        return;
-    }
-
     int y_head = SIZE_TEXT_HEAD;
     int x_postion_start = SIZE_TEXT_HEAD;
     text_head.renderDirect(x_postion_start, y_head, "POSITION", GLITCH_VIOLET, true, WHITE);
@@ -158,8 +154,6 @@ void Intermission::show_table_results() {
     if (iteration <= RESULTS) {
         return;
     }
-
-    // en un futuro el podio va a estar con colores especiales
 
     int frames = iteration - RESULTS;
     int min = std::min(static_cast<int>(player_infos.size()), 8);
@@ -200,7 +194,9 @@ void Intermission::show_results() {
             Area(0, y_animation - 1, background_info.getWidth(), background_info.getHeight()),
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
-    show_table_results();
+    if (iteration > AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING) {
+        show_table_results();
+    }
 
     float frames = iteration - RESULTS;
     if ((frames / AMOUNT_FRAMES_WAITING) >= player_infos.size() + 1) {
