@@ -94,7 +94,6 @@ void Car::apply_force_center(float throttle) noexcept {
 
     const float v    = speed_mps();
     const float vmax = std::max(0.1f, spec_.velocidadMaxMps);
-    //const float m    = body->GetMass();
 
     float accel_target = spec_.fuerzaAceleracionN;
 
