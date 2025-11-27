@@ -86,28 +86,31 @@ void Car::apply_lateral_grip() noexcept {
     body->ApplyLinearImpulseToCenter(J, true);
 }
 
-
 void Car::apply_force_center(float throttle) noexcept {
     if (!body) return;
 
     float t = std::clamp(throttle, -1.f, 1.f);
     if (t == 0.f) return;
 
-    const float v     = speed_mps();
-    const float vmax  = std::max(0.1f, spec_.velocidadMaxMps);
-    const float m     = body->GetMass();
-    const float ang   = body->GetAngle();
+    const float v    = speed_mps();
+    const float vmax = std::max(0.1f, spec_.velocidadMaxMps);
+    const float m    = body->GetMass();
 
-    float accel_target = spec_.fuerzaAceleracionN * 0.013f;
-    accel_target = std::clamp(accel_target, 3.0f, 18.0f);
+    float accel_target = spec_.fuerzaAceleracionN;
 
+    // escala de fuerza  segun si esta cerca de la velocidad maxima
     const float x = std::clamp(v / vmax, 0.0f, 1.0f);
-    const float scale = std::clamp(1.0f - (x * x * 0.85f), 0.20f, 1.0f);
-    const float F = t * m * accel_target * scale * 32.0f;
+    const float scale = 1.0f - x;
 
-    const b2Vec2 forward(std::cos(ang), std::sin(ang));
+    // fuerza
+    float F = t * m * accel_target * scale;
+
+    const float ang = body->GetAngle();
+    b2Vec2 forward(std::cos(ang), std::sin(ang));
+
     body->ApplyForceToCenter(F * forward, true);
 }
+
 
 void Car::apply_steer(float steer) noexcept {
     if (!body || steer == 0.f) return;

@@ -25,9 +25,17 @@ void PhysicsWorld::create_car_body(size_t id, float x_meters, float y_meters, co
     float halfL = 0.45f;
     box.SetAsBox(halfW, halfL);
 
+    //calculo de area: Área del box (ancho * alto)
+    float width  = 2.0f * halfW;
+    float height = 2.0f * halfL;
+    float area   = width * height;
+
+    float density = spec.masaKg / area; // masa / area
+
+
     b2FixtureDef fdef;
     fdef.shape = &box;
-    fdef.density = 1.3f;
+    fdef.density = density;
     fdef.friction = 0.8f;
     fdef.restitution = 0.0f;
     body->CreateFixture(&fdef);

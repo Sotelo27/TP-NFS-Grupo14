@@ -7,6 +7,7 @@
 #define  PI 3.14159265358979323846f
 #define PPM 32.f
 #define MAX_DURATION_SECONDS 600.f
+#define MS_TO_KMH 3.6f
 
 Race::Race(uint32_t id, PhysicsWorld& external_world)
     : id(id), physics(external_world), track() {}
@@ -284,7 +285,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         player.y = car_y_px;
         player.angle = body->GetAngle() * 180.0f / PI;
         player.health = hp;
-        player.speed_mps = (itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f;
+        player.speed_mps = ((itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f ) * MS_TO_KMH;
 
         // Siguiente checkpoint
         player.x_checkpoint = 0;

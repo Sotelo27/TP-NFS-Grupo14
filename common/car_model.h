@@ -17,7 +17,7 @@ struct CarModel {
 
 namespace car_factory {
 
-    inline CarModel common_green_car()      { return {"green", 200.f, 1250.f, 250.f, 8.0f,  5.2f, 0.72f, 5.5f}; }
+    inline CarModel common_green_car()      { return {"green", 200.f, 1000.f, 20.0f, 8.0f,  30.0f, 0.4f, 5.5f}; }
     inline CarModel red_car()      { return {"red_car",  200.f, 1100.f, 270.f, 9.0f,  5.6f, 0.68f, 5.0f}; }
     inline CarModel red_sport_car()  { return {"red_sport_car",200.f, 1050.f, 300.f, 9.5f,  6.2f, 0.66f, 4.8f}; }
     inline CarModel special_car()      { return {"special_car",200.f,1120.f, 255.f, 8.7f,  5.4f, 0.70f, 5.2f}; }
