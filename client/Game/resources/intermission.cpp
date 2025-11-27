@@ -105,6 +105,17 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
     improvement_options.push_back({CarImprovement::Mass, std::string(1, KEY_IMPROVEMENT_MASS),
                                    icon_controllability, "Mass", "Stronger collisions",
                                    NEON_WATER_BLUE});
+
+    selected_improvements.emplace(CarImprovement::Health,
+                                  DataImprovementOption{false, 0, icon_controllability});
+    selected_improvements.emplace(CarImprovement::Speed,
+                                  DataImprovementOption{false, 0, icon_controllability});
+    selected_improvements.emplace(CarImprovement::Controllability,
+                                  DataImprovementOption{false, 0, icon_controllability});
+    selected_improvements.emplace(CarImprovement::Acceleration,
+                                  DataImprovementOption{false, 0, icon_controllability});
+    selected_improvements.emplace(CarImprovement::Mass,
+                                  DataImprovementOption{false, 0, icon_controllability});
 }
 
 void Intermission::function() {
@@ -129,11 +140,10 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
               });
     this->player_infos = std::move(player_infos);
 
-    selected_improvements[CarImprovement::Speed] = {false, 0};
-    selected_improvements[CarImprovement::Health] = {false, 0};
-    selected_improvements[CarImprovement::Acceleration] = {false, 0};
-    selected_improvements[CarImprovement::Mass] = {false, 0};
-    selected_improvements[CarImprovement::Controllability] = {false, 0};
+    for (auto& pair: selected_improvements) {
+        pair.second.is_selected = false;
+        pair.second.cost = 0;
+    }
 
     improvement_phase = false;
     ConstantRateLoop::start_loop();
@@ -236,8 +246,12 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                       << std::endl;
         } else if (action.type == ServerMessage::Type::ImprovementOK) {
             if (action.id == client_id && action.improvement_success) {
-                selected_improvements[static_cast<CarImprovement>(action.improvement_id)] = {
-                        true, static_cast<int>(action.improvement_total_penalty_seconds)};
+                auto it = selected_improvements.find(
+                        static_cast<CarImprovement>(action.improvement_id));
+                if (it != selected_improvements.end()) {
+                    it->second.is_selected = true;
+                    it->second.cost = action.improvement_total_penalty_seconds;
+                }
             }
         }
 
@@ -318,10 +332,8 @@ void Intermission::show_improvement_phase() {
         return;
     if (!render_title(ctx))
         return;
-    if (!render_time_balance(ctx))
-        return;
-    if (!render_improvement_options(ctx))
-        return;
+    render_time_balance(ctx);
+    render_improvement_options(ctx);
 }
 
 bool Intermission::render_background(const RenderContext& ctx) {
@@ -371,7 +383,8 @@ bool Intermission::render_improvement_options(RenderContext& ctx) {
 
     int index = 0;
     for (int i = 0; i < n; i++) {
-        if (selected_improvements[improvement_options[i].improvement_id].is_selected) {
+        auto it = selected_improvements.find(improvement_options[i].improvement_id);
+        if (it != selected_improvements.end() && it->second.is_selected) {
             continue;
         }
 

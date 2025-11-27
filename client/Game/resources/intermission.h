@@ -39,6 +39,7 @@ struct RenderContext {
 struct DataImprovementOption {
     bool is_selected;
     int cost;
+    SdlObjTexture& icon;
 };
 
 class Intermission: public ConstantRateLoop {
