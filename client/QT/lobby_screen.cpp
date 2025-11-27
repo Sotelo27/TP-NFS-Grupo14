@@ -4,10 +4,13 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QLabel>
 #include <QMessageBox>
-#include <QDebug>
 #include <QGraphicsDropShadowEffect>
+#include <QDebug>
+
+// ===========================================================
+//  CONSTRUCTOR
+// ===========================================================
 
 LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent)
     : QWidget(parent),
@@ -17,27 +20,44 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
       in_room(false)
 {
     setWindowTitle("Lobby - Need For Speed");
-    // eliminamos el setFixedSize para permitir redimensionar
-    // setFixedSize(1100, 750);
 
-    // FONDO
+    setupBackground();
+    setupMainLayout();
+    setupTitle();
+    setupCreateRoomButton();
+    setupEditorMapButton();
+    setupScrollArea();
+    setupEmptyLabel();
+    setupPolling();
+    setupRoomCreatedConnection();
+
+    std::cout << "[LobbyWindow] Ventana creada, polling iniciado" << std::endl;
+}
+
+// ===========================================================
+//  SETUP UI
+// ===========================================================
+
+void LobbyScreen::setupBackground() {
     background = new QLabel(this);
     background->setPixmap(
-        QPixmap("assets/images/fondo.png").scaled(
-            size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-        )
+        QPixmap("assets/images/fondo.png").scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
     );
     background->setGeometry(0, 0, width(), height());
     background->lower();
+}
 
+void LobbyScreen::setupMainLayout() {
     mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 30, 0, 0);
     mainLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+}
 
-    // TITULO
+void LobbyScreen::setupTitle() {
     QLabel* titleLabel = new QLabel("SALAS DISPONIBLES", this);
     titleLabel->setFixedSize(820, 110);
     titleLabel->setAlignment(Qt::AlignCenter);
+
     titleLabel->setStyleSheet(
         "background-color: rgba(255, 0, 180, 0.20);"
         "border: 5px solid #ff33cc;"
@@ -48,17 +68,19 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
         "padding: 15px;"
     );
 
-    auto* glowTitle = new QGraphicsDropShadowEffect(this);
-    glowTitle->setBlurRadius(55);
-    glowTitle->setOffset(0, 0);
-    glowTitle->setColor(QColor(255, 0, 180));
-    titleLabel->setGraphicsEffect(glowTitle);
+    auto* glow = new QGraphicsDropShadowEffect(this);
+    glow->setBlurRadius(55);
+    glow->setOffset(0, 0);
+    glow->setColor(QColor(255, 0, 180));
+    titleLabel->setGraphicsEffect(glow);
 
     mainLayout->addWidget(titleLabel);
+}
 
-    // BOTÓN CREAR SALA
+void LobbyScreen::setupCreateRoomButton() {
     QPushButton* createButton = new QPushButton("CREAR NUEVA SALA");
     createButton->setFixedSize(420, 90);
+
     createButton->setStyleSheet(
         "QPushButton {"
         "   background-color: rgba(255, 0, 180, 0.25);"
@@ -67,22 +89,48 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
         "   font-size: 32px;"
         "   font-weight: bold;"
         "   color: #ff66ff;"
-        "   padding: 10px;"
         "}"
         "QPushButton:hover { background-color: rgba(255, 0, 180, 0.40); }"
         "QPushButton:pressed { background-color: rgba(255, 0, 180, 0.18); }"
     );
 
-    auto* glowButton = new QGraphicsDropShadowEffect(this);
-    glowButton->setBlurRadius(45);
-    glowButton->setOffset(0, 0);
-    glowButton->setColor(QColor(255, 0, 180));
-    createButton->setGraphicsEffect(glowButton);
+    auto* glow = new QGraphicsDropShadowEffect(this);
+    glow->setBlurRadius(45);
+    glow->setOffset(0, 0);
+    glow->setColor(QColor(255, 0, 180));
+    createButton->setGraphicsEffect(glow);
 
     connect(createButton, &QPushButton::clicked, this, &LobbyScreen::create_new_room);
-    mainLayout->addWidget(createButton, 0, Qt::AlignHCenter);
 
-    // SCROLL AREA CON TARJETAS NEÓN
+    mainLayout->addWidget(createButton, 0, Qt::AlignCenter);
+}
+
+void LobbyScreen::setupEditorMapButton() {
+    QPushButton* selectEditorMapButton = new QPushButton("CARGAR MAPA EDITADO");
+    selectEditorMapButton->setFixedSize(420, 90);
+    selectEditorMapButton->setStyleSheet(
+        "QPushButton {"
+        "   background-color: rgba(255, 0, 180, 0.25);"
+        "   border: 4px solid #ff33cc;"
+        "   border-radius: 12px;"
+        "   font-size: 32px;"
+        "   font-weight: bold;"
+        "   color: #ff66ff;"
+        "}"
+        "QPushButton:hover { background-color: rgba(255, 0, 180, 0.40); }"
+        "QPushButton:pressed { background-color: rgba(255, 0, 180, 0.18); }"
+    );
+
+    connect(selectEditorMapButton, &QPushButton::clicked, this, [this]() {
+        if (pollTimer->isActive())
+            pollTimer->stop();
+        emit go_to_maps_created_from_editor_screen();
+    });
+
+    mainLayout->addWidget(selectEditorMapButton);
+}
+
+void LobbyScreen::setupScrollArea() {
     scrollArea = new QScrollArea(this);
     scrollArea->setFixedSize(850, 430);
     scrollArea->setStyleSheet(
@@ -93,11 +141,11 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
         "}"
     );
 
-    auto* glowScroll = new QGraphicsDropShadowEffect(this);
-    glowScroll->setBlurRadius(55);
-    glowScroll->setOffset(0, 0);
-    glowScroll->setColor(QColor(255, 0, 180));
-    scrollArea->setGraphicsEffect(glowScroll);
+    auto* glow = new QGraphicsDropShadowEffect(this);
+    glow->setBlurRadius(55);
+    glow->setOffset(0, 0);
+    glow->setColor(QColor(255, 0, 180));
+    scrollArea->setGraphicsEffect(glow);
 
     container = new QWidget();
     layout = new QVBoxLayout(container);
@@ -108,7 +156,9 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
     scrollArea->setWidget(container);
 
     mainLayout->addWidget(scrollArea);
+}
 
+void LobbyScreen::setupEmptyLabel() {
     QLabel* emptyLabel = new QLabel("No hay salas disponibles. ¡Crea una!", this);
     emptyLabel->setAlignment(Qt::AlignCenter);
     emptyLabel->setStyleSheet(
@@ -118,28 +168,33 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
         "padding: 18px;"
     );
     layout->addWidget(emptyLabel);
+}
 
-    // TIMER DE POLLING
+void LobbyScreen::setupPolling() {
     pollTimer = new QTimer(this);
     connect(pollTimer, &QTimer::timeout, this, &LobbyScreen::onPollTimer);
-    pollTimer->start(50);
+    pollTimer->start(200);
+}
 
+void LobbyScreen::setupRoomCreatedConnection() {
     connect(this, &LobbyScreen::room_created, this, [this](uint8_t room_id) {
         std::cout << "[LobbyWindow] Sala creada con ID: " << (int)room_id << "\n";
         open_waiting_room(room_id);
     });
-
-    std::cout << "[LobbyWindow] Ventana creada, polling iniciado" << std::endl;
 }
+
+// ===========================================================
+//  POLLING
+// ===========================================================
 
 void LobbyScreen::onPollTimer() {
     for (int i = 0; i < 10; ++i) {
         ServerMessage msg = server_handler.recv_response_from_server();
-        if (msg.type == ServerMessage::Type::Unknown || msg.type == ServerMessage::Type::Empty)
+        if (msg.type == ServerMessage::Type::Unknown ||
+            msg.type == ServerMessage::Type::Empty)
             break;
 
         if (in_room) break;
-
         if (processServerMessage(msg)) break;
     }
 }
@@ -169,7 +224,12 @@ bool LobbyScreen::processServerMessage(const ServerMessage& msg) {
     }
 }
 
+// ===========================================================
+//  UPDATE ROOM LIST
+// ===========================================================
+
 void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
+
     QLayoutItem* child;
     while ((child = layout->takeAt(0)) != nullptr) {
         if (child->widget()) child->widget()->deleteLater();
@@ -177,22 +237,9 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
     }
 
     if (rooms.empty()) {
-
-        QLabel* emptyLabel = new QLabel("No hay salas disponibles. ¡Crea una!");
-        emptyLabel->setAlignment(Qt::AlignCenter);
-        emptyLabel->setStyleSheet(
-            "font-size: 26px;"
-            "font-weight: bold;"
-            "color: #ff66ff;"
-            "padding: 20px;"
-        );
-
-        layout->addWidget(emptyLabel);
-
+        setupEmptyLabel();
     } else {
-
         for (const auto& room : rooms) {
-
             QWidget* row = new QWidget();
             row->setFixedHeight(90);
             row->setStyleSheet(
@@ -204,11 +251,11 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
                 "QWidget:hover { background-color: rgba(255, 0, 150, 80); }"
             );
 
-            auto* glowRow = new QGraphicsDropShadowEffect(row);
-            glowRow->setBlurRadius(35);
-            glowRow->setOffset(0,0);
-            glowRow->setColor(QColor(255,0,180));
-            row->setGraphicsEffect(glowRow);
+            auto* glow = new QGraphicsDropShadowEffect(row);
+            glow->setBlurRadius(35);
+            glow->setOffset(0,0);
+            glow->setColor(QColor(255,0,180));
+            row->setGraphicsEffect(glow);
 
             QHBoxLayout* rowLayout = new QHBoxLayout(row);
             rowLayout->setContentsMargins(15, 10, 15, 10);
@@ -228,6 +275,7 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
 
             QPushButton* enterButton = new QPushButton("INGRESAR");
             enterButton->setFixedSize(180, 55);
+
             enterButton->setStyleSheet(
                 "QPushButton {"
                 "   background-color: rgba(255, 0, 180, 0.25);"
@@ -244,20 +292,23 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
 
             enterButton->setEnabled(room.current_players < room.max_players);
 
-            rowLayout->addWidget(enterButton);
-
             connect(enterButton, &QPushButton::clicked, [this, room_id = room.id]() {
                 if (pollTimer->isActive()) pollTimer->stop();
                 server_handler.send_join_room(room_id);
                 open_waiting_room(room_id);
             });
 
+            rowLayout->addWidget(enterButton);
             layout->addWidget(row);
         }
     }
 
     layout->addStretch();
 }
+
+// ===========================================================
+//  ROOM ACTIONS
+// ===========================================================
 
 void LobbyScreen::create_new_room() const {
     server_handler.send_create_room();
@@ -278,10 +329,13 @@ void LobbyScreen::on_return_from_waiting_room() {
     std::cout << "[LobbyWindow] Regresando al lobby, in_room=false" << std::endl;
 }
 
+// ===========================================================
+//  RESIZE
+// ===========================================================
+
 void LobbyScreen::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
 
-    // Escalar fondo
     if (background) {
         background->setGeometry(0, 0, width(), height());
         background->setPixmap(
@@ -291,10 +345,12 @@ void LobbyScreen::resizeEvent(QResizeEvent* event) {
         );
     }
 
-    // Ajustar contenedor de salas
     if (scrollArea) {
-        scrollArea->setFixedWidth(width() * 0.77);  // 77% del ancho
-        scrollArea->setFixedHeight(height() * 0.55); // 55% del alto
+        scrollArea->setFixedWidth(width() * 0.77);
+        scrollArea->setFixedHeight(height() * 0.55);
     }
 }
 
+void LobbyScreen::startPolling() {
+    pollTimer->start(50);
+}

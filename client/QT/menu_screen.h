@@ -8,7 +8,7 @@
 class MenuScreen : public QWidget {
     Q_OBJECT
 public:
-    explicit MenuScreen(ServerHandler& server_handler, QWidget* parent = nullptr);
+    explicit MenuScreen(QWidget* parent = nullptr);
 
     int getSelectedCarIndex() const { return selectedCarIndex; }
     void setSelectedCarIndex(int idx) { selectedCarIndex = idx; }
@@ -18,7 +18,6 @@ signals:
     void go_to_selection_car_screen();
 
 private:
-    ServerHandler& server_handler;
     QPushButton* jugarButton;
     QPushButton* seleccionarAutoButton;
     int selectedCarIndex = 0;

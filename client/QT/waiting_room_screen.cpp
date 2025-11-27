@@ -244,3 +244,6 @@ void WaitingRoomScreen::start_game() {
 }
 
 
+void WaitingRoomScreen::fromEditorScreen() {
+
+}

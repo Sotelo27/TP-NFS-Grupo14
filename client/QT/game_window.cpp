@@ -90,23 +90,24 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
 
     stack = new QStackedWidget(this);
 
-    QString audioPath = "assets/audio/sound_intro_nfs.wav";
-    sound = new QSound(audioPath, this);
-
-    if (QFile::exists(audioPath)) {
-        sound->setLoops(QSound::Infinite);
-        sound->play();
-    }
+    // QString audioPath = "assets/audio/sound_intro_nfs.wav";
+    // sound = new QSound(audioPath, this);
+    //
+    // if (QFile::exists(audioPath)) {
+    //     sound->setLoops(QSound::Infinite);
+    //     sound->play();
+    // }
 
     start_screen = new StartScreen(this);
 
     login_screen = new LoginScreen(server_handler, my_id, this);
     lobby_screen = new LobbyScreen(server_handler, my_id, this);
     waiting_room_screen = new WaitingRoomScreen(server_handler, my_id, this);
-    selection_car_screen = new SelectionCarScreen(server_handler, this);
+    selection_car_screen = new SelectionCarScreen(this);
     selection_map_screen = new SelectionMapScreen(server_handler, this);
     result_finish_screen = new ResultFinishScreen(server_handler, my_id, this);
-    menu_screen = new MenuScreen(server_handler, this);
+    menu_screen = new MenuScreen(this);
+    editor_map_screen = new EditorMapScreen(server_handler, this);
 
     stack->addWidget(start_screen);
     stack->addWidget(login_screen);
@@ -116,6 +117,7 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     stack->addWidget(selection_map_screen);
     stack->addWidget(result_finish_screen);
     stack->addWidget(menu_screen);
+    stack->addWidget(editor_map_screen);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(stack);
@@ -134,12 +136,11 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
         menu_screen->setSelectedCarIndex(idx);
         stack->setCurrentWidget(menu_screen);
     });
-
     connect(selection_car_screen, &SelectionCarScreen::car_selected, this, [this, &server_handler](CarSpriteID car_id) {
         server_handler.send_choose_car(static_cast<uint8_t>(car_id));
     });
-
     connect(selection_car_screen, &SelectionCarScreen::go_to_menu, this, &GameWindow::go_to_menu);
+
     connect(menu_screen, &MenuScreen::go_to_lobby_screen, this, &GameWindow::go_to_lobby);
     connect(menu_screen, &MenuScreen::go_to_selection_car_screen, this, [this]() {
         selection_car_screen->setSelectedCarIndex(menu_screen->getSelectedCarIndex());
@@ -148,6 +149,8 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
 
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::go_to_waiting_room);
     connect(lobby_screen, &LobbyScreen::go_to_selection_map_screen, this, &GameWindow::go_to_map_selection);
+    connect(lobby_screen, &LobbyScreen::go_to_maps_created_from_editor_screen, this, &GameWindow::go_to_maps_edited_screen);
+
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_selection_map_screen, this, [this]() {
         if (waiting_room_screen->isAdmin()) go_to_map_selection();
     });
@@ -162,6 +165,17 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
         waiting_room_screen->set_selected_map(selected_map);
         go_to_waiting_room_from_map();
     });
+
+    connect(editor_map_screen, &EditorMapScreen::go_to_waiting_room_screen, this, [this]() {
+        waiting_room_screen->fromEditorScreen(true);
+        waiting_room_screen->startPolling();
+        stack->setCurrentWidget(waiting_room_screen);
+    });
+
+    connect(editor_map_screen, &EditorMapScreen::go_back_to_lobby, this, [this]() {
+        stack->setCurrentWidget(lobby_screen);
+    });
+
 }
 
 // -----------------------------------------------------------
@@ -179,13 +193,46 @@ GameWindow::~GameWindow() {
 }
 
 // Slots
-void GameWindow::go_to_lobby() const { waiting_room_screen->stopPolling(); lobby_screen->startPolling(); stack->setCurrentWidget(lobby_screen); }
-void GameWindow::go_to_waiting_room() const { waiting_room_screen->startPolling(); stack->setCurrentWidget(waiting_room_screen); }
-void GameWindow::go_to_car_selection() const { stack->setCurrentWidget(selection_car_screen); }
-void GameWindow::go_to_map_selection() const { stack->setCurrentWidget(selection_map_screen); }
-void GameWindow::go_to_results() const { stack->setCurrentWidget(result_finish_screen); }
-void GameWindow::go_to_login() const { stack->setCurrentWidget(login_screen); }
-void GameWindow::go_to_waiting_room_from_map() const { waiting_room_screen->startPolling(); stack->setCurrentWidget(waiting_room_screen); }
-void GameWindow::go_to_menu() const { stack->setCurrentWidget(menu_screen); }
+void GameWindow::go_to_lobby() const {
+    waiting_room_screen->stopPolling();
+    lobby_screen->startPolling();
+    stack->setCurrentWidget(lobby_screen);
+}
+
+void GameWindow::go_to_waiting_room() const {
+    waiting_room_screen->startPolling();
+    stack->setCurrentWidget(waiting_room_screen);
+}
+
+void GameWindow::go_to_car_selection() const {
+    stack->setCurrentWidget(selection_car_screen);
+}
+
+void GameWindow::go_to_map_selection() const {
+    stack->setCurrentWidget(selection_map_screen);
+}
+
+void GameWindow::go_to_results() const {
+    stack->setCurrentWidget(result_finish_screen);
+}
+
+void GameWindow::go_to_login() const {
+    stack->setCurrentWidget(login_screen);
+}
+
+void GameWindow::go_to_waiting_room_from_map() const {
+    waiting_room_screen->startPolling();
+    waiting_room_screen->set_selected_map(selection_map_screen->get_selected_map());
+    stack->setCurrentWidget(waiting_room_screen);
+}
+
+void GameWindow::go_to_menu() const {
+    stack->setCurrentWidget(menu_screen);
+}
+
+void GameWindow::go_to_maps_edited_screen() const {
+    editor_map_screen->load_maps_from_directory("editor/MapsEdited/");
+    stack->setCurrentWidget(editor_map_screen);
+}
 
 #include "game_window.moc"

@@ -16,7 +16,7 @@ struct CarInfoSprite {
 class SelectionCarScreen : public QWidget {
     Q_OBJECT
 public:
-    explicit SelectionCarScreen(ServerHandler& server_handler, QWidget* parent = nullptr);
+    explicit SelectionCarScreen(QWidget* parent = nullptr);
 
     void setSelectedCarIndex(int idx);
     int getSelectedCarIndex() const;
@@ -36,7 +36,6 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 
 private:
-    ServerHandler& server_handler;
 
     QLabel* backgroundLabel;
     QLabel* carLabel;

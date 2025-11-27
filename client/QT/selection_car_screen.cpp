@@ -5,8 +5,8 @@
 #include <QPixmap>
 #include <QSizePolicy>
 
-SelectionCarScreen::SelectionCarScreen(ServerHandler& server_handler, QWidget* parent)
-    : QWidget(parent), server_handler(server_handler)
+SelectionCarScreen::SelectionCarScreen(QWidget* parent)
+    : QWidget(parent)
 {
     // Fondo full screen
     backgroundLabel = new QLabel(this);

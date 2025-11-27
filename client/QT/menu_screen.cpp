@@ -3,8 +3,8 @@
 #include <QLabel>
 #include <QPixmap>
 
-MenuScreen::MenuScreen(ServerHandler& server_handler, QWidget* parent)
-    : QWidget(parent), server_handler(server_handler)
+MenuScreen::MenuScreen(QWidget* parent)
+    : QWidget(parent)
 {
     setFixedSize(800, 600);
     setWindowTitle("Menú de Sala");

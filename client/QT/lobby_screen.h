@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QResizeEvent>
+
 #include "../../common/dto/server_msg.h"
 #include "../connection/server_handler.h"
 #include "waiting_room_screen.h"
@@ -17,8 +18,9 @@ class LobbyScreen : public QWidget {
 
 public:
     explicit LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
-    void startPolling() { pollTimer->start(50); }
-    void on_return_from_waiting_room(); // slot público
+
+    void startPolling();
+    void on_return_from_waiting_room();
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
@@ -34,25 +36,39 @@ private slots:
         void room_created(uint8_t room_id);
     void go_to_waiting_room_screen();
     void go_to_selection_map_screen();
+    void go_to_maps_created_from_editor_screen();
 
 private:
+
+    // --- Inicialización ---
+    void setupBackground();
+    void setupMainLayout();
+    void setupTitle();
+    void setupCreateRoomButton();
+    void setupEditorMapButton();
+    void setupScrollArea();
+    void setupEmptyLabel();
+    void setupPolling();
+    void setupRoomCreatedConnection();
+
+    // --- Referencias externas ---
     ServerHandler& server_handler;
     size_t& my_id;
 
-    QLabel* background;
-    QVBoxLayout* mainLayout;
-    QScrollArea* scrollArea;
-    QWidget* container;
-    QVBoxLayout* layout;
-    QTimer* pollTimer;
+    // --- UI ---
+    QLabel* background{nullptr};
+    QVBoxLayout* mainLayout{nullptr};
+    QScrollArea* scrollArea{nullptr};
+    QWidget* container{nullptr};
+    QVBoxLayout* layout{nullptr};
 
-    uint8_t current_room_id;
-    WaitingRoomScreen* waitingRoom;
+    // --- Timers ---
+    QTimer* pollTimer{nullptr};
+
+    // --- Estado ---
+    uint8_t current_room_id{0};
+    WaitingRoomScreen* waitingRoom{nullptr};
     bool in_room{false};
-
-    void setupUi();
-    void setupConnections();
-    void setupStyles();
 };
 
 #endif // LOBBY_WINDOW_H

@@ -39,6 +39,7 @@ public:
     // Control del polling
     void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
     void stopPolling()  { if (pollTimer && pollTimer->isActive()) pollTimer->stop(); }
+    void fromEditorScreen(bool enabled);
 
 signals:
     void go_back_to_lobby_screen();
