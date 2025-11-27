@@ -271,19 +271,14 @@ void Intermission::handle_key_pressed(const char* keyName) {
     if (improvement_phase) {
         if (keyName == std::string(1, KEY_IMPROVEMENT_SPEED)) {
             server_handler.send_improvement_choice(CarImprovement::Speed);
-            process_server_messages(ServerMessage::Type::ImprovementOK, 20);
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_HEALTH)) {
             server_handler.send_improvement_choice(CarImprovement::Health);
-            process_server_messages(ServerMessage::Type::ImprovementOK, 20);
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_ACCELERATION)) {
             server_handler.send_improvement_choice(CarImprovement::Acceleration);
-            process_server_messages(ServerMessage::Type::ImprovementOK, 20);
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_MASS)) {
             server_handler.send_improvement_choice(CarImprovement::Mass);
-            process_server_messages(ServerMessage::Type::ImprovementOK, 20);
         } else if (keyName == std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY)) {
             server_handler.send_improvement_choice(CarImprovement::Controllability);
-            process_server_messages(ServerMessage::Type::ImprovementOK, 20);
         }
     }
 }
