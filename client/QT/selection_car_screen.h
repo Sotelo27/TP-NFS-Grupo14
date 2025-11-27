@@ -5,7 +5,6 @@
 #include <QLabel>
 #include <QVector>
 
-#include "../connection/server_handler.h"
 #include "../../common/enum/car_enum.h"
 
 struct CarInfoSprite {
@@ -36,7 +35,6 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 
 private:
-
     QLabel* backgroundLabel;
     QLabel* carLabel;
 

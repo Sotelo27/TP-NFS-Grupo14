@@ -49,7 +49,8 @@ void Game::throw_jugador_no_existe(size_t id) const {
 std::string Game::resolve_map_path(const std::string& map_id) const {
     auto it = map_table.find(map_id);
     if (it == map_table.end()) {
-        throw std::invalid_argument("[Game] Map ID '" + map_id + "' not found in map table.");
+        //el map_id va a ser todo el nombre con el .yaml
+        return "editor/MapsEdited/" + map_id;
     }
     return maps_base_path + it->second;
 }

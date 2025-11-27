@@ -7,6 +7,7 @@
 
 MapConfig MapConfigLoader::load_tiled_file(const std::string& path) {
     YAML::Node root = YAML::LoadFile(path);
+    std::cout << root << std::endl;
     if (!root) {
         throw std::runtime_error("MapConfigLoader: cannot load " + path);
     }

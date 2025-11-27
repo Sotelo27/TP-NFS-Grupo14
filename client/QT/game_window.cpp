@@ -104,7 +104,7 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
     lobby_screen = new LobbyScreen(server_handler, my_id, this);
     waiting_room_screen = new WaitingRoomScreen(server_handler, my_id, this);
     selection_car_screen = new SelectionCarScreen(this);
-    selection_map_screen = new SelectionMapScreen(server_handler, this);
+    selection_map_screen = new SelectionMapScreen(this);
     result_finish_screen = new ResultFinishScreen(server_handler, my_id, this);
     menu_screen = new MenuScreen(this);
     editor_map_screen = new EditorMapScreen(server_handler, this);
@@ -194,7 +194,6 @@ GameWindow::~GameWindow() {
 
 // Slots
 void GameWindow::go_to_lobby() const {
-    waiting_room_screen->stopPolling();
     lobby_screen->startPolling();
     stack->setCurrentWidget(lobby_screen);
 }

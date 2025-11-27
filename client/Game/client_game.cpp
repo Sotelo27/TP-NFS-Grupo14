@@ -128,12 +128,7 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
 
             time_info = action.race_time;
         } else if (action.type == ServerMessage::Type::RaceStart) {
-            map_manager.loadMap(static_cast<MapID>(action.map_id));
-        } else if (action.type == ServerMessage::Type::Results) {
-            std::cout << "[ClientGame] Received RESULTS from server (n="
-                      << action.results_current.size() << ")" << std::endl;
-
-            intermission_manager.run(std::move(action.results_current));
+            current_map_id = static_cast<MapID>(action.map_id);
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;

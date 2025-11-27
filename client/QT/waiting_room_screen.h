@@ -24,6 +24,7 @@ private:
 
     QPushButton* startButton = nullptr;
     QPushButton* backButton = nullptr;
+    QPushButton* selectMapButton;
 
     bool is_admin = false;
     QString selected_map;
@@ -39,7 +40,7 @@ public:
     // Control del polling
     void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
     void stopPolling()  { if (pollTimer && pollTimer->isActive()) pollTimer->stop(); }
-    void fromEditorScreen(bool enabled);
+    void fromEditorScreen(bool editorScreen);
 
 signals:
     void go_back_to_lobby_screen();

@@ -7,8 +7,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPalette>
 
-SelectionMapScreen::SelectionMapScreen(ServerHandler& server_handler, QWidget* parent)
-    : QWidget(parent), server_handler(server_handler)
+SelectionMapScreen::SelectionMapScreen(QWidget* parent)
+    : QWidget(parent)
 {
     // tamaño y título de ventana (coherente con otras pantallas)
     setWindowTitle("Seleccionar Mapa - Need For Speed");
@@ -175,9 +175,9 @@ SelectionMapScreen::SelectionMapScreen(ServerHandler& server_handler, QWidget* p
     };
 
     // Crear y agregar las 3 cards
-    QWidget* card1 = createMapCard("assets/cities/Liberty City.png",  "Liberty City",  "LibertyCity");
-    QWidget* card2 = createMapCard("assets/cities/San Andreas.png",  "San Andreas",  "SanAndreas");
-    QWidget* card3 = createMapCard("assets/cities/Vice City.png",    "Vice City",    "ViceCity");
+    QWidget* card1 = createMapCard("assets/cities/LibertyCity.png",  "Liberty City",  "LibertyCity");
+    QWidget* card2 = createMapCard("assets/cities/SanAndreas.png",  "San Andreas",  "SanAndreas");
+    QWidget* card3 = createMapCard("assets/cities/ViceCity.png",    "Vice City",    "ViceCity");
 
     mapsLayout->addWidget(card1);
     mapsLayout->addWidget(card2);
@@ -203,7 +203,5 @@ void SelectionMapScreen::on_map_selected(const QString& map_name) {
         ? "LibertyCity"
         : selected_map.toStdString();
 
-    // Mantengo la lógica que tenías: send_start_game y volver a sala de espera
-    server_handler.send_start_game({{chosen, 0}});
     emit go_to_waiting_room_screen();
 }

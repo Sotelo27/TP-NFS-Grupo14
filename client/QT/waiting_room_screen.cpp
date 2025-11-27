@@ -87,7 +87,7 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
     startButton = new QPushButton("INICIAR PARTIDA");
     startButton->setFixedSize(350, 80);
     startButton->setCursor(Qt::PointingHandCursor);
-    startButton->setVisible(false);
+    // startButton->setVisible(false);  <- eliminamos esto
 
     startButton->setStyleSheet(
         "QPushButton {"
@@ -108,11 +108,44 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
     glowStart->setColor(QColor(255,0,180));
     startButton->setGraphicsEffect(glowStart);
 
-    connect(startButton, &QPushButton::clicked, this, [this]() {
-        emit go_to_selection_map_screen();
+    connect(startButton, &QPushButton::clicked, this, [this, &server_handler]() {
+        server_handler.send_start_game({{selected_map.toStdString(), 0}});
     });
 
     mainLayout->addWidget(startButton, 0, Qt::AlignCenter);
+
+    // =============================================================
+    // BOTÓN SELECCIONAR MAPA
+    // =============================================================
+    selectMapButton = new QPushButton("SELECCIONAR MAPA");
+    selectMapButton->setFixedSize(350, 80);
+    selectMapButton->setCursor(Qt::PointingHandCursor);
+
+    // Mismo estilo que startButton
+    selectMapButton->setStyleSheet(
+        "QPushButton {"
+        "   background-color: rgba(255, 0, 180, 0.25);"
+        "   border: 4px solid #ff33cc;"
+        "   border-radius: 14px;"
+        "   font-size: 32px;"
+        "   font-weight: bold;"
+        "   color: #ff66ff;"
+        "}"
+        "QPushButton:hover { background-color: rgba(255, 0, 180, 0.40); }"
+        "QPushButton:pressed { background-color: rgba(255, 0, 180, 0.18); }"
+    );
+
+    auto* glowSelect = new QGraphicsDropShadowEffect(this);
+    glowSelect->setBlurRadius(45);
+    glowSelect->setOffset(0,0);
+    glowSelect->setColor(QColor(255,0,180));
+    selectMapButton->setGraphicsEffect(glowSelect);
+
+    connect(selectMapButton, &QPushButton::clicked, this, [this]() {
+        emit go_to_selection_map_screen();
+    });
+
+    mainLayout->addWidget(selectMapButton, 0, Qt::AlignCenter);
 
     // =============================================================
     // BOTÓN VOLVER AL LOBBY
@@ -187,7 +220,8 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
                     is_admin = true;
             }
 
-            startButton->setVisible(is_admin);
+            // En vez de ocultar el botón, habilitamos/deshabilitamos
+            startButton->setEnabled(is_admin);
 
             // Render de jugadores
             for (const auto& p : msg.players) {
@@ -238,12 +272,12 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
     }
 }
 
+void WaitingRoomScreen::fromEditorScreen(bool editorScreen) {
+    if (editorScreen) {
+       selectMapButton->hide();
+    }
+}
 
 void WaitingRoomScreen::start_game() {
     QMessageBox::information(this, "Juego iniciado", "¡La carrera está por comenzar!");
-}
-
-
-void WaitingRoomScreen::fromEditorScreen() {
-
 }

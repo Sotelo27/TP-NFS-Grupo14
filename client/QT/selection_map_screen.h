@@ -1,12 +1,11 @@
 #ifndef SELECTION_MAP_SCREEN_H
 #define SELECTION_MAP_SCREEN_H
 #include <QWidget>
-#include "../connection/server_handler.h"
 
 class SelectionMapScreen : public QWidget {
     Q_OBJECT
 public:
-    explicit SelectionMapScreen(ServerHandler& server_handler, QWidget* parent = nullptr);
+    explicit SelectionMapScreen(QWidget* parent = nullptr);
 
     QString get_selected_map() const { return selected_map; }
 
@@ -17,7 +16,6 @@ private slots:
     void on_map_selected(const QString& map_name);
 
 private:
-    ServerHandler& server_handler;
     QString selected_map;
 };
 
