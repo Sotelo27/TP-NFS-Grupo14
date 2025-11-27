@@ -94,7 +94,7 @@ void Car::apply_force_center(float throttle) noexcept {
 
     const float v    = speed_mps();
     const float vmax = std::max(0.1f, spec_.velocidadMaxMps);
-    const float m    = body->GetMass();
+    //const float m    = body->GetMass();
 
     float accel_target = spec_.fuerzaAceleracionN;
 
@@ -103,7 +103,7 @@ void Car::apply_force_center(float throttle) noexcept {
     const float scale = 1.0f - x;
 
     // fuerza
-    float F = t * m * accel_target * scale;
+    float F = t * accel_target * scale;
 
     const float ang = body->GetAngle();
     b2Vec2 forward(std::cos(ang), std::sin(ang));
@@ -111,51 +111,35 @@ void Car::apply_force_center(float throttle) noexcept {
     body->ApplyForceToCenter(F * forward, true);
 }
 
-
 void Car::apply_steer(float steer) noexcept {
-    if (!body || steer == 0.f) return;
+    if (!body) return;
+
+    steer = std::clamp(steer, -1.f, 1.f);
+    if (std::fabs(steer) < STEER_DEADZONE) return;
 
     const float v   = speed_mps();
     const float ang = body->GetAngle();
 
-    // invertir sentido si vas en reversa
+    // --- invertir sentido si esta marcha atras---
     const b2Vec2 forward(std::cos(ang), std::sin(ang));
     const float vlong = b2Dot(body->GetLinearVelocity(), forward);
     float steerEff = (vlong < -0.2f) ? -steer : steer;
 
-    // agresividad desde el modelo
-    const float steerFactor = std::clamp(spec_.torqueGiro / 10.0f, 0.6f, 1.6f);
+    // potencia base de giro
+    float turn_power = spec_.torqueGiro / 5.0f;
 
-    // ω base: alta a baja velocidad, menor a alta
-    const float k = std::clamp(v / std::max(0.1f, spec_.velocidadMaxMps), 0.0f, 1.0f);
-    const float omega_lo_base = 3.6f;
-    const float omega_hi_base = 1.6f;
-    float omega_max = (omega_lo_base + (omega_hi_base - omega_lo_base) * k) * steerFactor;
+    // a mayor velocidad, menor giro (curva suavizada)
+    float speed_factor = std::clamp(v / spec_.velocidadMaxMps, 0.0f, 1.0f);
 
-    if (v < 0.20f) {
-        const float pivot_min = 4.8f * steerFactor;
-        omega_max = std::max(omega_max, pivot_min);
+    // minimo giro incluso a alta velocidad
+    float omega_min = 0.8f;
 
-        // reducir traslación para que no “empuje” contra el muro
-        b2Vec2 lv = body->GetLinearVelocity();
-        body->SetLinearVelocity(0.85f * lv);
-        if (lv.Length() < 0.03f) {
-            const float m = body->GetMass();
-            const b2Vec2 impulse = (0.25f * m) * -forward;
-            body->ApplyLinearImpulseToCenter(impulse, true);
-        }
-    }
+    // giro interpolado
+    float omega = turn_power * (1.0f - 0.5f * speed_factor) + omega_min;
 
-    const float omega_des = steerEff * omega_max;
-    const float omega_cur = body->GetAngularVelocity();
-    const float I = body->GetInertia();
-
-    // impulso angular para alcanzar ω deseada
-    const float J = I * (omega_des - omega_cur);
-    body->ApplyAngularImpulse(J, true);
+    // aplicar giro final
+    body->SetAngularVelocity(steerEff * omega);
 }
-
-
 
 float Car::speed_mps() const noexcept {
     const b2Body* b = this->body;

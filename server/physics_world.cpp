@@ -30,7 +30,9 @@ void PhysicsWorld::create_car_body(size_t id, float x_meters, float y_meters, co
     float height = 2.0f * halfL;
     float area   = width * height;
 
-    float density = spec.masaKg / area; // masa / area
+    float masa = spec.masaKg / 100.0f;
+
+    float density = masa / area; // masa / area
 
 
     b2FixtureDef fdef;
