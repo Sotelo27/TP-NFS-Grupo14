@@ -105,6 +105,21 @@ public:
     void send_positions_to_all(const std::vector<PlayerPos>& positions);
     void send_race_start(uint8_t map_id, const std::vector<std::pair<int32_t, int32_t>>& checkpoints);
 
+    /*
+     * Envia resultados de carrera (vector current) a este cliente
+     */ 
+    void send_results_to_client(const std::vector<PlayerResultCurrent>& current);
+
+    /*
+     * Envia los resultados totales (acumulados) de la partida a este cliente
+     */
+    void send_results_total_to_client(const std::vector<PlayerResultTotal>& total);
+
+    /*
+     * Envia el ok de compra de mejora al cliente
+     */
+    void send_improvement_ok_to_client(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds);
+
     ClientHandler(const ClientHandler&) = delete;
     ClientHandler& operator=(const ClientHandler&) = delete;
 

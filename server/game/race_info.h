@@ -1,7 +1,8 @@
-#ifndef RACE_PARTICIPANT_H
-#define RACE_PARTICIPANT_H
+#ifndef RACE_INFO_H
+#define RACE_INFO_H
 
 #include <cstdint>
+#include <vector>
 
 // Estado del participante dentro de una carrera
 // Ya no guarda la pose. la pose vive en ahora en PhysicsWorld
@@ -25,6 +26,22 @@ struct RankInfo {
     uint32_t checkpoints_done;
     float distance_to_next_px;
     float finish_time_seconds;
+};
+
+enum class RaceState {
+    Running,
+    Finished
+};
+
+struct ParticipantResultEntry {
+    uint32_t player_id;
+    ParticipantState state;
+    float finish_time_seconds;
+    uint32_t position = 0;
+};
+
+struct RaceResult {
+    std::vector<ParticipantResultEntry> result;
 };
 
 #endif

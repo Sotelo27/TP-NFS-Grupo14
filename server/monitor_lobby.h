@@ -73,6 +73,7 @@ private:
     void handle_move_action(ClientAction act);
     void handle_start_game(ClientAction act);
     void handle_choose_car_action(ClientAction act);
+    void handle_improvement_action(ClientAction act);
 
     // helpers
     std::vector<RoomInfo> list_rooms_locked() const;

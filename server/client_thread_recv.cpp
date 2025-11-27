@@ -64,6 +64,14 @@ void ClientThreadRecv::run() {
                     std::cout << "[ClientThreadRecv] Pushed CHOOSE_CAR action from client " << id << " (car_id=" << (int)received.car_id << ")\n";
                     break;
                 }
+                case ClientMessage::Type::Improvement: {
+                    //action = ClientAction(id, received.improvement);
+                    action.type = ClientAction::Type::Improvement;
+                    action.id = id;
+                    action.improvement_id = received.improvement;
+                    std::cout << "[ClientThreadRecv] Pushed IMPROVEMENT action from client " << id << " (improvement=" << (int)received.improvement << ")\n";
+                    break;
+                }
                 default:
                     std::cout << "[ClientThreadRecv] Unhandled message type " << (int)received.type << " from client " << id << "\n";
                     continue;

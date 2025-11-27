@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <utility>
+#include <vector>
 
 #include <SDL2/SDL.h>
 
@@ -11,14 +12,11 @@
 
 #include "constants.h"
 
-#define FRAME_RATE 60.0
-
 ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over):
         ConstantRateLoop(FRAME_RATE),
         client_id(client_id),
         server_handler(server_handler),
         game_is_over(game_is_over),
-        intermediate_state(false),
         src_area_map(0, 0, 0, 0),
         dest_area_map(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT),
         info_players(),
@@ -29,16 +27,10 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         current_map_id(MapID::LibertyCity),
         time_info(),
         cheat_detector(5),
-        intermission_manager(window) {}
+        intermission_manager(window, server_handler, map_manager, this->running) {}
 
 void ClientGame::function() {
     update_state_from_position();
-
-    if (intermediate_state) {
-        intermission_manager.render();
-        window.render();
-        return;
-    }
 
     // Clear display
     window.fill();
@@ -50,8 +42,6 @@ void ClientGame::function() {
 
 void ClientGame::start() {
     process_server_messages(ServerMessage::Type::RaceStart);
-
-    map_manager.loadMap(current_map_id);
 
     std::cout << "[ClientGame] Juego iniciado" << std::endl;
 
@@ -67,13 +57,16 @@ void ClientGame::handle_cheat_detection(const char* keyName) {
     }
     if (cheat_detector.check_cheat("MID")) {
         std::cout << "[ClientGame] Cheat code MID detected. Intermission!" << std::endl;
-        // acá se debería de mandar a server un mensaje especial para que termine la carrera actual
-
         // esto se borra después
-        intermediate_state = intermediate_state ? false : true;
-        if (!intermediate_state) {
-            intermission_manager.reset();
-        }
+        std::vector<PlayerResultCurrent>
+                player_infos;  // en un futuro se recibe la lista de jugadores
+        player_infos.push_back(PlayerResultCurrent{1, "Player1", 120, 300, 1});
+        player_infos.push_back(PlayerResultCurrent{2, "Player2", 130, 320, 2});
+        player_infos.push_back(PlayerResultCurrent{3, "Player3", 140, 350, 3});
+        player_infos.push_back(PlayerResultCurrent{4, "Player4", 150, 400, 4});
+        player_infos.push_back(PlayerResultCurrent{5, "Player5", 160, 450, 5});
+
+        intermission_manager.run(player_infos);
     }
 }
 
@@ -135,7 +128,12 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
 
             time_info = action.race_time;
         } else if (action.type == ServerMessage::Type::RaceStart) {
-            current_map_id = static_cast<MapID>(action.map_id);
+            map_manager.loadMap(static_cast<MapID>(action.map_id));
+        } else if (action.type == ServerMessage::Type::Results) {
+            std::cout << "[ClientGame] Received RESULTS from server (n="
+                      << action.results_current.size() << ")" << std::endl;
+
+            intermission_manager.run(std::move(action.results_current));
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;

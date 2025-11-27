@@ -84,6 +84,37 @@ void ClientListProtected::broadcast_map_info(const std::vector<PlayerTickInfo>& 
     }
 }
 
+void ClientListProtected::broadcast_results(const std::vector<PlayerResultCurrent>& current) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting RESULTS to " << clients.size() << " clients (n=" << current.size() << ")\n";
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_results_to_client(current);
+        }
+    }
+}
+
+void ClientListProtected::broadcast_results_total(const std::vector<PlayerResultTotal>& total) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting RESULTS_TOTAL to " << clients.size() << " clients (n=" << total.size() << ")\n";
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_results_total_to_client(total);
+        }
+    }
+}
+
+void ClientListProtected::broadcast_race_start(uint8_t map_id) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting RACE_START to " << clients.size() << " clients (map_id=" << (int)map_id << ")\n";
+    std::vector<std::pair<int32_t,int32_t>> empty_checkpoints; // 0 porque esto se tiene que cambiar en un futuro
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_race_start(map_id, empty_checkpoints);
+        }
+    }
+}
+
 ClientListProtected::~ClientListProtected() {
     for (auto& c: clients) {
         c->hard_kill();

@@ -12,14 +12,14 @@
 #include "../../common/dto/input_state.h"
 #include "../../common/car_model.h"
 #include "../physics_world.h"
-#include "race_participant.h"
+#include "race_info.h"
 #include "../Player/car.h"
 
 class Race {
 private:
     uint32_t id;
     float race_duration{0.f};
-    bool is_finished_{false};
+    RaceState state_{RaceState::Running};
     PhysicsWorld& physics;
     std::unordered_map<size_t, RaceParticipant> parts;
     std::unordered_map<size_t, std::unique_ptr<Car>> cars;
@@ -35,6 +35,12 @@ private:
      * Verifica si se ha excedido el tiempo maximo de la carrera 
      */
     void check_time_limit();
+
+    /*
+     * Evalua si debe darse por finalizada la carrera: cuando ya no quedan
+     * participantes en estado Active
+     */
+    void evaluate_finish();
 
     /*
      * Devuelve la direccion de aceleración del jugador segun su input
@@ -117,6 +123,18 @@ public:
      * Calcula y asigna las posiciones en la carrera de cada jugador
      */
     void calculate_ranking_positions(std::vector<PlayerTickInfo>& ticks, std::vector<RankInfo>& ranking) const;
+    
+    /*
+     * Construye el resultado de la carrera: para cada jugador incluye su estado final
+     * y el tiempo en segundos en que termino
+     */
+    RaceResult build_race_results() const;
+
+    /*
+     * Destruye todos los cuerpos de autos en el PhysicsWorld y limpia las estructuras
+     * internas (cars y parts).
+     */
+    void clear_cars();
 };
 
 #endif

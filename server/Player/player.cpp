@@ -21,3 +21,8 @@ const std::string& Player::get_name() const {
 void Player::set_name(std::string name) {
     this->name = std::move(name);
 }
+
+void Player::register_race_result(float time_seconds,float race_penalty_time_seconds){
+    race_time_seconds += time_seconds;
+    penalty_time_seconds += race_penalty_time_seconds;
+}
