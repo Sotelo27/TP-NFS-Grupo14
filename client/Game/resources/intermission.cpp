@@ -371,8 +371,31 @@ bool Intermission::render_time_balance(RenderContext& ctx) {
                                 "Time balance " + std::to_string(ctx.time_balance) + "s",
                                 GOLDEN_YELLOW, true, DARK_VIOLET);
 
+    render_improvements_purchase(ctx);
 
     return true;
+}
+
+void Intermission::render_improvements_purchase(const RenderContext& ctx) {
+    int x_start_icon = X_LIMIT_OPTION + text_rest_info.getWidth() + SIZE_TEXT_HEAD / 2;
+    for (auto& pair: selected_improvements) {
+        if (!pair.second.is_selected) {
+            continue;
+        }
+        int size_icon = text_rest_info.getHeight() * 0.75;
+        int icon_width = static_cast<int>(size_icon * pair.second.icon.getWidth() /
+                                          pair.second.icon.getHeight());
+        pair.second.icon.renderEntity(
+                Area(0, 0, pair.second.icon.getWidth(), pair.second.icon.getHeight()),
+                Area(x_start_icon, ctx.y_offset + 10, icon_width, size_icon), 0.0);
+        x_start_icon += icon_width + 5;
+
+        text_rest_info.renderDirect(x_start_icon, ctx.y_offset,
+                                    "-" + std::to_string(pair.second.cost) + "s", RED, true,
+                                    DARK_VIOLET);
+
+        x_start_icon += text_rest_info.getWidth() + SIZE_TEXT_HEAD / 2;
+    }
 }
 
 bool Intermission::render_improvement_options(RenderContext& ctx) {

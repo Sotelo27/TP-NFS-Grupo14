@@ -77,6 +77,7 @@ private:
     bool render_clock(const RenderContext& ctx);
     bool render_title(RenderContext& ctx);
     bool render_time_balance(RenderContext& ctx);
+    void render_improvements_purchase(const RenderContext& ctx);
     bool render_improvement_options(RenderContext& ctx);
 
     void calculate_layout(RenderContext& ctx);
