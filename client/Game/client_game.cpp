@@ -27,7 +27,7 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         current_map_id(MapID::LibertyCity),
         time_info(),
         cheat_detector(5),
-        intermission_manager(window, server_handler, map_manager, this->running) {}
+        intermission_manager(client_id, window, server_handler, map_manager, this->running) {}
 
 void ClientGame::function() {
     update_state_from_position();

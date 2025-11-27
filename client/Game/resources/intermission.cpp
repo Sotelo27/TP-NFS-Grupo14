@@ -66,9 +66,10 @@ const char KEY_IMPROVEMENT_ACCELERATION = 'A';
 const char KEY_IMPROVEMENT_MASS = 'M';
 const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 
-Intermission::Intermission(SdlWindow& window, ServerHandler& server_handler,
+Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
                            MapsTextures& map_manager, bool& main_running):
         ConstantRateLoop(FRAME_RATE),
+        client_id(client_id),
         window(window),
         server_handler(server_handler),
         map_manager(map_manager),
@@ -231,7 +232,7 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                          "disconnected. Exiting..."
                       << std::endl;
         } else if (action.type == ServerMessage::Type::ImprovementOK) {
-            if (action.improvement_success) {
+            if (action.id == client_id && action.improvement_success) {
                 selected_improvements[static_cast<CarImprovement>(action.improvement_id)] = {
                         true, static_cast<int>(action.improvement_total_penalty_seconds)};
             }

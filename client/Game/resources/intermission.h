@@ -43,6 +43,7 @@ struct DataImprovementOption {
 
 class Intermission: public ConstantRateLoop {
 private:
+    size_t client_id;
     SdlWindow& window;
     ServerHandler& server_handler;
     MapsTextures& map_manager;
@@ -86,7 +87,7 @@ private:
     void process_server_messages(ServerMessage::Type expected_type, int msg_limit = -1);
 
 public:
-    explicit Intermission(SdlWindow& window, ServerHandler& server_handler,
+    explicit Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
                           MapsTextures& map_manager, bool& main_running);
 
     void run(std::vector<PlayerResultCurrent> player_infos);
