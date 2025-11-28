@@ -77,7 +77,7 @@ void GameHud::renderPurchasedImprovement() {
 
     int x_start = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
     int y_start = WINDOW_HEIGHT - 75;
-    for (SdlObjTexture* improvement_icon: improvements) {
+    for (const SdlObjTexture* improvement_icon: improvements) {
         int size_height = 55;
         int size_width =
                 (improvement_icon->getWidth() * size_height) / improvement_icon->getHeight();
@@ -102,7 +102,8 @@ void GameHud::render(int iteration, int time_seconds, const Area& src_area_map) 
     speed_hud.render(client_car.info_car.speed_mps, WINDOW_WIDTH - WINDOW_WIDTH / 7,
                      WINDOW_HEIGHT - WINDOW_HEIGHT / 7);
 
-    position_hud.render(3, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
+    position_hud.render(client_car.info_car.position_in_race, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD,
+                        SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
     time_hud.render(time_seconds, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
