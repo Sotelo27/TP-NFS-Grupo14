@@ -8,8 +8,7 @@
 #define LIFE_ICON std::string(ASSETS_PATH) + "/hud/vida.png"
 
 LifeHud::LifeHud(const SdlWindow& window):
-        texture(LIFE_ICON, window, Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
-        text(FONT_STYLE_AA, (SIZE * 11) / 12, window) {}
+        texture(LIFE_ICON, window, RGB_BACKGROUND), text(FONT_STYLE_AA, (SIZE * 11) / 12, window) {}
 
 void LifeHud::render(int max_life, int current_life, int x, int y) {
     this->texture.render(Area(0, 0, texture.getWidth(), texture.getHeight()),
