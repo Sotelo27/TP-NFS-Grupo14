@@ -3,10 +3,10 @@
 #include "../../constants.h"
 
 #define ICON_CONTROLLABILITY_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/control.png"
-#define ICON_HEALTH_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/control.png"
-#define ICON_SPEED_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/control.png"
-#define ICON_ACCELERATION_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/control.png"
-#define ICON_MASS_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/control.png"
+#define ICON_HEALTH_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/health.png"
+#define ICON_SPEED_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/speed.png"
+#define ICON_ACCELERATION_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/acceleration.png"
+#define ICON_MASS_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/mass.png"
 
 IconImprovementManager::IconImprovementManager(const SdlWindow& window):
         icons(),
