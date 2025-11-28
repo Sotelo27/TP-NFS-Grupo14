@@ -6,17 +6,16 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../../common/constant_rate_loop.h"
-#include "../../../common/dto/results_info.h"
-#include "../../../common/dto/server_msg.h"
-#include "../../../common/enum/car_improvement.h"
-#include "../../connection/server_handler.h"
-#include "../sdl_wrappers/SdlFont.h"
-#include "../sdl_wrappers/SdlObjTexture.h"
-#include "../sdl_wrappers/SdlWindow.h"
-
-#include "cheat_detector.h"
-#include "maps_textures.h"
+#include "../../common/constant_rate_loop.h"
+#include "../../common/dto/results_info.h"
+#include "../../common/dto/server_msg.h"
+#include "../../common/enum/car_improvement.h"
+#include "../connection/server_handler.h"
+#include "resources/cheat_detector.h"
+#include "resources/maps_textures.h"
+#include "sdl_wrappers/SdlFont.h"
+#include "sdl_wrappers/SdlObjTexture.h"
+#include "sdl_wrappers/SdlWindow.h"
 
 struct ImprovementOption {
     CarImprovement improvement_id;

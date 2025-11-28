@@ -4,8 +4,7 @@
 #include <string>
 #include <utility>
 
-#include "../constants.h"
-#include "../utils/rgb.h"
+#include "constants.h"
 
 #define BACKGROUND_INFO_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
 #define BACKGROUND_IMPROVEMENT_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/garaje.png"
