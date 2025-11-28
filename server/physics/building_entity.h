@@ -20,11 +20,13 @@ public:
      */
     Type type() const override;
     
+
     /*
-     * Logica de colisión para edificios, por el momento solo va sprimir que lo colosiono un auto 
-     * con su mensaje de colision ID
+     * Maneja el daño que este edificio debe causar a un auto que lo
+     * haya chocado.
+     * Auto aplica el daño según el edificio que lo haya chocado
      */
-    void onCollision(Entidad* other) override;
+    void apply_damage_to(Car& car, const CollisionInfo& info) override;
 };
 
 #endif
