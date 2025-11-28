@@ -99,7 +99,7 @@ void GameHud::render(int iteration, int time_seconds, const Area& src_area_map) 
 
     renderHint(client_car, iteration);
 
-    speed_hud.render(client_car.info_car.speed_mps, WINDOW_WIDTH - WINDOW_WIDTH / 7,
+    speed_hud.render(client_car.info_car.speed_mps * 10, WINDOW_WIDTH - WINDOW_WIDTH / 7,
                      WINDOW_HEIGHT - WINDOW_HEIGHT / 7);
 
     position_hud.render(client_car.info_car.position_in_race, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD,
