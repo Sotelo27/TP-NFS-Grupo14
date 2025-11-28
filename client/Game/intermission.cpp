@@ -9,7 +9,6 @@
 #define BACKGROUND_INFO_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
 #define BACKGROUND_IMPROVEMENT_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/garaje.png"
 #define BUTTON_UPGRADE_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/boton_u.png"
-#define ICON_CONTROLLABILITY_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/control.png"
 
 #define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_POSITION (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
@@ -78,8 +77,7 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         background_improvement(BACKGROUND_IMPROVEMENT_IMAGE_PATH, window, Rgb(0, 255, 0)),
         button_upgrade(BUTTON_UPGRADE_IMAGE_PATH, window,
                        Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
-        icon_controllability(ICON_CONTROLLABILITY_IMAGE_PATH, window,
-                             Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
+        icon_manager(window),
         text_head(FONT_STYLE_PX, SIZE_TEXT_HEAD, window),
         text_position(FONT_STYLE_VS1, SIZE_TEXT_POSITION, window),
         text_rest_info(FONT_STYLE_CC, SIZE_TEXT_REST_INFO, window),
@@ -90,31 +88,38 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         improvement_options(),
         selected_improvements() {
     improvement_options.push_back({CarImprovement::Health, std::string(1, KEY_IMPROVEMENT_HEALTH),
-                                   icon_controllability, "Health", "Survive more hits",
-                                   NEON_YELLOW});
+                                   icon_manager.get_icon(CarImprovement::Health), "Health",
+                                   "Survive more hits", NEON_YELLOW});
     improvement_options.push_back({CarImprovement::Speed, std::string(1, KEY_IMPROVEMENT_SPEED),
-                                   icon_controllability, "Speed", "Higher maximum speed",
-                                   NEON_LIME});
-    improvement_options.push_back(
-            {CarImprovement::Controllability, std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY),
-             icon_controllability, "Controllability", "Better turning", ELECTRIC_MINT_GREEN});
-    improvement_options.push_back(
-            {CarImprovement::Acceleration, std::string(1, KEY_IMPROVEMENT_ACCELERATION),
-             icon_controllability, "Acceleration", "Quicker 0-100 km/h", ELECTRIC_CYAN});
+                                   icon_manager.get_icon(CarImprovement::Speed), "Speed",
+                                   "Higher maximum speed", NEON_LIME});
+    improvement_options.push_back({CarImprovement::Controllability,
+                                   std::string(1, KEY_IMPROVEMENT_CONTROLLABILITY),
+                                   icon_manager.get_icon(CarImprovement::Controllability),
+                                   "Controllability", "Better turning", ELECTRIC_MINT_GREEN});
+    improvement_options.push_back({CarImprovement::Acceleration,
+                                   std::string(1, KEY_IMPROVEMENT_ACCELERATION),
+                                   icon_manager.get_icon(CarImprovement::Acceleration),
+                                   "Acceleration", "Quicker 0-100 km/h", ELECTRIC_CYAN});
     improvement_options.push_back({CarImprovement::Mass, std::string(1, KEY_IMPROVEMENT_MASS),
-                                   icon_controllability, "Mass", "Stronger collisions",
-                                   NEON_WATER_BLUE});
+                                   icon_manager.get_icon(CarImprovement::Mass), "Mass",
+                                   "Stronger collisions", NEON_WATER_BLUE});
 
-    selected_improvements.emplace(CarImprovement::Health,
-                                  DataImprovementOption{false, icon_controllability});
-    selected_improvements.emplace(CarImprovement::Speed,
-                                  DataImprovementOption{false, icon_controllability});
-    selected_improvements.emplace(CarImprovement::Controllability,
-                                  DataImprovementOption{false, icon_controllability});
-    selected_improvements.emplace(CarImprovement::Acceleration,
-                                  DataImprovementOption{false, icon_controllability});
-    selected_improvements.emplace(CarImprovement::Mass,
-                                  DataImprovementOption{false, icon_controllability});
+    selected_improvements.emplace(
+            CarImprovement::Health,
+            DataImprovementOption{false, icon_manager.get_icon(CarImprovement::Health)});
+    selected_improvements.emplace(
+            CarImprovement::Speed,
+            DataImprovementOption{false, icon_manager.get_icon(CarImprovement::Speed)});
+    selected_improvements.emplace(
+            CarImprovement::Acceleration,
+            DataImprovementOption{false, icon_manager.get_icon(CarImprovement::Acceleration)});
+    selected_improvements.emplace(
+            CarImprovement::Mass,
+            DataImprovementOption{false, icon_manager.get_icon(CarImprovement::Mass)});
+    selected_improvements.emplace(
+            CarImprovement::Controllability,
+            DataImprovementOption{false, icon_manager.get_icon(CarImprovement::Controllability)});
 }
 
 void Intermission::function() {
@@ -142,6 +147,7 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
     for (auto& pair: selected_improvements) {
         pair.second.is_selected = false;
     }
+    improvements_purchased.clear();
 
     improvement_phase = false;
     ConstantRateLoop::start_loop();

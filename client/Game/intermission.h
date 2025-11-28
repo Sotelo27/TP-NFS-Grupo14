@@ -12,6 +12,7 @@
 #include "../../common/enum/car_improvement.h"
 #include "../connection/server_handler.h"
 #include "resources/cheat_detector.h"
+#include "resources/hud/icon_improvement_manager.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlFont.h"
 #include "sdl_wrappers/SdlObjTexture.h"
@@ -57,7 +58,7 @@ private:
     SdlObjTexture background_info;
     SdlObjTexture background_improvement;
     SdlObjTexture button_upgrade;
-    SdlObjTexture icon_controllability;
+    IconImprovementManager icon_manager;
     SdlFont text_head;
     SdlFont text_position;
     SdlFont text_rest_info;
