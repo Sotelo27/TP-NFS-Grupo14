@@ -161,25 +161,31 @@ void Car::cap_speed(float vmax_mps) noexcept {
     }
 }
 
-void Car::onCollision(Entidad* other) {
-    if (!other){
-        return;
-    }
-    const float oldVida = vida_;
-    if (other->type() == Entidad::Type::Building || other->type() == Entidad::Type::Border) {
-        const float damage = 10.f;
-        set_vida(vida_ - damage);
-        std::cout << "[Collision] Car " << id
-                  << " vs " << (other->type() == Entidad::Type::Building ? "Building" : "Border")
-                  << " | vida: " << oldVida << " -> " << vida_ << " (-" << (oldVida - vida_) << ")\n";
-        return;
-    }
-    if (other->type() == Entidad::Type::Car) {
-        const float damage = 5.f;
-        set_vida(vida_ - damage);
-        std::cout << "[Collision] Car " << id
-                  << " vs Car " << other->get_id()
-                  << " | vida: " << oldVida << " -> " << vida_ << " (-" << (oldVida - vida_) << ")\n";
-        return;
-    }
+void Car::on_collision_with(Entidad& other, const CollisionInfo& info) {
+    other.apply_damage_to(*this, info);
+}
+
+void Car::apply_damage_to(Car& other_car, const CollisionInfo& info) {
+    // choque auto-auto: ambos se dañan
+    float base_damage = 5.f;
+    other_car.apply_collision_damage(base_damage, info);
+    this->apply_collision_damage(base_damage, info);
+}
+
+void Car::apply_collision_damage(float base_damage, const CollisionInfo& info) {
+    if (!body) return;
+
+    // Dirección del auto
+    b2Vec2 forward = body->GetWorldVector(b2Vec2(0.f, 1.f)); 
+    float alignment = std::fabs(b2Dot(forward, -info.normal_world));
+    alignment = std::clamp(alignment, 0.f, 1.f);
+
+    float impact_factor = info.impact_intensity / 10.0f;
+    impact_factor = std::clamp(impact_factor, 0.2f, 2.0f);
+
+    float direction_factor = 0.3f + 0.7f * alignment;
+
+    float damage = base_damage * direction_factor * impact_factor;
+
+    set_vida(vida_ - damage);
 }

@@ -61,12 +61,22 @@ public:
     Type type() const override;
 
     /*
-     * Manejara la colision por entidad
-     * -> Si es con otro auto, se podra descontar vida a ambos
-     * -> Si es con un borde, no se decuenta la vida
-     * -> Si es con un edificio, se podra descontar vida al auto
-    */
-    void onCollision(Entidad* other) override;
+     * Notifica que este auto chocó con otra Entidad.
+     * Delega el manejo del daño en la otra entidad.
+     */
+    void on_collision_with(Entidad& other, const CollisionInfo& info) override;
+
+    /*
+     * Maneja el daño que este auto debe causar a otro auto.
+     * Para choques auto-auto se aplica daño a ambos.
+     */
+    void apply_damage_to(Car& car, const CollisionInfo& info) override;
+
+    /*
+     * Calcula y descuenta el daño real según la intensidad
+     * y la dirección del impacto.
+     */
+    void apply_collision_damage(float base_damage, const CollisionInfo& info);
 };
 
 #endif
