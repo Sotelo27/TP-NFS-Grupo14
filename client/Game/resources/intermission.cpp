@@ -107,15 +107,15 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
                                    NEON_WATER_BLUE});
 
     selected_improvements.emplace(CarImprovement::Health,
-                                  DataImprovementOption{false, 0, icon_controllability});
+                                  DataImprovementOption{false, icon_controllability});
     selected_improvements.emplace(CarImprovement::Speed,
-                                  DataImprovementOption{false, 0, icon_controllability});
+                                  DataImprovementOption{false, icon_controllability});
     selected_improvements.emplace(CarImprovement::Controllability,
-                                  DataImprovementOption{false, 0, icon_controllability});
+                                  DataImprovementOption{false, icon_controllability});
     selected_improvements.emplace(CarImprovement::Acceleration,
-                                  DataImprovementOption{false, 0, icon_controllability});
+                                  DataImprovementOption{false, icon_controllability});
     selected_improvements.emplace(CarImprovement::Mass,
-                                  DataImprovementOption{false, 0, icon_controllability});
+                                  DataImprovementOption{false, icon_controllability});
 }
 
 void Intermission::function() {
@@ -142,7 +142,6 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
 
     for (auto& pair: selected_improvements) {
         pair.second.is_selected = false;
-        pair.second.cost = 0;
     }
 
     improvement_phase = false;
@@ -250,7 +249,9 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                         static_cast<CarImprovement>(action.improvement_id));
                 if (it != selected_improvements.end()) {
                     it->second.is_selected = true;
-                    it->second.cost = action.improvement_total_penalty_seconds;
+                    improvements_purchased.push_back(
+                            {static_cast<int>(action.improvement_total_penalty_seconds),
+                             it->second.icon, iteration});
                 }
             }
         }
@@ -378,23 +379,25 @@ bool Intermission::render_time_balance(RenderContext& ctx) {
 
 void Intermission::render_improvements_purchase(const RenderContext& ctx) {
     int x_start_icon = X_LIMIT_OPTION + text_rest_info.getWidth() + SIZE_TEXT_HEAD / 2;
-    for (auto& pair: selected_improvements) {
-        if (!pair.second.is_selected) {
-            continue;
-        }
+    for (auto event = improvements_purchased.begin(); event != improvements_purchased.end();) {
         int size_icon = text_rest_info.getHeight() * 0.75;
-        int icon_width = static_cast<int>(size_icon * pair.second.icon.getWidth() /
-                                          pair.second.icon.getHeight());
-        pair.second.icon.renderEntity(
-                Area(0, 0, pair.second.icon.getWidth(), pair.second.icon.getHeight()),
-                Area(x_start_icon, ctx.y_offset + 10, icon_width, size_icon), 0.0);
+        int icon_width =
+                static_cast<int>(size_icon * event->icon.getWidth() / event->icon.getHeight());
+        event->icon.renderEntity(Area(0, 0, event->icon.getWidth(), event->icon.getHeight()),
+                                 Area(x_start_icon, ctx.y_offset + 10, icon_width, size_icon), 0.0);
         x_start_icon += icon_width + 5;
 
         text_rest_info.renderDirect(x_start_icon, ctx.y_offset,
-                                    "-" + std::to_string(pair.second.cost) + "s", RED, true,
+                                    "-" + std::to_string(event->cost) + "s", RED, true,
                                     DARK_VIOLET);
 
         x_start_icon += text_rest_info.getWidth() + SIZE_TEXT_HEAD / 2;
+
+        if ((this->iteration - event->iteration_purchase) > AMOUNT_FRAMES_WAITING * 6) {
+            event = improvements_purchased.erase(event);
+        } else {
+            ++event;
+        }
     }
 }
 

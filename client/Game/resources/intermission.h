@@ -38,8 +38,13 @@ struct RenderContext {
 
 struct DataImprovementOption {
     bool is_selected;
+    SdlObjTexture& icon;
+};
+
+struct EventPurchaseImprovement {
     int cost;
     SdlObjTexture& icon;
+    int iteration_purchase;
 };
 
 class Intermission: public ConstantRateLoop {
@@ -63,6 +68,7 @@ private:
     std::vector<PlayerResultCurrent> player_infos;
     std::vector<ImprovementOption> improvement_options;
     std::unordered_map<CarImprovement, DataImprovementOption> selected_improvements;
+    std::list<EventPurchaseImprovement> improvements_purchased;
 
     void function() final;
 
