@@ -28,7 +28,6 @@ public:
 
     virtual Type type() const = 0;
     virtual void onCollision(Entidad* /*other*/) {}
-    virtual void onUpdate(float /*dt*/) {}
     
     virtual void on_collision_with(Entidad& /*other*/, const CollisionInfo& /*info*/){}
     virtual void apply_damage_to(Car& /*car*/, const CollisionInfo& /*info*/){}
