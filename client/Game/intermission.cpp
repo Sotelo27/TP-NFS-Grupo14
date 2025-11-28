@@ -86,6 +86,12 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         player_infos(),
         improvement_options(),
         selected_improvements() {
+    initialize_improvement_options();
+
+    initialize_selected_improvements();
+}
+
+void Intermission::initialize_improvement_options() {
     improvement_options.push_back({CarImprovement::Health, std::string(1, KEY_IMPROVEMENT_HEALTH),
                                    icon_manager.get_icon(CarImprovement::Health), "Health",
                                    "Survive more hits", NEON_YELLOW});
@@ -103,7 +109,9 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
     improvement_options.push_back({CarImprovement::Mass, std::string(1, KEY_IMPROVEMENT_MASS),
                                    icon_manager.get_icon(CarImprovement::Mass), "Mass",
                                    "Stronger collisions", NEON_WATER_BLUE});
+}
 
+void Intermission::initialize_selected_improvements() {
     selected_improvements.emplace(
             CarImprovement::Health,
             DataImprovementOption{false, icon_manager.get_icon(CarImprovement::Health)});
