@@ -4,11 +4,9 @@ target_sources(taller_client
     car_sprite_sheet.cpp
     maps_textures.cpp
     cheat_detector.cpp
-    intermission.cpp
     PUBLIC
     # .h files
     car_sprite_sheet.h
     maps_textures.h
     cheat_detector.h
-    intermission.h
     )

@@ -9,6 +9,7 @@ target_sources(taller_client
     mini_map_hud.cpp
     hint.cpp
     checkpoint.cpp
+    icon_improvement_manager.cpp
     PUBLIC
     # .h files
     life_bar.h
@@ -19,4 +20,5 @@ target_sources(taller_client
     mini_map_hud.h
     hint.h
     checkpoint.h
+    icon_improvement_manager.h
     )

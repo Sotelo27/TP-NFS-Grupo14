@@ -13,11 +13,8 @@
 
 MiniMap::MiniMap(size_t client_id, const SdlWindow& window, const MapsTextures& map_manager,
                  std::unordered_map<size_t, CarInfoGame>& info_players):
-        texture_cars_mini_map(CARS_MINI_MAP, window,
-                              Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
-        texture_checkpoint_mini_map(
-                CHECKPOINT_MINI_MAP, window,
-                Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
+        texture_cars_mini_map(CARS_MINI_MAP, window, RGB_BACKGROUND),
+        texture_checkpoint_mini_map(CHECKPOINT_MINI_MAP, window, RGB_BACKGROUND),
         draw_fill(window),
         client_id(client_id),
         map_manager(map_manager),

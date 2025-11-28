@@ -23,10 +23,7 @@
 #define FRAMES_PER_PHASE 10
 
 Hint::Hint(const SdlWindow& window):
-        texture(HINT_IMAGE_PATH, window,
-                Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
-        phase(0),
-        alphas() {
+        texture(HINT_IMAGE_PATH, window, RGB_BACKGROUND), phase(0), alphas() {
     int alpha_step = (ALPHA_MAX - ALPHA_MIN) / (NUMBER_ARROWS);
     for (int i = 0; i < NUMBER_ARROWS; i++) {
         alphas.push_back(ALPHA_MAX - (alpha_step * i));

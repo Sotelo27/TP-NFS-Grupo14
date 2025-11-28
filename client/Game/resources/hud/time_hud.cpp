@@ -10,8 +10,7 @@
 #define SIZE WINDOW_WIDTH / 38
 
 TimeHud::TimeHud(const SdlWindow& window):
-        texture(TIME_ICON, window, Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)),
-        text(FONT_STYLE_PX, SIZE + 10, window) {}
+        texture(TIME_ICON, window, RGB_BACKGROUND), text(FONT_STYLE_PX, SIZE + 10, window) {}
 
 void TimeHud::render(int16_t time_seconds, int x, int y) {
     time_seconds = (time_seconds < 0) ? 0 : time_seconds;

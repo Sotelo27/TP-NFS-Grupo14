@@ -10,12 +10,12 @@
 #include "../connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
 #include "resources/cheat_detector.h"
-#include "resources/intermission.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 
 #include "car_info_game.h"
 #include "game_hud.h"
+#include "intermission.h"
 
 class ClientGame: public ConstantRateLoop {
 private:

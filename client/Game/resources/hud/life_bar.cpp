@@ -7,8 +7,7 @@
 #define LIFE_BAR_SPRITE_SHEET_FILE std::string(ASSETS_PATH) + "/hud/barra_de_vida.png"
 
 LifeBarSpriteSheet::LifeBarSpriteSheet(const SdlWindow& window):
-        texture_life_bar(LIFE_BAR_SPRITE_SHEET_FILE, window,
-                         Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)) {
+        texture_life_bar(LIFE_BAR_SPRITE_SHEET_FILE, window, RGB_BACKGROUND) {
     sprites.emplace(PercentageLifeBar::FULL, Area(123, 94, 767, 165));
     sprites.emplace(PercentageLifeBar::EIGHTY, Area(123, 259, 767, 165));
     sprites.emplace(PercentageLifeBar::FIFTY, Area(123, 424, 767, 165));
