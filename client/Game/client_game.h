@@ -28,6 +28,7 @@ private:
     SdlWindow window;
     CarSpriteSheet car_sprites;
     MapsTextures map_manager;
+    IconImprovementManager icon_improvement_manager;
     GameHud game_hud;
     MapID current_map_id;
     TimeTickInfo time_info;
