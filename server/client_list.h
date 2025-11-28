@@ -79,6 +79,12 @@ public:
     void broadcast_results_total(const std::vector<PlayerResultTotal>& total);
 
     /*
+     * Broadcast de improvement ok (compra en marketplace)
+     * incluyento player_id y datos de la penalización
+     */
+    void broadcast_improvement_ok(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds);
+
+    /*
      * Envia el inicio de la carrera a todos los clientes
      */
     void broadcast_race_start(uint8_t map_id);

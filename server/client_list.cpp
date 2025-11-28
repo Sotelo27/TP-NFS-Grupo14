@@ -115,6 +115,20 @@ void ClientListProtected::broadcast_race_start(uint8_t map_id) {
     }
 }
 
+void ClientListProtected::broadcast_improvement_ok(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting IMPROVEMENT_OK to " << clients.size()
+              << " clients (player_id=" << player_id
+              << ", improvement=" << (int)improvement_id
+              << ", success=" << (success?1:0)
+              << ", total_penalty_seconds=" << total_penalty_seconds << ")\n";
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_improvement_ok_to_client(player_id, improvement_id, success, total_penalty_seconds);
+        }
+    }
+}
+
 ClientListProtected::~ClientListProtected() {
     for (auto& c: clients) {
         c->hard_kill();

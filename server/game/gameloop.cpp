@@ -37,20 +37,8 @@ void Gameloop::procesar_actiones() {
                 std::cout << "[Gameloop] Processing IMPROVEMENT for player_id="
                           << action.id << " imp=" << (int)action.improvement_id << "\n";
                 bool ok = game.buy_upgrade(action.id, (CarImprovement)(action.improvement_id));
-                if (ok) {
-                    float penalty = game.get_player_market_penalty_seconds(action.id);
-                    auto handler = clients.get_handler_by_conn(action.id);
-                    if (handler) {
-                        handler->send_improvement_ok_to_client((uint32_t)action.id, action.improvement_id, true, (uint32_t)penalty);
-                    }
-                } else {
-                    // Compra INVALIDa,
-                    auto handler = clients.get_handler_by_conn(action.id);
-                    if (handler) {
-                        float penalty = game.get_player_market_penalty_seconds(action.id);
-                        handler->send_improvement_ok_to_client((uint32_t)action.id, action.improvement_id, false, (uint32_t)penalty);
-                    }
-                }
+                float penalty = game.get_player_market_penalty_seconds(action.id);
+                clients.broadcast_improvement_ok((uint32_t)action.id, action.improvement_id, ok, (uint32_t)penalty);
             }
 
         } catch (const std::exception& err) {
