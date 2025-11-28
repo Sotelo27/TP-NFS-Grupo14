@@ -7,6 +7,7 @@
 #define  PI 3.14159265358979323846f
 #define PPM 32.f
 #define MAX_DURATION_SECONDS 600.f
+#define MIN_DURATION_SECONDS 0.f
 #define MS_TO_KMH 3.6f
 
 Race::Race(uint32_t id, PhysicsWorld& external_world)
@@ -171,9 +172,10 @@ void Race::evaluate_finish() {
     }
 }
 
-
 uint32_t Race::get_race_time_seconds() const {
-    return (uint32_t)(race_duration);
+    float remaining = MAX_DURATION_SECONDS - race_duration;
+    if (remaining < MIN_DURATION_SECONDS) remaining = MIN_DURATION_SECONDS;
+    return (uint32_t)(remaining);
 }
 
 RaceResult Race::build_race_results() const {
