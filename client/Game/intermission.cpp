@@ -460,10 +460,11 @@ void Intermission::render_single_option(const ImprovementOption& option, int ind
 
     x_limit_option += SIZE_TEXT_HEAD + button_upgrade_width;
 
+    int size_icon_width =
+            static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() / option.icon.getHeight());
+    int x_offset_icon = static_cast<float>(SIZE_ICON_BUTTON - size_icon_width) * option.icon.getWidth() / option.icon.getHeight();
     option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
-                             Area(x_limit_option, y_option_index,
-                                  static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() /
-                                                   option.icon.getHeight()),
+                             Area(x_limit_option + x_offset_icon, y_option_index, size_icon_width,
                                   SIZE_ICON_BUTTON),
                              0.0);
 
