@@ -21,11 +21,56 @@ void ContactListener::BeginContact(b2Contact* contact) {
     Entidad* b = entidadFromFixture(contact->GetFixtureB());
     if (!a || !b) return;
 
-    a->onCollision(b);
-    b->onCollision(a);
+    //a->onCollision(b);
+    //b->onCollision(a);
 
     handle_checkpoint_contact(a, b);
 }
+
+void ContactListener::EndContact(b2Contact* contact) {
+    if (!contact) return;
+    damaged_contacts_.erase(contact);
+}
+
+void ContactListener::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse) {
+    if (!contact || !impulse) return;
+
+    Entidad* a = entidadFromFixture(contact->GetFixtureA());
+    Entidad* b = entidadFromFixture(contact->GetFixtureB());
+    if (!a || !b) return;
+
+    // Normal del contacto
+    b2WorldManifold wm;
+    contact->GetWorldManifold(&wm);
+    b2Vec2 normalAB = wm.normal;
+
+    // Severidad del impacto: usamos el impulso normal (primer punto)
+    //fuerza del impacto
+    float normalImpulse = (impulse->normalImpulses[0] > 0.0f)
+                            ? impulse->normalImpulses[0]
+                            : 0.0f;
+
+    // No proceses daño si el golpe es demasiado suave
+    if (normalImpulse < MIN_DAMAGE_IMPULSE) {
+        return;
+    }
+
+    // Evitar aplicar daño cada frame mientras el contacto persiste
+    if (damaged_contacts_.find(contact) != damaged_contacts_.end()) {
+        return;
+    }
+
+    CollisionInfo info_calculate_collision_A{ -normalAB, normalImpulse };
+    CollisionInfo info_calculate_collision_B{  normalAB, normalImpulse };
+
+    // Double dispatch de juego
+    a->on_collision_with(*b, info_calculate_collision_A);
+    b->on_collision_with(*a, info_calculate_collision_B);
+
+    // Marcar el contacto como ya dañado hasta que se libere (EndContact)
+    damaged_contacts_.insert(contact);
+}
+
 
 void ContactListener::handle_checkpoint_contact(Entidad* a, Entidad* b) {
     Entidad*            ent_car = nullptr;
