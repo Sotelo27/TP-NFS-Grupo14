@@ -75,6 +75,7 @@ private:
     int iteration_breakpoint;
     bool ready_next_race;
     int current_balance;
+    int time_market;
 
     void function() final;
 

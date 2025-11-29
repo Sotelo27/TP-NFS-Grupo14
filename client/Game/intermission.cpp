@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include "utils/time_formatter.h"
+
 #include "constants.h"
 
 #define BACKGROUND_INFO_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
@@ -317,6 +319,8 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                 }
                 current_balance = r.current_balance;
             }
+        } else if (action.type == ServerMessage::Type::MarketTime) {
+            time_market = action.race_time.seconds;
         } else if (action.type == ServerMessage::Type::MapInfo && ready_next_race) {
             client_helper.update_map_info(action.players_tick, action.race_time);
         }
@@ -421,7 +425,8 @@ bool Intermission::render_background(const RenderContext& ctx) {
 }
 
 bool Intermission::render_clock(const RenderContext& ctx) {
-    show_info_center(text_head, "00:00", WINDOW_WIDTH - SIZE_TEXT_HEAD * 3,
+    std::string time_str = TimeFormatter::format_time(time_market);
+    show_info_center(text_head, time_str, WINDOW_WIDTH - SIZE_TEXT_HEAD * 3,
                      WINDOW_WIDTH - SIZE_TEXT_HEAD * 2, SIZE_TEXT_HEAD / 2, BRIGHT_FIRE_YELLOW,
                      DARK_VIOLET);
 
