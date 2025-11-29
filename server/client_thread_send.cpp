@@ -70,6 +70,9 @@ void ClientThreadSend::run() {
                 case ServerOutType::ImprovementOk:
                     protocol.send_improvement_ok(msg.id, msg.improvement_id, msg.improvement_success, msg.total_penalty_seconds);
                     break;
+                case ServerOutType::MarketTime:
+                    protocol.send_market_time(msg.market_time);
+                    break;
                 default:
                     std::cout << "[ClientThreadSend] Unknown message type\n";
                     break;

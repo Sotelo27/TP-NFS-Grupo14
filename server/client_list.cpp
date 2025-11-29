@@ -115,6 +115,15 @@ void ClientListProtected::broadcast_race_start(uint8_t map_id) {
     }
 }
 
+void ClientListProtected::broadcast_market_time_info(TimeTickInfo time_info) {
+    std::lock_guard<std::mutex> lock(m);
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_market_time_to_client(time_info);
+        }
+    }
+}
+
 void ClientListProtected::broadcast_improvement_ok(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds) {
     std::lock_guard<std::mutex> lock(m);
     std::cout << "[ClientList] Broadcasting IMPROVEMENT_OK to " << clients.size()

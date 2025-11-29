@@ -59,6 +59,8 @@ public:
                        const std::vector<EventInfo>& events,
                        TimeTickInfo time_info);
 
+    void send_market_time(TimeTickInfo time_info);
+
     bool is_recv_closed() const { return skt.is_stream_recv_closed(); }
     void shutdown(int mode) { skt.shutdown(mode); }
 

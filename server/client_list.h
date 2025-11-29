@@ -69,6 +69,11 @@ public:
                             TimeTickInfo time_info);
 
     /*
+     * Envia el tiempo de mercado a todos los clientes
+     */
+    void broadcast_market_time_info(TimeTickInfo time_info);
+
+    /*
      * Envia los resultados de la carrera
      */
     void broadcast_results(const std::vector<PlayerResultCurrent>& current);
