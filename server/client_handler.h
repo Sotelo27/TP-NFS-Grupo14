@@ -120,6 +120,11 @@ public:
      */
     void send_improvement_ok_to_client(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds);
 
+    /*
+     * Envia el tiempo de mercado al cliente
+     */
+    void send_market_time_to_client(TimeTickInfo time_info);
+
     ClientHandler(const ClientHandler&) = delete;
     ClientHandler& operator=(const ClientHandler&) = delete;
 

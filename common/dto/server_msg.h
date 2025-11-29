@@ -69,7 +69,8 @@ enum class ServerOutType : uint8_t {
     RaceStart,
     Results,
     MapInfo,
-    ImprovementOk
+    ImprovementOk,
+    MarketTime
 };
 
 struct ServerOutMsg {
@@ -110,6 +111,9 @@ struct ServerOutMsg {
     uint8_t improvement_id{0};
     uint32_t total_penalty_seconds{0};
     uint8_t improvement_success{0};
+
+    // MarketTime
+    TimeTickInfo market_time;
 
     ServerOutMsg();
 };

@@ -181,3 +181,10 @@ void ClientHandler::send_improvement_ok_to_client(uint32_t player_id, uint8_t im
     mensajes_a_enviar.try_push(std::move(out));
 }
 
+void ClientHandler::send_market_time_to_client(TimeTickInfo time_info) {
+    ServerOutMsg out{};
+    out.type = ServerOutType::MarketTime;
+    out.market_time = time_info;
+    mensajes_a_enviar.try_push(std::move(out));
+}
+
