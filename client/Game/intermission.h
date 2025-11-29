@@ -32,7 +32,6 @@ struct ImprovementOption {
 struct RenderContext {
     int iteration_phase;
     int y_offset;
-    int time_balance;
     int y_start_options;
     int y_limit_options;
     int option_height;
@@ -75,6 +74,7 @@ private:
     int iteration_called;
     int iteration_breakpoint;
     bool ready_next_race;
+    int current_balance;
 
     void function() final;
 

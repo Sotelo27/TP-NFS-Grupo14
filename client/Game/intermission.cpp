@@ -97,7 +97,8 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         client_helper(client_helper),
         iteration_called(0),
         iteration_breakpoint(0),
-        ready_next_race(false) {
+        ready_next_race(false),
+        current_balance(0) {
     initialize_improvement_options();
 
     initialize_selected_improvements();
@@ -305,13 +306,16 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                       << std::endl;
         } else if (action.type == ServerMessage::Type::ImprovementOK) {
             const ImprovementResult& r = action.result_market_player;
-            if (r.player_id == client_id && r.ok) {
+            if (static_cast<CarImprovement>(r.improvement_id) == CarImprovement::Init) {
+                current_balance = r.current_balance;
+            } else if (r.player_id == client_id && r.ok) {
                 auto it = selected_improvements.find(static_cast<CarImprovement>(r.improvement_id));
                 if (it != selected_improvements.end()) {
                     it->second.is_selected = true;
                     improvements_purchased.push_back({static_cast<int>(r.total_penalty_seconds),
                                                       it->second.icon, iteration});
                 }
+                current_balance = r.current_balance;
             }
         } else if (action.type == ServerMessage::Type::MapInfo && ready_next_race) {
             client_helper.update_map_info(action.players_tick, action.race_time);
@@ -393,9 +397,6 @@ void Intermission::show_improvement_phase() {
         ctx.iteration_phase = iteration_breakpoint - iteration;
     }
 
-
-    ctx.time_balance = 300;
-
     if (!render_background(ctx))
         return;
     if (!render_clock(ctx))
@@ -438,7 +439,7 @@ bool Intermission::render_title(RenderContext& ctx) {
 bool Intermission::render_time_balance(RenderContext& ctx) {
     ctx.y_offset += text_head.getHeight() + SIZE_TEXT_HEAD / 4;
     text_rest_info.renderDirect(X_LIMIT_OPTION, ctx.y_offset,
-                                "Time balance " + std::to_string(ctx.time_balance) + "s",
+                                "Time balance " + std::to_string(current_balance) + "s",
                                 GOLDEN_YELLOW, true, DARK_VIOLET);
 
     render_improvements_purchase(ctx);
