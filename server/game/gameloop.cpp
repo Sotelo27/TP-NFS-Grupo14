@@ -63,17 +63,22 @@ void Gameloop::func_tick(int iteration) {
             clients.broadcast_race_start(next_map_id);
     }
 
-    std::vector<ImprovementResult> init_msgs;
-    if (game.consume_pending_market_init(init_msgs)) {
-        for (const auto& msg : init_msgs) {
-            clients.broadcast_improvement_ok(msg);
-        }
-    }
-
     if (game.has_pending_results()) {
         std::vector<PlayerResultCurrent> curr;
         if (game.comsume_pending_results(curr)) {
             clients.broadcast_results(curr);
+        }
+    }
+
+    std::vector<ImprovementResult> init_msgs;
+    if (game.consume_pending_market_init(init_msgs)) {
+        std::cout << "[Gameloop] Broadcasting MARKET INIT (after results) n=" << init_msgs.size() << "\n";
+        for (const auto& msg : init_msgs) {
+            std::cout << "  -> INIT for player_id=" << msg.player_id
+                      << ", balance=" << msg.current_balance
+                      << ", total_penalty=" << msg.total_penalty_seconds
+                      << ", imp_id=" << (int)msg.improvement_id << "\n";
+            clients.broadcast_improvement_ok(msg);
         }
     }
 
