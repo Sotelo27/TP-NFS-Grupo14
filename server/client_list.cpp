@@ -124,16 +124,17 @@ void ClientListProtected::broadcast_market_time_info(TimeTickInfo time_info) {
     }
 }
 
-void ClientListProtected::broadcast_improvement_ok(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds) {
+void ClientListProtected::broadcast_improvement_ok(const ImprovementResult& result) {
     std::lock_guard<std::mutex> lock(m);
     std::cout << "[ClientList] Broadcasting IMPROVEMENT_OK to " << clients.size()
-              << " clients (player_id=" << player_id
-              << ", improvement=" << (int)improvement_id
-              << ", success=" << (success?1:0)
-              << ", total_penalty_seconds=" << total_penalty_seconds << ")\n";
+              << " clients (player_id=" << result.player_id
+              << ", improvement=" << (int)result.improvement_id
+              << ", success=" << (result.ok?1:0)
+              << ", total_penalty_seconds=" << result.total_penalty_seconds
+              << ", current_balance=" << result.current_balance << ")\n";
     for (auto& client : clients) {
         if (client && client->is_alive()) {
-            client->send_improvement_ok_to_client(player_id, improvement_id, success, total_penalty_seconds);
+            client->send_improvement_ok_to_client(result);
         }
     }
 }

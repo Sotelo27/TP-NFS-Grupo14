@@ -50,10 +50,8 @@ struct ServerMessage {
     // resultados de carrera
     std::vector<PlayerResultCurrent> results_current;
     std::vector<PlayerResultTotal> results_total;
-    // Improvement ACK payload
-    uint8_t improvement_id{0};
-    uint8_t improvement_success{0};
-    uint32_t improvement_total_penalty_seconds{0};
+    // Improvement ACK payload (mercado / upgrades)
+    ImprovementResult result_market_player{};
 
     ServerMessage();
 };
@@ -109,9 +107,7 @@ struct ServerOutMsg {
     uint8_t nitro_msg{0};
 
     // ImprovementOK
-    uint8_t improvement_id{0};
-    uint32_t total_penalty_seconds{0};
-    uint8_t improvement_success{0};
+    ImprovementResult improvement_result{};
 
     // MarketTime
     TimeTickInfo market_time;
