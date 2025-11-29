@@ -121,8 +121,9 @@ void ResultFinishScreen::setResults(const std::vector<PlayerResultTotal>& result
 
 void ResultFinishScreen::populate_table(const std::vector<PlayerResultTotal>& results) {
     table->clearContents();
-    int n = std::min((int)results.size(), table->rowCount());
-    for (int i = 0; i < n; ++i) {
+    table->setRowCount(static_cast<int>(results.size())); // Ajusta filas a la cantidad de resultados
+
+    for (int i = 0; i < static_cast<int>(results.size()); ++i) {
         const auto& r = results[i];
         auto* pos  = new QTableWidgetItem(QString::number(r.position) + "º");
         auto* name = new QTableWidgetItem(QString::fromStdString(r.username));
@@ -134,8 +135,8 @@ void ResultFinishScreen::populate_table(const std::vector<PlayerResultTotal>& re
         table->setItem(i, 1, name);
         table->setItem(i, 2, time);
     }
-    // Borra filas sobrantes si hay menos resultados que filas
-    for (int i = n; i < table->rowCount(); ++i) {
+    // Si hay menos resultados que filas previas, limpia las filas sobrantes
+    for (int i = static_cast<int>(results.size()); i < table->rowCount(); ++i) {
         table->setItem(i, 0, new QTableWidgetItem(""));
         table->setItem(i, 1, new QTableWidgetItem(""));
         table->setItem(i, 2, new QTableWidgetItem(""));
