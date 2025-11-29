@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "resources/car_sprite_sheet.h"
 #include "resources/cheat_detector.h"
@@ -40,6 +41,8 @@ public:
 
     void update_animation_frames();
     void render_in_z_order(int iteration);
+    void update_map_info(const std::vector<PlayerTickInfo>& players_info,
+                         const TimeTickInfo& time_info);
 
     ClientHelper(const ClientHelper&) = delete;
     ClientHelper& operator=(const ClientHelper&) = delete;

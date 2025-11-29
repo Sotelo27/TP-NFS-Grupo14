@@ -73,6 +73,8 @@ private:
     std::list<EventPurchaseImprovement> improvements_purchased;
     ClientHelper& client_helper;
     int iteration_called;
+    int iteration_breakpoint;
+    bool ready_next_race;
 
     void function() final;
 
@@ -84,6 +86,7 @@ private:
     void show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
                           int y_info, const Rgb& color_front, const Rgb& color_shadow);
     void show_text_for_next_phase();
+    void show_background_game();
 
     void show_improvement_phase();
     bool render_background(const RenderContext& ctx);
@@ -100,6 +103,8 @@ private:
     void handle_cheat_detection(const char* keyName);
     void handle_key_pressed(const char* keyName);
     void process_server_messages(ServerMessage::Type expected_type, int msg_limit = -1);
+
+    void clear_resources();
 
 public:
     explicit Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,

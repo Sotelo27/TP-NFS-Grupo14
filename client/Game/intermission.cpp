@@ -55,6 +55,13 @@ constexpr int AMOUNT_FRAMES_ANIMATION = 90;
 constexpr int AMOUNT_FRAMES_WAITING = 20;
 constexpr int RESULTS = AMOUNT_FRAMES_ANIMATION + 2 * AMOUNT_FRAMES_WAITING;
 
+constexpr int AMOUNT_FRAMES_TO_RENDER_CLOCK = AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING;
+constexpr int AMOUNT_FRAMES_TO_RENDER_TITLE = AMOUNT_FRAMES_TO_RENDER_CLOCK + AMOUNT_FRAMES_WAITING;
+constexpr int AMOUNT_FRAMES_TO_RENDER_TIME_BALANCE =
+        AMOUNT_FRAMES_TO_RENDER_TITLE + AMOUNT_FRAMES_WAITING;
+constexpr int AMOUNT_FRAMES_CLOSE_TO_END =
+        AMOUNT_FRAMES_TO_RENDER_TIME_BALANCE + AMOUNT_FRAMES_WAITING - 1;
+
 #define KEY_NEXT_BUTTON "N"
 const char NEXT_PHASE_TEXT[] = "Press " KEY_NEXT_BUTTON " to continue...";
 
@@ -88,7 +95,9 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         improvement_options(),
         selected_improvements(),
         client_helper(client_helper),
-        iteration_called(0) {
+        iteration_called(0),
+        iteration_breakpoint(0),
+        ready_next_race(false) {
     initialize_improvement_options();
 
     initialize_selected_improvements();
@@ -139,16 +148,36 @@ void Intermission::function() {
 
     window.fill();
 
-    if (iteration <= AMOUNT_FRAMES_ANIMATION) {
-        client_helper.render_in_z_order(iteration_called);
+    show_background_game();
+
+    if (!ready_next_race) {
+        show_results();
+    } else {
+        this->running = iteration_breakpoint > iteration ? true : false;
     }
 
-    show_results();
     if (improvement_phase) {
         show_improvement_phase();
     }
 
     window.render();
+}
+
+void Intermission::show_background_game() {
+    bool should_render = false;
+
+    if (iteration <= AMOUNT_FRAMES_ANIMATION) {
+        should_render = true;
+    }
+
+    if (ready_next_race) {
+        client_helper.update_animation_frames();
+        should_render = true;
+    }
+
+    if (should_render) {
+        client_helper.render_in_z_order(iteration_called);
+    }
 }
 
 void Intermission::run(std::vector<PlayerResultCurrent> player_infos, int iteration_called) {
@@ -160,6 +189,12 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos, int iterat
 
     this->iteration_called = iteration_called;
 
+    clear_resources();
+
+    ConstantRateLoop::start_loop();
+}
+
+void Intermission::clear_resources() {
     for (auto& pair: selected_improvements) {
         pair.second.is_selected = false;
     }
@@ -167,7 +202,9 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos, int iterat
 
     improvement_phase = false;
 
-    ConstantRateLoop::start_loop();
+    iteration_breakpoint = 0;
+
+    ready_next_race = false;
 }
 
 void Intermission::show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
@@ -256,9 +293,10 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::RaceStart) {
-            map_manager.loadMap(static_cast<MapID>(action.map_id));
-            this->running = false;
+            // map_manager.loadMap(static_cast<MapID>(action.map_id));
             keep_loop = false;
+            iteration_breakpoint = iteration + AMOUNT_FRAMES_CLOSE_TO_END;
+            ready_next_race = true;
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
@@ -276,6 +314,8 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                              it->second.icon, iteration});
                 }
             }
+        } else if (action.type == ServerMessage::Type::MapInfo && ready_next_race) {
+            client_helper.update_map_info(action.players_tick, action.race_time);
         }
 
         if (action.type == expected_type) {
@@ -295,6 +335,9 @@ void Intermission::handle_cheat_detection(const char* keyName) {
         main_running = false;
     } else if (cheat_detector.check_cheat("MID")) {
         running = false;
+    } else if (cheat_detector.check_cheat("NEXT")) {
+        iteration_breakpoint = iteration + AMOUNT_FRAMES_CLOSE_TO_END;
+        ready_next_race = true;
     }
 }
 
@@ -347,6 +390,11 @@ void Intermission::handle_sdl_events() {
 void Intermission::show_improvement_phase() {
     RenderContext ctx;
     ctx.iteration_phase = iteration - iteration_init_improvement_phase;
+    if (ready_next_race) {
+        ctx.iteration_phase = iteration_breakpoint - iteration;
+    }
+
+
     ctx.time_balance = 300;
 
     if (!render_background(ctx))
@@ -369,7 +417,7 @@ bool Intermission::render_background(const RenderContext& ctx) {
                  background_improvement.getWidth(), background_improvement.getHeight()),
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
-    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING;
+    return ctx.iteration_phase >= AMOUNT_FRAMES_TO_RENDER_CLOCK;
 }
 
 bool Intermission::render_clock(const RenderContext& ctx) {
@@ -377,7 +425,7 @@ bool Intermission::render_clock(const RenderContext& ctx) {
                      WINDOW_WIDTH - SIZE_TEXT_HEAD * 2, SIZE_TEXT_HEAD / 2, BRIGHT_FIRE_YELLOW,
                      DARK_VIOLET);
 
-    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 2;
+    return ctx.iteration_phase >= AMOUNT_FRAMES_TO_RENDER_TITLE;
 }
 
 bool Intermission::render_title(RenderContext& ctx) {
@@ -385,7 +433,7 @@ bool Intermission::render_title(RenderContext& ctx) {
     show_info_center(text_head, "CAR UPGRADE", SIZE_TEXT_HEAD, WINDOW_WIDTH - SIZE_TEXT_HEAD,
                      ctx.y_offset, ORANGE_SUN, DARK_VIOLET);
 
-    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3;
+    return ctx.iteration_phase >= AMOUNT_FRAMES_TO_RENDER_TIME_BALANCE;
 }
 
 bool Intermission::render_time_balance(RenderContext& ctx) {

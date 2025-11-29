@@ -92,3 +92,14 @@ void ClientHelper::render_in_z_order(int iteration) {
 
     window.render();
 }
+
+void ClientHelper::update_map_info(const std::vector<PlayerTickInfo>& players_info,
+                                   const TimeTickInfo& time_info) {
+    info_players.clear();
+
+    for (const auto& p_info: players_info) {
+        info_players[p_info.player_id] = CarInfoGame{p_info, Area()};
+    }
+
+    this->time_info = time_info;
+}
