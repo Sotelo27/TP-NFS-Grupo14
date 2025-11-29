@@ -18,6 +18,8 @@
 #include "sdl_wrappers/SdlObjTexture.h"
 #include "sdl_wrappers/SdlWindow.h"
 
+#include "client_helper.h"
+
 struct ImprovementOption {
     CarImprovement improvement_id;
     std::string key;
@@ -69,6 +71,8 @@ private:
     std::vector<ImprovementOption> improvement_options;
     std::unordered_map<CarImprovement, DataImprovementOption> selected_improvements;
     std::list<EventPurchaseImprovement> improvements_purchased;
+    ClientHelper& client_helper;
+    int iteration_called;
 
     void function() final;
 
@@ -100,9 +104,9 @@ private:
 public:
     explicit Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
                           MapsTextures& map_manager, bool& main_running,
-                          IconImprovementManager& icon_manager);
+                          IconImprovementManager& icon_manager, ClientHelper& client_helper);
 
-    void run(std::vector<PlayerResultCurrent> player_infos);
+    void run(std::vector<PlayerResultCurrent> player_infos, int iteration_called);
 
     ~Intermission() = default;
 };

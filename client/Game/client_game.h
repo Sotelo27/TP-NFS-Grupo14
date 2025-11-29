@@ -29,8 +29,8 @@ private:
     IconImprovementManager icon_improvement_manager;
     TimeTickInfo time_info;
     CheatDetector cheat_detector;
-    Intermission intermission_manager;
     ClientHelper client_helper;
+    Intermission intermission_manager;
 
     void update_state_from_position();
     void handle_sdl_events();

@@ -66,7 +66,7 @@ const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 
 Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
                            MapsTextures& map_manager, bool& main_running,
-                           IconImprovementManager& icon_manager):
+                           IconImprovementManager& icon_manager, ClientHelper& client_helper):
         ConstantRateLoop(FRAME_RATE),
         client_id(client_id),
         window(window),
@@ -86,7 +86,9 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         iteration_init_improvement_phase(0),
         player_infos(),
         improvement_options(),
-        selected_improvements() {
+        selected_improvements(),
+        client_helper(client_helper),
+        iteration_called(0) {
     initialize_improvement_options();
 
     initialize_selected_improvements();
@@ -137,6 +139,10 @@ void Intermission::function() {
 
     window.fill();
 
+    if (iteration <= AMOUNT_FRAMES_ANIMATION) {
+        client_helper.render_in_z_order(iteration_called);
+    }
+
     show_results();
     if (improvement_phase) {
         show_improvement_phase();
@@ -145,12 +151,14 @@ void Intermission::function() {
     window.render();
 }
 
-void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
+void Intermission::run(std::vector<PlayerResultCurrent> player_infos, int iteration_called) {
     std::sort(player_infos.begin(), player_infos.end(),
               [](const PlayerResultCurrent& a, const PlayerResultCurrent& b) {
                   return a.position < b.position;
               });
     this->player_infos = std::move(player_infos);
+
+    this->iteration_called = iteration_called;
 
     for (auto& pair: selected_improvements) {
         pair.second.is_selected = false;
@@ -158,6 +166,7 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
     improvements_purchased.clear();
 
     improvement_phase = false;
+
     ConstantRateLoop::start_loop();
 }
 
@@ -462,11 +471,12 @@ void Intermission::render_single_option(const ImprovementOption& option, int ind
 
     int size_icon_width =
             static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() / option.icon.getHeight());
-    int x_offset_icon = static_cast<float>(SIZE_ICON_BUTTON - size_icon_width) * option.icon.getWidth() / option.icon.getHeight();
-    option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
-                             Area(x_limit_option + x_offset_icon, y_option_index, size_icon_width,
-                                  SIZE_ICON_BUTTON),
-                             0.0);
+    int x_offset_icon = static_cast<float>(SIZE_ICON_BUTTON - size_icon_width) *
+                        option.icon.getWidth() / option.icon.getHeight();
+    option.icon.renderEntity(
+            Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
+            Area(x_limit_option + x_offset_icon, y_option_index, size_icon_width, SIZE_ICON_BUTTON),
+            0.0);
 
     x_limit_option += static_cast<float>(SIZE_TEXT_HEAD) * 3;
 

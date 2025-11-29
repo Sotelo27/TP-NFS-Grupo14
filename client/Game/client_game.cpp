@@ -23,10 +23,10 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         icon_improvement_manager(window),
         time_info(),
         cheat_detector(5),
-        intermission_manager(client_id, window, server_handler, map_manager, this->running,
-                             icon_improvement_manager),
         client_helper(client_id, window, info_players, map_manager, icon_improvement_manager,
-                      time_info) {}
+                      time_info),
+        intermission_manager(client_id, window, server_handler, map_manager, this->running,
+                             icon_improvement_manager, client_helper) {}
 
 void ClientGame::function() {
     update_state_from_position();
@@ -65,7 +65,7 @@ void ClientGame::handle_cheat_detection(const char* keyName) {
         player_infos.push_back(PlayerResultCurrent{4, "Player4", 150, 400, 4});
         player_infos.push_back(PlayerResultCurrent{5, "Player5", 160, 450, 5});
 
-        intermission_manager.run(player_infos);
+        intermission_manager.run(player_infos, iteration);
     }
 }
 
@@ -132,7 +132,7 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
             std::cout << "[ClientGame] Received RESULTS from server (n="
                       << action.results_current.size() << ")" << std::endl;
 
-            intermission_manager.run(std::move(action.results_current));
+            intermission_manager.run(std::move(action.results_current), iteration);
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
