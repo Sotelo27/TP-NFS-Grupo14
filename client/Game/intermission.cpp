@@ -100,7 +100,8 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         iteration_called(0),
         iteration_breakpoint(0),
         ready_next_race(false),
-        current_balance(0) {
+        current_balance(0),
+        time_market(0) {
     initialize_improvement_options();
 
     initialize_selected_improvements();
@@ -296,10 +297,21 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::RaceStart) {
+            // descomentar la siguiente línea si se cambia de mapa, por convención ahora es un mismo
+            // mapa para toda la partida
             // map_manager.loadMap(static_cast<MapID>(action.map_id));
             keep_loop = false;
             iteration_breakpoint = iteration + AMOUNT_FRAMES_CLOSE_TO_END;
             ready_next_race = true;
+
+            // reposicionar los autos en el mapa, se hace más de una vez para ver si se arregla la
+            // animación pero es tema de sdl¿? a veces anda bien otras se bugea
+            for (int i = 0; i < 10; i++) {
+                action = server_handler.recv_response_from_server();
+                if (action.type == ServerMessage::Type::MapInfo) {
+                    client_helper.update_map_info(action.players_tick, action.race_time);
+                }
+            }
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
@@ -321,8 +333,6 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
             }
         } else if (action.type == ServerMessage::Type::MarketTime) {
             time_market = action.race_time.seconds;
-        } else if (action.type == ServerMessage::Type::MapInfo && ready_next_race) {
-            client_helper.update_map_info(action.players_tick, action.race_time);
         }
 
         if (action.type == expected_type) {
