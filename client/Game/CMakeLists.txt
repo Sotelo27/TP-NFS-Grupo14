@@ -4,9 +4,11 @@ target_sources(taller_client
     client_game.cpp
     game_hud.cpp
     intermission.cpp
+    client_helper.cpp
     PUBLIC
     # .h files
     client_game.h
     game_hud.h
     intermission.h
+    client_helper.h
     )
