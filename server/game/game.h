@@ -231,6 +231,11 @@ public:
     bool consume_pending_market_init(std::vector<ImprovementResult>& out);
     
     /*
+     * Obtiene la penalizacion de tiempo asociada a una mejora
+     */
+    float get_improvement_penalty(CarImprovement imp) const;
+
+    /*
      * Construye el resultado de la carrera actual para su correcto envio
      */
     std::vector<PlayerResultCurrent> build_player_result_current(const RaceResult& race_result,const std::unordered_map<size_t, float>& penalties_seconds) const;
