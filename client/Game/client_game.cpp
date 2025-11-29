@@ -23,11 +23,14 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         window(WINDOW_WIDTH, WINDOW_HEIGHT),
         car_sprites(window),
         map_manager(window),
-        game_hud(window, map_manager, client_id, info_players, car_sprites),
+        icon_improvement_manager(window),
+        game_hud(window, map_manager, client_id, info_players, car_sprites,
+                 icon_improvement_manager),
         current_map_id(MapID::LibertyCity),
         time_info(),
         cheat_detector(5),
-        intermission_manager(client_id, window, server_handler, map_manager, this->running) {}
+        intermission_manager(client_id, window, server_handler, map_manager, this->running,
+                             icon_improvement_manager) {}
 
 void ClientGame::function() {
     update_state_from_position();

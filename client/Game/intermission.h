@@ -58,7 +58,7 @@ private:
     SdlObjTexture background_info;
     SdlObjTexture background_improvement;
     SdlObjTexture button_upgrade;
-    IconImprovementManager icon_manager;
+    IconImprovementManager& icon_manager;
     SdlFont text_head;
     SdlFont text_position;
     SdlFont text_rest_info;
@@ -99,7 +99,8 @@ private:
 
 public:
     explicit Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
-                          MapsTextures& map_manager, bool& main_running);
+                          MapsTextures& map_manager, bool& main_running,
+                          IconImprovementManager& icon_manager);
 
     void run(std::vector<PlayerResultCurrent> player_infos);
 

@@ -65,7 +65,8 @@ const char KEY_IMPROVEMENT_MASS = 'M';
 const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 
 Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
-                           MapsTextures& map_manager, bool& main_running):
+                           MapsTextures& map_manager, bool& main_running,
+                           IconImprovementManager& icon_manager):
         ConstantRateLoop(FRAME_RATE),
         client_id(client_id),
         window(window),
@@ -76,7 +77,7 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         background_info(BACKGROUND_INFO_IMAGE_PATH, window, Rgb(0, 255, 0)),
         background_improvement(BACKGROUND_IMPROVEMENT_IMAGE_PATH, window, Rgb(0, 255, 0)),
         button_upgrade(BUTTON_UPGRADE_IMAGE_PATH, window, RGB_BACKGROUND),
-        icon_manager(window),
+        icon_manager(icon_manager),
         text_head(FONT_STYLE_PX, SIZE_TEXT_HEAD, window),
         text_position(FONT_STYLE_VS1, SIZE_TEXT_POSITION, window),
         text_rest_info(FONT_STYLE_CC, SIZE_TEXT_REST_INFO, window),
@@ -459,10 +460,11 @@ void Intermission::render_single_option(const ImprovementOption& option, int ind
 
     x_limit_option += SIZE_TEXT_HEAD + button_upgrade_width;
 
+    int size_icon_width =
+            static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() / option.icon.getHeight());
+    int x_offset_icon = static_cast<float>(SIZE_ICON_BUTTON - size_icon_width) * option.icon.getWidth() / option.icon.getHeight();
     option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
-                             Area(x_limit_option, y_option_index,
-                                  static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() /
-                                                   option.icon.getHeight()),
+                             Area(x_limit_option + x_offset_icon, y_option_index, size_icon_width,
                                   SIZE_ICON_BUTTON),
                              0.0);
 
