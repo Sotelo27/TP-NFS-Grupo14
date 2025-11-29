@@ -162,6 +162,9 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login,
         waiting_room_screen->set_selected_map(selected_map);
         go_to_waiting_room_from_map();
     });
+
+    // Conexión para resultados finales
+    connect(&server_handler, &ServerHandler::finalResultsReceived, this, &GameWindow::show_final_results);
 }
 
 // -----------------------------------------------------------
@@ -187,5 +190,9 @@ void GameWindow::go_to_results() const { stack->setCurrentWidget(result_finish_s
 void GameWindow::go_to_login() const { stack->setCurrentWidget(login_screen); }
 void GameWindow::go_to_waiting_room_from_map() const { waiting_room_screen->startPolling(); stack->setCurrentWidget(waiting_room_screen); }
 void GameWindow::go_to_menu() const { stack->setCurrentWidget(menu_screen); }
+void GameWindow::show_final_results(const std::vector<PlayerResultTotal>& results) {
+    result_finish_screen->setResults(results);
+    stack->setCurrentWidget(result_finish_screen);
+}
 
 #include "game_window.moc"

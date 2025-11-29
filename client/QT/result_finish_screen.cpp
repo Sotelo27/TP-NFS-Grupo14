@@ -13,7 +13,7 @@ ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
 {
     setup_ui();
     setup_style();
-    populate_table();
+    //populate_table();
 }
 
 void ResultFinishScreen::setup_ui() {
@@ -115,26 +115,29 @@ void ResultFinishScreen::setup_style() {
     );
 }
 
-void ResultFinishScreen::populate_table() {
+void ResultFinishScreen::setResults(const std::vector<PlayerResultTotal>& results) {
+    populate_table(results);
+}
 
-    QString nombres[10] = { "ALEX", "JAMIE", "MARÍA", "PEDRO", "SARA",
-                            "CARLA", "MIGUEL", "LAURA", "LUIS", "TOMÁS" };
-
-    QString tiempos[10] = { "1:20", "1:26", "1:33", "1:40", "1:45",
-                            "1:50", "2:00", "2:10", "2:22", "2:30" };
-
-    for (int i = 0; i < 10; i++) {
-
-        auto* pos  = new QTableWidgetItem(QString::number(i + 1) + "º");
-        auto* name = new QTableWidgetItem(nombres[i]);
-        auto* time = new QTableWidgetItem(tiempos[i]);
-
+void ResultFinishScreen::populate_table(const std::vector<PlayerResultTotal>& results) {
+    table->clearContents();
+    int n = std::min((int)results.size(), table->rowCount());
+    for (int i = 0; i < n; ++i) {
+        const auto& r = results[i];
+        auto* pos  = new QTableWidgetItem(QString::number(r.position) + "º");
+        auto* name = new QTableWidgetItem(QString::fromStdString(r.username));
+        auto* time = new QTableWidgetItem(QString::number(r.total_time_seconds) + "s");
         pos->setTextAlignment(Qt::AlignCenter);
         name->setTextAlignment(Qt::AlignCenter);
         time->setTextAlignment(Qt::AlignCenter);
-
         table->setItem(i, 0, pos);
         table->setItem(i, 1, name);
         table->setItem(i, 2, time);
+    }
+    // Borra filas sobrantes si hay menos resultados que filas
+    for (int i = n; i < table->rowCount(); ++i) {
+        table->setItem(i, 0, new QTableWidgetItem(""));
+        table->setItem(i, 1, new QTableWidgetItem(""));
+        table->setItem(i, 2, new QTableWidgetItem(""));
     }
 }

@@ -46,6 +46,7 @@ private slots:
     void go_to_login() const;
     void go_to_waiting_room_from_map() const;
     void go_to_menu() const;
+    void show_final_results(const std::vector<PlayerResultTotal>& results);
 };
 
 #endif //GAME_WINDOW_H
