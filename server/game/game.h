@@ -21,7 +21,7 @@
 #include "../../common/enum/car_improvement.h"
 #include "../../common/dto/results_info.h"
 
-#define MARKET_DURATION 10.0f
+#define MARKET_DURATION 30.0f
 
 enum class GameState {
     Lobby,
@@ -47,8 +47,6 @@ private:
     float marketplace_time_remaining;
     bool pending_race_start{false};
     uint8_t current_map_id{0};
-    // Para logs de cuenta regresiva del Marketplace
-    int marketplace_last_logged_second{-1};
     
     City city;
     Garage garage;
@@ -60,6 +58,7 @@ private:
     // Resultados totales (acumulados al finalizar el juego)
     std::vector<PlayerResultTotal> last_results_total;
     bool pending_total_results{false};
+    bool pending_market_init{false};
 
 
     void throw_jugador_no_existe(size_t id) const;
@@ -130,6 +129,11 @@ public:
     TimeTickInfo get_race_time() const;
 
     /*
+     * Obtiene el tiempo restante de la fase de Marketplace en segundos
+     */
+    TimeTickInfo get_market_time() const;
+
+    /*
      * Devuelve informacion del jugador para el tick del mapa (posiciones + salud por ahora)
      */
     std::vector<PlayerTickInfo> players_tick_info();
@@ -159,6 +163,11 @@ public:
      * Verifica si hay una carrera activa en curso
      */
     bool has_active_race() const;
+
+    /*
+     * Verifica si la fase de marketplace esta en curso
+     */
+    bool has_active_market_place() const;
 
     /*
      * Carga el MapConfig paredes, edificios en la ciudad.
@@ -215,6 +224,11 @@ public:
      * Consume los resultados totales pendientes
      */
     bool consume_pending_total_results(std::vector<PlayerResultTotal>& total);
+
+    /*
+     * Consume el evento de inicio de marketplace
+     */
+    bool consume_pending_market_init(std::vector<ImprovementResult>& out);
     
     /*
      * Construye el resultado de la carrera actual para su correcto envio
@@ -222,9 +236,9 @@ public:
     std::vector<PlayerResultCurrent> build_player_result_current(const RaceResult& race_result,const std::unordered_map<size_t, float>& penalties_seconds) const;
     
     /*
-     * Obtiene la penalizacion de tiempo acumulada por un jugador en segundos
+     * Obtiene la informacioon del jugador de market
      */
-    float get_player_market_penalty_seconds(size_t player_id);
+    PlayerMarketInfo get_player_market_info(size_t player_id) const;
     
     /*
      * Carga el mapa por su ID segun lo que me mande el cliente

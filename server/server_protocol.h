@@ -51,13 +51,15 @@ public:
     void send_results(const std::vector<PlayerResultCurrent>& current,
                       const std::vector<PlayerResultTotal>& total);
     
-    void send_improvement_ok(uint32_t player_id, uint8_t improvement_id, uint8_t success, uint32_t total_penalty_seconds);
+    void send_improvement_ok(const ImprovementResult& result);
     void send_result_race_current(const std::vector<PlayerResultCurrent>& current);
     
     void send_map_info(const std::vector<PlayerTickInfo>& players,
                        const std::vector<NpcTickInfo>& npcs,
                        const std::vector<EventInfo>& events,
                        TimeTickInfo time_info);
+
+    void send_market_time(TimeTickInfo time_info);
 
     bool is_recv_closed() const { return skt.is_stream_recv_closed(); }
     void shutdown(int mode) { skt.shutdown(mode); }

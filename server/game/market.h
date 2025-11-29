@@ -15,9 +15,10 @@ class Market {
 private:
     std::unordered_map<CarImprovement, UpgradeInfo> catalog_upgrades;
     std::unordered_map< size_t, PlayerMarketInfo> player_market_info;
+    float base_balance;
 
 public:
-    Market();
+    Market(float base_balance_init);
 
     /*
      * Resetea todas las mejoras compradas por los jugadores

@@ -16,13 +16,14 @@ static const char* improvement_name(CarImprovement id) {
     }
 }
 
-Market::Market(): catalog_upgrades(), player_market_info() {
-    catalog_upgrades.emplace(CarImprovement::Health, UpgradeInfo{60.0f, 50.0f});
-    catalog_upgrades.emplace(CarImprovement::Acceleration, UpgradeInfo{180.0f, 4.0f});
-    catalog_upgrades.emplace(CarImprovement::Speed, UpgradeInfo{120.0f, 0.5f});
-    catalog_upgrades.emplace(CarImprovement::Controllability, UpgradeInfo{90.0f, 2.0f});
-    catalog_upgrades.emplace(CarImprovement::Mass, UpgradeInfo{30.0f, 50.0f});
+Market::Market(float base_balance_init): catalog_upgrades(), player_market_info(), base_balance(base_balance_init) {
+    catalog_upgrades.emplace(CarImprovement::Health, UpgradeInfo{40.0f, 50.0f});
+    catalog_upgrades.emplace(CarImprovement::Acceleration, UpgradeInfo{50.0f, 4.0f});
+    catalog_upgrades.emplace(CarImprovement::Speed, UpgradeInfo{30.0f, 0.5f});
+    catalog_upgrades.emplace(CarImprovement::Controllability, UpgradeInfo{10.0f, 2.0f});
+    catalog_upgrades.emplace(CarImprovement::Mass, UpgradeInfo{20.0f, 50.0f});
 }
+//150
 
 void Market::reset_upgrades() {
     player_market_info.clear();
@@ -37,6 +38,14 @@ bool Market::buy_upgrade(std::size_t player_id, CarImprovement id) {
 
     auto& info = player_market_info[player_id];
 
+     // inicializar la compra por primera vez
+    if (!info.initialized) {
+        info.balance = base_balance;
+        info.total_time_penalty = 0.f;
+        info.upgrades.clear();
+        info.initialized = true;
+    }
+
     // si ya la tiene, no la vuelve a comprar
     auto it = std::find(info.upgrades.begin(), info.upgrades.end(), id);
     if (it != info.upgrades.end()) {
@@ -45,7 +54,16 @@ bool Market::buy_upgrade(std::size_t player_id, CarImprovement id) {
         return false;
     }
 
+    if (info.balance < upgrade.time_penalty) {
+        std::cout << "[Market] Player " << player_id
+                  << " no tiene saldo suficiente para mejora "
+                  << improvement_name(id) << " (saldo=" << info.balance
+                  << ", costo=" << upgrade.time_penalty << ")\n";
+        return false;
+    }
+
     info.upgrades.push_back(id);
+    info.balance  -= upgrade.time_penalty;
     info.total_time_penalty += upgrade.time_penalty;
 
     std::cout << "[Market] Player " << player_id << " compra mejora " << improvement_name(id)
@@ -128,8 +146,6 @@ std::unordered_map<std::size_t, float> Market::consume_penalties_for_race(){
 
     }
 
-    // una vez consumido lo reseteo
-    // player_market_info.clear();
     reset_upgrades();
 
     return penalties_seconds;
@@ -138,7 +154,11 @@ std::unordered_map<std::size_t, float> Market::consume_penalties_for_race(){
 PlayerMarketInfo Market::get_total_player_info(size_t player_id) const{
     auto it = player_market_info.find(player_id);
     if (it == player_market_info.end()) {
-        return PlayerMarketInfo{};
+        PlayerMarketInfo info;
+        info.total_time_penalty = 0.f;
+        info.balance = base_balance;
+        info.initialized = false;
+        return info;
     }
     return it->second;
 }

@@ -304,14 +304,13 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                          "disconnected. Exiting..."
                       << std::endl;
         } else if (action.type == ServerMessage::Type::ImprovementOK) {
-            if (action.id == client_id && action.improvement_success) {
-                auto it = selected_improvements.find(
-                        static_cast<CarImprovement>(action.improvement_id));
+            const ImprovementResult& r = action.result_market_player;
+            if (r.player_id == client_id && r.ok) {
+                auto it = selected_improvements.find(static_cast<CarImprovement>(r.improvement_id));
                 if (it != selected_improvements.end()) {
                     it->second.is_selected = true;
-                    improvements_purchased.push_back(
-                            {static_cast<int>(action.improvement_total_penalty_seconds),
-                             it->second.icon, iteration});
+                    improvements_purchased.push_back({static_cast<int>(r.total_penalty_seconds),
+                                                      it->second.icon, iteration});
                 }
             }
         } else if (action.type == ServerMessage::Type::MapInfo && ready_next_race) {
