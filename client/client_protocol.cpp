@@ -273,14 +273,20 @@ ServerMessage ClientProtocol::parse_improvement() {
     uint8_t imp=0; skt.recvall(&imp,1);
     uint8_t success=0; skt.recvall(&success,1);
     uint32_t pen_be=0; skt.recvall(&pen_be,4);
-    dto.id = ntohl(pid_be); // player id
-    dto.improvement_id = imp;
-    dto.improvement_success = success;
-    dto.improvement_total_penalty_seconds = ntohl(pen_be);
-    std::cout << "[ClientProtocol] Improvement ACK player_id=" << dto.id
-              << " improvement=" << (int)imp
-              << " success=" << (int)success
-              << " total_penalty_seconds=" << dto.improvement_total_penalty_seconds << "\n";
+    uint32_t bal_be=0; skt.recvall(&bal_be,4);
+    ImprovementResult r{};
+    r.player_id = ntohl(pid_be);
+    r.improvement_id = imp;
+    r.ok = (success != 0);
+    r.total_penalty_seconds = ntohl(pen_be);
+    r.current_balance = ntohl(bal_be);
+    dto.id = r.player_id;
+    dto.result_market_player = r;
+    std::cout << "[ClientProtocol] Improvement ACK player_id=" << r.player_id
+              << " improvement=" << (int)r.improvement_id
+              << " success=" << (r.ok?1:0)
+              << " total_penalty_seconds=" << r.total_penalty_seconds
+              << " current_balance=" << r.current_balance << "\n";
     return dto;
 }
 
