@@ -21,7 +21,7 @@
 #include "../../common/enum/car_improvement.h"
 #include "../../common/dto/results_info.h"
 
-#define MARKET_DURATION 10.0f
+#define MARKET_DURATION 30.0f
 
 enum class GameState {
     Lobby,
@@ -130,6 +130,11 @@ public:
     TimeTickInfo get_race_time() const;
 
     /*
+     * Obtiene el tiempo restante de la fase de Marketplace en segundos
+     */
+    TimeTickInfo get_market_time() const;
+
+    /*
      * Devuelve informacion del jugador para el tick del mapa (posiciones + salud por ahora)
      */
     std::vector<PlayerTickInfo> players_tick_info();
@@ -159,6 +164,11 @@ public:
      * Verifica si hay una carrera activa en curso
      */
     bool has_active_race() const;
+
+    /*
+     * Verifica si la fase de marketplace esta en curso
+     */
+    bool has_active_market_place() const;
 
     /*
      * Carga el MapConfig paredes, edificios en la ciudad.

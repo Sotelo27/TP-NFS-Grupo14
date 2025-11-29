@@ -33,7 +33,6 @@ void Gameloop::procesar_actiones() {
                           << " cmd=" << (int)action.room_cmd << " room=" << (int)action.room_id
                           << "\n";
             } else if (action.type == ClientAction::Type::Improvement) {
-                // Sólo procesar si estamos en Marketplace
                 std::cout << "[Gameloop] Processing IMPROVEMENT for player_id="
                           << action.id << " imp=" << (int)action.improvement_id << "\n";
                 bool ok = game.buy_upgrade(action.id, (CarImprovement)(action.improvement_id));
@@ -73,12 +72,17 @@ void Gameloop::func_tick(int iteration) {
     }
 
     if (iteration % ticks_per_broadcast == 0) {
-        auto tick_players = game.players_tick_info();
-        TimeTickInfo time_race = game.get_race_time();
         std::vector<NpcTickInfo> npcs;
         std::vector<EventInfo> events;
 
-        clients.broadcast_map_info(tick_players, npcs, events, time_race);
+        if (game.has_active_race()) {
+            auto tick_players = game.players_tick_info();
+            TimeTickInfo time_race = game.get_race_time();
+            clients.broadcast_map_info(tick_players, npcs, events, time_race);
+        } else if (game.has_active_market_place()) {
+            TimeTickInfo time_market = game.get_market_time();
+            clients.broadcast_market_time_info(time_market);
+        }
     }
 }
 

@@ -325,6 +325,10 @@ bool Game::has_active_race() const {
         && state == GameState::Racing;
 }
 
+bool Game::has_active_market_place() const {
+    return state == GameState::Marketplace;
+}
+
 std::vector<PlayerResultCurrent> Game::build_player_result_current(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds) const {
     std::vector<PlayerResultCurrent> packed;
 
@@ -476,6 +480,16 @@ TimeTickInfo Game::get_race_time() const {
         return TimeTickInfo{0};
     }
     return TimeTickInfo{ races[current_race_index].get_race_time_seconds() };
+}
+
+TimeTickInfo Game::get_market_time() const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(m));
+    if (state != GameState::Marketplace) {
+        return TimeTickInfo{0};
+    }
+    float remaining = marketplace_time_remaining;
+    if (remaining < 0.f) remaining = 0.f;
+    return TimeTickInfo{ (uint32_t)std::ceil(remaining) };
 }
 
 void Game::init_races() {
