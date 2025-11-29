@@ -43,6 +43,7 @@ void ClientProtocol::init_recv_dispatch() {
         {CODE_S2C_RACE_RESULTS_CURRENT, [this](){ return parse_result_race_current(); }},
         {CODE_S2C_IMPROVEMENT,  [this](){ return parse_improvement(); }},
         {CODE_S2C_MAP_INFO,     [this](){ return parse_map_info(); }}
+        ,{CODE_S2C_MARKET_TIME, [this](){ return parse_market_time(); }}
     };
 }
 
@@ -373,6 +374,16 @@ ServerMessage ClientProtocol::parse_map_info() {
         ei.username = std::move(user);
         dto.events_tick.push_back(std::move(ei));
     }
+    return dto;
+}
+
+ServerMessage ClientProtocol::parse_market_time() {
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::MarketTime;
+    uint32_t time_be = 0;
+    skt.recvall(&time_be, 4);
+    dto.race_time.seconds = ntohl(time_be);
+    std::cout << "[ClientProtocol] MARKET_TIME remaining=" << dto.race_time.seconds << "s\n";
     return dto;
 }
 

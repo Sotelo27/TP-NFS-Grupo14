@@ -33,6 +33,7 @@ private:
     ServerMessage parse_result_race_current();
     ServerMessage parse_improvement();
     ServerMessage parse_map_info();
+    ServerMessage parse_market_time();
 
 public:
     explicit ClientProtocol(Socket&& skt);

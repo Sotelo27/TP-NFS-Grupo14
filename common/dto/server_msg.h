@@ -27,7 +27,8 @@ struct ServerMessage {
         RaceStart, // para indicar inicio de carrera
         Empty,
         Results, // resultados de carrera
-        ImprovementOK
+        ImprovementOK,
+        MarketTime
     };
 
     Type type;
