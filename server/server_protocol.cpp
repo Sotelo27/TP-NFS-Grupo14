@@ -414,6 +414,12 @@ void ServerProtocol::send_improvement_ok(const ImprovementResult& result) {
     buf.push_back(success);
     off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &penalty_be, 4);
     off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &balance_be, 4);
+    //std::cout << "[ServerProtocol] Sent IMPROVEMENT (code=" << (int)code
+    //          << ") pid=" << result.player_id
+    //          << ", imp=" << (int)result.improvement_id
+    //          << ", ok=" << (result.ok?1:0)
+    //          << ", penalty=" << result.total_penalty_seconds
+    //          << ", balance=" << result.current_balance << "\n";
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
