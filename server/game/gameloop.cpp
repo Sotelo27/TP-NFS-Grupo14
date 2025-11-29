@@ -36,8 +36,14 @@ void Gameloop::procesar_actiones() {
                 std::cout << "[Gameloop] Processing IMPROVEMENT for player_id="
                           << action.id << " imp=" << (int)action.improvement_id << "\n";
                 bool ok = game.buy_upgrade(action.id, (CarImprovement)(action.improvement_id));
-                float penalty = game.get_player_market_penalty_seconds(action.id);
-                clients.broadcast_improvement_ok((uint32_t)action.id, action.improvement_id, ok, (uint32_t)penalty);
+                PlayerMarketInfo info = game.get_player_market_info(action.id);
+                ImprovementResult result{};
+                result.player_id = (uint32_t)action.id;
+                result.improvement_id = (uint8_t)action.improvement_id;
+                result.ok = ok;
+                result.total_penalty_seconds = (uint32_t)std::round(info.total_time_penalty);
+                result.current_balance = (uint32_t)std::round(info.balance);
+                clients.broadcast_improvement_ok(result);
             }
 
         } catch (const std::exception& err) {
@@ -55,6 +61,13 @@ void Gameloop::func_tick(int iteration) {
     if (game.consume_pending_race_start(next_map_id)) {
             std::cout << "[Gameloop] Consumed pending RaceStart, map_id=" << (int)next_map_id << "\n";
             clients.broadcast_race_start(next_map_id);
+    }
+
+    std::vector<ImprovementResult> init_msgs;
+    if (game.consume_pending_market_init(init_msgs)) {
+        for (const auto& msg : init_msgs) {
+            clients.broadcast_improvement_ok(msg);
+        }
     }
 
     if (game.has_pending_results()) {

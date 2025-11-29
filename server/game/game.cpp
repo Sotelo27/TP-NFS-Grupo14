@@ -28,7 +28,8 @@ Game::Game(float nitro_duracion)
       pending_race_start(false),
       current_map_id(0),
       city(),
-      garage()
+      garage(),
+      market(150.0f)
 {
     map_table.emplace("CollisionTest2", "/CollisionTest2.yaml");
     map_table.emplace("LibertyCity",    "/MapaLibertyCity.yaml");
@@ -132,13 +133,6 @@ void Game::update(float dt) {
 
     if (state == GameState::Marketplace) {
         marketplace_time_remaining -= dt;
-        // debugging de la transicion
-        //int whole = (int)std::ceil(marketplace_time_remaining);
-        //if (whole < 0) whole = 0;
-        //if (whole != marketplace_last_logged_second) {
-        //    marketplace_last_logged_second = whole;
-        //    std::cout << "[Game] Marketplace countdown: " << whole << "s remaining" << std::endl;
-        //}
         if (marketplace_time_remaining <= 0.0f) {
             finish_market_phase();
         }
@@ -209,7 +203,35 @@ void Game::start_market_phase() {
     std::cout << "[Game] Entering Marketplace for " << MARKET_DURATION << " seconds\n";
     marketplace_time_remaining = MARKET_DURATION;
     state = GameState::Marketplace;
+    pending_market_init = true;
 }
+
+bool Game::consume_pending_market_init(std::vector<ImprovementResult>& market_init_msgs) {
+    if (!pending_market_init) return false;
+
+    pending_market_init = false;
+
+    market_init_msgs.clear();
+    market_init_msgs.reserve(players.size());
+
+    for (const auto& kv : players) {
+        size_t pid = kv.first;
+
+        PlayerMarketInfo m_info = market.get_total_player_info(pid);
+        ImprovementResult msg;
+
+        msg.player_id             = (uint32_t)(pid);
+        msg.improvement_id        = (uint8_t)(CarImprovement::Init);
+        msg.ok                    = true;
+        msg.total_penalty_seconds = (uint32_t)(std::round(m_info.total_time_penalty));
+        msg.current_balance       = (uint32_t)(std::round(m_info.balance));
+
+        market_init_msgs.push_back(msg);
+    }
+
+    return true;
+}
+
 
 void Game::finish_market_phase() {
     std::cout << "[Game] Marketplace ended. Applying upgrades and starting next race.\n";
@@ -245,7 +267,7 @@ void Game::finish_market_phase() {
 
 void Game::apply_race_results_to_players(const RaceResult& race_result, const std::unordered_map<size_t, float>& penalties_seconds) {
     for (const auto& entry : race_result.result) {
-        auto player_it = players.find(entry.player_id); // busco el player por su ID 
+        auto player_it = players.find(entry.player_id);
         if (player_it == players.end())
             continue;
 
@@ -418,10 +440,8 @@ bool Game::consume_pending_total_results(std::vector<PlayerResultTotal>& total) 
     return true;
 }
 
-float Game::get_player_market_penalty_seconds(size_t player_id) {
-    std::lock_guard<std::mutex> lock(m);
-    auto info = market.get_total_player_info(player_id);
-    return info.total_time_penalty;
+PlayerMarketInfo Game::get_player_market_info(size_t player_id) const {
+    return market.get_total_player_info(player_id);
 }
 
 void Game::start_current_race() {
@@ -467,7 +487,6 @@ void Game::load_map_by_id(const std::string& map_id) {
     const std::string ruta = resolve_map_path(map_id);
     MapConfig cfg = MapConfigLoader::load_tiled_file(ruta);
     load_map(cfg);
-    // harcodeo el current_map_id segun el map_id por ahora...
     if (map_id == "LibertyCity") current_map_id = 0;
     else if (map_id == "SanAndreas") current_map_id = 1;
     else if (map_id == "ViceCity") current_map_id = 2;
