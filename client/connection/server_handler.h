@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <QObject>
 
 #include "../../common/queue.h"
 #include "../../common/thread.h"
@@ -14,7 +15,9 @@
 #include "server_thread_send.h"
 #include "common/dto/client_msg.h"
 
-class ServerHandler {
+class ServerHandler : public QObject {
+    Q_OBJECT
+
 private:
     ClientProtocol protocol;
     Queue<ClientMessage> messages_send;
@@ -69,6 +72,9 @@ public:
     ServerHandler& operator=(ServerHandler&&) = default;
 
     ~ServerHandler();
+
+signals:
+    void finalResultsReceived(const std::vector<PlayerResultTotal>& results);
 };
 
 #endif

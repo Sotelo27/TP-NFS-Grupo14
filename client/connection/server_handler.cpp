@@ -101,12 +101,10 @@ void ServerHandler::send_start_game(const std::string& map, uint8_t route) {
 }
 
 ServerMessage ServerHandler::recv_response_from_server() {
-    ServerMessage msg;
-    if (messages_recv.try_pop(msg)) {
-        std::cout << "[ServerHandler] Received message type: " << (int)msg.type << std::endl;
-        return msg;
+    ServerMessage msg = protocol.receive();
+    if (msg.is_final_results()) {
+        emit finalResultsReceived(msg.results_total);
     }
-    msg.type = ServerMessage::Type::Empty;
     return msg;
 }
 
