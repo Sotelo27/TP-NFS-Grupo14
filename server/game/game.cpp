@@ -223,7 +223,7 @@ bool Game::consume_pending_market_init(std::vector<ImprovementResult>& market_in
         msg.player_id             = (uint32_t)(pid);
         msg.improvement_id        = (uint8_t)(CarImprovement::Init);
         msg.ok                    = true;
-        msg.total_penalty_seconds = (uint32_t)(std::round(m_info.total_time_penalty));
+        msg.total_penalty_seconds = 0;
         msg.current_balance       = (uint32_t)(std::round(m_info.balance));
 
         market_init_msgs.push_back(msg);
@@ -232,6 +232,9 @@ bool Game::consume_pending_market_init(std::vector<ImprovementResult>& market_in
     return true;
 }
 
+float Game::get_improvement_penalty(CarImprovement imp) const {
+    return market.get_improvement_time_penalty(imp);
+}
 
 void Game::finish_market_phase() {
     std::cout << "[Game] Marketplace ended. Applying upgrades and starting next race.\n";

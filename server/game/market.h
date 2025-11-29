@@ -46,9 +46,15 @@ public:
      */
     std::unordered_map<std::size_t, float> consume_penalties_for_race();
 
+    /*
+     * Obtiene la informacion total del jugador en el mercado
+     */
     PlayerMarketInfo get_total_player_info(size_t player_id) const;
 
-    std::vector<CarImprovement> get_upgrades(size_t player_id) const;
+    /*
+     * Obtiene la penalizacion de tiempo asociada a una mejora
+     */
+    float get_improvement_time_penalty(CarImprovement id) const;
     
 };
 

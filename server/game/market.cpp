@@ -162,3 +162,11 @@ PlayerMarketInfo Market::get_total_player_info(size_t player_id) const{
     }
     return it->second;
 }
+
+float Market::get_improvement_time_penalty(CarImprovement id) const {
+    auto it = catalog_upgrades.find(id);
+    if (it == catalog_upgrades.end()) {
+        return 0.f;
+    }
+    return it->second.time_penalty;
+}

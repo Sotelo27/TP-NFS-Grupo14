@@ -26,22 +26,20 @@ void Gameloop::procesar_actiones() {
         try {
             if (action.type == ClientAction::Type::Move) {
                 game.register_player_move(action.id, action.movement);
-            } else if (action.type == ClientAction::Type::Name) {
-                game.set_player_name(action.id, std::move(action.username));
-            } else if (action.type == ClientAction::Type::Room) {
-                std::cout << "Room action from client " << action.id
-                          << " cmd=" << (int)action.room_cmd << " room=" << (int)action.room_id
-                          << "\n";
-            } else if (action.type == ClientAction::Type::Improvement) {
+
+            }else if (action.type == ClientAction::Type::Improvement) {
                 std::cout << "[Gameloop] Processing IMPROVEMENT for player_id="
                           << action.id << " imp=" << (int)action.improvement_id << "\n";
-                bool ok = game.buy_upgrade(action.id, (CarImprovement)(action.improvement_id));
+                
+                CarImprovement imp = (CarImprovement)(action.improvement_id);
+                bool ok = game.buy_upgrade(action.id, imp);
                 PlayerMarketInfo info = game.get_player_market_info(action.id);
                 ImprovementResult result{};
                 result.player_id = (uint32_t)action.id;
                 result.improvement_id = (uint8_t)action.improvement_id;
                 result.ok = ok;
-                result.total_penalty_seconds = (uint32_t)std::round(info.total_time_penalty);
+                float cost = ok ? game.get_improvement_penalty(imp) : 0.f;
+                result.total_penalty_seconds = (uint32_t)std::round(cost);
                 result.current_balance = (uint32_t)std::round(info.balance);
                 clients.broadcast_improvement_ok(result);
             }
@@ -74,10 +72,6 @@ void Gameloop::func_tick(int iteration) {
     if (game.consume_pending_market_init(init_msgs)) {
         std::cout << "[Gameloop] Broadcasting MARKET INIT (after results) n=" << init_msgs.size() << "\n";
         for (const auto& msg : init_msgs) {
-            std::cout << "  -> INIT for player_id=" << msg.player_id
-                      << ", balance=" << msg.current_balance
-                      << ", total_penalty=" << msg.total_penalty_seconds
-                      << ", imp_id=" << (int)msg.improvement_id << "\n";
             clients.broadcast_improvement_ok(msg);
         }
     }
