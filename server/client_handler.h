@@ -118,7 +118,7 @@ public:
     /*
      * Envia el ok de compra de mejora al cliente
      */
-    void send_improvement_ok_to_client(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds);
+    void send_improvement_ok_to_client(const ImprovementResult& result);
 
     /*
      * Envia el tiempo de mercado al cliente

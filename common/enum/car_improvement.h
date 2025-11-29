@@ -10,6 +10,7 @@ enum class CarImprovement : uint8_t {
     Mass = 3,
     Controllability = 4,
     Nitro = 5,
+    Init = 6
     
 };
 
