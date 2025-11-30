@@ -1,6 +1,12 @@
 #ifndef CLIENT_ACTION_H
 #define CLIENT_ACTION_H
 
+#include <string>
+#include <vector>
+#include <utility>
+#include <cstdint>
+#include "../common/dto/movement.h" 
+
 struct ClientAction {
     enum class Type {
         Move,
