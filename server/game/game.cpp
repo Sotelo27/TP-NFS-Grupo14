@@ -31,7 +31,7 @@ Game::Game(float nitro_duracion)
       garage(),
       market(150.0f)
 {
-    map_table.emplace("CollisionTest2", "/CollisionTest2.yaml");
+    map_table.emplace("ViceCity", "/MapaViceCity.yaml");
     map_table.emplace("LibertyCity",    "/MapaLibertyCity.yaml");
     map_table.emplace("SanAndreas",     "/MapaSanAndreas.yaml");
 }
