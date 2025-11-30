@@ -474,8 +474,7 @@ void Game::start_current_race() {
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
     }
     // --- Inicializar NPCs proceduralmente ---
-    size_t npc_count = 10; // Puedes ajustar la cantidad
-    r.init_npc_spawns(city, npc_count);
+    r.init_npc_spawns(city);
 
     state = GameState::Racing;
     std::cout << "[Game] Race " << current_race_index << " started (players=" << players.size() << ") state set=Racing\n";
