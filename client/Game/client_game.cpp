@@ -81,6 +81,13 @@ void ClientGame::handle_cheat_detection(const char* keyName) {
         server_handler.send_cheat(msg);
         std::cout << "[ClientGame] Cheat de teletransporte enviado al servidor.\n";
     }
+    // Cheat de ganar carrera automáticamente: tecla '9'
+    if (std::string(keyName) == "9") {
+        ClientMessage msg;
+        msg.cheat = CHEAT_WIN_RACE;
+        server_handler.send_cheat(msg);
+        std::cout << "[ClientGame] Cheat WIN_RACE enviado al servidor.\n";
+    }
 }
 
 void ClientGame::handle_sdl_events() {
