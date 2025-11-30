@@ -30,6 +30,8 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_s
         stack->setCurrentWidget(start_screen);
     else
         stack->setCurrentWidget(result_finish_screen);
+
+    final_results.clear(); // NUEVO
 }
 
 void GameWindow::setupScreens() {
@@ -115,6 +117,14 @@ GameWindow::~GameWindow() {
     }
 }
 
+// NUEVO: Permite setear los resultados finales desde fuera
+void GameWindow::setFinalResults(const std::vector<PlayerResultTotal>& results) {
+    final_results = results;
+    if (result_finish_screen) {
+        result_finish_screen->setFinalResults(final_results);
+    }
+}
+
 // -----------------------------
 // Slots de navegación
 // -----------------------------
@@ -138,6 +148,10 @@ void GameWindow::goToMapSelection() {
 }
 
 void GameWindow::goToResults() {
+    // NUEVO: Actualiza la tabla antes de mostrar la pantalla
+    if (result_finish_screen) {
+        result_finish_screen->setFinalResults(final_results);
+    }
     stack->setCurrentWidget(result_finish_screen);
 }
 

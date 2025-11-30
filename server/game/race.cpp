@@ -99,10 +99,23 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
     }
 }
 
+void Race::init_npc_spawns(const City& city, size_t npc_count) {
+    npc_spawns = city.generate_npc_spawns(npc_count);
+    for (size_t i = 0; i < npc_spawns.size(); ++i) {
+        const auto& sp = npc_spawns[i];
+        // Convertir a metros
+        float x_m = sp.x_px / PPM;
+        float y_m = sp.y_px / PPM;
+        add_npc((uint8_t)(i + 1), x_m, y_m);
+    }
+}
+
 void Race::set_track(const Track& new_track) {
     track = new_track;
     std::cout << "[Race] Track set: route='" << track.route_id
               << "' checkpoints=" << track.checkpoint_count << "\n";
+    // Inicializar NPCs proceduralmente (ejemplo: 10 NPCs)
+    // NOTA: Se debe llamar a init_npc_spawns desde Game/start_current_race con acceso a City
 }
 
 bool Race::is_finished() const noexcept {
@@ -275,12 +288,11 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         b2Vec2 p = body->GetPosition();
         const int32_t car_x_px = (int32_t)std::lround(p.x * PPM);
         const int32_t car_y_px = (int32_t)std::lround(p.y * PPM);
-        uint8_t hp = 100;
+        uint8_t hp = 0;
         auto itc = cars.find(playerId);
-
-        if (itc != cars.end() && itc->second) {
-            float vida = itc->second->get_vida();
-            hp = (uint8_t)(vida);
+        Car* car_ptr = (itc != cars.end()) ? itc->second.get() : nullptr;
+        if (car_ptr) {
+            hp = (uint8_t)car_ptr->get_vida();
         }
 
         PlayerTickInfo player;
@@ -291,7 +303,16 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         player.y = car_y_px;
         player.angle = body->GetAngle() * 180.0f / PI;
         player.health = hp;
-        player.speed_mps = ((itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f ) * MS_TO_KMH;
+        player.speed_mps = (car_ptr ? car_ptr->speed_mps() : 0.f) * MS_TO_KMH;
+
+        if (car_ptr) {
+            const CarModel& model = car_ptr->get_spec();
+            player.max_health = (uint8_t)std::lround(model.life);
+            player.improvements = model.improvements;
+        } else {
+            player.max_health = hp; // fallback al valor actual si no hay modelo
+            player.improvements.clear();
+        }
 
         // Siguiente checkpoint
         player.x_checkpoint = 0;
@@ -329,6 +350,8 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             player.y_checkpoint = 0;
             player.hint_angle_deg = 0.0f;
         }
+        // cantidad de checkpoints restantes
+        player.checkpoints_remaining = (uint16_t)(track.checkpoints.size() > next_idx ? (track.checkpoints.size() - next_idx) : 0);
         
         ranking.push_back(RankInfo{(uint32_t)(playerId), participant.next_checkpoint_idx, distance_px, participant.finish_time_seconds});
         out.push_back(player);
@@ -408,25 +431,55 @@ void Race::cheat_win_race(size_t playerId) {
 }
 
 void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
+    // Elegir un modelo de auto para el NPC (puede ser aleatorio)
+    static std::vector<CarModel> modelos = {
+        car_factory::common_green_car(),
+        car_factory::red_car(),
+        car_factory::red_sport_car(),
+        car_factory::special_car(),
+        car_factory::four_by_four_convertible(),
+        car_factory::pickup_truck(),
+        car_factory::limousine()
+    };
+    static std::mt19937 rng{std::random_device{}()};
+    std::uniform_int_distribution<size_t> dist(0, modelos.size() - 1);
+    CarModel modelo = modelos[dist(rng)];
+    npc_models[npc_id] = modelo;
+
+    // Crear cuerpo físico y Car para el NPC
+    physics.create_car_body(10000 + npc_id, x_m, y_m, modelo); // id único para NPCs
+    b2Body* body = physics.get_body(10000 + npc_id);
+    npc_cars[npc_id] = std::make_unique<Car>(10000 + npc_id, modelo, body);
+
+    // Guardar NPC para compatibilidad (puedes eliminar npcs[npc_id] si no lo usas)
     npcs[npc_id] = Npc{npc_id, x_m, y_m, 0.f, 0.f};
 }
 
 void Race::update_npcs(float dt) {
-    for (auto& [id, npc] : npcs) {
-        // Ejemplo: movimiento simple en línea recta
-        npc.x_m += npc.vx * dt;
-        npc.y_m += npc.vy * dt;
-        // Se puede agregar logica de IA (ojito peluche)
+    (void)dt;
+    // Para que los NPCs se muevan, puedes aplicar input aquí.
+    // Por ahora, los NPCs quedan quietos (no se aplica input).
+    // Ejemplo: para que avancen recto,
+    /*
+    for (auto& [npc_id, car_ptr] : npc_cars) {
+        if (car_ptr) {
+            car_ptr->apply_input(1.0f, 0.0f); // acelerar recto
+        }
     }
+    */
 }
 
 std::vector<NpcTickInfo> Race::snapshot_npcs() const {
     std::vector<NpcTickInfo> out;
-    for (const auto& [id, npc] : npcs) {
+    for (const auto& [npc_id, car_ptr] : npc_cars) {
+        if (!car_ptr) continue;
+        b2Body* body = car_ptr->get_body();
+        if (!body) continue;
+        b2Vec2 pos = body->GetPosition();
         NpcTickInfo info;
-        info.npc_id = npc.npc_id;
-        info.x = static_cast<int32_t>(npc.x_m * PPM);
-        info.y = static_cast<int32_t>(npc.y_m * PPM);
+        info.npc_id = npc_id;
+        info.x = static_cast<int32_t>(pos.x * PPM);
+        info.y = static_cast<int32_t>(pos.y * PPM);
         out.push_back(info);
     }
     return out;

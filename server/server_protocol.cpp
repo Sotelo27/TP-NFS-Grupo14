@@ -280,6 +280,7 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         uint32_t ang_be = htonf32(p.angle);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ang_be, 4);
         buf.push_back(p.health);
+        buf.push_back(p.max_health);
         uint32_t spd_be = htonf32(p.speed_mps);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &spd_be, 4);
 
@@ -296,6 +297,15 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
 
         uint32_t dist_be = htonf32(p.distance_to_checkpoint);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &dist_be, 4);
+
+        uint16_t rem_be = htons(p.checkpoints_remaining);
+        off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &rem_be, 2);
+
+        uint8_t nimp = (uint8_t)p.improvements.size();
+        buf.push_back(nimp);
+        for (uint8_t k = 0; k < nimp; ++k) {
+            buf.push_back((uint8_t)p.improvements[k]);
+        }
     }
     
     uint32_t time_be = htonl(time_info.seconds);
@@ -343,8 +353,6 @@ void ServerProtocol::send_result_race_current(const std::vector<PlayerResultCurr
     std::vector<uint8_t> buf;
     size_t usernames_total_len = 0;
     for (const auto& p : current) usernames_total_len += p.username.size();
-    // Por jugador: player_id(4) + username_len(2) + race_time(4) + total_time(4) + position(1)
-    // Más la suma real de usernames.
     buf.reserve(2 + nplayers * (4 + 2 + 4 + 4 + 1) + usernames_total_len);
     buf.push_back(code);
     buf.push_back(nplayers);
@@ -382,12 +390,6 @@ void ServerProtocol::send_improvement_ok(const ImprovementResult& result) {
     buf.push_back(success);
     off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &penalty_be, 4);
     off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &balance_be, 4);
-    //std::cout << "[ServerProtocol] Sent IMPROVEMENT (code=" << (int)code
-    //          << ") pid=" << result.player_id
-    //          << ", imp=" << (int)result.improvement_id
-    //          << ", ok=" << (result.ok?1:0)
-    //          << ", penalty=" << result.total_penalty_seconds
-    //          << ", balance=" << result.current_balance << "\n";
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 

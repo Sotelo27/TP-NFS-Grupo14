@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <random>
 
 #include "../../common/player_aux.h"
 #include "../../common/dto/map_tick_info.h"
@@ -18,6 +19,7 @@
 #include "../Player/player.h"
 #include "../../common/constants.h"
 #include "npc.h"
+#include "city.h" 
 
 class Race {
 private:
@@ -31,9 +33,13 @@ private:
 
     // Mapa de player_id a Car*
     std::map<size_t, Car*> cars_by_player;
-    std::map<size_t, Player*> players_by_id; // NUEVO: para asociar Player*
+    std::map<size_t, Player*> players_by_id; 
 
     std::unordered_map<uint8_t, Npc> npcs; // <npc_id, Npc>
+    std::vector<SpawnPoint> npc_spawns; 
+    // NUEVO: Autos físicos para NPCs
+    std::unordered_map<uint8_t, std::unique_ptr<Car>> npc_cars;
+    std::unordered_map<uint8_t, CarModel> npc_models;
 
     /*
      * Verifica los estados de vida de los jugadores y los descalifica si no tienen vida
@@ -165,6 +171,9 @@ public:
     void add_npc(uint8_t npc_id, float x_m, float y_m);
     void update_npcs(float dt);
     std::vector<NpcTickInfo> snapshot_npcs() const;
+
+    // Hacer público para que Game pueda inicializar NPCs
+    void init_npc_spawns(const City& city, size_t npc_count);
 };
 
 #endif

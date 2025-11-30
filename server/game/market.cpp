@@ -114,6 +114,8 @@ CarModel Market::apply_upgrades_to_model(std::size_t player_id, const CarModel& 
         }
     }
 
+    result.improvements = p_info_market.upgrades;
+
     std::cout << "[Build] Player " << player_id << " aplica mejoras: ";
     if (applied_names.empty()) {
         std::cout << "(ninguna)";

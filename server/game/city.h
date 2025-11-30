@@ -10,6 +10,7 @@ private:
     PhysicsWorld physics_world;
     std::unordered_map<std::string, std::vector<Checkpoint>> checkpoints_by_route; 
     std::unordered_map<std::string, std::vector<SpawnPoint>> spawns_by_route;
+    MapConfig map_cfg; 
 
 public:
     City();
@@ -49,6 +50,12 @@ public:
      * Obtiene los ids de las rutas disponibles
     */
     std::vector<std::string> get_route_ids() const;
+
+    // Devuelve true si el punto (x, y) está libre de colisiones (en píxeles)
+    bool is_point_free(float x_px, float y_px, float margin = 20.0f) const;
+
+    // Genera N puntos de spawn libres de colisión para NPCs
+    std::vector<SpawnPoint> generate_npc_spawns(size_t count) const;
 };
 
 #endif
