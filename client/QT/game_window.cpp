@@ -41,6 +41,7 @@ void GameWindow::setupScreens() {
     selection_map_screen = new SelectionMapScreen(map_selected, this);
     result_finish_screen = new ResultFinishScreen(server_handler, my_id, this);
     menu_screen = new MenuScreen(server_handler, this);
+    editor_map_screen = new EditorMapScreen(server_handler, this);
 
     stack->addWidget(start_screen);
     stack->addWidget(login_screen);
@@ -50,6 +51,7 @@ void GameWindow::setupScreens() {
     stack->addWidget(selection_map_screen);
     stack->addWidget(result_finish_screen);
     stack->addWidget(menu_screen);
+    stack->addWidget(editor_map_screen);
 }
 
 void GameWindow::setupConnections() {
@@ -75,6 +77,9 @@ void GameWindow::setupConnections() {
 
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::goToWaitingRoom);
     connect(lobby_screen, &LobbyScreen::go_to_selection_map_screen, this, &GameWindow::goToMapSelection);
+    connect(lobby_screen, &LobbyScreen::go_to_editor_screen, this, [this]() {
+        stack->setCurrentWidget(editor_map_screen);
+    });
 
     connect(waiting_room_screen, &WaitingRoomScreen::go_to_selection_map_screen, this, [this](){
         if (waiting_room_screen->isAdmin()) goToMapSelection();

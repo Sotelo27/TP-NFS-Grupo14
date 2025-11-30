@@ -46,6 +46,7 @@ public:
     void go_to_selection_car_screen();
     void go_to_selection_map_screen();
     void go_to_game_start();
+    void go_to_editor_screen();
 
 protected:
     void resizeEvent(QResizeEvent* event) override;

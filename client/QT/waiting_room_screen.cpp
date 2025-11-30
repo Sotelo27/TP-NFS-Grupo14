@@ -122,6 +122,7 @@ void WaitingRoomScreen::createStartButton() {
             QMessageBox::warning(this, "Mapa no seleccionado", "No elegiste mapa.");
             return;
         }
+        qDebug() << "Se va a abrir el mapa: " << selected_map;
         server_handler.send_start_game({{selected_map.toStdString(), 0}});
     });
 
@@ -203,6 +204,11 @@ void WaitingRoomScreen::onPollTimer() {
 // =============================================================
 void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
     switch (msg.type) {
+        case ServerMessage::Type::RaceStart:
+            stopPolling();
+            emit go_to_game_start();
+            break;
+
         case ServerMessage::Type::YourId:
             my_id = msg.id;
             break;
@@ -259,11 +265,6 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
             layout->addStretch();
             break;
         }
-
-        case ServerMessage::Type::RaceStart:
-            stopPolling();
-            emit go_to_game_start();
-            break;
 
         default:
             break;
