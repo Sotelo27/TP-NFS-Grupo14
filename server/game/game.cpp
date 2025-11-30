@@ -473,11 +473,10 @@ void Game::start_current_race() {
         std::cout << "[DebugPlayer] player " << player_id << " car_model.life=" << player.get_car_model().life << "\n";
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
     }
-    // --- Inicializar algunos NPCs de ejemplo ---
-    r.add_npc(1, 10.0f, 10.0f); // posición en metros
-    r.add_npc(2, 20.0f, 20.0f);
-    r.add_npc(3, 30.0f, 30.0f);
-    // Puedes ajustar posiciones y cantidad según tu juego
+    // --- Inicializar NPCs proceduralmente ---
+    size_t npc_count = 10; // Puedes ajustar la cantidad
+    r.init_npc_spawns(city, npc_count);
+
     state = GameState::Racing;
     std::cout << "[Game] Race " << current_race_index << " started (players=" << players.size() << ") state set=Racing\n";
 }
