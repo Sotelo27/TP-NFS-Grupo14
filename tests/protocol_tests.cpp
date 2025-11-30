@@ -473,4 +473,28 @@ void test_send_and_receive_market_time() {
     server_thread.join();
 }
 
+void test_send_and_receive_result_race_current() {
+    Socket skt("3029");
+    std::vector<PlayerResultCurrent> results = {
+        {10, "Alice", 12, 120, 1},
+        {11, "Bob", 13, 130, 2}
+    };
 
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        ServerOutMsg msg;
+        msg.type = ServerOutType::Results;
+        msg.results_current = results;
+        protocol.send_result_race_current(results);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3029"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::Results);
+    ASSERT_EQ(msg.results_current.size(), 2);
+    ASSERT_EQ(msg.results_current[0].player_id, 10);
+    ASSERT_EQ(msg.results_current[1].username, "Bob");
+
+    server_thread.join();
+}
