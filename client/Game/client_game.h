@@ -12,6 +12,7 @@
 #include "resources/cheat_detector.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
+#include "sdl_wrappers/SdlAudioManager.h"
 
 #include "info_game.h"
 #include "client_helper.h"
@@ -31,6 +32,7 @@ private:
     CheatDetector cheat_detector;
     ClientHelper client_helper;
     Intermission intermission_manager;
+    AudioManager audio_manager;
 
     void update_state_from_position();
     void handle_sdl_events();
