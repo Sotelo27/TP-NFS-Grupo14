@@ -83,12 +83,14 @@ void ClientHelper::render_cars() {
     }
 }
 
-void ClientHelper::render_in_z_order(int iteration) {
+void ClientHelper::render_in_z_order(int iteration, bool render_hud) {
     map_manager.render(src_area_map, dest_area_map);
 
     render_cars();
 
-    game_hud.render(iteration, time_info.seconds, src_area_map);
+    if (render_hud) {
+        game_hud.render(iteration, time_info.seconds, src_area_map);
+    }
 
     window.render();
 }

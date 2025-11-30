@@ -168,19 +168,12 @@ void Intermission::function() {
 }
 
 void Intermission::show_background_game() {
-    bool should_render = false;
-
     if (iteration <= AMOUNT_FRAMES_ANIMATION) {
-        should_render = true;
+        client_helper.render_in_z_order(iteration_called);
     }
 
     if (ready_next_race) {
-        client_helper.update_animation_frames();
-        should_render = true;
-    }
-
-    if (should_render) {
-        client_helper.render_in_z_order(iteration_called);
+        client_helper.render_in_z_order(iteration_called, false);
     }
 }
 
@@ -304,14 +297,15 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
             iteration_breakpoint = iteration + AMOUNT_FRAMES_CLOSE_TO_END;
             ready_next_race = true;
 
-            // reposicionar los autos en el mapa, se hace más de una vez para ver si se arregla la
-            // animación pero es tema de sdl¿? a veces anda bien otras se bugea
-            for (int i = 0; i < 10; i++) {
+            action = server_handler.recv_response_from_server();
+            while (action.type != ServerMessage::Type::MapInfo) {
                 action = server_handler.recv_response_from_server();
-                if (action.type == ServerMessage::Type::MapInfo) {
-                    client_helper.update_map_info(action.players_tick, action.race_time);
+                if (action.type == ServerMessage::Type::MarketTime) {
+                    time_market = action.race_time.seconds;
                 }
             }
+            client_helper.update_map_info(action.players_tick, action.race_time);
+            client_helper.update_animation_frames();
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
