@@ -15,8 +15,8 @@ class ResultFinishScreen : public QWidget {
 public:
     ResultFinishScreen(ServerHandler& server_handler, size_t& my_id, QWidget *parent = nullptr);
 
-signals:
-    void send_id_car();
+    signals:
+        void send_id_car();
 
 private:
     ServerHandler& server_handler;
@@ -24,10 +24,16 @@ private:
 
     QLabel* title_label;
     QTableWidget* table;
+    QWidget* container;
 
-    void setup_ui();
-    void setup_style();
-    void populate_table();
+    void setupUi();
+    void setupStyles();
+    void populateTable();
+
+    void createBackground();
+    void createContainer();
+    void createTitle();
+    void createTable();
 };
 
 #endif // RESULT_FINISH_WINDOW_H

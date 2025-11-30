@@ -3,6 +3,9 @@
 
 #include <QDialog>
 #include <QStackedWidget>
+#include <QtMultimedia/QSound>
+
+#include "start_screen.h"
 #include "lobby_screen.h"
 #include "login_screen.h"
 #include "result_finish_screen.h"
@@ -17,35 +20,36 @@ public:
     explicit GameWindow(ServerHandler& server_handler, size_t& my_id, bool login, QWidget *parent = nullptr);
     ~GameWindow();
 
-protected:
-    void resizeEvent(QResizeEvent* event) override;
-
 private:
+    void setupScreens();
+    void setupLayout();
+    void setupConnections();
+    void setupSound();
+
     ServerHandler& server_handler;
     size_t& my_id;
-    QStackedWidget *stack;
-    QSound* sound = nullptr;
+    QStackedWidget* stack;
+    QSound* sound;
+    QLabel* background;
 
-    LoginScreen *login_screen;
-    LobbyScreen *lobby_screen;
-    WaitingRoomScreen *waiting_room_screen;
-    SelectionCarScreen *selection_car_screen;
-    SelectionMapScreen *selection_map_screen;
-    ResultFinishScreen *result_finish_screen;
-    MenuScreen *menu_screen;
-
-    class StartScreen; // forward declaration
     StartScreen* start_screen;
+    LoginScreen* login_screen;
+    LobbyScreen* lobby_screen;
+    WaitingRoomScreen* waiting_room_screen;
+    SelectionCarScreen* selection_car_screen;
+    SelectionMapScreen* selection_map_screen;
+    ResultFinishScreen* result_finish_screen;
+    MenuScreen* menu_screen;
 
 private slots:
-    void go_to_lobby() const;
-    void go_to_waiting_room() const;
-    void go_to_car_selection() const;
-    void go_to_map_selection() const;
-    void go_to_results() const;
-    void go_to_login() const;
-    void go_to_waiting_room_from_map() const;
-    void go_to_menu() const;
+    void goToLobby();
+    void goToWaitingRoom();
+    void goToCarSelection();
+    void goToMapSelection();
+    void goToResults();
+    void goToLogin();
+    void goToWaitingRoomFromMap();
+    void goToMenu();
 };
 
-#endif //GAME_WINDOW_H
+#endif // GAME_WINDOW_H

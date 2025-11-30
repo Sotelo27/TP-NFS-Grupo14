@@ -1,6 +1,5 @@
 #include "menu_screen.h"
 #include <QVBoxLayout>
-#include <QLabel>
 #include <QPixmap>
 
 MenuScreen::MenuScreen(ServerHandler& server_handler, QWidget* parent)
@@ -9,19 +8,22 @@ MenuScreen::MenuScreen(ServerHandler& server_handler, QWidget* parent)
     setFixedSize(800, 600);
     setWindowTitle("Menú de Sala");
 
-    QLabel* background = new QLabel(this);
-    background->setPixmap(
-        QPixmap("assets/images/nfs_most_wanted.png").scaled(
-            size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-        )
-    );
-    background->setGeometry(0, 0, width(), height());
+    createBackground();
+    createButtons();
+    setupLayout();
+    setupConnections();
+}
+
+void MenuScreen::createBackground() {
+    background = new QLabel(this);
+    background->setPixmap(QPixmap("assets/images/nfs_most_wanted.png"));
+    background->setScaledContents(true);
+    background->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     background->lower();
+    background->show();
+}
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(0, 0, 40, 0);
-    mainLayout->addStretch();
-
+void MenuScreen::createButtons() {
     jugarButton = new QPushButton("JUGAR", this);
     jugarButton->setFixedSize(260, 70);
     jugarButton->setStyleSheet(
@@ -33,13 +35,8 @@ MenuScreen::MenuScreen(ServerHandler& server_handler, QWidget* parent)
         "  text-shadow: 3px 3px #5A0080;"
         "  letter-spacing: 3px;"
         "}"
-        "QPushButton:hover {"
-        "  color: #FFD75F;"
-        "  text-shadow: 4px 4px #7A00A8;"
-        "}"
-        "QPushButton:pressed {"
-        "  color: #C89000;"
-        "}"
+        "QPushButton:hover { color: #FFD75F; text-shadow: 4px 4px #7A00A8; }"
+        "QPushButton:pressed { color: #C89000; }"
     );
 
     seleccionarAutoButton = new QPushButton("SELECCIONAR AUTO", this);
@@ -53,17 +50,22 @@ MenuScreen::MenuScreen(ServerHandler& server_handler, QWidget* parent)
         "  text-shadow: 3px 3px #5A0080;"
         "  letter-spacing: 2px;"
         "}"
-        "QPushButton:hover {"
-        "  color: #FFD75F;"
-        "  text-shadow: 4px 4px #7A00A8;"
-        "}"
+        "QPushButton:hover { color: #FFD75F; text-shadow: 4px 4px #7A00A8; }"
     );
+}
 
+void MenuScreen::setupLayout() {
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 40, 0);
+    mainLayout->addStretch();
     mainLayout->addWidget(jugarButton, 0, Qt::AlignRight);
     mainLayout->addSpacing(20);
     mainLayout->addWidget(seleccionarAutoButton, 0, Qt::AlignRight);
     mainLayout->addStretch();
+    setLayout(mainLayout);
+}
 
+void MenuScreen::setupConnections() {
     connect(jugarButton, &QPushButton::clicked, this, [this]() {
         emit go_to_lobby_screen();
     });

@@ -3,7 +3,9 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QPushButton>
 #include <QVector>
+#include <QResizeEvent>
 
 #include "../connection/server_handler.h"
 #include "../../common/enum/car_enum.h"
@@ -15,34 +17,45 @@ struct CarInfoSprite {
 
 class SelectionCarScreen : public QWidget {
     Q_OBJECT
+
 public:
     explicit SelectionCarScreen(ServerHandler& server_handler, QWidget* parent = nullptr);
 
     void setSelectedCarIndex(int idx);
     int getSelectedCarIndex() const;
     CarSpriteID getSelectedCarId() const;
-    int findCarIndexById(CarSpriteID id) const; 
-signals:
-    void car_selected(CarSpriteID car_id);
-    void go_to_menu(); // <-- esta es la señal que se usará
-    void go_to_lobby(); // (puedes dejarla si la usas en otro lado)
+    int findCarIndexById(CarSpriteID id) const;
+
+    signals:
+        void car_selected(CarSpriteID car_id);
+    void go_to_menu();
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 
 private slots:
     void nextCar();
     void prevCar();
     void updateCarImage();
 
-protected:
-    void resizeEvent(QResizeEvent* event) override;
-
 private:
     ServerHandler& server_handler;
 
-    QLabel* backgroundLabel;
-    QLabel* carLabel;
+    QLabel* backgroundLabel = nullptr;
+    QLabel* carLabel = nullptr;
+
+    QPushButton* leftBtn = nullptr;
+    QPushButton* rightBtn = nullptr;
+    QPushButton* listoBtn = nullptr;
 
     QVector<CarInfoSprite> cars;
     int currentIndex = 0;
+
+    void setupUi();
+    void createBackground();
+    void createCarLabel();
+    void createButtons();
+    void setupConnections();
 };
 
-#endif
+#endif // SELECTION_CAR_SCREEN_H

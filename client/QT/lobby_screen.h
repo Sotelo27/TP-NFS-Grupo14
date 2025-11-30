@@ -7,7 +7,6 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
-#include <QResizeEvent>
 #include "../../common/dto/server_msg.h"
 #include "../connection/server_handler.h"
 #include "waiting_room_screen.h"
@@ -18,10 +17,7 @@ class LobbyScreen : public QWidget {
 public:
     explicit LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
     void startPolling() { pollTimer->start(50); }
-    void on_return_from_waiting_room(); // slot público
-
-protected:
-    void resizeEvent(QResizeEvent* event) override;
+    void on_return_from_waiting_room();
 
 private slots:
     void onPollTimer();
@@ -31,7 +27,7 @@ private slots:
     void update_room_list(const std::vector<RoomInfo>& rooms);
 
     signals:
-        void room_created(uint8_t room_id);
+    void room_created(uint8_t room_id);
     void go_to_waiting_room_screen();
     void go_to_selection_map_screen();
 
@@ -53,6 +49,11 @@ private:
     void setupUi();
     void setupConnections();
     void setupStyles();
+
+    void createBackground();
+    void createTitle();
+    void createButtons();
+    void createScrollArea();
 };
 
 #endif // LOBBY_WINDOW_H

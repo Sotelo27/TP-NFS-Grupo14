@@ -1,48 +1,47 @@
-#ifndef LOGIN_WINDOW_H
-#define LOGIN_WINDOW_H
+#ifndef LOGIN_SCREEN_H
+#define LOGIN_SCREEN_H
 
 #include <QWidget>
-#include <QApplication>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
-#include "../../common/queue.h"
-#include "../client_protocol.h"
+#include <QResizeEvent>
 #include "../connection/server_handler.h"
 
 class LoginScreen : public QWidget {
     Q_OBJECT
 public:
-    explicit LoginScreen(ServerHandler& server_handler, size_t& my_id,
-                        QWidget* parent);
+    explicit LoginScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
     ~LoginScreen() = default;
+
+    signals:
+        void go_to_car_selection_screen();
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 
 private slots:
     void onLoginClicked();
 
-signals:
-    void go_to_car_selection_screen();
-
 private:
     ServerHandler& server_handler;
-    QLabel* background;
     size_t& my_id;
-    QLabel* title;
-    QLabel* usernameLabel;
-    QLineEdit* usernameInput;
-    QPushButton* loginButton;
+
+    QLabel* background = nullptr;
+    QLabel* title = nullptr;
+    QLabel* usernameLabel = nullptr;
+    QLineEdit* usernameInput = nullptr;
+    QPushButton* loginButton = nullptr;
 
     void setupUi();
     void setupStyles();
     void setupConnections();
 
-    void createWindowBackground();
+    void createBackground();
     void createTitle();
-    void createUsernameLabel();
-    void createButtonLogIn();
-    void createContainer();
-
-    void resizeEvent(QResizeEvent* event) override;
+    void createUsernameInput();
+    void createLoginButton();
+    void createLayout();
 };
 
-#endif // LOGIN_WINDOW_H
+#endif // LOGIN_SCREEN_H
