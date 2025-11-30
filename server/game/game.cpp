@@ -268,7 +268,7 @@ void Game::finish_market_phase() {
         start_current_race();
         std::cout << "[Game] start_current_race() invoked after marketplace. state=" << (int)state << "\n";
         // Marcar pendiente RaceStart para que el Gameloop haga broadcast
-        pending_race_start = true;
+        //pending_race_start = true;
         std::cout << "[Game] pending_race_start set=true (map_id=" << (int)current_map_id << ")\n";
     } else {
         std::cout << "[GAME] All races finished, game over.\n";
@@ -478,6 +478,7 @@ void Game::start_current_race() {
     r.init_npc_spawns(city, npc_count);
 
     state = GameState::Racing;
+    pending_race_start = true;
     std::cout << "[Game] Race " << current_race_index << " started (players=" << players.size() << ") state set=Racing\n";
 }
 
