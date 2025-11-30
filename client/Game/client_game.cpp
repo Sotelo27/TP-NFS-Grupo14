@@ -39,8 +39,8 @@ void ClientGame::function() {
     client_helper.render_in_z_order(iteration);
 }
 
-void ClientGame::start() {
-    process_server_messages(ServerMessage::Type::RaceStart);
+void ClientGame::start(MapID selected_map) {
+    map_manager.loadMap(selected_map);
 
     std::cout << "[ClientGame] Juego iniciado" << std::endl;
 
