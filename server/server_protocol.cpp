@@ -393,6 +393,11 @@ void ServerProtocol::send_improvement_ok(const ImprovementResult& result) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
+void ServerProtocol::send_game_over() {
+    uint8_t code = CODE_S2C_GAME_OVER;
+    skt.sendall(&code, 1);
+}
+
 ServerProtocol::ServerProtocol(Socket&& skt): skt(std::move(skt)) {
     init_recv_dispatch();
 }

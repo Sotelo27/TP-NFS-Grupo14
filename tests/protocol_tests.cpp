@@ -349,4 +349,19 @@ void test_send_cheat() {
     server_thread.join();
 }
 
+void test_send_exit() {
+    Socket skt("3024");
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        ClientMessage msg = protocol.receive();
+        ASSERT_EQ(msg.type, ClientMessage::Type::Exit);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3024"));
+    protocol.send_exit();
+
+    server_thread.join();
+}
+
 
