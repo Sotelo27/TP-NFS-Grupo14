@@ -311,3 +311,22 @@ void test_send_choose_car() {
     server_thread.join();
 }
 
+void test_send_improvement() {
+    Socket skt("3022");
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        ClientMessage msg = protocol.receive();
+        ASSERT_EQ(msg.type, ClientMessage::Type::Improvement);
+        ASSERT_EQ(msg.improvement, 2);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3022"));
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::Improvement;
+    msg.improvement = 2;
+    protocol.send_improvement(msg);
+
+    server_thread.join();
+}
+
