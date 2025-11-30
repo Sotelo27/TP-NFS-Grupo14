@@ -70,12 +70,11 @@ void GameHud::renderPurchasedImprovement(const CarInfoGame& client_car) {
     int x_start = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
     int y_start = WINDOW_HEIGHT - 75;
     for (CarImprovement improvement_enable: client_car.info_car.improvements) {
-        SdlObjTexture& improvement_icon =
+        const SdlObjTexture& improvement_icon =
                 icon_improvement_manager.get_icon(improvement_enable);
 
         int size_height = 55;
-        int size_width =
-                (improvement_icon.getWidth() * size_height) / improvement_icon.getHeight();
+        int size_width = (improvement_icon.getWidth() * size_height) / improvement_icon.getHeight();
         improvement_icon.render(
                 Area(0, 0, improvement_icon.getWidth(), improvement_icon.getHeight()),
                 Area(x_start, y_start, size_width, size_height));
@@ -103,8 +102,11 @@ void GameHud::render(int iteration, int time_seconds, const Area& src_area_map) 
     time_hud.render(time_seconds, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
     int current_life = client_car.info_car.health;
+    life_hud.render(client_car.info_car.max_health, current_life, 20,
+                    SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
 
-    life_hud.render(client_car.info_car.max_health, current_life, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
+    checkpoint.renderRemainingHud(20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 100,
+                                  client_car.info_car.checkpoints_remaining, iteration);
 
     renderMiniMap();
 
