@@ -65,11 +65,18 @@ void ClientThreadRecv::run() {
                     break;
                 }
                 case ClientMessage::Type::Improvement: {
-                    //action = ClientAction(id, received.improvement);
                     action.type = ClientAction::Type::Improvement;
                     action.id = id;
                     action.improvement_id = received.improvement;
                     std::cout << "[ClientThreadRecv] Pushed IMPROVEMENT action from client " << id << " (improvement=" << (int)received.improvement << ")\n";
+                    break;
+                }
+                case ClientMessage::Type::Cheat: {
+                    action.type = ClientAction::Type::Cheat;
+                    action.id = id;
+                    action.cheat = received.cheat;
+                    action.infinite_life = (received.cheat == 7); // NUEVO: marcar cheat de vida infinita
+                    std::cout << "[ClientThreadRecv] Pushed CHEAT action from client " << id << " (cheat=" << (int)received.cheat << ")\n";
                     break;
                 }
                 default:

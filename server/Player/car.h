@@ -3,11 +3,14 @@
 
 #include "../physics/Entidad.h"
 #include "../../common/car_model.h"
+#include "player.h" // <--- INCLUYE EL HEADER COMPLETO
 
 class Car : public Entidad {
 private:
     CarModel spec_;
     float vida_{100.f};
+    bool infinite_life_{false};
+    Player* owner_{nullptr}; // Ahora Player está completamente definido
 
     /*
      * Empuja al auto aplicando una fuerza en su centro
@@ -46,6 +49,11 @@ public:
      * Establece la vida actual del auto
      */
     void set_vida(float v) noexcept;
+
+    void set_infinite_life(bool v) noexcept { infinite_life_ = v; }
+    bool has_infinite_life() const noexcept { return infinite_life_; }
+    void set_owner(Player* owner) { owner_ = owner; }
+    Player* get_owner() const { return owner_; }
 
     /*
      * Devuelve la velocidad del auto en metros por segundo

@@ -261,6 +261,14 @@ public:
      */
     bool consume_pending_race_start(uint8_t& map_id);
 
+    /*
+     * Aplica un cheat recibido por el cliente
+     */
+    void apply_cheat(size_t player_id, uint8_t cheat_code);
+
+    // NUEVO: setear vida infinita a un jugador
+    void set_player_infinite_life(size_t player_id, bool enable);
+
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
 

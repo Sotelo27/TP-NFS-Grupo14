@@ -463,7 +463,7 @@ void Game::start_current_race() {
         Player& player = kv.second;
         SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
         std::cout << "[DebugPlayer] player " << player_id << " car_model.life=" << player.get_car_model().life << "\n";
-        r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
+        r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px, &player); // PASA EL PUNTERO
     }
     state = GameState::Racing;
     std::cout << "[Game] Race " << current_race_index << " started (players=" << players.size() << ") state set=Racing\n";
@@ -528,4 +528,17 @@ void Game::init_races() {
     races.back().set_track(trackB);
     std::cout << "[Game] Initialized race 1 with route B (checkpoints="
                   << trackB.checkpoint_count << ")" << std::endl;
+}
+
+void Game::apply_cheat(size_t player_id, uint8_t cheat_code) {
+    std::lock_guard<std::mutex> lock(m);
+    if (!has_active_race()) return;
+    get_current_race().apply_cheat(player_id, cheat_code);
+}
+
+void Game::set_player_infinite_life(size_t player_id, bool enable) {
+    std::lock_guard<std::mutex> lock(m);
+    auto it = players.find(player_id);
+    if (it == players.end()) return;
+    it->second.set_infinite_life(enable);
 }

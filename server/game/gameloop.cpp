@@ -43,7 +43,11 @@ void Gameloop::procesar_actiones() {
                 result.current_balance = (uint32_t)std::round(info.balance);
                 clients.broadcast_improvement_ok(result);
             }
-
+            else if (action.type == ClientAction::Type::Cheat) {
+                std::cout << "[Gameloop] Processing CHEAT for player_id=" << action.id
+                          << " cheat=" << (int)action.cheat << "\n";
+                game.apply_cheat(action.id, action.cheat);
+            }
         } catch (const std::exception& err) {
             std::cerr << "Error processing action from client " << action.id << ": " << err.what()
                       << "\n";

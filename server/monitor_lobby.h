@@ -74,6 +74,7 @@ private:
     void handle_start_game(ClientAction act);
     void handle_choose_car_action(ClientAction act);
     void handle_improvement_action(ClientAction act);
+    void handle_cheat_action(ClientAction act); // NUEVO
 
     // helpers
     std::vector<RoomInfo> list_rooms_locked() const;

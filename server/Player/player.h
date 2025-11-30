@@ -14,6 +14,7 @@ private:
     CarModel car;
     float race_time_seconds = 0.f;
     float penalty_time_seconds = 0.f;
+    bool infinite_life_{false}; // NUEVO
 
 public:
     explicit Player(size_t id, std::string name, CarModel car);
@@ -39,6 +40,8 @@ public:
      * Obtiene el tiempo total acumulado del jugador (carrera + penalizaciones)
      */
     float get_total_time_seconds() const noexcept { return race_time_seconds + penalty_time_seconds; }
+    void set_infinite_life(bool enable) { infinite_life_ = enable; }
+    bool has_infinite_life() const { return infinite_life_; }
 
 };
 

@@ -331,3 +331,10 @@ void RoomManager::stop_room_loop_and_erase(uint8_t room_id) {
     stop_room_loop_locked(it->second);
     rooms.erase(it);
 }
+
+void RoomManager::set_player_infinite_life(uint8_t room_id, size_t player_id, bool enable) {
+    std::lock_guard<std::mutex> lk(m);
+    auto it = rooms.find(room_id);
+    if (it == rooms.end()) return;
+    it->second.game.set_player_infinite_life(player_id, enable);
+}
