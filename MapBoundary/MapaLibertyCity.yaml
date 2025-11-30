@@ -6329,6 +6329,34 @@ layers:
     width: 0
     x: 2492
     y: 2562
+  - height: 0
+    id: 833
+    name: ''
+    polyline:
+    - x: 0
+      y: 0
+    - x: 300
+      y: 0
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 234.666666666667
+    y: 2380
+  - height: 0
+    id: 834
+    name: ''
+    polyline:
+    - x: 0
+      y: 0
+    - x: 297
+      y: -0.333333333333485
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 236
+    y: 2467
   opacity: 1
   properties:
   - name: collision
@@ -6524,6 +6552,7 @@ layers:
 - color: '#ffff00'
   draworder: topdown
   id: 9
+  locked: true
   name: Checkpoint_C
   objects:
   - height: 103
@@ -6543,8 +6572,8 @@ layers:
     type: ''
     visible: true
     width: 547.667
-    x: 109.0435
-    y: 32.2433333333332
+    x: 109.043
+    y: 32.2433
   - height: 45.0166
     id: 826
     name: Normal
@@ -6561,9 +6590,9 @@ layers:
     rotation: 0.335156
     type: ''
     visible: true
-    width: 79.0438580007219
-    x: 1407.70939107803
-    y: 146.09258735812
+    width: 79.0439
+    x: 1407.71
+    y: 146.093
   - height: 45.0166
     id: 827
     name: Normal
@@ -6577,12 +6606,12 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 0.0784544512616776
+    rotation: 0.0784545
     type: ''
     visible: true
     width: 75.1592
-    x: 1411.09893723725
-    y: 887.738020222952
+    x: 1411.1
+    y: 887.738
   - height: 45.0166
     id: 828
     name: Normal
@@ -6600,8 +6629,8 @@ layers:
     type: ''
     visible: true
     width: 109.825
-    x: 1046.90683333333
-    y: 1187.00666666667
+    x: 1046.91
+    y: 1187.01
   - height: 45.0166
     id: 829
     name: Normal
@@ -6619,8 +6648,8 @@ layers:
     type: ''
     visible: true
     width: 69.825
-    x: 1065.1431969697
-    y: 1947.22151515151
+    x: 1065.14
+    y: 1947.22
   - height: 45.0166
     id: 830
     name: Normal
@@ -6634,12 +6663,12 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 90.0736948803715
+    rotation: 90.0737
     type: ''
     visible: true
-    width: 73.4982366886288
-    x: 590.244253587392
-    y: 2389.87289775985
+    width: 73.4982
+    x: 590.244
+    y: 2389.87
   - height: 45.0166
     id: 831
     name: Normal
@@ -6656,8 +6685,8 @@ layers:
     rotation: 270.271
     type: ''
     visible: true
-    width: 111.4750684795
-    x: 435.2335
+    width: 111.475
+    x: 435.234
     y: 2769.63
   - height: 45.0166
     id: 832
@@ -6675,9 +6704,9 @@ layers:
     rotation: 270.271
     type: ''
     visible: true
-    width: 121.506488786918
-    x: 1322.43537823777
-    y: 2778.09382431839
+    width: 121.506
+    x: 1322.44
+    y: 2778.09
   opacity: 1
   type: objectgroup
   visible: true
@@ -6686,6 +6715,7 @@ layers:
 - color: '#ffff00'
   draworder: topdown
   id: 10
+  locked: true
   name: Spawns_C
   objects:
   - height: 0
@@ -6703,8 +6733,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 161.993333333333
-    y: 112.453333333333
+    x: 161.993
+    y: 112.453
   - height: 0
     id: 819
     name: ''
@@ -6720,8 +6750,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 267.503333333333
-    y: 73.9933333333332
+    x: 267.503
+    y: 73.9933
   - height: 0
     id: 820
     name: ''
@@ -6737,8 +6767,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 308.663333333333
-    y: 121.663333333333
+    x: 308.663
+    y: 121.663
   - height: 0
     id: 821
     name: ''
@@ -6754,8 +6784,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 379.503333333333
-    y: 69.4933333333332
+    x: 379.503
+    y: 69.4933
   - height: 0
     id: 822
     name: ''
@@ -6771,8 +6801,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 459.003333333333
-    y: 119.833333333333
+    x: 459.003
+    y: 119.833
   - height: 0
     id: 823
     name: ''
@@ -6788,8 +6818,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 538.003333333333
-    y: 69.9933333333332
+    x: 538.003
+    y: 69.9933
   - height: 0
     id: 824
     name: ''
@@ -6805,8 +6835,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 597.333333333333
-    y: 125.333333333333
+    x: 597.333
+    y: 125.333
   opacity: 1
   type: objectgroup
   visible: true
@@ -7236,7 +7266,7 @@ layers:
   x: 0
   y: 0
 nextlayerid: 11
-nextobjectid: 833
+nextobjectid: 835
 orientation: orthogonal
 renderorder: right-down
 tiledversion: 1.11.1-99-gec89c545
