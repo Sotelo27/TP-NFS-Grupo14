@@ -455,57 +455,112 @@ void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
 }
 
 void Race::update_npcs(float dt) {
-    (void)dt;
-    // IA básica: cada NPC intenta avanzar recto, pero si detecta edificio adelante, frena o gira
+    // Parámetros IA para movimiento natural y lento, similar a usuario
+    const float SENSOR_DIST = 1.2f;      // metros delante del auto
+    const float SENSOR_WIDTH = 1.0f;     // ancho del sensor para evitar colisiones
+    const float TARGET_SPEED_KMH = 7.0f; // velocidad objetivo baja (~2 m/s)
+    const float MAX_THROTTLE = 0.10f;    // throttle máximo para NPCs (muy bajo)
+    const float STEER_TO_CP = 0.18f;     // giro suave hacia checkpoint
+    const float OBSTACLE_STEER = 0.35f;  // giro para evitar obstáculo
+    const float OBSTACLE_THROTTLE = 0.0f;// frenar si hay obstáculo
+    const float STUCK_SPEED_MPS = 0.05f; // umbral para considerar "quieto"
+    const float STUCK_TIME = 1.5f;       // tiempo mínimo quieto para desbloquear
+
+    static std::unordered_map<uint8_t, float> stuck_time_map;
+
     for (auto& [npc_id, car_ptr] : npc_cars) {
         if (!car_ptr) continue;
         b2Body* body = car_ptr->get_body();
         if (!body) continue;
 
-        // Parámetros IA
-        const float SENSOR_DIST = 1.2f; // metros delante del auto
-        const float SENSOR_WIDTH = 0.6f; // ancho del sensor
-        const float FORWARD_SPEED = 0.4f; // throttle bajo
-        const float TURN_SPEED = 0.7f; // giro fuerte si hay obstáculo
-
-        // Calcular posición del sensor delante del auto
         float angle = body->GetAngle();
         b2Vec2 pos = body->GetPosition();
         b2Vec2 forward(std::cos(angle), std::sin(angle));
         b2Vec2 sensor_center = pos + SENSOR_DIST * forward;
 
+        // Buscar el checkpoint más cercano (camino virtual)
+        float target_x = pos.x, target_y = pos.y;
+        if (!track.checkpoints.empty()) {
+            float min_dist = 1e9f;
+            for (const auto& cp : track.checkpoints) {
+                float a = cp.rotation_deg * PI / 180.0f;
+                float halfW = cp.w_px * 0.5f / PPM;
+                float halfH = cp.h_px * 0.5f / PPM;
+                float cx = (cp.x_px + std::cos(a) * halfW - std::sin(a) * halfH) / PPM;
+                float cy = (cp.y_px + std::sin(a) * halfW + std::cos(a) * halfH) / PPM;
+                float dx = cx - pos.x;
+                float dy = cy - pos.y;
+                float d = std::sqrt(dx*dx + dy*dy);
+                if (d < min_dist) {
+                    min_dist = d;
+                    target_x = cx;
+                    target_y = cy;
+                }
+            }
+        }
+
+        // Calcular ángulo hacia el objetivo (checkpoint)
+        float dx = target_x - pos.x;
+        float dy = target_y - pos.y;
+        float target_angle = std::atan2(dy, dx);
+        float angle_diff = std::atan2(std::sin(target_angle - angle), std::cos(target_angle - angle));
+
         // Revisar colisiones con edificios usando el PhysicsWorld
         bool obstacle_ahead = false;
+        float steer = 0.0f;
         PhysicsWorld& world = physics;
-        // Revisar todos los edificios estáticos
         for (const auto& ent_ptr : world.static_entities) {
             auto* building = dynamic_cast<BuildingEntity*>(ent_ptr.get());
             if (!building) continue;
             b2Body* b = building->get_body();
             if (!b) continue;
-            // Revisar distancia simple (bounding box)
             b2Vec2 bpos = b->GetPosition();
-            float dx = sensor_center.x - bpos.x;
-            float dy = sensor_center.y - bpos.y;
-            float dist = std::sqrt(dx*dx + dy*dy);
+            float dist = (sensor_center - bpos).Length();
             if (dist < SENSOR_WIDTH) {
                 obstacle_ahead = true;
+                // Determinar si el obstáculo está a la izquierda o derecha
+                b2Vec2 to_obstacle = bpos - pos;
+                float rel_angle = std::atan2(to_obstacle.y, to_obstacle.x) - angle;
+                steer = (rel_angle > 0) ? -OBSTACLE_STEER : OBSTACLE_STEER;
                 break;
             }
         }
 
-        float throttle = FORWARD_SPEED;
-        float steer = 0.0f;
+        // Control de velocidad objetivo (mantener velocidad baja y constante)
+        float speed_mps = car_ptr->speed_mps();
+        float speed_kmh = speed_mps * MS_TO_KMH;
+        float throttle = 0.0f;
 
         if (obstacle_ahead) {
-            // Si hay obstáculo, frenar y girar aleatoriamente
-            throttle = -0.2f; // marcha atrás leve
-            // Girar a la derecha o izquierda aleatoriamente
-            static std::mt19937 rng{std::random_device{}()};
-            static std::uniform_real_distribution<float> dist(-1.f, 1.f);
-            steer = (dist(rng) > 0) ? TURN_SPEED : -TURN_SPEED;
+            throttle = OBSTACLE_THROTTLE; // frenar si hay obstáculo
+            // steer ya fue seteado arriba
+        } else {
+            // Mantener velocidad baja y constante
+            if (speed_kmh < TARGET_SPEED_KMH - 0.5f) {
+                throttle = MAX_THROTTLE;
+            } else if (speed_kmh > TARGET_SPEED_KMH + 0.5f) {
+                throttle = -MAX_THROTTLE; // frenar si va muy rápido
+            } else {
+                throttle = 0.0f; // mantener velocidad
+            }
+            steer = std::clamp(angle_diff, -STEER_TO_CP, STEER_TO_CP);
         }
 
+        // Manejo de "stuck": si el auto está quieto por mucho tiempo, aplicar impulso aleatorio
+        if (std::abs(speed_mps) < STUCK_SPEED_MPS && std::abs(throttle) < 0.01f) {
+            stuck_time_map[npc_id] += dt;
+            if (stuck_time_map[npc_id] > STUCK_TIME) {
+                static std::mt19937 rng{std::random_device{}()};
+                static std::uniform_real_distribution<float> random_steer(-0.12f, 0.12f);
+                steer += random_steer(rng);
+                throttle = 0.08f;
+                stuck_time_map[npc_id] = 0.0f;
+            }
+        } else {
+            stuck_time_map[npc_id] = 0.0f;
+        }
+
+        // Aplicar input igual que un usuario
         car_ptr->apply_input(throttle, steer);
     }
 }
