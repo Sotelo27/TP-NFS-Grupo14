@@ -99,6 +99,19 @@ void GameWindow::setupConnections() {
         waiting_room_screen->set_selected_map(selected_map);
         goToWaitingRoomFromMap();
     });
+
+    connect(editor_map_screen, &EditorMapScreen::go_back_to_menu, this, [this]() {
+        QString map_edit = editor_map_screen->get_map_selected();
+        waiting_room_screen->set_selected_map(map_edit);
+        stack->setCurrentWidget(menu_screen);
+    });
+
+    connect(editor_map_screen, &EditorMapScreen::go_to_waiting_room, this,
+            [this]() {
+        waiting_room_screen->hideSelectMapButton();
+        waiting_room_screen->startPolling();
+        stack->setCurrentWidget(waiting_room_screen);
+    });
 }
 
 void GameWindow::setupSound() {

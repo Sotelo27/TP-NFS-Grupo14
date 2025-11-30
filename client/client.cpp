@@ -34,6 +34,12 @@ void Client::start() {
         return;
     }
 
+    if (!map_selected) {
+        std::cout << "[Client] No elegiste mapa..." << std::endl;
+        return;
+    }
+
+
     std::cout << "[Client] Starting game loop..." << std::endl;
     std::cout << "[Client] My client ID is: " << my_id << std::endl;
 

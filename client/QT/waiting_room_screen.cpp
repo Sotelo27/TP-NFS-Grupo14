@@ -129,7 +129,7 @@ void WaitingRoomScreen::createStartButton() {
     mainLayout->addWidget(startButton, 0, Qt::AlignHCenter);
 
     // Botón para seleccionar mapa (otro botón distinto)
-    QPushButton* selectMapButton = new QPushButton("SELECCIONAR MAPA", this);
+    selectMapButton = new QPushButton("SELECCIONAR MAPA", this);
     selectMapButton->setFixedSize(350, 80);
     selectMapButton->setCursor(Qt::PointingHandCursor);
     selectMapButton->setVisible(true);
@@ -226,6 +226,7 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
                     is_admin = true;
 
             startButton->setVisible(is_admin);
+            selectMapButton->setVisible(is_admin);
 
             for (const auto& p : msg.players) {
                 QWidget* card = new QWidget();
@@ -275,11 +276,13 @@ void WaitingRoomScreen::start_game() {
     QMessageBox::information(this, "Juego iniciado", "¡La carrera está por comenzar!");
 }
 
-// =============================================================
-// RESIZE EVENT PARA AJUSTAR FONDO
-// =============================================================
 void WaitingRoomScreen::resizeEvent(QResizeEvent* event) {
     if (background)
         background->setGeometry(0, 0, width(), height());
     QWidget::resizeEvent(event);
+}
+
+void WaitingRoomScreen::hideSelectMapButton() {
+    if (selectMapButton)
+        selectMapButton->hide();
 }

@@ -7,7 +7,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QListWidget>
-#include <QLineEdit>
+#include <QString>
+#include <QTimer>
 
 #include "../connection/server_handler.h"
 
@@ -21,28 +22,28 @@ public:
     QString get_file_selected() const;
 
     signals:
-        void go_back_to_menu();
-    void go_to_waiting_room();
+    void go_back_to_menu();
+    void go_to_waiting_room(uint8_t room_id);
 
 public slots:
     void onRoomCreated(uint8_t room_id);
 
 private:
-    // === ORDEN CORRECTO ===
     ServerHandler& server_handler;
+    QTimer* pollTimer;
 
     QLabel* background;
 
-    QPushButton* loadButton;    // 1
-    QPushButton* backButton;    // 2
+    QPushButton* loadButton;
+    QPushButton* backButton;
 
-    QScrollArea* scrollArea;    // 3
-    QListWidget* mapList;       // 4
+    QScrollArea* scrollArea;
+    QListWidget* mapList;
 
-    QWidget* container;         // 5
-    QVBoxLayout* containerLayout; // 6
+    QWidget* container;
+    QVBoxLayout* containerLayout;
 
-    QVBoxLayout* mainLayout;    // 7
+    QVBoxLayout* mainLayout;
 
     QString directory;
     QString map_selected;
@@ -51,11 +52,13 @@ private:
     uint8_t current_room_id;
     bool in_room;
 
-    // === métodos privados ===
+    void start_polling();
+    void stop_polling();
+    void onPollTimer();
+
     void setupUi();
     void setupStyles();
     void setupConnections();
-
     void load_maps_from_directory(const QString& path);
 
     void onLoadClicked();

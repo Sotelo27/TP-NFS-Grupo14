@@ -114,7 +114,12 @@ void LobbyScreen::createButtons() {
     glowButtonEditor->setColor(QColor(255, 0, 180));
     createButtonEditor->setGraphicsEffect(glowButtonEditor);
 
-    connect(createButtonEditor, &QPushButton::clicked, this, &LobbyScreen::go_to_editor_screen);
+    connect(createButtonEditor, &QPushButton::clicked, this, [this]() {
+        if (this->pollTimer->isActive()) {
+            this->pollTimer->stop();
+        }
+        emit go_to_editor_screen();
+    });
     mainLayout->addWidget(createButtonEditor, 0, Qt::AlignHCenter);
 }
 
@@ -280,8 +285,9 @@ void LobbyScreen::create_new_room() const {
 }
 
 void LobbyScreen::open_waiting_room(uint8_t id_room) {
-    if (this->pollTimer->isActive())
+    if (this->pollTimer->isActive()) {
         this->pollTimer->stop();
+    }
 
     in_room = true;
     std::cout << "[LobbyWindow] Entrando a sala " << (int)id_room << std::endl;
