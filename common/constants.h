@@ -64,4 +64,7 @@ constexpr uint8_t ERROR_MESSAGE = 0x00;
 
 constexpr int SHUT_BOTH_CLOSED = 2;
 
+// Cheats
+constexpr uint8_t CHEAT_INFINITE_LIFE = 0x07;
+
 #endif  // CONSTANTS_H
