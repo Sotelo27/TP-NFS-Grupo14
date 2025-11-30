@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../car_info_game.h"
+#include "../../info_game.h"
 #include "../../resources/maps_textures.h"
 #include "../../sdl_wrappers/SdlDrawFill.h"
 #include "../../sdl_wrappers/SdlObjTexture.h"

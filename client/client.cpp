@@ -11,8 +11,8 @@ Client::Client(const char* hostname, const char* servname):
     std::cout << "[Client] Connected to server " << hostname << ":" << servname << std::endl;
 }
 
-void Client::open_game_window(size_t& my_id, ServerHandler& server_handler, bool& game_is_over) {
-    ClientGame game(my_id, server_handler, game_is_over);
+void Client::open_game_window(size_t& my_id, ServerHandler& server_handler, std::vector<PlayerResultTotal>& final_results) {
+    ClientGame game(my_id, server_handler, final_results);
     game.start();
 }
 
@@ -29,25 +29,26 @@ void Client::start() {
     game_window_start->exec();
     close_QT_window(game_window_start);
 
-    if (my_id == SIZE_MAX) {
+    if (my_id == SIZE_MAX ) {
         std::cout << "[Client] Exiting..." << std::endl;
-        return;
-    }
-
-    if (!map_selected) {
-        std::cout << "[Client] Mapa no seleccionado..." << std::endl;
         return;
     }
 
     std::cout << "[Client] Starting game loop..." << std::endl;
     std::cout << "[Client] My client ID is: " << my_id << std::endl;
 
-    bool game_is_over = false;
-    open_game_window(my_id, server_handler, game_is_over);
+    std::vector<PlayerResultTotal> final_results;
+    open_game_window(my_id, server_handler, final_results);
 
-    if (!game_is_over) {
+    if (final_results.empty()) {
         std::cout << "[Client] Game ended unexpectedly. Exiting..." << std::endl;
         return;
+    }
+
+    for (const auto& result : final_results) {
+        std::cout << "[Client] Player position " << static_cast<int>(result.position)
+                  << ": " << result.username
+                  << " with total time " << result.total_time_seconds << "s" << std::endl;
     }
 
     game_window_end = new GameWindow(server_handler, my_id, map_selected, false, nullptr);

@@ -27,6 +27,7 @@ struct ServerMessage {
         RaceStart, // para indicar inicio de carrera
         Empty,
         Results, // resultados de carrera
+        ResultsFinal,
         ImprovementOK,
         MarketTime
     };
@@ -67,6 +68,7 @@ enum class ServerOutType : uint8_t {
     CarList,
     RaceStart,
     Results,
+    ResultsTotal,
     MapInfo,
     ImprovementOk,
     MarketTime

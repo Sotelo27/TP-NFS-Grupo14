@@ -202,30 +202,11 @@ ServerMessage ClientProtocol::parse_race_start() {
 
 ServerMessage ClientProtocol::parse_results() {
     ServerMessage dto;
-    dto.type = ServerMessage::Type::Results;
+    dto.type = ServerMessage::Type::ResultsFinal;
     uint8_t n=0;
     skt.recvall(&n, 1);
 
-    dto.results_current.clear();
     dto.results_total.clear();
-
-    for(uint8_t i=0; i<n; ++i) {
-        uint16_t lbe=0;
-        skt.recvall(&lbe, 2);
-        uint16_t l = ntohs(lbe);
-        std::string name(l, '\0');
-        if(l) skt.recvall(&name[0], l);
-        uint16_t time_be=0;
-        skt.recvall(&time_be, 2);
-        uint8_t pos=0;
-        skt.recvall(&pos, 1);
-        PlayerResultCurrent prc;
-        // falta añadir mas campos 
-        prc.username = std::move(name);
-        prc.race_time_seconds = ntohs(time_be);
-        prc.position = pos;
-        dto.results_current.push_back(std::move(prc));
-    }
 
     for(uint8_t i=0; i<n; ++i) {
         uint16_t lbe=0;
@@ -243,6 +224,7 @@ ServerMessage ClientProtocol::parse_results() {
         prt.position = pos;
         dto.results_total.push_back(std::move(prt));
     }
+
     return dto;
 }
 

@@ -76,6 +76,7 @@ private:
     bool ready_next_race;
     int current_balance;
     int time_market;
+    std::vector<PlayerResultTotal>& final_results;
 
     void function() final;
 
@@ -110,7 +111,7 @@ private:
 public:
     explicit Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
                           MapsTextures& map_manager, bool& main_running,
-                          IconImprovementManager& icon_manager, ClientHelper& client_helper);
+                          IconImprovementManager& icon_manager, ClientHelper& client_helper, std::vector<PlayerResultTotal>& final_results);
 
     void run(std::vector<PlayerResultCurrent> player_infos, int iteration_called);
 
