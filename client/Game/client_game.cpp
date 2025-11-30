@@ -166,6 +166,7 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
     }
 }
 
+
 void ClientGame::update_state_from_position() {
     handle_sdl_events();
 
