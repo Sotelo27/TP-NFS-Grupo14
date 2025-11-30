@@ -88,7 +88,7 @@ void test_recv_my_id() {
 
         ServerOutMsg response;
         response.type = ServerOutType::YourId;
-        response.id = 42;
+        response.your_id = 42; 
         protocol.send_your_id(response);
     });
 
@@ -97,7 +97,6 @@ void test_recv_my_id() {
 
     ServerMessage server_msg = protocol.receive();
     ASSERT_EQ(server_msg.type, ServerMessage::Type::YourId);
-
     ASSERT_EQ(server_msg.id, 42);
 
     server_thread.join();
@@ -128,7 +127,7 @@ void test_create_1_room() {
 
     ServerMessage server_msg = protocol.receive();
     ASSERT_EQ(server_msg.type, ServerMessage::Type::RoomCreated);
-    ASSERT_EQ(server_msg.room_id, 25);
+    ASSERT_EQ(server_msg.id, 25); 
 
     server_thread.join();
 }
