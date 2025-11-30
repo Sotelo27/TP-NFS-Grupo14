@@ -22,7 +22,7 @@ class ClientGame: public ConstantRateLoop {
 private:
     size_t client_id;
     ServerHandler& server_handler;
-    bool& game_is_over;
+    std::vector<PlayerResultTotal>& final_results;
     std::unordered_map<size_t, CarInfoGame> info_players;
     SdlWindow window;
     MapsTextures map_manager;
@@ -42,7 +42,7 @@ protected:
     void function() final;
 
 public:
-    explicit ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over);
+    explicit ClientGame(size_t client_id, ServerHandler& server_handler, std::vector<PlayerResultTotal>& final_results);
 
     void start();
 

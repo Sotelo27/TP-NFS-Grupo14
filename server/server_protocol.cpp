@@ -224,46 +224,14 @@ void ServerProtocol::send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& current,
-                                  const std::vector<PlayerResultTotal>& total) {
+void ServerProtocol::send_results(const std::vector<PlayerResultTotal>& total) {
     uint8_t code = CODE_S2C_RESULTS;
-    uint8_t nplayers = (uint8_t)current.size(); // se asume mismo tamaño en ambas
+    uint8_t nplayers = (uint8_t)total.size();
     std::vector<uint8_t> buf;
     buf.reserve(2);
     buf.push_back(code);
     buf.push_back(nplayers);
-    // CURRENT
-    for (const auto& p : current) {
-        // player_id
-        uint32_t pid_be = htonl(p.player_id);
-        size_t off = buf.size();
-        buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
 
-        // username
-        uint16_t l = (uint16_t)p.username.size();
-        uint16_t lbe = htons(l);
-        off = buf.size();
-        buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
-        if (l) {
-            off = buf.size();
-            buf.resize(off + p.username.size());
-            std::memcpy(buf.data()+off, p.username.data(), p.username.size());
-        }
-
-        // race_time_seconds (uint32)
-        uint32_t race_be = htonl(p.race_time_seconds);
-        off = buf.size();
-        buf.resize(off + 4); std::memcpy(buf.data()+off, &race_be, 4);
-
-        // total_time_seconds (uint32)
-        uint32_t total_be = htonl(p.total_time_seconds);
-        off = buf.size();
-        buf.resize(off + 4); std::memcpy(buf.data()+off, &total_be, 4);
-
-        // position (uint8)
-        buf.push_back(p.position);
-    }
-    // TOTAL
     for (const auto& p : total) {
         uint16_t l = (uint16_t)p.username.size();
         uint16_t lbe = htons(l);

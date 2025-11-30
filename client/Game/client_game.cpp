@@ -12,11 +12,11 @@
 
 #include "constants.h"
 
-ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& game_is_over):
+ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, std::vector<PlayerResultTotal>& final_results):
         ConstantRateLoop(FRAME_RATE),
         client_id(client_id),
         server_handler(server_handler),
-        game_is_over(game_is_over),
+        final_results(final_results),
         info_players(),
         window(WINDOW_WIDTH, WINDOW_HEIGHT),
         map_manager(window),
@@ -26,7 +26,7 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler, bool& ga
         client_helper(client_id, window, info_players, map_manager, icon_improvement_manager,
                       time_info),
         intermission_manager(client_id, window, server_handler, map_manager, this->running,
-                             icon_improvement_manager, client_helper) {}
+                             icon_improvement_manager, client_helper, final_results) {}
 
 void ClientGame::function() {
     update_state_from_position();
@@ -101,9 +101,6 @@ void ClientGame::handle_sdl_events() {
                 std::cout << "[ClientGame] Quit event received" << std::endl;
                 running = false;
 
-                // esto se debe borrar cuando se maneje el fin del juego
-                game_is_over = true;
-
                 break;
         }
     }
@@ -141,6 +138,11 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
                       << action.results_current.size() << ")" << std::endl;
 
             intermission_manager.run(std::move(action.results_current), iteration);
+        } else if (action.type == ServerMessage::Type::ResultsFinal) {
+            std::cout << "[ClientGame] Received FINAL RESULTS from server (n="
+                      << action.results_total.size() << ")" << std::endl;
+            final_results = std::move(action.results_total);
+            this->running = false;
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;

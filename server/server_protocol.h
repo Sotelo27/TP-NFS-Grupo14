@@ -48,8 +48,7 @@ public:
     void send_cars_list(const std::vector<CarInfo>& cars);
     void send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
                          const std::vector<std::pair<int32_t,int32_t>>& checkpoints);
-    void send_results(const std::vector<PlayerResultCurrent>& current,
-                      const std::vector<PlayerResultTotal>& total);
+    void send_results(const std::vector<PlayerResultTotal>& total);
     
     void send_improvement_ok(const ImprovementResult& result);
     void send_result_race_current(const std::vector<PlayerResultCurrent>& current);

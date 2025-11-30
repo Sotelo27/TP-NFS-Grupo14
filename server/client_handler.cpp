@@ -161,7 +161,7 @@ void ClientHandler::send_results_to_client(const std::vector<PlayerResultCurrent
 void ClientHandler::send_results_total_to_client(const std::vector<PlayerResultTotal>& total) {
     std::cout << "[ClientHandler] Queueing RESULTS_TOTAL for conn_id=" << id << " players=" << total.size() << "\n";
     ServerOutMsg out{};
-    out.type = ServerOutType::Results;
+    out.type = ServerOutType::ResultsTotal;
     out.results_total = total;
     mensajes_a_enviar.try_push(std::move(out));
 }
