@@ -132,3 +132,147 @@ void test_create_1_room() {
 
     server_thread.join();
 }
+
+void test_send_and_receive_rooms() {
+    Socket skt("3010");
+    std::vector<RoomInfo> rooms = {
+        {1, 2, 4},
+        {2, 1, 4}
+    };
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_rooms(rooms);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3010"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::Rooms);
+    ASSERT_EQ(msg.rooms.size(), 2);
+    ASSERT_EQ(msg.rooms[0].id, 1);
+    ASSERT_EQ(msg.rooms[1].id, 2);
+
+    server_thread.join();
+}
+
+void test_send_and_receive_cars_list() {
+    Socket skt("3011");
+    std::vector<CarInfo> cars = {
+        {1, 120, 10, 80, 50, 90},
+        {2, 100, 12, 90, 55, 85}
+    };
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_cars_list(cars);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3011"));
+    ServerMessage msg = protocol.receive();
+    // No parseo completo en el cliente, solo verifica que no crashea y recibe el código.
+    ASSERT_EQ(msg.type, ServerMessage::Type::Unknown);
+
+    server_thread.join();
+}
+
+void test_send_and_receive_race_start() {
+    Socket skt("3012");
+    uint8_t map_id = 1;
+    std::vector<std::pair<int32_t, int32_t>> checkpoints = {
+        {100, 200}, {300, 400}
+    };
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_race_start(map_id, (uint8_t)checkpoints.size(), checkpoints);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3012"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::RaceStart);
+    ASSERT_EQ(msg.map_id, map_id);
+
+    server_thread.join();
+}
+
+void test_send_and_receive_results() {
+    Socket skt("3013");
+    std::vector<PlayerResultTotal> results = {
+        {"Alice", 120, 1},
+        {"Bob", 130, 2}
+    };
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_results(results);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3013"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::ResultsFinal);
+    ASSERT_EQ(msg.results_total.size(), 2);
+    ASSERT_EQ(msg.results_total[0].username, "Alice");
+    ASSERT_EQ(msg.results_total[1].username, "Bob");
+
+    server_thread.join();
+}
+
+void test_send_and_receive_improvement_ok() {
+    Socket skt("3014");
+    ImprovementResult result{};
+    result.player_id = 7;
+    result.improvement_id = 2;
+    result.ok = true;
+    result.total_penalty_seconds = 5;
+    result.current_balance = 1000;
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_improvement_ok(result);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3014"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::ImprovementOK);
+    ASSERT_EQ(msg.id, 7);
+    ASSERT_EQ(msg.result_market_player.improvement_id, 2);
+    ASSERT_TRUE(msg.result_market_player.ok);
+    ASSERT_EQ(msg.result_market_player.total_penalty_seconds, 5);
+    ASSERT_EQ(msg.result_market_player.current_balance, 1000);
+
+    server_thread.join();
+}
+
+void test_send_and_receive_players_list() {
+    Socket skt("3015");
+    std::vector<PlayerInfo> players = {
+        {10, "Alice", true, true, 90, 12345},
+        {11, "Bob", false, false, 80, 23456}
+    };
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_players_list(players);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3015"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::PlayersList);
+    ASSERT_EQ(msg.players.size(), 2);
+    ASSERT_EQ(msg.players[0].player_id, 10);
+    ASSERT_EQ(msg.players[0].username, "Alice");
+    ASSERT_TRUE(msg.players[0].is_ready);
+    ASSERT_TRUE(msg.players[0].is_admin);
+    ASSERT_EQ(msg.players[1].player_id, 11);
+    ASSERT_EQ(msg.players[1].username, "Bob");
+    ASSERT_FALSE(msg.players[1].is_ready);
+    ASSERT_FALSE(msg.players[1].is_admin);
+
+    server_thread.join();
+}
