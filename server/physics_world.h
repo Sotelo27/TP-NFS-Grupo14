@@ -19,11 +19,13 @@
 #include "physics/checkpoint_event.h"
 
 class PhysicsWorld {
+public:
+    std::vector<std::unique_ptr<Entidad>> static_entities; // Hacer público para IA NPC
+
 private:
     b2World world;
     std::unordered_map<size_t, b2Body*> bodies;
     std::vector<b2Body*> static_bodies; // walls, boundaries, checkpoints
-    std::vector<std::unique_ptr<Entidad>> static_entities;
     size_t next_static_id_{1};
 
     /*

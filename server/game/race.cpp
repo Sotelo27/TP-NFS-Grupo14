@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 #include <iostream>
+#include "../physics/building_entity.h" // Para detectar edificios
 
 #define  PI 3.14159265358979323846f
 #define PPM 32.f
@@ -455,16 +456,58 @@ void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
 
 void Race::update_npcs(float dt) {
     (void)dt;
-    // Para que los NPCs se muevan, puedes aplicar input aquí.
-    // Por ahora, los NPCs quedan quietos (no se aplica input).
-    // Ejemplo: para que avancen recto,
-    /*
+    // IA básica: cada NPC intenta avanzar recto, pero si detecta edificio adelante, frena o gira
     for (auto& [npc_id, car_ptr] : npc_cars) {
-        if (car_ptr) {
-            car_ptr->apply_input(1.0f, 0.0f); // acelerar recto
+        if (!car_ptr) continue;
+        b2Body* body = car_ptr->get_body();
+        if (!body) continue;
+
+        // Parámetros IA
+        const float SENSOR_DIST = 1.2f; // metros delante del auto
+        const float SENSOR_WIDTH = 0.6f; // ancho del sensor
+        const float FORWARD_SPEED = 0.4f; // throttle bajo
+        const float TURN_SPEED = 0.7f; // giro fuerte si hay obstáculo
+
+        // Calcular posición del sensor delante del auto
+        float angle = body->GetAngle();
+        b2Vec2 pos = body->GetPosition();
+        b2Vec2 forward(std::cos(angle), std::sin(angle));
+        b2Vec2 sensor_center = pos + SENSOR_DIST * forward;
+
+        // Revisar colisiones con edificios usando el PhysicsWorld
+        bool obstacle_ahead = false;
+        PhysicsWorld& world = physics;
+        // Revisar todos los edificios estáticos
+        for (const auto& ent_ptr : world.static_entities) {
+            auto* building = dynamic_cast<BuildingEntity*>(ent_ptr.get());
+            if (!building) continue;
+            b2Body* b = building->get_body();
+            if (!b) continue;
+            // Revisar distancia simple (bounding box)
+            b2Vec2 bpos = b->GetPosition();
+            float dx = sensor_center.x - bpos.x;
+            float dy = sensor_center.y - bpos.y;
+            float dist = std::sqrt(dx*dx + dy*dy);
+            if (dist < SENSOR_WIDTH) {
+                obstacle_ahead = true;
+                break;
+            }
         }
+
+        float throttle = FORWARD_SPEED;
+        float steer = 0.0f;
+
+        if (obstacle_ahead) {
+            // Si hay obstáculo, frenar y girar aleatoriamente
+            throttle = -0.2f; // marcha atrás leve
+            // Girar a la derecha o izquierda aleatoriamente
+            static std::mt19937 rng{std::random_device{}()};
+            static std::uniform_real_distribution<float> dist(-1.f, 1.f);
+            steer = (dist(rng) > 0) ? TURN_SPEED : -TURN_SPEED;
+        }
+
+        car_ptr->apply_input(throttle, steer);
     }
-    */
 }
 
 std::vector<NpcTickInfo> Race::snapshot_npcs() const {
