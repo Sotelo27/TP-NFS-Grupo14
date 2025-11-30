@@ -115,13 +115,13 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
     buf.push_back(count);
     
     for (const auto& p : players) {
-        // Player ID (4 bytes big endian)
+        // Player ID 
         uint32_t id_be = htonl(p.player_id);
         size_t off = buf.size();
         buf.resize(off + 4);
         std::memcpy(buf.data() + off, &id_be, 4);
         
-        // Username length (2 bytes big endian)
+        // Username length (
         uint16_t len = (uint16_t)p.username.size();
         uint16_t len_be = htons(len);
         off = buf.size();
@@ -138,13 +138,13 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
         // Ready flag (1 byte)
         buf.push_back(p.is_ready ? 1 : 0);
         
-        // NUEVO: Admin flag (1 byte)
+        //Admin flag (1 byte)
         buf.push_back(p.is_admin ? 1 : 0);
         
         // Health (1 byte)
         buf.push_back(p.health);
         
-        // Race time (4 bytes big endian)
+        // Race time (4 bytes)
         uint32_t time_be = htonl(p.race_time_ms);
         off = buf.size();
         buf.resize(off + 4);
@@ -211,7 +211,7 @@ void ServerProtocol::send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
     std::vector<uint8_t> buf;
     buf.reserve(1 + 1 + 1 + checkpoints.size()*8);
     buf.push_back(code);
-    buf.push_back(map_id); // Enviar el id del mapa como byte
+    buf.push_back(map_id); 
     buf.push_back(amount_checkpoints);
     for (const auto& cp : checkpoints) {
         int32_t x_be = htonl(cp.first);
@@ -393,11 +393,15 @@ void ServerProtocol::send_improvement_ok(const ImprovementResult& result) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
+void ServerProtocol::send_game_over() {
+    uint8_t code = CODE_S2C_GAME_OVER;
+    skt.sendall(&code, 1);
+}
+
 ServerProtocol::ServerProtocol(Socket&& skt): skt(std::move(skt)) {
     init_recv_dispatch();
 }
 
-// ------------------ NUEVO: Dispatch init ------------------
 void ServerProtocol::init_recv_dispatch() {
     recv_dispatch = {
         {CODE_C2S_NAME,        [this](){ return parse_name(); }},
@@ -411,7 +415,6 @@ void ServerProtocol::init_recv_dispatch() {
     };
 }
 
-//NUEVO: Handlers 
 ClientMessage ServerProtocol::parse_name() {
     ClientMessage dto; dto.type = ClientMessage::Type::Name;
     uint16_t len_be=0; skt.recvall(&len_be,2);
@@ -492,5 +495,5 @@ ClientMessage ServerProtocol::receive() {
     if (it != recv_dispatch.end()) {
         return it->second();
     }
-    return dto; // Unknown
+    return dto; 
 }

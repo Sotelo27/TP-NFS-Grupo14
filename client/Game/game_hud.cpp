@@ -47,9 +47,8 @@ void GameHud::renderLifeBarHud() {
         const CarData& car_data =
                 car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
-        // falta la vida maxima, que se espera recibir al principio de la partida
         life_bar_sprites.render(
-                100, car.info_car.health,
+                car.info_car.max_health, car.info_car.health,
                 Area(car.dest_area.getX(), car.dest_area.getY() - car_data.width_scale_screen / 5,
                      car_data.width_scale_screen, car_data.width_scale_screen / 5));
     }
@@ -67,22 +66,17 @@ void GameHud::renderHint(const CarInfoGame& client_car, int iteration) {
                 iteration, client_car_data.width_scale_screen, client_car_data.height_scale_screen);
 }
 
-void GameHud::renderPurchasedImprovement() {
-    std::list<SdlObjTexture*> improvements;
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Controllability));
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Health));
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Speed));
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Acceleration));
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Mass));
-
+void GameHud::renderPurchasedImprovement(const CarInfoGame& client_car) {
     int x_start = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
     int y_start = WINDOW_HEIGHT - 75;
-    for (const SdlObjTexture* improvement_icon: improvements) {
+    for (CarImprovement improvement_enable: client_car.info_car.improvements) {
+        const SdlObjTexture& improvement_icon =
+                icon_improvement_manager.get_icon(improvement_enable);
+
         int size_height = 55;
-        int size_width =
-                (improvement_icon->getWidth() * size_height) / improvement_icon->getHeight();
-        improvement_icon->render(
-                Area(0, 0, improvement_icon->getWidth(), improvement_icon->getHeight()),
+        int size_width = (improvement_icon.getWidth() * size_height) / improvement_icon.getHeight();
+        improvement_icon.render(
+                Area(0, 0, improvement_icon.getWidth(), improvement_icon.getHeight()),
                 Area(x_start, y_start, size_width, size_height));
 
         x_start += size_width + 8;
@@ -108,10 +102,13 @@ void GameHud::render(int iteration, int time_seconds, const Area& src_area_map) 
     time_hud.render(time_seconds, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
     int current_life = client_car.info_car.health;
-    // falta obtener la vida maxima
-    life_hud.render(100, current_life, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
+    life_hud.render(client_car.info_car.max_health, current_life, 20,
+                    SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
+
+    checkpoint.renderRemainingHud(20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 100,
+                                  client_car.info_car.checkpoints_remaining, iteration);
 
     renderMiniMap();
 
-    renderPurchasedImprovement();
+    renderPurchasedImprovement(client_car);
 }

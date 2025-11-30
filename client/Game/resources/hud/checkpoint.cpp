@@ -6,8 +6,12 @@
 #define CHECKPOINT_IMAGE_PATH std::string(ASSETS_PATH) + "/hud/checkpoint.png"
 #define SIZE_CHECKPOINT 200
 
+#define SIZE_HUD WINDOW_WIDTH / 43
+
 Checkpoint::Checkpoint(const SdlWindow& window):
-        texture(CHECKPOINT_IMAGE_PATH, window, RGB_BACKGROUND), iteration_init_angle(0) {
+        texture(CHECKPOINT_IMAGE_PATH, window, RGB_BACKGROUND),
+        text(FONT_STYLE_AA, (SIZE_HUD * 11) / 12, window),
+        iteration_init_angle(0) {
     texture.changeAlpha(200);
 }
 
@@ -37,4 +41,19 @@ void Checkpoint::render(int x_checkpoint, int y_checkpoint, const Area& src_area
     float angle = iteration - iteration_init_angle;
     texture.renderEntity(Area(0, 0, texture.getWidth(), texture.getHeight()), dest_area_checkpoint,
                          angle);
+}
+
+void Checkpoint::renderRemainingHud(int x_checkpoint, int y_checkpoint, int amount, int iteration) {
+    if (iteration - iteration_init_angle >= 360) {
+        iteration_init_angle = iteration;
+    }
+
+    float angle = iteration - iteration_init_angle;
+    this->texture.renderEntity(Area(0, 0, texture.getWidth(), texture.getHeight()),
+                               Area(x_checkpoint, y_checkpoint, SIZE_HUD,
+                                    SIZE_HUD * texture.getHeight() / texture.getWidth()),
+                               angle);
+
+    text.renderDirect(x_checkpoint + SIZE_HUD + 5, y_checkpoint + SIZE_HUD / 12,
+                      std::to_string(amount), Rgb(255, 255, 255), true);
 }
