@@ -13,7 +13,7 @@
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 
-#include "car_info_game.h"
+#include "info_game.h"
 #include "client_helper.h"
 #include "game_hud.h"
 #include "intermission.h"

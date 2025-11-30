@@ -12,7 +12,7 @@
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 
-#include "car_info_game.h"
+#include "info_game.h"
 #include "game_hud.h"
 
 class ClientHelper {
@@ -21,7 +21,7 @@ private:
     Area src_area_map;
     Area dest_area_map;
     std::unordered_map<size_t, CarInfoGame>& info_players;
-    std::unordered_map<uint8_t, NpcTickInfo> npcs_info; // Almacena los NPCs
+    std::vector<NpcInfoGame> npcs_info;
     SdlWindow& window;
     CarSpriteSheet car_sprites;
     MapsTextures& map_manager;
@@ -32,7 +32,7 @@ private:
     void update_map_area();
 
     void render_cars();
-    void render_npcs(); // Declaración del método de renderizado de NPCs
+    void render_npcs();
 
 public:
     explicit ClientHelper(size_t client_id, SdlWindow& window,
