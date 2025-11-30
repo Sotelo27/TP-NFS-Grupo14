@@ -8,14 +8,14 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
-class AudioManager {
+class SdlAudioManager {
 private:
     std::unordered_map<std::string, Mix_Music*> music;
     std::unordered_map<std::string, Mix_Chunk*> sounds;
     std::string current_music;
 
 public:
-    AudioManager();
+    SdlAudioManager();
 
     void loadMusic(const std::string& id, const std::string& file);
     void loadSound(const std::string& id, const std::string& file);
@@ -30,7 +30,7 @@ public:
     void playSound(const std::string& id, int loops = 0, int channel = -1);
     void setSoundVolume(const std::string& id, int volume);
 
-    ~AudioManager();
+    ~SdlAudioManager();
 };
 
 #endif

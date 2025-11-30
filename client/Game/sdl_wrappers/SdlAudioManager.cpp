@@ -5,7 +5,7 @@
 #define LIMITED_CHANNELS 16
 #define MAX_VOLUME 128
 
-AudioManager::AudioManager() {
+SdlAudioManager::SdlAudioManager() {
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         throw std::runtime_error("Error initializing SDL: " + std::string(SDL_GetError()));
     }
@@ -17,7 +17,7 @@ AudioManager::AudioManager() {
     Mix_AllocateChannels(LIMITED_CHANNELS);
 }
 
-AudioManager::~AudioManager() {
+SdlAudioManager::~SdlAudioManager() {
     for (auto& par: music) {
         Mix_FreeMusic(par.second);
     }
@@ -33,7 +33,7 @@ AudioManager::~AudioManager() {
     SDL_Quit();
 }
 
-void AudioManager::loadMusic(const std::string& id, const std::string& file) {
+void SdlAudioManager::loadMusic(const std::string& id, const std::string& file) {
     if (music.find(id) != music.end()) {
         throw std::runtime_error("Music '" + id + "' is already loaded");
     }
@@ -47,7 +47,7 @@ void AudioManager::loadMusic(const std::string& id, const std::string& file) {
     music[id] = musica;
 }
 
-void AudioManager::loadSound(const std::string& id, const std::string& file) {
+void SdlAudioManager::loadSound(const std::string& id, const std::string& file) {
     if (sounds.find(id) != sounds.end()) {
         throw std::runtime_error("Sound '" + id + "' is already loaded");
     }
@@ -61,7 +61,7 @@ void AudioManager::loadSound(const std::string& id, const std::string& file) {
     sounds[id] = sound;
 }
 
-void AudioManager::playMusic(const std::string& id, int loops, int fade_in_ms) {
+void SdlAudioManager::playMusic(const std::string& id, int loops, int fade_in_ms) {
     auto it = music.find(id);
     if (it == music.end()) {
         throw std::runtime_error("Music '" + id + "' not found");
@@ -76,17 +76,17 @@ void AudioManager::playMusic(const std::string& id, int loops, int fade_in_ms) {
     current_music = id;
 }
 
-void AudioManager::pauseMusic() { Mix_PauseMusic(); }
+void SdlAudioManager::pauseMusic() { Mix_PauseMusic(); }
 
-void AudioManager::resumeMusic() { Mix_ResumeMusic(); }
+void SdlAudioManager::resumeMusic() { Mix_ResumeMusic(); }
 
-void AudioManager::setMusicVolume(int volume) {
+void SdlAudioManager::setMusicVolume(int volume) {
     volume = std::max(0, std::min(volume, MAX_VOLUME));
 
     Mix_VolumeMusic(volume);
 }
 
-void AudioManager::playSound(const std::string& id, int loops, int channel) {
+void SdlAudioManager::playSound(const std::string& id, int loops, int channel) {
     auto it = sounds.find(id);
     if (it == sounds.end()) {
         throw std::runtime_error("Sound '" + id + "' not found");
@@ -98,7 +98,7 @@ void AudioManager::playSound(const std::string& id, int loops, int channel) {
     }
 }
 
-void AudioManager::setSoundVolume(const std::string& id, int volume) {
+void SdlAudioManager::setSoundVolume(const std::string& id, int volume) {
     auto it = sounds.find(id);
     if (it == sounds.end()) {
         throw std::runtime_error("Sound '" + id + "' not found");
