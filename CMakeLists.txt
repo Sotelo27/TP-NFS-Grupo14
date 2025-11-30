@@ -151,6 +151,7 @@ if(TALLER_CLIENT)
             SDL2pp::SDL2pp
             SDL2_image::SDL2_image
             SDL2_ttf::SDL2_ttf
+            SDL2_mixer::SDL2_mixer
             taller_common
             Qt5::Core
             Qt5::Gui

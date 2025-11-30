@@ -8,6 +8,7 @@ target_sources(taller_client
     SdlObjTexture.cpp
     SdlFont.cpp
     SdlDrawFill.cpp
+    SdlAudioManager.cpp
     PUBLIC
     # .h files
     SdlException.h
@@ -17,4 +18,5 @@ target_sources(taller_client
     SdlObjTexture.h
     SdlFont.h
     SdlDrawFill.h
+    SdlAudioManager.h
     )
