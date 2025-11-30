@@ -126,3 +126,7 @@ void ServerHandler::send_improvement_choice(CarImprovement improvement) {
     std::cout << "[ServerHandler] Sending Improvement choice: " << static_cast<int>(improvement) << std::endl;
     messages_send.try_push(msg);
 }
+
+void ServerHandler::send_cheat(const ClientMessage& msg) {
+    protocol.send_cheat(msg);
+}

@@ -18,4 +18,12 @@ struct PlayerResultTotal {
     uint8_t position;
 };
 
+struct ImprovementResult {
+    uint32_t player_id;
+    uint8_t  improvement_id;
+    bool     ok;
+    uint32_t total_penalty_seconds;
+    uint32_t current_balance; 
+};
+
 #endif

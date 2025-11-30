@@ -24,7 +24,8 @@ void MonitorLobby::init_dispatch() {
         {ClientAction::Type::Move, [this](ClientAction act){ handle_move_action(std::move(act)); }},
         {ClientAction::Type::StartGame, [this](ClientAction act){ handle_start_game(std::move(act)); }},
         {ClientAction::Type::ChooseCar, [this](ClientAction act){ handle_choose_car_action(std::move(act)); }},
-        {ClientAction::Type::Improvement, [this](ClientAction act){ handle_improvement_action(std::move(act)); }}
+        {ClientAction::Type::Improvement, [this](ClientAction act){ handle_improvement_action(std::move(act)); }},
+        {ClientAction::Type::Cheat, [this](ClientAction act){ handle_cheat_action(std::move(act)); }} // NUEVO
     };
 }
 
@@ -186,6 +187,23 @@ void MonitorLobby::handle_improvement_action(ClientAction act) {
     } else {
         std::cout << "[Lobby] Routed IMPROVEMENT from conn_id=" << act.id << " -> room_id=" << (int)rid
                   << ", player_id=" << pid << ", improvement_id=" << (int)act.improvement_id << "\n";
+    }
+}
+
+void MonitorLobby::handle_cheat_action(ClientAction act) {
+    std::lock_guard<std::mutex> lk(m);
+    auto binding = bindings.find_binding(act.id);
+    if (!binding.has_value()) {
+        std::cout << "[Lobby] CHEAT ignored for conn_id=" << act.id << " (not in room)\n";
+        return;
+    }
+    uint8_t rid = binding->first;
+    size_t pid = binding->second;
+    if (act.infinite_life) {
+        std::cout << "[Lobby] CHEAT: Activando vida infinita para player_id=" << pid << " (conn_id=" << act.id << ")\n";
+        rooms.set_player_infinite_life(rid, pid, true);
+    } else {
+        std::cout << "[Lobby] CHEAT: Código no implementado (" << (int)act.cheat << ")\n";
     }
 }
 

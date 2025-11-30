@@ -42,6 +42,7 @@ constexpr uint8_t CODE_S2C_RESULTS    = 0x24;
 constexpr uint8_t CODE_S2C_MAP_INFO   = 0x25;
 constexpr uint8_t CODE_S2C_RACE_RESULTS_CURRENT = 0x27;
 constexpr uint8_t CODE_S2C_IMPROVEMENT = 0x28;
+constexpr uint8_t CODE_S2C_MARKET_TIME = 0x29;
 
 // Subcódigos para CODE_C2S_ROOM
 constexpr uint8_t ROOM_CREATE = 0x02;
@@ -62,5 +63,8 @@ constexpr std::string_view SERVER_NITRO_EXPIRED = "nitro expired";
 constexpr uint8_t ERROR_MESSAGE = 0x00;
 
 constexpr int SHUT_BOTH_CLOSED = 2;
+
+// Cheats
+constexpr uint8_t CHEAT_INFINITE_LIFE = 0x07;
 
 #endif  // CONSTANTS_H

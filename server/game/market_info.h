@@ -15,6 +15,8 @@ struct UpgradeInfo {
 // lo que compra cada jugador
 struct PlayerMarketInfo {
     float total_time_penalty = 0.f;
+    float balance = 0.f;
+    bool initialized = false;    
     std::vector<CarImprovement> upgrades;
 };
 

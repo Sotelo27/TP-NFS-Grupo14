@@ -18,6 +18,8 @@
 #include "sdl_wrappers/SdlObjTexture.h"
 #include "sdl_wrappers/SdlWindow.h"
 
+#include "client_helper.h"
+
 struct ImprovementOption {
     CarImprovement improvement_id;
     std::string key;
@@ -30,7 +32,6 @@ struct ImprovementOption {
 struct RenderContext {
     int iteration_phase;
     int y_offset;
-    int time_balance;
     int y_start_options;
     int y_limit_options;
     int option_height;
@@ -69,6 +70,12 @@ private:
     std::vector<ImprovementOption> improvement_options;
     std::unordered_map<CarImprovement, DataImprovementOption> selected_improvements;
     std::list<EventPurchaseImprovement> improvements_purchased;
+    ClientHelper& client_helper;
+    int iteration_called;
+    int iteration_breakpoint;
+    bool ready_next_race;
+    int current_balance;
+    int time_market;
 
     void function() final;
 
@@ -80,6 +87,7 @@ private:
     void show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
                           int y_info, const Rgb& color_front, const Rgb& color_shadow);
     void show_text_for_next_phase();
+    void show_background_game();
 
     void show_improvement_phase();
     bool render_background(const RenderContext& ctx);
@@ -97,12 +105,14 @@ private:
     void handle_key_pressed(const char* keyName);
     void process_server_messages(ServerMessage::Type expected_type, int msg_limit = -1);
 
+    void clear_resources();
+
 public:
     explicit Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
                           MapsTextures& map_manager, bool& main_running,
-                          IconImprovementManager& icon_manager);
+                          IconImprovementManager& icon_manager, ClientHelper& client_helper);
 
-    void run(std::vector<PlayerResultCurrent> player_infos);
+    void run(std::vector<PlayerResultCurrent> player_infos, int iteration_called);
 
     ~Intermission() = default;
 };

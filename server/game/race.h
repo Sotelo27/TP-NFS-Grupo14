@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "../../common/player_aux.h"
 #include "../../common/dto/map_tick_info.h"
@@ -14,6 +15,8 @@
 #include "../physics_world.h"
 #include "race_info.h"
 #include "../Player/car.h"
+#include "../Player/player.h"
+#include "../../common/constants.h"
 
 class Race {
 private:
@@ -24,7 +27,11 @@ private:
     std::unordered_map<size_t, RaceParticipant> parts;
     std::unordered_map<size_t, std::unique_ptr<Car>> cars;
     Track track;
-    
+
+    // Mapa de player_id a Car*
+    std::map<size_t, Car*> cars_by_player;
+    std::map<size_t, Player*> players_by_id; // NUEVO: para asociar Player*
+
     /*
      * Verifica los estados de vida de los jugadores y los descalifica si no tienen vida
      */
@@ -65,7 +72,7 @@ public:
      * Agrega un jugador a la carrera con su CarModel y posicioon inicial
      * Tambien crea su cuerpo fisico en el mundo de Box2D
      */
-    void add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px);
+    void add_player(size_t player_id, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px, Player* player_ptr);
     
     /*
      * Marca al jugador como desconectado y destruye su body fisico removiendolo de la carrera
@@ -77,6 +84,11 @@ public:
      * y limita la velocidad maxima cuando corresponde
      */
     void apply_input(size_t playerId, const InputState& input);
+
+    /*
+     * Aplica un cheat al jugador
+     */
+    void apply_cheat(size_t playerId, uint8_t cheat_code);
 
     /*
      * Establece el track de la carrera
@@ -135,6 +147,11 @@ public:
      * internas (cars y parts).
      */
     void clear_cars();
+
+    /*
+     * Establece el puntero del jugador
+     */
+    void set_player_ptr(size_t player_id, Player* player_ptr); // NUEVO
 };
 
 #endif

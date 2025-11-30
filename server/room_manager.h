@@ -61,6 +61,9 @@ public:
     // stop specific room loop and clear rooms
     void stop_room_loop_and_erase(uint8_t room_id);
 
+    // NUEVO: setear vida infinita a un jugador
+    void set_player_infinite_life(uint8_t room_id, size_t player_id, bool enable);
+
 private:
     mutable std::mutex m;
     std::map<uint8_t, Match> rooms;

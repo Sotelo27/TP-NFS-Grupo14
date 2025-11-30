@@ -14,6 +14,7 @@
 #include "sdl_wrappers/SdlWindow.h"
 
 #include "car_info_game.h"
+#include "client_helper.h"
 #include "game_hud.h"
 #include "intermission.h"
 
@@ -22,17 +23,13 @@ private:
     size_t client_id;
     ServerHandler& server_handler;
     bool& game_is_over;
-    Area src_area_map;
-    Area dest_area_map;
     std::unordered_map<size_t, CarInfoGame> info_players;
     SdlWindow window;
-    CarSpriteSheet car_sprites;
     MapsTextures map_manager;
     IconImprovementManager icon_improvement_manager;
-    GameHud game_hud;
-    MapID current_map_id;
     TimeTickInfo time_info;
     CheatDetector cheat_detector;
+    ClientHelper client_helper;
     Intermission intermission_manager;
 
     void update_state_from_position();
@@ -40,12 +37,6 @@ private:
     void handle_cheat_detection(const char* key_name);
     void handle_movement_input();
     void process_server_messages(ServerMessage::Type expected_type, int msg_limit = -1);
-
-    void update_animation_frames();
-    void update_map_area();
-
-    void render_in_z_order();
-    void render_cars();
 
 protected:
     void function() final;

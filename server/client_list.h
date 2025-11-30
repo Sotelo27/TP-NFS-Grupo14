@@ -69,6 +69,11 @@ public:
                             TimeTickInfo time_info);
 
     /*
+     * Envia el tiempo de mercado a todos los clientes
+     */
+    void broadcast_market_time_info(TimeTickInfo time_info);
+
+    /*
      * Envia los resultados de la carrera
      */
     void broadcast_results(const std::vector<PlayerResultCurrent>& current);
@@ -82,7 +87,8 @@ public:
      * Broadcast de improvement ok (compra en marketplace)
      * incluyento player_id y datos de la penalización
      */
-    void broadcast_improvement_ok(uint32_t player_id, uint8_t improvement_id, bool success, uint32_t total_penalty_seconds);
+    // Broadcast de improvement ok utilizando ImprovementResult
+    void broadcast_improvement_ok(const ImprovementResult& result);
 
     /*
      * Envia el inicio de la carrera a todos los clientes

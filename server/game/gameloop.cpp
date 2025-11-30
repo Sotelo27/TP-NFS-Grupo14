@@ -26,21 +26,28 @@ void Gameloop::procesar_actiones() {
         try {
             if (action.type == ClientAction::Type::Move) {
                 game.register_player_move(action.id, action.movement);
-            } else if (action.type == ClientAction::Type::Name) {
-                game.set_player_name(action.id, std::move(action.username));
-            } else if (action.type == ClientAction::Type::Room) {
-                std::cout << "Room action from client " << action.id
-                          << " cmd=" << (int)action.room_cmd << " room=" << (int)action.room_id
-                          << "\n";
-            } else if (action.type == ClientAction::Type::Improvement) {
-                // Sólo procesar si estamos en Marketplace
+
+            }else if (action.type == ClientAction::Type::Improvement) {
                 std::cout << "[Gameloop] Processing IMPROVEMENT for player_id="
                           << action.id << " imp=" << (int)action.improvement_id << "\n";
-                bool ok = game.buy_upgrade(action.id, (CarImprovement)(action.improvement_id));
-                float penalty = game.get_player_market_penalty_seconds(action.id);
-                clients.broadcast_improvement_ok((uint32_t)action.id, action.improvement_id, ok, (uint32_t)penalty);
+                
+                CarImprovement imp = (CarImprovement)(action.improvement_id);
+                bool ok = game.buy_upgrade(action.id, imp);
+                PlayerMarketInfo info = game.get_player_market_info(action.id);
+                ImprovementResult result{};
+                result.player_id = (uint32_t)action.id;
+                result.improvement_id = (uint8_t)action.improvement_id;
+                result.ok = ok;
+                float cost = ok ? game.get_improvement_penalty(imp) : 0.f;
+                result.total_penalty_seconds = (uint32_t)std::round(cost);
+                result.current_balance = (uint32_t)std::round(info.balance);
+                clients.broadcast_improvement_ok(result);
             }
-
+            else if (action.type == ClientAction::Type::Cheat) {
+                std::cout << "[Gameloop] Processing CHEAT for player_id=" << action.id
+                          << " cheat=" << (int)action.cheat << "\n";
+                game.apply_cheat(action.id, action.cheat);
+            }
         } catch (const std::exception& err) {
             std::cerr << "Error processing action from client " << action.id << ": " << err.what()
                       << "\n";
@@ -65,6 +72,14 @@ void Gameloop::func_tick(int iteration) {
         }
     }
 
+    std::vector<ImprovementResult> init_msgs;
+    if (game.consume_pending_market_init(init_msgs)) {
+        std::cout << "[Gameloop] Broadcasting MARKET INIT (after results) n=" << init_msgs.size() << "\n";
+        for (const auto& msg : init_msgs) {
+            clients.broadcast_improvement_ok(msg);
+        }
+    }
+
     if (game.has_pending_total_results()) {
         std::vector<PlayerResultTotal> total;
         if (game.consume_pending_total_results(total)) {
@@ -73,12 +88,17 @@ void Gameloop::func_tick(int iteration) {
     }
 
     if (iteration % ticks_per_broadcast == 0) {
-        auto tick_players = game.players_tick_info();
-        TimeTickInfo time_race = game.get_race_time();
         std::vector<NpcTickInfo> npcs;
         std::vector<EventInfo> events;
 
-        clients.broadcast_map_info(tick_players, npcs, events, time_race);
+        if (game.has_active_race()) {
+            auto tick_players = game.players_tick_info();
+            TimeTickInfo time_race = game.get_race_time();
+            clients.broadcast_map_info(tick_players, npcs, events, time_race);
+        } else if (game.has_active_market_place()) {
+            TimeTickInfo time_market = game.get_market_time();
+            clients.broadcast_market_time_info(time_market);
+        }
     }
 }
 

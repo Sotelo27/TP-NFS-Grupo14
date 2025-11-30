@@ -175,6 +175,12 @@ void Car::apply_damage_to(Car& other_car, const CollisionInfo& info) {
 void Car::apply_collision_damage(float base_damage, const CollisionInfo& info) {
     if (!body) return;
 
+    // Cheat: vida infinita
+    if (owner_ && owner_->has_infinite_life()) {
+        set_vida(spec_.life); // Siempre vida máxima
+        return;
+    }
+
     // Dirección del auto
     b2Vec2 forward = body->GetWorldVector(b2Vec2(0.f, 1.f)); 
     float alignment = std::fabs(b2Dot(forward, -info.normal_world));

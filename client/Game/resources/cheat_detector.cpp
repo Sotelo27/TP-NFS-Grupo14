@@ -18,3 +18,8 @@ bool CheatDetector::check_cheat(const std::string& code) {
     input_buffer.clear();
     return true;
 }
+
+bool CheatDetector::check_cheat_key(const char* key_name) {
+    // Detecta si la tecla presionada es '7'
+    return (std::string(key_name) == "7");
+}

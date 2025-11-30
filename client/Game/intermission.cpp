@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include "utils/time_formatter.h"
+
 #include "constants.h"
 
 #define BACKGROUND_INFO_IMAGE_PATH std::string(ASSETS_PATH) + "/images/fondo_cars.jpg"
@@ -55,6 +57,13 @@ constexpr int AMOUNT_FRAMES_ANIMATION = 90;
 constexpr int AMOUNT_FRAMES_WAITING = 20;
 constexpr int RESULTS = AMOUNT_FRAMES_ANIMATION + 2 * AMOUNT_FRAMES_WAITING;
 
+constexpr int AMOUNT_FRAMES_TO_RENDER_CLOCK = AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING;
+constexpr int AMOUNT_FRAMES_TO_RENDER_TITLE = AMOUNT_FRAMES_TO_RENDER_CLOCK + AMOUNT_FRAMES_WAITING;
+constexpr int AMOUNT_FRAMES_TO_RENDER_TIME_BALANCE =
+        AMOUNT_FRAMES_TO_RENDER_TITLE + AMOUNT_FRAMES_WAITING;
+constexpr int AMOUNT_FRAMES_CLOSE_TO_END =
+        AMOUNT_FRAMES_TO_RENDER_TIME_BALANCE + AMOUNT_FRAMES_WAITING - 1;
+
 #define KEY_NEXT_BUTTON "N"
 const char NEXT_PHASE_TEXT[] = "Press " KEY_NEXT_BUTTON " to continue...";
 
@@ -66,7 +75,7 @@ const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 
 Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
                            MapsTextures& map_manager, bool& main_running,
-                           IconImprovementManager& icon_manager):
+                           IconImprovementManager& icon_manager, ClientHelper& client_helper):
         ConstantRateLoop(FRAME_RATE),
         client_id(client_id),
         window(window),
@@ -86,7 +95,13 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         iteration_init_improvement_phase(0),
         player_infos(),
         improvement_options(),
-        selected_improvements() {
+        selected_improvements(),
+        client_helper(client_helper),
+        iteration_called(0),
+        iteration_breakpoint(0),
+        ready_next_race(false),
+        current_balance(0),
+        time_market(0) {
     initialize_improvement_options();
 
     initialize_selected_improvements();
@@ -137,7 +152,14 @@ void Intermission::function() {
 
     window.fill();
 
-    show_results();
+    show_background_game();
+
+    if (!ready_next_race) {
+        show_results();
+    } else {
+        this->running = iteration_breakpoint > iteration ? true : false;
+    }
+
     if (improvement_phase) {
         show_improvement_phase();
     }
@@ -145,20 +167,41 @@ void Intermission::function() {
     window.render();
 }
 
-void Intermission::run(std::vector<PlayerResultCurrent> player_infos) {
+void Intermission::show_background_game() {
+    if (iteration <= AMOUNT_FRAMES_ANIMATION) {
+        client_helper.render_in_z_order(iteration_called);
+    }
+
+    if (ready_next_race) {
+        client_helper.render_in_z_order(iteration_called, false);
+    }
+}
+
+void Intermission::run(std::vector<PlayerResultCurrent> player_infos, int iteration_called) {
     std::sort(player_infos.begin(), player_infos.end(),
               [](const PlayerResultCurrent& a, const PlayerResultCurrent& b) {
                   return a.position < b.position;
               });
     this->player_infos = std::move(player_infos);
 
+    this->iteration_called = iteration_called;
+
+    clear_resources();
+
+    ConstantRateLoop::start_loop();
+}
+
+void Intermission::clear_resources() {
     for (auto& pair: selected_improvements) {
         pair.second.is_selected = false;
     }
     improvements_purchased.clear();
 
     improvement_phase = false;
-    ConstantRateLoop::start_loop();
+
+    iteration_breakpoint = 0;
+
+    ready_next_race = false;
 }
 
 void Intermission::show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
@@ -247,9 +290,22 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::RaceStart) {
-            map_manager.loadMap(static_cast<MapID>(action.map_id));
-            this->running = false;
+            // descomentar la siguiente línea si se cambia de mapa, por convención ahora es un mismo
+            // mapa para toda la partida
+            // map_manager.loadMap(static_cast<MapID>(action.map_id));
             keep_loop = false;
+            iteration_breakpoint = iteration + AMOUNT_FRAMES_CLOSE_TO_END;
+            ready_next_race = true;
+
+            action = server_handler.recv_response_from_server();
+            while (action.type != ServerMessage::Type::MapInfo) {
+                action = server_handler.recv_response_from_server();
+                if (action.type == ServerMessage::Type::MarketTime) {
+                    time_market = action.race_time.seconds;
+                }
+            }
+            client_helper.update_map_info(action.players_tick, action.race_time);
+            client_helper.update_animation_frames();
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
@@ -257,16 +313,20 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                          "disconnected. Exiting..."
                       << std::endl;
         } else if (action.type == ServerMessage::Type::ImprovementOK) {
-            if (action.id == client_id && action.improvement_success) {
-                auto it = selected_improvements.find(
-                        static_cast<CarImprovement>(action.improvement_id));
+            const ImprovementResult& r = action.result_market_player;
+            if (static_cast<CarImprovement>(r.improvement_id) == CarImprovement::Init) {
+                current_balance = r.current_balance;
+            } else if (r.player_id == client_id && r.ok) {
+                auto it = selected_improvements.find(static_cast<CarImprovement>(r.improvement_id));
                 if (it != selected_improvements.end()) {
                     it->second.is_selected = true;
-                    improvements_purchased.push_back(
-                            {static_cast<int>(action.improvement_total_penalty_seconds),
-                             it->second.icon, iteration});
+                    improvements_purchased.push_back({static_cast<int>(r.total_penalty_seconds),
+                                                      it->second.icon, iteration});
                 }
+                current_balance = r.current_balance;
             }
+        } else if (action.type == ServerMessage::Type::MarketTime) {
+            time_market = action.race_time.seconds;
         }
 
         if (action.type == expected_type) {
@@ -286,6 +346,9 @@ void Intermission::handle_cheat_detection(const char* keyName) {
         main_running = false;
     } else if (cheat_detector.check_cheat("MID")) {
         running = false;
+    } else if (cheat_detector.check_cheat("NEXT")) {
+        iteration_breakpoint = iteration + AMOUNT_FRAMES_CLOSE_TO_END;
+        ready_next_race = true;
     }
 }
 
@@ -338,7 +401,9 @@ void Intermission::handle_sdl_events() {
 void Intermission::show_improvement_phase() {
     RenderContext ctx;
     ctx.iteration_phase = iteration - iteration_init_improvement_phase;
-    ctx.time_balance = 300;
+    if (ready_next_race) {
+        ctx.iteration_phase = iteration_breakpoint - iteration;
+    }
 
     if (!render_background(ctx))
         return;
@@ -360,15 +425,16 @@ bool Intermission::render_background(const RenderContext& ctx) {
                  background_improvement.getWidth(), background_improvement.getHeight()),
             Area(0, 0, WINDOW_WIDTH, y_window), 0.0);
 
-    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING;
+    return ctx.iteration_phase >= AMOUNT_FRAMES_TO_RENDER_CLOCK;
 }
 
 bool Intermission::render_clock(const RenderContext& ctx) {
-    show_info_center(text_head, "00:00", WINDOW_WIDTH - SIZE_TEXT_HEAD * 3,
+    std::string time_str = TimeFormatter::format_time(time_market);
+    show_info_center(text_head, time_str, WINDOW_WIDTH - SIZE_TEXT_HEAD * 3,
                      WINDOW_WIDTH - SIZE_TEXT_HEAD * 2, SIZE_TEXT_HEAD / 2, BRIGHT_FIRE_YELLOW,
                      DARK_VIOLET);
 
-    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 2;
+    return ctx.iteration_phase >= AMOUNT_FRAMES_TO_RENDER_TITLE;
 }
 
 bool Intermission::render_title(RenderContext& ctx) {
@@ -376,13 +442,13 @@ bool Intermission::render_title(RenderContext& ctx) {
     show_info_center(text_head, "CAR UPGRADE", SIZE_TEXT_HEAD, WINDOW_WIDTH - SIZE_TEXT_HEAD,
                      ctx.y_offset, ORANGE_SUN, DARK_VIOLET);
 
-    return ctx.iteration_phase >= AMOUNT_FRAMES_ANIMATION + AMOUNT_FRAMES_WAITING * 3;
+    return ctx.iteration_phase >= AMOUNT_FRAMES_TO_RENDER_TIME_BALANCE;
 }
 
 bool Intermission::render_time_balance(RenderContext& ctx) {
     ctx.y_offset += text_head.getHeight() + SIZE_TEXT_HEAD / 4;
     text_rest_info.renderDirect(X_LIMIT_OPTION, ctx.y_offset,
-                                "Time balance " + std::to_string(ctx.time_balance) + "s",
+                                "Time balance " + std::to_string(current_balance) + "s",
                                 GOLDEN_YELLOW, true, DARK_VIOLET);
 
     render_improvements_purchase(ctx);
@@ -462,11 +528,12 @@ void Intermission::render_single_option(const ImprovementOption& option, int ind
 
     int size_icon_width =
             static_cast<int>(SIZE_ICON_BUTTON * option.icon.getWidth() / option.icon.getHeight());
-    int x_offset_icon = static_cast<float>(SIZE_ICON_BUTTON - size_icon_width) * option.icon.getWidth() / option.icon.getHeight();
-    option.icon.renderEntity(Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
-                             Area(x_limit_option + x_offset_icon, y_option_index, size_icon_width,
-                                  SIZE_ICON_BUTTON),
-                             0.0);
+    int x_offset_icon = static_cast<float>(SIZE_ICON_BUTTON - size_icon_width) *
+                        option.icon.getWidth() / option.icon.getHeight();
+    option.icon.renderEntity(
+            Area(0, 0, option.icon.getWidth(), option.icon.getHeight()),
+            Area(x_limit_option + x_offset_icon, y_option_index, size_icon_width, SIZE_ICON_BUTTON),
+            0.0);
 
     x_limit_option += static_cast<float>(SIZE_TEXT_HEAD) * 3;
 
