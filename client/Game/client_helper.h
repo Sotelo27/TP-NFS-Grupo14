@@ -40,7 +40,7 @@ public:
                           TimeTickInfo& time_info);
 
     void update_animation_frames();
-    void render_in_z_order(int iteration);
+    void render_in_z_order(int iteration, bool render_hud = true);
     void update_map_info(const std::vector<PlayerTickInfo>& players_info,
                          const TimeTickInfo& time_info);
 
