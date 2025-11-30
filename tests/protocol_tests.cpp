@@ -275,3 +275,21 @@ void test_send_and_receive_players_list() {
 
     server_thread.join();
 }
+
+void test_send_move() {
+    Socket skt("3020");
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        ClientMessage msg = protocol.receive();
+        ASSERT_EQ(msg.type, ClientMessage::Type::Move);
+        ASSERT_EQ(msg.movement, Movement::Up);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3020"));
+    protocol.send_move(Movement::Up);
+
+    server_thread.join();
+}
+
+
