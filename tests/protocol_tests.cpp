@@ -431,4 +431,46 @@ void test_send_and_receive_game_over() {
     server_thread.join();
 }
 
+void test_send_and_receive_player_name() {
+    Socket skt("3027");
+    std::string username = "Bob";
+    uint32_t pid = 77;
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        ServerOutMsg msg;
+        msg.type = ServerOutType::PlayerName;
+        msg.id = pid;
+        msg.username = username;
+        protocol.send_player_name(msg);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3027"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::PlayerName);
+    ASSERT_EQ(msg.id, pid);
+    ASSERT_EQ(msg.username, username);
+
+    server_thread.join();
+}
+
+void test_send_and_receive_market_time() {
+    Socket skt("3028");
+    TimeTickInfo tti{456};
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_market_time(tti);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3028"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::MarketTime);
+    ASSERT_EQ(msg.race_time.seconds, 456);
+
+    server_thread.join();
+}
+
 
