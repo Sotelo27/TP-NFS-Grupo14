@@ -292,4 +292,22 @@ void test_send_move() {
     server_thread.join();
 }
 
+void test_send_choose_car() {
+    Socket skt("3021");
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        ClientMessage msg = protocol.receive();
+        ASSERT_EQ(msg.type, ClientMessage::Type::ChooseCar);
+        ASSERT_EQ(msg.car_id, 3);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3021"));
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::ChooseCar;
+    msg.car_id = 3;
+    protocol.send_choose_car(msg);
+
+    server_thread.join();
+}
 
