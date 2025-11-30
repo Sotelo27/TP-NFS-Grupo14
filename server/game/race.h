@@ -36,7 +36,7 @@ private:
     std::map<size_t, Player*> players_by_id; 
 
     std::unordered_map<uint8_t, Npc> npcs; // <npc_id, Npc>
-    std::vector<SpawnPoint> npc_spawns; 
+    std::vector<NpcSpawn> npc_spawns; 
     // NUEVO: Autos físicos para NPCs
     std::unordered_map<uint8_t, std::unique_ptr<Car>> npc_cars;
     std::unordered_map<uint8_t, CarModel> npc_models;
@@ -173,7 +173,8 @@ public:
     std::vector<NpcTickInfo> snapshot_npcs() const;
 
     // Hacer público para que Game pueda inicializar NPCs
-    void init_npc_spawns(const City& city, size_t npc_count);
+    // Initialize NPCs from City-provided MapConfig npc_spawns
+    void init_npc_spawns(const City& city);
 };
 
 #endif

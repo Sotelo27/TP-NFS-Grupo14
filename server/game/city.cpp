@@ -48,7 +48,7 @@ void City::load_map(const MapConfig& cfg) {
         });
     }
     checkpoints_by_route = cfg.checkpoints;
-    map_cfg = cfg; // Guardar para generación procedural
+    map_cfg = cfg; // Guardar configuración completa, incluidos npc_spawns
 }
 
 Track City::build_track(const std::string& route_id) const {
@@ -108,43 +108,6 @@ std::vector<std::string> City::get_route_ids() const {
     return ids;
 }
 
-// Devuelve true si el punto (x, y) está libre de colisiones (en píxeles)
-bool City::is_point_free(float x_px, float y_px, float margin) const {
-    for (const auto& rect : map_cfg.rects) {
-        if (x_px >= rect.x_px - margin && x_px <= rect.x_px + rect.w_px + margin &&
-            y_px >= rect.y_px - margin && y_px <= rect.y_px + rect.h_px + margin) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// Genera N puntos de spawn libres de colisión para NPCs
-std::vector<SpawnPoint> City::generate_npc_spawns(size_t count) const {
-    std::vector<SpawnPoint> spawns;
-    if (map_cfg.rects.empty()) return spawns;
-
-    // Determinar límites del mapa
-    float min_x = 0, min_y = 0, max_x = 4000, max_y = 4000;
-    for (const auto& rect : map_cfg.rects) {
-        if (rect.x_px + rect.w_px > max_x) max_x = rect.x_px + rect.w_px;
-        if (rect.y_px + rect.h_px > max_y) max_y = rect.y_px + rect.h_px;
-    }
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dist_x(min_x, max_x);
-    std::uniform_real_distribution<float> dist_y(min_y, max_y);
-
-    size_t max_attempts = count * 20;
-    size_t attempts = 0;
-    while (spawns.size() < count && attempts < max_attempts) {
-        float x = dist_x(gen);
-        float y = dist_y(gen);
-        if (is_point_free(x, y, 30.0f)) {
-            spawns.push_back(SpawnPoint{x, y, 0.f, -1, -1, "NPC"});
-        }
-        ++attempts;
-    }
-    return spawns;
+const std::vector<NpcSpawn>& City::get_npc_spawns() const {
+    return map_cfg.npc_spawns;
 }

@@ -99,8 +99,8 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
     }
 }
 
-void Race::init_npc_spawns(const City& city, size_t npc_count) {
-    npc_spawns = city.generate_npc_spawns(npc_count);
+void Race::init_npc_spawns(const City& city) {
+    npc_spawns = city.get_npc_spawns();
     for (size_t i = 0; i < npc_spawns.size(); ++i) {
         const auto& sp = npc_spawns[i];
         // Convertir a metros
@@ -114,8 +114,6 @@ void Race::set_track(const Track& new_track) {
     track = new_track;
     std::cout << "[Race] Track set: route='" << track.route_id
               << "' checkpoints=" << track.checkpoint_count << "\n";
-    // Inicializar NPCs proceduralmente (ejemplo: 10 NPCs)
-    // NOTA: Se debe llamar a init_npc_spawns desde Game/start_current_race con acceso a City
 }
 
 bool Race::is_finished() const noexcept {
@@ -128,7 +126,7 @@ const std::string& Race::get_route_id() const {
 
 void Race::advance_time(float dt) {
     race_duration += dt;
-    update_npcs(dt); // Actualiza NPCs en cada tick
+    update_npcs(dt);
     check_health_states();
     check_time_limit();
     evaluate_finish();
