@@ -140,7 +140,7 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
         ServerMessage action = server_handler.recv_response_from_server();
 
         if (action.type == ServerMessage::Type::MapInfo) {
-            client_helper.update_map_info(action.players_tick, action.race_time);
+            client_helper.update_map_info(action.players_tick, action.npcs_tick, action.race_time);
         } else if (action.type == ServerMessage::Type::RaceStart) {
             map_manager.loadMap(static_cast<MapID>(action.map_id));
         } else if (action.type == ServerMessage::Type::Results) {

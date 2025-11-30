@@ -2,6 +2,9 @@
 
 #include "constants.h"
 
+#include <unordered_map>
+#include <SDL2/SDL.h>
+
 ClientHelper::ClientHelper(size_t client_id, SdlWindow& window,
                            std::unordered_map<size_t, CarInfoGame>& info_players,
                            MapsTextures& map_manager,
@@ -83,8 +86,35 @@ void ClientHelper::render_cars() {
     }
 }
 
+void ClientHelper::render_npcs() {
+    // Renderiza cada NPC como un círculo rojo 
+    SDL_Renderer* renderer = window.getRenderer();
+    for (const auto& [id, npc] : npcs_info) {
+        // Convertir posición del mapa a pantalla
+        int x_screen = (npc.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
+        int y_screen = (npc.y - src_area_map.getY()) * MAP_TO_VIEWPORT_SCALE_Y;
+        x_screen += dest_area_map.getX();
+        y_screen += dest_area_map.getY();
+
+        // Dibuja un círculo rojo para el NPC
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        int radius = 12;
+        for (int w = 0; w < radius * 2; w++) {
+            for (int h = 0; h < radius * 2; h++) {
+                int dx = radius - w;
+                int dy = radius - h;
+                if ((dx*dx + dy*dy) <= (radius * radius)) {
+                    SDL_RenderDrawPoint(renderer, x_screen + dx, y_screen + dy);
+                }
+            }
+        }
+    }
+}
+
 void ClientHelper::render_in_z_order(int iteration, bool render_hud) {
     map_manager.render(src_area_map, dest_area_map);
+
+    render_npcs(); // <-- Renderiza NPCs antes o después , lo vemos dsp o como quieras peluche
 
     render_cars();
 
@@ -96,12 +126,16 @@ void ClientHelper::render_in_z_order(int iteration, bool render_hud) {
 }
 
 void ClientHelper::update_map_info(const std::vector<PlayerTickInfo>& players_info,
+                                   const std::vector<NpcTickInfo>& npcs_info_vec,
                                    const TimeTickInfo& time_info) {
     info_players.clear();
-
     for (const auto& p_info: players_info) {
         info_players[p_info.player_id] = CarInfoGame{p_info, Area()};
     }
-
     this->time_info = time_info;
+    // Actualiza NPCs
+    npcs_info.clear();
+    for (const auto& npc : npcs_info_vec) {
+        npcs_info[npc.npc_id] = npc;
+    }
 }

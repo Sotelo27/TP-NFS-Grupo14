@@ -1,4 +1,5 @@
 #include "race.h"
+#include "npc.h"
 #include "../../common/constants.h"
 #include "race_info.h"
 #include <cmath>
@@ -114,6 +115,7 @@ const std::string& Race::get_route_id() const {
 
 void Race::advance_time(float dt) {
     race_duration += dt;
+    update_npcs(dt); // Actualiza NPCs en cada tick
     check_health_states();
     check_time_limit();
     evaluate_finish();
@@ -403,4 +405,29 @@ void Race::cheat_win_race(size_t playerId) {
     participant.finish_time_seconds = race_duration;
 
     std::cout << "[Race] Cheat WIN_RACE: playerId=" << playerId << " ha ganado la carrera automáticamente.\n";
+}
+
+void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
+    npcs[npc_id] = Npc{npc_id, x_m, y_m, 0.f, 0.f};
+}
+
+void Race::update_npcs(float dt) {
+    for (auto& [id, npc] : npcs) {
+        // Ejemplo: movimiento simple en línea recta
+        npc.x_m += npc.vx * dt;
+        npc.y_m += npc.vy * dt;
+        // Se puede agregar logica de IA (ojito peluche)
+    }
+}
+
+std::vector<NpcTickInfo> Race::snapshot_npcs() const {
+    std::vector<NpcTickInfo> out;
+    for (const auto& [id, npc] : npcs) {
+        NpcTickInfo info;
+        info.npc_id = npc.npc_id;
+        info.x = static_cast<int32_t>(npc.x_m * PPM);
+        info.y = static_cast<int32_t>(npc.y_m * PPM);
+        out.push_back(info);
+    }
+    return out;
 }

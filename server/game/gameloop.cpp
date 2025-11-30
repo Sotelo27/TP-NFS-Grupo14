@@ -93,8 +93,9 @@ void Gameloop::func_tick(int iteration) {
 
         if (game.has_active_race()) {
             auto tick_players = game.players_tick_info();
+            auto tick_npcs = game.npcs_tick_info();
             TimeTickInfo time_race = game.get_race_time();
-            clients.broadcast_map_info(tick_players, npcs, events, time_race);
+            clients.broadcast_map_info(tick_players, tick_npcs, events, time_race);
         } else if (game.has_active_market_place()) {
             TimeTickInfo time_market = game.get_market_time();
             clients.broadcast_market_time_info(time_market);
