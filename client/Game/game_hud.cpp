@@ -66,22 +66,18 @@ void GameHud::renderHint(const CarInfoGame& client_car, int iteration) {
                 iteration, client_car_data.width_scale_screen, client_car_data.height_scale_screen);
 }
 
-void GameHud::renderPurchasedImprovement() {
-    std::list<SdlObjTexture*> improvements;
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Controllability));
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Health));
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Speed));
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Acceleration));
-    improvements.push_back(&icon_improvement_manager.get_icon(CarImprovement::Mass));
-
+void GameHud::renderPurchasedImprovement(const CarInfoGame& client_car) {
     int x_start = SPACE_BETWEEN_WINDOW_EDGE_AND_HUD;
     int y_start = WINDOW_HEIGHT - 75;
-    for (const SdlObjTexture* improvement_icon: improvements) {
+    for (CarImprovement improvement_enable: client_car.info_car.improvements) {
+        SdlObjTexture& improvement_icon =
+                icon_improvement_manager.get_icon(improvement_enable);
+
         int size_height = 55;
         int size_width =
-                (improvement_icon->getWidth() * size_height) / improvement_icon->getHeight();
-        improvement_icon->render(
-                Area(0, 0, improvement_icon->getWidth(), improvement_icon->getHeight()),
+                (improvement_icon.getWidth() * size_height) / improvement_icon.getHeight();
+        improvement_icon.render(
+                Area(0, 0, improvement_icon.getWidth(), improvement_icon.getHeight()),
                 Area(x_start, y_start, size_width, size_height));
 
         x_start += size_width + 8;
@@ -112,5 +108,5 @@ void GameHud::render(int iteration, int time_seconds, const Area& src_area_map) 
 
     renderMiniMap();
 
-    renderPurchasedImprovement();
+    renderPurchasedImprovement(client_car);
 }

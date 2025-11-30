@@ -41,7 +41,7 @@ private:
     void renderLifeBarHud();
     void renderMiniMap();
     void renderHint(const CarInfoGame& client_car, int iteration);
-    void renderPurchasedImprovement();
+    void renderPurchasedImprovement(const CarInfoGame& client_car);
 
 public:
     explicit GameHud(const SdlWindow& window, const MapsTextures& map_manager, size_t client_id,
