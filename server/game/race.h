@@ -37,7 +37,6 @@ private:
      */
     void check_health_states();
 
-
     /*
      * Verifica si se ha excedido el tiempo maximo de la carrera 
      */
@@ -64,6 +63,9 @@ private:
      *    0 : recto
      */
     static float resolve_rotation_input(const InputState& input);
+
+    // === NUEVO: Cheat para ganar la carrera ===
+    void cheat_win_race(size_t playerId);
 
 public:
     Race(uint32_t id, PhysicsWorld& external_world);
