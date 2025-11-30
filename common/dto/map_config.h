@@ -48,6 +48,13 @@ struct Checkpoint {
     bool  is_sensor{true};
 };
 
+struct NpcSpawn {
+    float x_px{0.f};
+    float y_px{0.f};
+    float angle_deg{0.f};
+};
+
+
 struct Track {
     std::string route_id;
     std::vector<Checkpoint> checkpoints;
@@ -59,6 +66,7 @@ struct MapConfig {
     std::vector<PolylineCollider> polylines;
     std::vector<SpawnPoint> spawns;
     std::unordered_map<std::string, std::vector<Checkpoint>> checkpoints;
+    std::vector<NpcSpawn> npc_spawns; 
     float pixels_per_meter{32.f};
 };
 
