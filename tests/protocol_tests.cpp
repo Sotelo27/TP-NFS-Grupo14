@@ -364,4 +364,54 @@ void test_send_exit() {
     server_thread.join();
 }
 
+void test_send_and_receive_map_info() {
+    Socket skt("3025");
+    std::vector<PlayerTickInfo> players_tick = {
+        {
+            "Alice",      // username
+            1,            // car_id
+            10,           // player_id
+            100,          // x
+            200,          // y
+            0.0f,         // angle (float)
+            90,           // health (uint8_t)
+            100,          // max_health (uint8_t)
+            10,           // speed_mps (uint16_t o float según tu struct, usa 10 si es uint16_t)
+            50,           // x_checkpoint (uint16_t)
+            60,           // y_checkpoint (uint16_t)
+            0,            // hint_angle_deg (CAMBIADO de 0.0f a 0, si es uint16_t)
+            1,            // position_in_race (uint16_t)
+            5,            // distance_to_checkpoint (CAMBIADO de 5.0f a 5, si es uint16_t)
+            2,            // checkpoints_remaining (uint16_t)
+            {}            // improvements
+        }
+    };
+    std::vector<NpcTickInfo> npcs_tick = {
+        {1, 300, 400}
+    };
+    std::vector<EventInfo> events_tick = {
+        {1, "Alice"}
+    };
+    TimeTickInfo race_time{123};
+
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_map_info(players_tick, npcs_tick, events_tick, race_time);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3025"));
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::MapInfo);
+    ASSERT_EQ(msg.players_tick.size(), 1);
+    ASSERT_EQ(msg.players_tick[0].username, "Alice");
+    ASSERT_EQ(msg.npcs_tick.size(), 1);
+    ASSERT_EQ(msg.npcs_tick[0].npc_id, 1);
+    ASSERT_EQ(msg.events_tick.size(), 1);
+    ASSERT_EQ(msg.events_tick[0].username, "Alice");
+    ASSERT_EQ(msg.race_time.seconds, 123);
+
+    server_thread.join();
+}
+
 
