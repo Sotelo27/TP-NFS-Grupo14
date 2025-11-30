@@ -71,6 +71,21 @@ void ClientHelper::update_animation_frames() {
                              y_car_screen - car_data.height_scale_screen / 2,
                              car_data.width_scale_screen, car_data.height_scale_screen);
     }
+
+    for (auto& npc_info : npcs_info) {
+        if (npc_info.info_npc.x < extend_area_map.getX() ||
+            npc_info.info_npc.x > extend_area_map.getX() + extend_area_map.getWidth() ||
+            npc_info.info_npc.y < extend_area_map.getY() ||
+            npc_info.info_npc.y > extend_area_map.getY() + extend_area_map.getHeight()) {
+            continue;
+        }
+
+        int x_npc_screen = (npc_info.info_npc.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
+        int y_npc_screen = (npc_info.info_npc.y - src_area_map.getY()) * MAP_TO_VIEWPORT_SCALE_Y;
+        npc_info.dest_area.update(x_npc_screen - CAR_WIDTH_MEDIUM / 2,
+                                  y_npc_screen - CAR_HEIGHT_MEDIUM / 2,
+                                  CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM);
+    }
 }
 
 void ClientHelper::render_cars() {
@@ -87,27 +102,14 @@ void ClientHelper::render_cars() {
 }
 
 void ClientHelper::render_npcs() {
-    // Renderiza cada NPC como un círculo rojo 
-    SDL_Renderer* renderer = window.getRenderer();
-    for (const auto& [id, npc] : npcs_info) {
-        // Convertir posición del mapa a pantalla
-        int x_screen = (npc.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
-        int y_screen = (npc.y - src_area_map.getY()) * MAP_TO_VIEWPORT_SCALE_Y;
-        x_screen += dest_area_map.getX();
-        y_screen += dest_area_map.getY();
-
-        // Dibuja un círculo rojo para el NPC
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        int radius = 12;
-        for (int w = 0; w < radius * 2; w++) {
-            for (int h = 0; h < radius * 2; h++) {
-                int dx = radius - w;
-                int dy = radius - h;
-                if ((dx*dx + dy*dy) <= (radius * radius)) {
-                    SDL_RenderDrawPoint(renderer, x_screen + dx, y_screen + dy);
-                }
-            }
+    for (const auto& npc_info : npcs_info) {
+        if (npc_info.dest_area.getWidth() == 0 || npc_info.dest_area.getHeight() == 0) {
+            continue;
         }
+
+        const CarData& npc_data = car_sprites.getCarData(CarSpriteID::RedCar);
+
+        car_sprites.render(npc_data.area, npc_info.dest_area, 0.0f);
     }
 }
 
@@ -133,9 +135,9 @@ void ClientHelper::update_map_info(const std::vector<PlayerTickInfo>& players_in
         info_players[p_info.player_id] = CarInfoGame{p_info, Area()};
     }
     this->time_info = time_info;
-    // Actualiza NPCs
+
     npcs_info.clear();
     for (const auto& npc : npcs_info_vec) {
-        npcs_info[npc.npc_id] = npc;
+        npcs_info.push_back(NpcInfoGame{npc, Area()});
     }
 }

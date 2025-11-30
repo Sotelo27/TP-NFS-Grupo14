@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QGraphicsDropShadowEffect>
 #include <QPixmap>
+#include <QDebug>
 
 SelectionMapScreen::SelectionMapScreen(bool& map_selected, QWidget* parent)
     : QWidget(parent), map_selected(map_selected)
@@ -139,8 +140,8 @@ QWidget* SelectionMapScreen::createMapCard(const QString& imgPath, const QString
 
 void SelectionMapScreen::on_map_selected(const QString& map_name) {
     selected_map = map_name;
-    // server_handler.send_start_game({{selected_map.toStdString(), 0}});
     map_selected = true;
+    qDebug() << "Mapa seleccionado: " + map_name;
     emit go_to_waiting_room_screen();
 }
 

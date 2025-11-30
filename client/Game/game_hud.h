@@ -19,7 +19,7 @@
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlWindow.h"
 
-#include "car_info_game.h"
+#include "info_game.h"
 
 class GameHud {
 private:
