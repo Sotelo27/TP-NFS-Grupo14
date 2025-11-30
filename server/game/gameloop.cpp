@@ -63,6 +63,7 @@ void Gameloop::func_tick(int iteration) {
     if (game.consume_pending_race_start(next_map_id)) {
             std::cout << "[Gameloop] Consumed pending RaceStart, map_id=" << (int)next_map_id << "\n";
             clients.broadcast_race_start(next_map_id);
+        std::cout << "[Gameloop] RaceStart broadcast completed (map_id=" << (int)next_map_id << ")\n";
     }
 
     if (game.has_pending_results()) {

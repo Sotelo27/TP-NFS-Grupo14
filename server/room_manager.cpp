@@ -289,7 +289,7 @@ void RoomManager::start_room_game(uint8_t room_id, const ClientAction& startActi
         room.game.load_map_by_id(map_name);
         std::cout << "[RoomManager] Loaded map: " << map_name << "\n";
         room.game.start_current_race();
-        std::cout << "[RoomManager] Started current race with map: " << map_name << "\n";
+        std::cout << "[RoomManager] Started current race with map: " << map_name << " (pending_race_start should now be true)\n";
     } catch (const std::exception& e) {
         std::cerr << "[RoomManager] Error loading map '" << map_name << "': " << e.what() << "\n";
     }
@@ -306,12 +306,14 @@ void RoomManager::start_room_game(uint8_t room_id, const ClientAction& startActi
             if (handler) {
                 std::vector<std::pair<int32_t,int32_t>> checkpoints; // empty for now
                 handler->send_race_start(map_id, checkpoints);
-                std::cout << "[RoomManager] RaceStart enviado a conn_id=" << conn << "\n";
+                std::cout << "[RoomManager] RaceStart enviado directo (pre-gameloop) a conn_id=" << conn
+                          << ", map_id=" << (int)map_id << ", checkpoints=" << checkpoints.size() << "\n";
             }
         } catch (const std::exception& e) {
             std::cerr << "[RoomManager] Error enviando RaceStart a conn_id: " << e.what() << "\n";
         }
     }
+    std::cout << "[RoomManager] Nota: Gameloop también hará broadcast de RaceStart al consumir pending_race_start.\n";
 }
 
 void RoomManager::apply_player_name(uint8_t room_id, size_t player_id, std::string name) {
