@@ -17,6 +17,7 @@
 #include "../Player/car.h"
 #include "../Player/player.h"
 #include "../../common/constants.h"
+#include "npc.h"
 
 class Race {
 private:
@@ -31,6 +32,8 @@ private:
     // Mapa de player_id a Car*
     std::map<size_t, Car*> cars_by_player;
     std::map<size_t, Player*> players_by_id; // NUEVO: para asociar Player*
+
+    std::unordered_map<uint8_t, Npc> npcs; // <npc_id, Npc>
 
     /*
      * Verifica los estados de vida de los jugadores y los descalifica si no tienen vida
@@ -157,6 +160,11 @@ public:
      * Establece el puntero del jugador
      */
     void set_player_ptr(size_t player_id, Player* player_ptr); // NUEVO
+
+    // NPCs
+    void add_npc(uint8_t npc_id, float x_m, float y_m);
+    void update_npcs(float dt);
+    std::vector<NpcTickInfo> snapshot_npcs() const;
 };
 
 #endif

@@ -139,6 +139,11 @@ public:
     std::vector<PlayerTickInfo> players_tick_info();
 
     /*
+     * Devuelve el snapshot de los NPCs para el tick del mapa
+     */
+    std::vector<NpcTickInfo> npcs_tick_info();
+
+    /*
      * Setea el nombre del jugador
      */
     void set_player_name(size_t id, std::string name);
