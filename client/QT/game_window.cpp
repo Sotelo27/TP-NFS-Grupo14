@@ -148,3 +148,4 @@ void GameWindow::goToWaitingRoomFromMap() {
 void GameWindow::goToMenu() {
     stack->setCurrentWidget(menu_screen);
 }
+
