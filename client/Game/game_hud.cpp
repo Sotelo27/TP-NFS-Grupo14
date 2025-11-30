@@ -47,9 +47,8 @@ void GameHud::renderLifeBarHud() {
         const CarData& car_data =
                 car_sprites.getCarData(static_cast<CarSpriteID>(car.info_car.car_id));
 
-        // falta la vida maxima, que se espera recibir al principio de la partida
         life_bar_sprites.render(
-                100, car.info_car.health,
+                car.info_car.max_health, car.info_car.health,
                 Area(car.dest_area.getX(), car.dest_area.getY() - car_data.width_scale_screen / 5,
                      car_data.width_scale_screen, car_data.width_scale_screen / 5));
     }
@@ -108,8 +107,8 @@ void GameHud::render(int iteration, int time_seconds, const Area& src_area_map) 
     time_hud.render(time_seconds, WINDOW_WIDTH / 2, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD);
 
     int current_life = client_car.info_car.health;
-    // falta obtener la vida maxima
-    life_hud.render(100, current_life, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
+
+    life_hud.render(client_car.info_car.max_health, current_life, 20, SPACE_BETWEEN_WINDOW_EDGE_AND_HUD + 60);
 
     renderMiniMap();
 
