@@ -6341,7 +6341,7 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 234.666666666667
+    x: 234.667
     y: 2380
   - height: 0
     id: 834
@@ -6350,7 +6350,7 @@ layers:
     - x: 0
       y: 0
     - x: 297
-      y: -0.333333333333485
+      y: -0.333333
     rotation: 0
     type: ''
     visible: true
@@ -6544,6 +6544,517 @@ layers:
     width: 122.611
     x: 2128.96
     y: 2654.18
+  opacity: 1
+  type: objectgroup
+  visible: true
+  x: 0
+  y: 0
+- color: '#ffffff'
+  draworder: topdown
+  id: 11
+  locked: true
+  name: Npc
+  objects:
+  - height: 0
+    id: 835
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 522
+    y: 616
+  - height: 0
+    id: 836
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 248.666666666667
+    y: 532.333333333333
+  - height: 0
+    id: 837
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1013.33333333333
+    y: 124
+  - height: 0
+    id: 838
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1362.33333333333
+    y: 77
+  - height: 0
+    id: 839
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 265.333333333333
+    y: 810.666666666667
+  - height: 0
+    id: 840
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 116
+    y: 856
+  - height: 0
+    id: 841
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 200
+    y: 1080
+  - height: 0
+    id: 842
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2069.33333333333
+    y: 813.333333333333
+  - height: 0
+    id: 843
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1764
+    y: 865.333333333333
+  - height: 0
+    id: 844
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1700.66666666667
+    y: 122.666666666667
+  - height: 0
+    id: 845
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1201.33333333333
+    y: 857.333333333333
+  - height: 0
+    id: 846
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2438.66666666667
+    y: 812
+  - height: 0
+    id: 847
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2613.33333333333
+    y: 858.666666666667
+  - height: 0
+    id: 848
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2973.33333333333
+    y: 804
+  - height: 0
+    id: 849
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3278.66666666667
+    y: 862.666666666667
+  - height: 0
+    id: 850
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3478.66666666667
+    y: 804
+  - height: 0
+    id: 851
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3712
+    y: 862.666666666667
+  - height: 0
+    id: 852
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3094.66666666667
+    y: 1160
+  - height: 0
+    id: 853
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3453.33333333333
+    y: 1538.66666666667
+  - height: 0
+    id: 854
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1773.33333333333
+    y: 2398.66666666667
+  - height: 0
+    id: 855
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2025.33333333333
+    y: 2069.33333333333
+  - height: 0
+    id: 856
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2632
+    y: 1532
+  - height: 0
+    id: 857
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2816
+    y: 1498.66666666667
+  - height: 0
+    id: 858
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1500
+    y: 2686.66666666667
+  - height: 0
+    id: 859
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 904
+    y: 2758.66666666667
+  - height: 0
+    id: 860
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 716
+    y: 2678.66666666667
+  - height: 0
+    id: 861
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 100
+    y: 2401.33333333333
+  - height: 0
+    id: 862
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 288
+    y: 2452
+  - height: 0
+    id: 863
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 274.666666666667
+    y: 1522.66666666667
+  - height: 0
+    id: 864
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 528
+    y: 1486.66666666667
+  - height: 0
+    id: 865
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 734.666666666667
+    y: 1529.33333333333
+  - height: 0
+    id: 866
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 965.333333333333
+    y: 1488
+  - height: 0
+    id: 867
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2392
+    y: 2760
+  - height: 0
+    id: 868
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2260
+    y: 2688
+  - height: 0
+    id: 869
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2689.33333333333
+    y: 2760
+  - height: 0
+    id: 870
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2772
+    y: 2685.33333333333
+  - height: 0
+    id: 871
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3658.66666666667
+    y: 2761.33333333333
+  - height: 0
+    id: 872
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3321.33333333333
+    y: 2686.66666666667
+  - height: 0
+    id: 873
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2448
+    y: 4568
+  - height: 0
+    id: 874
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3312
+    y: 4564
+  - height: 0
+    id: 875
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3024
+    y: 4084
+  - height: 0
+    id: 876
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4033
+    y: 4298
+  - height: 0
+    id: 878
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4028
+    y: 4096
+  - height: 0
+    id: 879
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4386
+    y: 2686
+  - height: 0
+    id: 880
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3466
+    y: 2500
+  - height: 0
+    id: 881
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2288
+    y: 4356
+  - height: 0
+    id: 882
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1970
+    y: 4266
+  - height: 0
+    id: 883
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1550
+    y: 4418
+  - height: 0
+    id: 884
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2590
+    y: 4356
+  - height: 0
+    id: 885
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2656
+    y: 4082
   opacity: 1
   type: objectgroup
   visible: true
@@ -7265,8 +7776,8 @@ layers:
   visible: true
   x: 0
   y: 0
-nextlayerid: 11
-nextobjectid: 835
+nextlayerid: 12
+nextobjectid: 886
 orientation: orthogonal
 renderorder: right-down
 tiledversion: 1.11.1-99-gec89c545
