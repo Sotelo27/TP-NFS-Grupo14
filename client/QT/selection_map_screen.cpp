@@ -175,9 +175,9 @@ SelectionMapScreen::SelectionMapScreen(ServerHandler& server_handler, QWidget* p
     };
 
     // Crear y agregar las 3 cards
-    QWidget* card1 = createMapCard("assets/cities/Liberty City.png",  "Liberty City",  "LibertyCity");
-    QWidget* card2 = createMapCard("assets/cities/San Andreas.png",  "San Andreas",  "SanAndreas");
-    QWidget* card3 = createMapCard("assets/cities/Vice City.png",    "Vice City",    "ViceCity");
+    QWidget* card1 = createMapCard("assets/cities/LibertyCity.png",  "Liberty City",  "LibertyCity");
+    QWidget* card2 = createMapCard("assets/cities/SanAndreas.png",  "San Andreas",  "SanAndreas");
+    QWidget* card3 = createMapCard("assets/cities/ViceCity.png",    "Vice City",    "ViceCity");
 
     mapsLayout->addWidget(card1);
     mapsLayout->addWidget(card2);

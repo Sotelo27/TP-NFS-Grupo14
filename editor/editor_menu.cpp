@@ -8,13 +8,16 @@
 #include <QGraphicsDropShadowEffect>
 #include <QDebug>
 #include <QPalette>
+#include <QLineEdit>
 #include <yaml-cpp/yaml.h>
 #include <fstream>
+#include <QMessageBox>
 
 EditorMenu::EditorMenu(QWidget *parent)
     : QWidget(parent),
       mapLabel(nullptr),
-      recorridoActual(-1)
+      recorridoActual(-1),
+      nombreArchivoInput(nullptr)
 {
     // -------- FONDO --------
     QPalette pal;
@@ -66,6 +69,19 @@ EditorMenu::EditorMenu(QWidget *parent)
 
     connect(spin, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &EditorMenu::onCantidadRecorridosChanged);
+
+    // ----------------- INPUT NUEVO: Nombre archivo -----------------
+    QLabel* lblNombre = new QLabel("Nombre del archivo:", panelLateral);
+    lblNombre->setStyleSheet("color:white; font-size:16px; font-weight:bold;");
+    lateralLayout->addWidget(lblNombre);
+
+    nombreArchivoInput = new QLineEdit(panelLateral);
+    nombreArchivoInput->setPlaceholderText("ej: mapa_custom");
+    nombreArchivoInput->setStyleSheet(
+        "background: white; border-radius:6px; padding:5px; font-size:15px;"
+    );
+    lateralLayout->addWidget(nombreArchivoInput);
+    // ---------------------------------------------------------------
 
     mainLayout->addWidget(panelLateral);
 
@@ -221,7 +237,7 @@ void EditorMenu::actualizarCheckpointsEnMapa()
 }
 
 // ----------------- Cargar mapa -----------------
-void EditorMenu::load_menu(const QString& selected_map,const QString& selected_map_image)
+void EditorMenu::load_menu(const QString& selected_map, const QString& selected_map_image)
 {
     this->selected_map = selected_map;
     this->selected_map_image = selected_map_image;
@@ -238,6 +254,19 @@ void EditorMenu::load_menu(const QString& selected_map,const QString& selected_m
 
 void EditorMenu::onSummit()
 {
+
+    for (int r = 0; r < recorridos.size(); r++) {
+        const Recorrido &rec = recorridos[r];
+
+        if (rec.checkpoints.size() < 2) {
+            QMessageBox::warning(this,
+                                 "Pocos checkpoints",
+                                 QString("Hay menos de 2 checkpoints en el recorrido %1")
+                                 .arg(r + 1));
+            return;
+        }
+    }
+
     qDebug() << "Generando YAML...";
 
     const std::string basePath = "editor/BaseMap/BaseMapa" + selected_map.toStdString() + ".yaml";
@@ -340,7 +369,25 @@ void EditorMenu::onSummit()
     emitter.SetIndent(2);
     emitter << root;
 
-    const std::string outPath = "editorMap" + selected_map.toStdString() + ".yaml";
+    QString nombreElegido = nombreArchivoInput->text().trimmed();
+    if (nombreElegido.isEmpty()) {
+        QMessageBox::warning(this,
+                             "Nombre vacío",
+                             "El nombre del archivo no puede estar vacío.");
+        return;
+    }
+
+    std::string outPath = "editor/MapsEdited/" + nombreElegido.toStdString() + ".yaml";
+    // ------------------------------------------------------------------------
+
+    if (QFile::exists(QString::fromStdString(outPath))) {
+        QMessageBox::warning(this,
+                             "Archivo existente",
+                             "Ya existe un archivo con ese nombre en editor/MapsEdited.\n"
+                             "Elige otro nombre.");
+        return;
+    }
+
     std::ofstream file(outPath);
 
     if (!file.is_open()) {

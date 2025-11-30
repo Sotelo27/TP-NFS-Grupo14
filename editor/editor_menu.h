@@ -6,6 +6,7 @@
 #include <QPoint>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QLineEdit>
 #include "clickable_image.h"
 
 struct Recorrido {
@@ -39,6 +40,7 @@ private:
 
     QString selected_map;
     QString selected_map_image;
+    QLineEdit* nombreArchivoInput;
 };
 
 #endif // EDITOR_MENU_H
