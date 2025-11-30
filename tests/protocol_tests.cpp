@@ -414,4 +414,21 @@ void test_send_and_receive_map_info() {
     server_thread.join();
 }
 
+void test_send_and_receive_game_over() {
+    Socket skt("3026");
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        protocol.send_ok();
+        protocol.send_game_over(); // Usa el método del protocolo
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3026"));
+    protocol.receive(); 
+    ServerMessage msg = protocol.receive();
+    ASSERT_EQ(msg.type, ServerMessage::Type::GameOver);
+
+    server_thread.join();
+}
+
 
