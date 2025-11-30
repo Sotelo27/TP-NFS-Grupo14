@@ -6,6 +6,7 @@
 #include "../common/queue.h"
 #include "../common/socket.h"
 #include "../common/dto/results_info.h"
+#include "../common/enum/map_enum.h"
 #include "connection/server_handler.h"
 #include "client_protocol.h"
 #include "QT/game_window.h"
@@ -18,7 +19,7 @@ private:
     GameWindow* game_window_start;
     GameWindow* game_window_end;
 
-    void open_game_window(size_t& my_id, ServerHandler& server_handler, std::vector<PlayerResultTotal>& final_results);
+    void open_game_window(size_t& my_id, ServerHandler& server_handler, std::vector<PlayerResultTotal>& final_results, MapID selected_map);
     void close_QT_window(GameWindow* &game_window);
 
 public:

@@ -44,7 +44,7 @@ protected:
 public:
     explicit ClientGame(size_t client_id, ServerHandler& server_handler, std::vector<PlayerResultTotal>& final_results);
 
-    void start();
+    void start(MapID selected_map);
 
     ClientGame(const ClientGame&) = delete;
     ClientGame& operator=(const ClientGame&) = delete;

@@ -6,8 +6,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QDebug>
 
-WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, QWidget* parent)
-    : QWidget(parent), server_handler(server_handler), my_id(my_id), map_selected(map_selected)
+WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map_game, QWidget* parent)
+    : QWidget(parent), server_handler(server_handler), my_id(my_id), map_selected(map_selected), selected_map_game(selected_map_game)
 {
     setWindowTitle("Sala de Espera - Need For Speed");
     setMinimumSize(1100, 750);
@@ -261,6 +261,7 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
         }
 
         case ServerMessage::Type::RaceStart:
+            selected_map_game = static_cast<MapID>(msg.map_id);
             stopPolling();
             emit go_to_game_start();
             break;
