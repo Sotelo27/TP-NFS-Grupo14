@@ -211,6 +211,9 @@ void Game::start_market_phase() {
     std::cout << "[Game] Entering Marketplace for " << MARKET_DURATION << " seconds\n";
     marketplace_time_remaining = MARKET_DURATION;
     state = GameState::Marketplace;
+    for (auto& [player_id, player] : players) {
+        player.reset_current_to_base();
+    }
     pending_market_init = true;
 }
 
