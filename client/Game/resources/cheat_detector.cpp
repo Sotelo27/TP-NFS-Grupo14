@@ -28,5 +28,9 @@ bool CheatDetector::check_cheat_key(const char* key_name) {
     if (std::string(key_name) == "8") {
         return true;
     }
+    // Cheat de ganar carrera automáticamente: tecla '9'
+    if (std::string(key_name) == "9") {
+        return true;
+    }
     return false;
 }

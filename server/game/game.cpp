@@ -119,6 +119,14 @@ std::vector<PlayerTickInfo> Game::players_tick_info() {
     return races[current_race_index].snapshot_ticks();
 }
 
+std::vector<NpcTickInfo> Game::npcs_tick_info() {
+    std::lock_guard<std::mutex> lock(m);
+    if (!has_active_race()) {
+        return {};
+    }
+    return races[current_race_index].snapshot_npcs();
+}
+
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
     if (state == GameState::Lobby) {
@@ -465,6 +473,11 @@ void Game::start_current_race() {
         std::cout << "[DebugPlayer] player " << player_id << " car_model.life=" << player.get_car_model().life << "\n";
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
     }
+    // --- Inicializar algunos NPCs de ejemplo ---
+    r.add_npc(1, 10.0f, 10.0f); // posición en metros
+    r.add_npc(2, 20.0f, 20.0f);
+    r.add_npc(3, 30.0f, 30.0f);
+    // Puedes ajustar posiciones y cantidad según tu juego
     state = GameState::Racing;
     std::cout << "[Game] Race " << current_race_index << " started (players=" << players.size() << ") state set=Racing\n";
 }

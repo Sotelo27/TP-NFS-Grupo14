@@ -10,12 +10,12 @@
 class SelectionMapScreen : public QWidget {
     Q_OBJECT
 public:
-    explicit SelectionMapScreen(ServerHandler& server_handler, QWidget* parent = nullptr);
+    explicit SelectionMapScreen(bool& map_selected, QWidget* parent = nullptr);
 
     QString get_selected_map() const { return selected_map; }
 
-    signals:
-        void go_to_waiting_room_screen();
+signals:
+    void go_to_waiting_room_screen();
 
 private slots:
     void on_map_selected(const QString& map_name);
@@ -28,8 +28,8 @@ private:
     void createBackground();
     QWidget* createMapCard(const QString& imgPath, const QString& mapLabel, const QString& internalName);
 
-    ServerHandler& server_handler;
     QString selected_map;
+    bool& map_selected;
 
     QVBoxLayout* mainLayout;
     QLabel* background;   // ya está declarado correctamente

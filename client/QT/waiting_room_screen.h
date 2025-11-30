@@ -16,6 +16,7 @@ class WaitingRoomScreen : public QWidget {
 private:
     ServerHandler& server_handler;
     size_t& my_id;
+    bool& map_selected;
 
     QLabel* background = nullptr;
     QScrollArea* scrollArea = nullptr;
@@ -31,7 +32,7 @@ private:
     QString selected_map;
 
 public:
-    explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
+    explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, QWidget* parent = nullptr);
 
     void start_game();
     void set_selected_map(const QString& map) { selected_map = map; }
@@ -41,7 +42,7 @@ public:
     void stopPolling()  { if (pollTimer && pollTimer->isActive()) pollTimer->stop(); }
 
     signals:
-        void go_back_to_lobby_screen();
+    void go_back_to_lobby_screen();
     void go_to_selection_car_screen();
     void go_to_selection_map_screen();
     void go_to_game_start();

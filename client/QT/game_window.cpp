@@ -8,8 +8,8 @@
 #include <QPixmap>
 #include <QSound>
 
-GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool login, QWidget *parent)
-    : QDialog(parent), server_handler(server_handler), my_id(my_id), sound(nullptr)
+GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, bool login, QWidget *parent)
+    : QDialog(parent), server_handler(server_handler), my_id(my_id), map_selected(map_selected), sound(nullptr)
 {
     setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
 
@@ -36,9 +36,9 @@ void GameWindow::setupScreens() {
     start_screen = new StartScreen(this);
     login_screen = new LoginScreen(server_handler, my_id, this);
     lobby_screen = new LobbyScreen(server_handler, my_id, this);
-    waiting_room_screen = new WaitingRoomScreen(server_handler, my_id, this);
+    waiting_room_screen = new WaitingRoomScreen(server_handler, my_id, map_selected, this);
     selection_car_screen = new SelectionCarScreen(server_handler, this);
-    selection_map_screen = new SelectionMapScreen(server_handler, this);
+    selection_map_screen = new SelectionMapScreen(map_selected, this);
     result_finish_screen = new ResultFinishScreen(server_handler, my_id, this);
     menu_screen = new MenuScreen(server_handler, this);
 

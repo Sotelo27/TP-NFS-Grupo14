@@ -65,7 +65,8 @@ constexpr uint8_t ERROR_MESSAGE = 0x00;
 constexpr int SHUT_BOTH_CLOSED = 2;
 
 // Cheats
-constexpr uint8_t CHEAT_INFINITE_LIFE = 0x07;
-constexpr uint8_t CHEAT_TELEPORT_NEXT_CHECKPOINT = 0x08;
+constexpr uint8_t CHEAT_INFINITE_LIFE = 0x01;
+constexpr uint8_t CHEAT_TELEPORT_NEXT_CHECKPOINT = 0x02;
+constexpr uint8_t CHEAT_WIN_RACE = 0x03;
 
 #endif  // CONSTANTS_H

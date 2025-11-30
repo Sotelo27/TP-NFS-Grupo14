@@ -17,6 +17,7 @@
 #include "../Player/car.h"
 #include "../Player/player.h"
 #include "../../common/constants.h"
+#include "npc.h"
 
 class Race {
 private:
@@ -32,11 +33,12 @@ private:
     std::map<size_t, Car*> cars_by_player;
     std::map<size_t, Player*> players_by_id; // NUEVO: para asociar Player*
 
+    std::unordered_map<uint8_t, Npc> npcs; // <npc_id, Npc>
+
     /*
      * Verifica los estados de vida de los jugadores y los descalifica si no tienen vida
      */
     void check_health_states();
-
 
     /*
      * Verifica si se ha excedido el tiempo maximo de la carrera 
@@ -64,6 +66,9 @@ private:
      *    0 : recto
      */
     static float resolve_rotation_input(const InputState& input);
+
+    // === NUEVO: Cheat para ganar la carrera ===
+    void cheat_win_race(size_t playerId);
 
 public:
     Race(uint32_t id, PhysicsWorld& external_world);
@@ -155,6 +160,11 @@ public:
      * Establece el puntero del jugador
      */
     void set_player_ptr(size_t player_id, Player* player_ptr); // NUEVO
+
+    // NPCs
+    void add_npc(uint8_t npc_id, float x_m, float y_m);
+    void update_npcs(float dt);
+    std::vector<NpcTickInfo> snapshot_npcs() const;
 };
 
 #endif

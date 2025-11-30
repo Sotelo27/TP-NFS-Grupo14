@@ -6,8 +6,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPixmap>
 
-SelectionMapScreen::SelectionMapScreen(ServerHandler& server_handler, QWidget* parent)
-    : QWidget(parent), server_handler(server_handler)
+SelectionMapScreen::SelectionMapScreen(bool& map_selected, QWidget* parent)
+    : QWidget(parent), map_selected(map_selected)
 {
     setWindowTitle("Seleccionar Mapa - Need For Speed");
     setupUi();
@@ -139,7 +139,8 @@ QWidget* SelectionMapScreen::createMapCard(const QString& imgPath, const QString
 
 void SelectionMapScreen::on_map_selected(const QString& map_name) {
     selected_map = map_name;
-    server_handler.send_start_game({{selected_map.toStdString(), 0}});
+    // server_handler.send_start_game({{selected_map.toStdString(), 0}});
+    map_selected = true;
     emit go_to_waiting_room_screen();
 }
 

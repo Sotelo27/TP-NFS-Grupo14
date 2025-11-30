@@ -10,6 +10,7 @@ target_sources(taller_client
         game_window.cpp
         menu_screen.cpp
         start_screen.cpp
+        editor_map_screen.cpp
         PUBLIC
         # .h files
         login_screen.h
@@ -21,4 +22,5 @@ target_sources(taller_client
         game_window.h
         menu_screen.h
         start_screen.h
+        editor_map_screen.h
 )
