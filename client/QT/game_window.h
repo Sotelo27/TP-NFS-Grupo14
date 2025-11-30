@@ -20,6 +20,9 @@ public:
     explicit GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, bool login, QWidget *parent = nullptr);
     ~GameWindow();
 
+    // NUEVO: Permite setear los resultados finales desde fuera
+    void setFinalResults(const std::vector<PlayerResultTotal>& results);
+
 private:
     void setupScreens();
     void setupLayout();
@@ -41,6 +44,8 @@ private:
     SelectionMapScreen* selection_map_screen;
     ResultFinishScreen* result_finish_screen;
     MenuScreen* menu_screen;
+
+    std::vector<PlayerResultTotal> final_results; // NUEVO
 
 private slots:
     void goToLobby();

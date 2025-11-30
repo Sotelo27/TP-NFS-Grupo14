@@ -52,6 +52,7 @@ void Client::start() {
     }
 
     game_window_end = new GameWindow(server_handler, my_id, map_selected, false, nullptr);
+    game_window_end->setFinalResults(final_results);
     game_window_end->exec();
     close_QT_window(game_window_end);
 

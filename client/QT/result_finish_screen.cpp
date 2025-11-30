@@ -3,6 +3,9 @@
 #include <QGraphicsDropShadowEffect>
 #include <QVBoxLayout>
 #include <QPalette>
+#include <QString>
+#include <iomanip>
+#include <sstream>
 
 ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
                                        size_t& my_id,
@@ -13,7 +16,7 @@ ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
 {
     setupUi();
     setupStyles();
-    populateTable();
+    // No llamar a populateTable aquí, se llamará cuando se tengan los resultados reales
 }
 
 void ResultFinishScreen::setupUi() {
@@ -83,7 +86,7 @@ void ResultFinishScreen::createTitle() {
 }
 
 void ResultFinishScreen::createTable() {
-    table = new QTableWidget(10, 3, container);
+    table = new QTableWidget(0, 3, container); // filas dinámicas
     table->setFixedHeight(430);
     table->setHorizontalHeaderLabels({"POSICIÓN", "NOMBRE", "TIEMPO"});
     table->verticalHeader()->setVisible(false);
@@ -126,20 +129,37 @@ void ResultFinishScreen::setupStyles() {
     );
 }
 
+// NUEVO: Recibe y muestra los resultados finales
+void ResultFinishScreen::setFinalResults(const std::vector<PlayerResultTotal>& results) {
+    final_results = results;
+    populateTable();
+}
+
 void ResultFinishScreen::populateTable() {
-    QString nombres[10] = { "ALEX", "JAMIE", "MARÍA", "PEDRO", "SARA",
-                            "CARLA", "MIGUEL", "LAURA", "LUIS", "TOMÁS" };
+    table->setRowCount(static_cast<int>(final_results.size()));
 
-    QString tiempos[10] = { "1:20", "1:26", "1:33", "1:40", "1:45",
-                            "1:50", "2:00", "2:10", "2:22", "2:30" };
+    for (int i = 0; i < static_cast<int>(final_results.size()); ++i) {
+        const auto& entry = final_results[i];
 
-    for (int i = 0; i < 10; i++) {
-        auto* pos  = new QTableWidgetItem(QString::number(i + 1) + "º");
-        auto* name = new QTableWidgetItem(nombres[i]);
-        auto* time = new QTableWidgetItem(tiempos[i]);
-
+        // POSICIÓN
+        auto* pos  = new QTableWidgetItem(QString::number(entry.position) + "º");
         pos->setTextAlignment(Qt::AlignCenter);
+
+        // NOMBRE
+        auto* name = new QTableWidgetItem(QString::fromStdString(entry.username));
         name->setTextAlignment(Qt::AlignCenter);
+
+        // TIEMPO (formato mm:ss.zzz)
+        int total_ms = static_cast<int>(entry.total_time_seconds * 1000);
+        int minutes = total_ms / 60000;
+        int seconds = (total_ms / 1000) % 60;
+        int millis  = total_ms % 1000;
+        QString time_str = QString("%1:%2.%3")
+            .arg(minutes)
+            .arg(seconds, 2, 10, QChar('0'))
+            .arg(millis, 3, 10, QChar('0'));
+
+        auto* time = new QTableWidgetItem(time_str);
         time->setTextAlignment(Qt::AlignCenter);
 
         table->setItem(i, 0, pos);
