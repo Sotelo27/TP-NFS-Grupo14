@@ -2,12 +2,13 @@
 #include <utility>
 
 Player::Player(size_t id, std::string name, CarModel car)
-    : id(id), name(std::move(name)), car(std::move(car)) {}
+    : id(id), name(std::move(name)), base_car(car), current_car(base_car) {}
 
 Player::Player(size_t id)
-    : id(id),
-      name("Player N° " + std::to_string(id)) {
-    car.modelo = "Model " + std::to_string(id);
+        : id(id),
+            name("Player N° " + std::to_string(id)) {
+        base_car.modelo = "Model " + std::to_string(id);
+        current_car = base_car;
 }
 
 size_t Player::get_Id() const {

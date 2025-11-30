@@ -11,7 +11,8 @@ private:
     size_t id = 0;
     std::string name;
     uint8_t car_id = 0;
-    CarModel car;
+    CarModel base_car;
+    CarModel current_car;
     float race_time_seconds = 0.f;
     float penalty_time_seconds = 0.f;
     bool infinite_life_{false};
@@ -28,8 +29,14 @@ public:
     uint8_t get_car_id() const noexcept { return car_id; }
     void set_car_id(uint8_t id) noexcept { car_id = id; }
     
-    const CarModel& get_car_model() const noexcept { return car; }
-    void set_car_model(const CarModel& c) noexcept { car = c; }
+    const CarModel& get_car_model() const noexcept { return current_car; }
+    void set_car_model(const CarModel& c) noexcept { current_car = c; }
+
+    const CarModel& get_base_car_model() const noexcept { return base_car; }
+    const CarModel& get_current_car_model() const noexcept { return current_car; }
+    void set_base_car_model(const CarModel& m) noexcept { base_car = m; }
+    void set_current_car_model(const CarModel& m) noexcept { current_car = m; }
+    void reset_current_to_base() noexcept { current_car = base_car; }
 
     /*
      * SUma el resultado de la carrera para el jugador y las penalizaciones

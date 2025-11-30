@@ -33,6 +33,7 @@ struct NpcTickInfo {
     uint8_t npc_id;
     int32_t x;
     int32_t y;
+    float angle{0.f};
 };
 
 struct EventInfo {

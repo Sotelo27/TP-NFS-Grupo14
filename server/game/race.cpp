@@ -576,6 +576,7 @@ std::vector<NpcTickInfo> Race::snapshot_npcs() const {
         info.npc_id = npc_id;
         info.x = static_cast<int32_t>(pos.x * PPM);
         info.y = static_cast<int32_t>(pos.y * PPM);
+        info.angle = body->GetAngle() * 180.0f / PI;
         out.push_back(info);
     }
     return out;
