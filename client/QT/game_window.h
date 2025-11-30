@@ -17,7 +17,7 @@
 class GameWindow : public QDialog {
     Q_OBJECT
 public:
-    explicit GameWindow(ServerHandler& server_handler, size_t& my_id, bool login, QWidget *parent = nullptr);
+    explicit GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, bool login, QWidget *parent = nullptr);
     ~GameWindow();
 
 private:
@@ -28,6 +28,7 @@ private:
 
     ServerHandler& server_handler;
     size_t& my_id;
+    bool map_selected;
     QStackedWidget* stack;
     QSound* sound;
     QLabel* background;

@@ -6,8 +6,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QDebug>
 
-WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent)
-    : QWidget(parent), server_handler(server_handler), my_id(my_id)
+WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, QWidget* parent)
+    : QWidget(parent), server_handler(server_handler), my_id(my_id), map_selected(map_selected)
 {
     setWindowTitle("Sala de Espera - Need For Speed");
     setMinimumSize(1100, 750);
@@ -92,10 +92,11 @@ void WaitingRoomScreen::createScrollArea() {
 }
 
 void WaitingRoomScreen::createStartButton() {
+    // Botón de iniciar partida
     startButton = new QPushButton("INICIAR PARTIDA", this);
     startButton->setFixedSize(350, 80);
     startButton->setCursor(Qt::PointingHandCursor);
-    startButton->setVisible(false);
+    startButton->setVisible(false); // Se mostrará solo si eres admin
     startButton->setStyleSheet(
         "QPushButton {"
         "   background-color: rgba(255, 0, 180, 0.25);"
@@ -115,11 +116,46 @@ void WaitingRoomScreen::createStartButton() {
     glowStart->setColor(QColor(255,0,180));
     startButton->setGraphicsEffect(glowStart);
 
+    // Conexión con verificación de mapa
     connect(startButton, &QPushButton::clicked, this, [this]() {
-        emit go_to_selection_map_screen();
+        if (selected_map.isEmpty()) {
+            QMessageBox::warning(this, "Mapa no seleccionado", "No elegiste mapa.");
+            return;
+        }
+        server_handler.send_start_game({{selected_map.toStdString(), 0}});
     });
 
     mainLayout->addWidget(startButton, 0, Qt::AlignHCenter);
+
+    // Botón para seleccionar mapa (otro botón distinto)
+    QPushButton* selectMapButton = new QPushButton("SELECCIONAR MAPA", this);
+    selectMapButton->setFixedSize(350, 80);
+    selectMapButton->setCursor(Qt::PointingHandCursor);
+    selectMapButton->setVisible(true);
+    selectMapButton->setStyleSheet(
+        "QPushButton {"
+        "   background-color: rgba(255, 0, 180, 0.25);"
+        "   border: 4px solid #ff33cc;"
+        "   border-radius: 14px;"
+        "   font-size: 32px;"
+        "   font-weight: bold;"
+        "   color: #ff66ff;"
+        "}"
+        "QPushButton:hover { background-color: rgba(255, 0, 180, 0.40); }"
+        "QPushButton:pressed { background-color: rgba(255, 0, 180, 0.18); }"
+    );
+
+    auto* glowSelect = new QGraphicsDropShadowEffect(this);
+    glowSelect->setBlurRadius(45);
+    glowSelect->setOffset(0,0);
+    glowSelect->setColor(QColor(255,0,180));
+    selectMapButton->setGraphicsEffect(glowSelect);
+
+    connect(selectMapButton, &QPushButton::clicked, this, [this]() {
+        emit go_to_selection_map_screen();
+    });
+
+    mainLayout->addWidget(selectMapButton, 0, Qt::AlignHCenter);
 }
 
 void WaitingRoomScreen::createBackButton() {
@@ -142,6 +178,7 @@ void WaitingRoomScreen::createBackButton() {
     connect(backButton, &QPushButton::clicked, this, [this]() {
         server_handler.send_leave_room();
         stopPolling();
+        map_selected = false;
         emit go_back_to_lobby_screen();
     });
 

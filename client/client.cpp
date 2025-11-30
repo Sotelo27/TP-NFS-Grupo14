@@ -24,11 +24,12 @@ void Client::start() {
     QApplication app(n, nullptr);
 
     size_t my_id = SIZE_MAX;
-    game_window_start = new GameWindow(server_handler, my_id, true, nullptr);
+    bool map_selected = false;
+    game_window_start = new GameWindow(server_handler, my_id, map_selected, true, nullptr);
     game_window_start->exec();
     close_QT_window(game_window_start);
 
-    if (my_id == SIZE_MAX) {
+    if (my_id == SIZE_MAX || !map_selected) {
         std::cout << "[Client] Exiting..." << std::endl;
         return;
     }
@@ -44,7 +45,7 @@ void Client::start() {
         return;
     }
 
-    game_window_end = new GameWindow(server_handler, my_id, false, nullptr);
+    game_window_end = new GameWindow(server_handler, my_id, map_selected, false, nullptr);
     game_window_end->exec();
     close_QT_window(game_window_end);
 
