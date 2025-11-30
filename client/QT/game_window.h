@@ -15,10 +15,12 @@
 #include "editor_map_screen.h"
 #include <QtMultimedia/QSound>
 
+#include "../../common/enum/map_enum.h"
+
 class GameWindow : public QDialog {
     Q_OBJECT
 public:
-    explicit GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, bool login, QWidget *parent = nullptr);
+    explicit GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map, bool login, QWidget *parent = nullptr);
     ~GameWindow();
 
     // NUEVO: Permite setear los resultados finales desde fuera
@@ -33,6 +35,7 @@ private:
     ServerHandler& server_handler;
     size_t& my_id;
     bool& map_selected;
+    MapID& selected_map;
     QStackedWidget* stack;
     QSound* sound;
     QLabel* background;

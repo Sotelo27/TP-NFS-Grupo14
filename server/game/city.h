@@ -51,11 +51,10 @@ public:
     */
     std::vector<std::string> get_route_ids() const;
 
-    // Devuelve true si el punto (x, y) está libre de colisiones (en píxeles)
-    bool is_point_free(float x_px, float y_px, float margin = 20.0f) const;
-
-    // Genera N puntos de spawn libres de colisión para NPCs
-    std::vector<SpawnPoint> generate_npc_spawns(size_t count) const;
+    /*
+     * Obtiene los puntos de spawn de NPCs
+    */
+    const std::vector<NpcSpawn>& get_npc_spawns() const;
 };
 
 #endif

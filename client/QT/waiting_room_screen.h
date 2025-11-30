@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include "../../common/dto/server_msg.h"
+#include "../../common/enum/map_enum.h"
 #include "../connection/server_handler.h"
 
 class WaitingRoomScreen : public QWidget {
@@ -17,6 +18,7 @@ private:
     ServerHandler& server_handler;
     size_t& my_id;
     bool& map_selected;
+    MapID& selected_map_game;
 
     QLabel* background = nullptr;
     QScrollArea* scrollArea = nullptr;
@@ -32,7 +34,7 @@ private:
     QString selected_map;
 
 public:
-    explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, QWidget* parent = nullptr);
+    explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map_game, QWidget* parent = nullptr);
 
     void start_game();
     void set_selected_map(const QString& map) { selected_map = map; }

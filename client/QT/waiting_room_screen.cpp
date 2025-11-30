@@ -6,8 +6,8 @@
 #include <QGraphicsDropShadowEffect>
 #include <QDebug>
 
-WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, QWidget* parent)
-    : QWidget(parent), server_handler(server_handler), my_id(my_id), map_selected(map_selected)
+WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map_game, QWidget* parent)
+    : QWidget(parent), server_handler(server_handler), my_id(my_id), map_selected(map_selected), selected_map_game(selected_map_game)
 {
     setWindowTitle("Sala de Espera - Need For Speed");
     setMinimumSize(1100, 750);
@@ -122,14 +122,13 @@ void WaitingRoomScreen::createStartButton() {
             QMessageBox::warning(this, "Mapa no seleccionado", "No elegiste mapa.");
             return;
         }
-        qDebug() << "Se va a abrir el mapa: " << selected_map;
         server_handler.send_start_game({{selected_map.toStdString(), 0}});
     });
 
     mainLayout->addWidget(startButton, 0, Qt::AlignHCenter);
 
     // Botón para seleccionar mapa (otro botón distinto)
-    selectMapButton = new QPushButton("SELECCIONAR MAPA", this);
+    QPushButton* selectMapButton = new QPushButton("SELECCIONAR MAPA", this);
     selectMapButton->setFixedSize(350, 80);
     selectMapButton->setCursor(Qt::PointingHandCursor);
     selectMapButton->setVisible(true);
@@ -204,11 +203,6 @@ void WaitingRoomScreen::onPollTimer() {
 // =============================================================
 void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
     switch (msg.type) {
-        case ServerMessage::Type::RaceStart:
-            stopPolling();
-            emit go_to_game_start();
-            break;
-
         case ServerMessage::Type::YourId:
             my_id = msg.id;
             break;
@@ -226,7 +220,6 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
                     is_admin = true;
 
             startButton->setVisible(is_admin);
-            selectMapButton->setVisible(is_admin);
 
             for (const auto& p : msg.players) {
                 QWidget* card = new QWidget();
@@ -267,6 +260,12 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
             break;
         }
 
+        case ServerMessage::Type::RaceStart:
+            selected_map_game = static_cast<MapID>(msg.map_id);
+            stopPolling();
+            emit go_to_game_start();
+            break;
+
         default:
             break;
     }
@@ -276,13 +275,11 @@ void WaitingRoomScreen::start_game() {
     QMessageBox::information(this, "Juego iniciado", "¡La carrera está por comenzar!");
 }
 
+// =============================================================
+// RESIZE EVENT PARA AJUSTAR FONDO
+// =============================================================
 void WaitingRoomScreen::resizeEvent(QResizeEvent* event) {
     if (background)
         background->setGeometry(0, 0, width(), height());
     QWidget::resizeEvent(event);
-}
-
-void WaitingRoomScreen::hideSelectMapButton() {
-    if (selectMapButton)
-        selectMapButton->hide();
 }

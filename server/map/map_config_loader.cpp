@@ -29,6 +29,7 @@ MapConfig MapConfigLoader::load_tiled_file(const std::string& path) {
     const std::string collisions_name   = "Colisiones";
     const std::string spawns_prefix     = "Spawns_";
     const std::string checkpoints_prefix = "Checkpoint_";
+    const std::string npc_layer_name     = "Npc";
 
     for (const auto& layer : root["layers"]) {
         const std::string ltype = layer["type"] ? layer["type"].as<std::string>() : std::string();
@@ -38,6 +39,7 @@ MapConfig MapConfigLoader::load_tiled_file(const std::string& path) {
         const bool is_collision_layer   = (lname == collisions_name);
         const bool is_spawns_layer      = (lname.rfind(spawns_prefix, 0) == 0);
         const bool is_checkpoints_layer = (lname.rfind(checkpoints_prefix, 0) == 0);
+        const bool is_npc_layer         = (lname == npc_layer_name); 
 
         // Deducir race_id a partir del nombre de la capa (Spawns_A → "A", Checkpoint_B → "B")
         std::string spawns_race_id;
@@ -81,6 +83,18 @@ MapConfig MapConfigLoader::load_tiled_file(const std::string& path) {
                     }
 
                     cfg.spawns.push_back(s);
+                }
+                continue;
+            }
+            // ---------------- NPC SPAWNS ----------------
+            if (is_npc_layer) {
+                bool is_point = obj["point"] ? obj["point"].as<bool>() : false;
+                if (is_point || (!obj["width"] && !obj["height"])) {
+                    NpcSpawn n{};
+                    n.x_px      = ox;
+                    n.y_px      = oy;
+                    n.angle_deg = obj["rotation"] ? obj["rotation"].as<float>() : 0.f;
+                    cfg.npc_spawns.push_back(n);
                 }
                 continue;
             }
