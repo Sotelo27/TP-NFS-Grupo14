@@ -21,6 +21,7 @@ private:
     Area src_area_map;
     Area dest_area_map;
     std::unordered_map<size_t, CarInfoGame>& info_players;
+    std::unordered_map<uint8_t, NpcTickInfo> npcs_info; // Almacena los NPCs
     SdlWindow& window;
     CarSpriteSheet car_sprites;
     MapsTextures& map_manager;
@@ -31,6 +32,7 @@ private:
     void update_map_area();
 
     void render_cars();
+    void render_npcs(); // Declaración del método de renderizado de NPCs
 
 public:
     explicit ClientHelper(size_t client_id, SdlWindow& window,
@@ -42,6 +44,7 @@ public:
     void update_animation_frames();
     void render_in_z_order(int iteration, bool render_hud = true);
     void update_map_info(const std::vector<PlayerTickInfo>& players_info,
+                         const std::vector<NpcTickInfo>& npcs_info,
                          const TimeTickInfo& time_info);
 
     ClientHelper(const ClientHelper&) = delete;
