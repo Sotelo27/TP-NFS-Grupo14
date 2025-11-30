@@ -90,6 +90,9 @@ public:
      */
     void apply_cheat(size_t playerId, uint8_t cheat_code);
 
+    // NUEVO: Teletransporta el auto al siguiente checkpoint
+    void teleport_to_next_checkpoint(size_t playerId);
+
     /*
      * Establece el track de la carrera
      */

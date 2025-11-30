@@ -199,11 +199,12 @@ void MonitorLobby::handle_cheat_action(ClientAction act) {
     }
     uint8_t rid = binding->first;
     size_t pid = binding->second;
-    if (act.infinite_life) {
-        std::cout << "[Lobby] CHEAT: Activando vida infinita para player_id=" << pid << " (conn_id=" << act.id << ")\n";
-        rooms.set_player_infinite_life(rid, pid, true);
+    act.id = pid;
+    if (!rooms.push_cheat_to_room(rid, pid, act.cheat)) {
+        std::cout << "[Lobby] CHEAT routing failed for conn_id=" << act.id << " room_id=" << (int)rid << "\n";
     } else {
-        std::cout << "[Lobby] CHEAT: Código no implementado (" << (int)act.cheat << ")\n";
+        std::cout << "[Lobby] Routed CHEAT from conn_id=" << act.id << " -> room_id=" << (int)rid
+                  << ", player_id=" << pid << ", cheat=" << (int)act.cheat << "\n";
     }
 }
 

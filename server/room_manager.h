@@ -39,6 +39,8 @@ public:
     bool push_move_to_room(uint8_t room_id, size_t player_id, Movement movement);
     // push an improvement action into room's Match.actions (returns success)
     bool push_improvement_to_room(uint8_t room_id, size_t player_id, uint8_t improvement_id);
+    // push a cheat action into room's Match.actions (returns success)
+    bool push_cheat_to_room(uint8_t room_id, size_t player_id, uint8_t cheat_code);
 
     // reap disconnected clients in rooms (calls clients.reap and remove players from games)
     void reap(BindingManager& bindings, PendingManager& pending);

@@ -531,7 +531,7 @@ void Game::init_races() {
 }
 
 void Game::apply_cheat(size_t player_id, uint8_t cheat_code) {
-    std::lock_guard<std::mutex> lock(m);
+    std::lock_guard<std::mutex> lk(m);
     if (!has_active_race()) return;
     get_current_race().apply_cheat(player_id, cheat_code);
 }

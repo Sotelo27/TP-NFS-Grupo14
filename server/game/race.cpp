@@ -348,5 +348,45 @@ void Race::apply_cheat(size_t playerId, uint8_t cheat_code) {
         it->second->set_infinite_life(true);
         it->second->set_vida(it->second->get_spec().life); // Restaura vida máxima
         std::cout << "[Race] Cheat de vida infinita activado para playerId=" << playerId << "\n";
+    } else if (cheat_code == CHEAT_TELEPORT_NEXT_CHECKPOINT) {
+        teleport_to_next_checkpoint(playerId);
     }
+}
+
+void Race::teleport_to_next_checkpoint(size_t playerId) {
+    auto it_part = parts.find(playerId);
+    if (it_part == parts.end()) return;
+    auto it_car = cars.find(playerId);
+    if (it_car == cars.end() || !it_car->second) return;
+    if (track.checkpoints.empty()) return;
+
+    RaceParticipant& participant = it_part->second;
+    uint32_t next_idx = participant.next_checkpoint_idx;
+    if (next_idx >= track.checkpoints.size()) {
+        std::cout << "[Race] Teleport: No hay más checkpoints para playerId=" << playerId << "\n";
+        return;
+    }
+    const auto& cp = track.checkpoints[next_idx];
+
+    // Calcular el centro del checkpoint
+    const float a = cp.rotation_deg * PI / 180.0f;
+    const float halfW = cp.w_px * 0.5f;
+    const float halfH = cp.h_px * 0.5f;
+    const float checkp_center_x_px = cp.x_px + std::cos(a) * halfW - std::sin(a) * halfH;
+    const float checkp_center_y_px = cp.y_px + std::sin(a) * halfW + std::cos(a) * halfH;
+
+    // Convertir a metros
+    const float x_m = checkp_center_x_px / PPM;
+    const float y_m = checkp_center_y_px / PPM;
+
+    b2Body* body = it_car->second->get_body();
+    if (!body) return;
+
+    // Teletransportar el auto
+    body->SetTransform(b2Vec2(x_m, y_m), a);
+    body->SetLinearVelocity(b2Vec2(0, 0));
+    body->SetAngularVelocity(0);
+
+    std::cout << "[Race] Cheat de teletransporte: playerId=" << playerId
+              << " movido a checkpoint " << next_idx << " (" << x_m << ", " << y_m << ")\n";
 }
