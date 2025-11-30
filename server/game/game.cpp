@@ -517,17 +517,22 @@ TimeTickInfo Game::get_market_time() const {
 void Game::init_races() {
     PhysicsWorld& world = city.get_world();
     races.clear();
-    // Primera carrera: ruta A
-    races.emplace_back(0, world);
-    races.back().set_track(city.build_track("A"));
-    std::cout << "[Game] Initialized race 0 with route A (checkpoints="
-              << races.back().get_race_time_seconds() << ")" << std::endl;
-    // Segunda carrera: ruta B
-    Track trackB = city.build_track("B");
-    races.emplace_back(1, world);
-    races.back().set_track(trackB);
-    std::cout << "[Game] Initialized race 1 with route B (checkpoints="
-                  << trackB.checkpoint_count << ")" << std::endl;
+    
+    auto route_ids = city.get_route_ids();
+    
+    uint32_t race_index = 0;
+    for (const std::string& route_id : route_ids) {
+        Track track = city.build_track(route_id);
+
+        races.emplace_back(race_index, world);
+        races.back().set_track(track);
+
+        std::cout << "[Game] Initialized race " << race_index
+                  << " with route " << route_id
+                  << " (checkpoints=" << track.checkpoint_count << ")\n";
+
+        ++race_index;
+    }
 }
 
 void Game::apply_cheat(size_t player_id, uint8_t cheat_code) {
