@@ -18,11 +18,15 @@ public:
         void go_to_lobby_screen();
     void go_to_selection_car_screen();
 
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+
 private:
     ServerHandler& server_handler;
-    QLabel* background;
-    QPushButton* jugarButton;
-    QPushButton* seleccionarAutoButton;
+
+    QLabel* background = nullptr;
+    QPushButton* jugarButton = nullptr;
+    QPushButton* seleccionarAutoButton = nullptr;
     int selectedCarIndex = 0;
 
     void createBackground();

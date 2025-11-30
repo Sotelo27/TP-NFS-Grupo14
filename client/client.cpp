@@ -24,8 +24,9 @@ void Client::start() {
     QApplication app(n, nullptr);
 
     size_t my_id = SIZE_MAX;
-    game_window_start = new GameWindow(server_handler, my_id, true);
+    game_window_start = new GameWindow(server_handler, my_id, true, nullptr);
     game_window_start->exec();
+    close_QT_window(game_window_start);
 
     if (my_id == SIZE_MAX) {
         std::cout << "[Client] Exiting..." << std::endl;
@@ -43,16 +44,27 @@ void Client::start() {
         return;
     }
 
-    game_window_end = new GameWindow(server_handler, my_id, false);
+    game_window_end = new GameWindow(server_handler, my_id, false, nullptr);
     game_window_end->exec();
+    close_QT_window(game_window_end);
+
+}
+
+void Client::close_QT_window(GameWindow* &game_window) {
+    if (game_window) {
+        delete game_window;
+        game_window = nullptr;
+    }
 }
 
 Client::~Client() {
     if (game_window_start) {
-        free(game_window_start);
+        delete game_window_start;
+        game_window_start = nullptr;
     }
     if (game_window_end) {
-        free(game_window_end);
+        delete game_window_end;
+        game_window_end = nullptr;
     }
     if (server_handler.is_alive()) {
         server_handler.hard_kill();

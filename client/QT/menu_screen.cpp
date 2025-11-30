@@ -1,13 +1,11 @@
 #include "menu_screen.h"
 #include <QVBoxLayout>
+#include <QApplication>
 #include <QPixmap>
 
 MenuScreen::MenuScreen(ServerHandler& server_handler, QWidget* parent)
     : QWidget(parent), server_handler(server_handler)
 {
-    setFixedSize(800, 600);
-    setWindowTitle("Menú de Sala");
-
     createBackground();
     createButtons();
     setupLayout();
@@ -17,9 +15,8 @@ MenuScreen::MenuScreen(ServerHandler& server_handler, QWidget* parent)
 void MenuScreen::createBackground() {
     background = new QLabel(this);
     background->setPixmap(QPixmap("assets/images/nfs_most_wanted.png"));
-    background->setScaledContents(true);
-    background->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    background->lower();
+    background->setScaledContents(true); // escala automáticamente
+    background->lower(); // siempre detrás
     background->show();
 }
 
@@ -56,7 +53,7 @@ void MenuScreen::createButtons() {
 
 void MenuScreen::setupLayout() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(0, 0, 40, 0);
+    mainLayout->setContentsMargins(40, 0, 40, 0);
     mainLayout->addStretch();
     mainLayout->addWidget(jugarButton, 0, Qt::AlignRight);
     mainLayout->addSpacing(20);
@@ -72,4 +69,13 @@ void MenuScreen::setupConnections() {
     connect(seleccionarAutoButton, &QPushButton::clicked, this, [this]() {
         emit go_to_selection_car_screen();
     });
+}
+
+// -----------------------------
+// resizeEvent para fondo
+// -----------------------------
+void MenuScreen::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
+    if (background)
+        background->setGeometry(0, 0, width(), height());
 }

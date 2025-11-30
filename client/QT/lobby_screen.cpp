@@ -10,8 +10,6 @@ LobbyScreen::LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* 
     : QWidget(parent), server_handler(server_handler), my_id(my_id), waitingRoom(nullptr), in_room(false)
 {
     setWindowTitle("Lobby - Need For Speed");
-    setFixedSize(1100, 750); // ventana fija
-
     setupUi();
     setupConnections();
 }
@@ -34,9 +32,15 @@ void LobbyScreen::setupUi() {
 
 void LobbyScreen::createBackground() {
     background = new QLabel(this);
-    background->setPixmap(QPixmap("assets/images/fondo.png").scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    background->setGeometry(0, 0, width(), height());
-    background->lower();
+    background->setPixmap(QPixmap("assets/images/fondo.png"));
+    background->setScaledContents(true); // se ajusta automáticamente al tamaño
+    background->lower(); // siempre detrás
+}
+
+void LobbyScreen::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
+    if (background)
+        background->setGeometry(0, 0, width(), height());
 }
 
 void LobbyScreen::createTitle() {

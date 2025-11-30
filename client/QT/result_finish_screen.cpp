@@ -11,29 +11,36 @@ ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
       server_handler(server_handler),
       my_id(my_id)
 {
-    setFixedSize(1100, 750); // ventana fija
     setupUi();
     setupStyles();
     populateTable();
 }
 
 void ResultFinishScreen::setupUi() {
+    mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
+    mainLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
+
     createBackground();
     createContainer();
     createTitle();
     createTable();
 
-    auto* layout = new QVBoxLayout(this);
-    layout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
-    layout->setContentsMargins(0, 40, 0, 0);
-    layout->addWidget(container);
+    mainLayout->addWidget(container);
 }
 
 void ResultFinishScreen::createBackground() {
-    QPalette pal;
-    pal.setBrush(QPalette::Window, QPixmap("assets/images/fondo.png"));
-    setAutoFillBackground(true);
-    setPalette(pal);
+    background = new QLabel(this);
+    background->setPixmap(QPixmap("assets/images/fondo.png"));
+    background->setScaledContents(true);
+    background->lower(); // siempre detrás
+}
+
+void ResultFinishScreen::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
+    if (background)
+        background->setGeometry(0, 0, width(), height());
 }
 
 void ResultFinishScreen::createContainer() {
@@ -50,6 +57,11 @@ void ResultFinishScreen::createContainer() {
     glow->setColor(QColor(255, 0, 180));
     glow->setOffset(0, 0);
     container->setGraphicsEffect(glow);
+
+    auto* containerLayout = new QVBoxLayout(container);
+    containerLayout->setContentsMargins(20, 20, 20, 20);
+    containerLayout->setSpacing(25);
+    containerLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 }
 
 void ResultFinishScreen::createTitle() {
@@ -67,11 +79,7 @@ void ResultFinishScreen::createTitle() {
         "text-shadow: 0 0 25px #ff33cc;"
     );
 
-    auto* layout = new QVBoxLayout(container);
-    layout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
-    layout->setContentsMargins(20, 20, 20, 20);
-    layout->addWidget(title_label);
-    layout->addSpacing(25);
+    container->layout()->addWidget(title_label);
 }
 
 void ResultFinishScreen::createTable() {
