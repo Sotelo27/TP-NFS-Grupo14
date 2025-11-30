@@ -330,3 +330,23 @@ void test_send_improvement() {
     server_thread.join();
 }
 
+void test_send_cheat() {
+    Socket skt("3023");
+    std::thread server_thread([&]() {
+        Socket connection = skt.accept();
+        ServerProtocol protocol(std::move(connection));
+        ClientMessage msg = protocol.receive();
+        ASSERT_EQ(msg.type, ClientMessage::Type::Cheat);
+        ASSERT_EQ(msg.cheat, 1);
+    });
+
+    ClientProtocol protocol(Socket("localhost", "3023"));
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::Cheat;
+    msg.cheat = 1;
+    protocol.send_cheat(msg);
+
+    server_thread.join();
+}
+
+
