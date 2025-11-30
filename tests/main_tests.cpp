@@ -12,6 +12,16 @@ TEST(ProtocolTests, SendAndReceiveRaceStart) { test_send_and_receive_race_start(
 TEST(ProtocolTests, SendAndReceiveResults) { test_send_and_receive_results(); }
 TEST(ProtocolTests, SendAndReceiveImprovementOk) { test_send_and_receive_improvement_ok(); }
 TEST(ProtocolTests, SendAndReceivePlayersList) { test_send_and_receive_players_list(); }
+TEST(ProtocolTests, SendMove) { test_send_move(); }
+TEST(ProtocolTests, SendChooseCar) { test_send_choose_car(); }
+TEST(ProtocolTests, SendImprovement) { test_send_improvement(); }
+TEST(ProtocolTests, SendCheat) { test_send_cheat(); }
+TEST(ProtocolTests, SendExit) { test_send_exit(); }
+TEST(ProtocolTests, SendAndReceiveMapInfo) { test_send_and_receive_map_info(); }
+TEST(ProtocolTests, SendAndReceiveGameOver) { test_send_and_receive_game_over(); }
+TEST(ProtocolTests, SendAndReceivePlayerName) { test_send_and_receive_player_name(); }
+TEST(ProtocolTests, SendAndReceiveMarketTime) { test_send_and_receive_market_time(); }
+TEST(ProtocolTests, SendAndReceiveResultRaceCurrent) { test_send_and_receive_result_race_current(); }
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
