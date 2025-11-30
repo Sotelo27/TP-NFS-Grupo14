@@ -498,3 +498,95 @@ void test_send_and_receive_result_race_current() {
 
     server_thread.join();
 }
+
+void test_concurrent_clients_send_name() {
+    const int N = 8;
+    std::vector<std::thread> server_threads;
+    std::vector<std::thread> client_threads;
+    std::vector<std::string> names;
+    for (int i = 0; i < N; ++i) names.push_back("User" + std::to_string(i));
+
+    Socket skt("3050");
+    std::atomic<int> ok_count{0};
+    std::mutex name_mutex;
+    std::vector<std::string> received_names;
+
+    // Server threads: cada uno espera un nombre y lo valida 
+    for (int i = 0; i < N; ++i) {
+        server_threads.emplace_back([&]() {
+            Socket connection = skt.accept();
+            ServerProtocol protocol(std::move(connection));
+            ClientMessage msg = protocol.receive();
+            if (msg.type == ClientMessage::Type::Name) {
+                std::lock_guard<std::mutex> lk(name_mutex);
+                received_names.push_back(msg.username);
+            }
+        });
+    }
+
+    // Client threads: cada uno envía su nombre
+    for (int i = 0; i < N; ++i) {
+        client_threads.emplace_back([&, i]() {
+            ClientProtocol protocol(Socket("localhost", "3050"));
+            ClientMessage msg;
+            msg.type = ClientMessage::Type::Name;
+            msg.username = names[i];
+            protocol.send_name(msg);
+        });
+    }
+
+    for (auto& t : client_threads) t.join();
+    for (auto& t : server_threads) t.join();
+
+    // Verifica que todos los nombres enviados fueron recibidos 
+    std::sort(names.begin(), names.end());
+    std::sort(received_names.begin(), received_names.end());
+    ASSERT_EQ(received_names.size(), names.size());
+    ASSERT_EQ(received_names, names);
+}
+
+void test_client_disconnect_and_reconnect() {
+    Socket skt("3051");
+    std::atomic<bool> received_first{false};
+    std::atomic<bool> received_second{false};
+
+    // Server thread: espera dos conexiones, cada una debe mandar un nombre
+    std::thread server_thread([&]() {
+        for (int i = 0; i < 2; ++i) {
+            Socket connection = skt.accept();
+            ServerProtocol protocol(std::move(connection));
+            ClientMessage msg = protocol.receive();
+            if (i == 0 && msg.type == ClientMessage::Type::Name && msg.username == "reconnect_test") {
+                received_first = true;
+            }
+            if (i == 1 && msg.type == ClientMessage::Type::Name && msg.username == "reconnect_test") {
+                received_second = true;
+            }
+        }
+    });
+
+    // Primer cliente: conecta, manda nombre, cierra
+    {
+        ClientProtocol protocol(Socket("localhost", "3051"));
+        ClientMessage msg;
+        msg.type = ClientMessage::Type::Name;
+        msg.username = "reconnect_test";
+        protocol.send_name(msg);
+        // Destructor cierra el socket
+    }
+    // Espera un poco para simular desconexión
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    // Segundo cliente: reconecta, manda nombre de nuevo
+    {
+        ClientProtocol protocol(Socket("localhost", "3051"));
+        ClientMessage msg;
+        msg.type = ClientMessage::Type::Name;
+        msg.username = "reconnect_test";
+        protocol.send_name(msg);
+    }
+
+    server_thread.join();
+    ASSERT_TRUE(received_first);
+    ASSERT_TRUE(received_second);
+}

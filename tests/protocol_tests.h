@@ -21,5 +21,7 @@ void test_send_and_receive_game_over();
 void test_send_and_receive_player_name();
 void test_send_and_receive_market_time();
 void test_send_and_receive_result_race_current();
+void test_concurrent_clients_send_name();
+void test_client_disconnect_and_reconnect();
 
 #endif //PROTOCOL_TESTS_H

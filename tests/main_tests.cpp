@@ -22,6 +22,8 @@ TEST(ProtocolTests, SendAndReceiveGameOver) { test_send_and_receive_game_over();
 TEST(ProtocolTests, SendAndReceivePlayerName) { test_send_and_receive_player_name(); }
 TEST(ProtocolTests, SendAndReceiveMarketTime) { test_send_and_receive_market_time(); }
 TEST(ProtocolTests, SendAndReceiveResultRaceCurrent) { test_send_and_receive_result_race_current(); }
+TEST(ProtocolTests, ConcurrentClientsSendName) { test_concurrent_clients_send_name(); }
+TEST(ProtocolTests, ClientDisconnectAndReconnect) { test_client_disconnect_and_reconnect(); }
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
