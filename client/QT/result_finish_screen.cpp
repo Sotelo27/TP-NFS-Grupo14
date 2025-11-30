@@ -3,6 +3,11 @@
 #include <QGraphicsDropShadowEffect>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QTableWidgetItem>
+#include <QString>
+#include <algorithm>
+#include <iomanip>
+#include <sstream>
 
 ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
                                        size_t& my_id,
@@ -13,7 +18,7 @@ ResultFinishScreen::ResultFinishScreen(ServerHandler& server_handler,
 {
     setup_ui();
     setup_style();
-    populate_table();
+    // populate_table(); // No llamar aquí, se llamará cuando se reciban los resultados reales
 }
 
 void ResultFinishScreen::setup_ui() {
@@ -99,7 +104,6 @@ void ResultFinishScreen::setup_ui() {
 }
 
 void ResultFinishScreen::setup_style() {
-
     table->setStyleSheet(
         "QTableWidget {"
         "   background-color: rgba(20, 0, 40, 180);"
@@ -108,33 +112,54 @@ void ResultFinishScreen::setup_style() {
         "   font-size: 26px;"
         "   color: #39ff14;"
         "}"
-
         "QTableWidget::item {"
         "   padding: 12px;"
         "}"
     );
 }
 
+// Nuevo: setear resultados y poblar tabla
+void ResultFinishScreen::set_results(const std::vector<PlayerResultCurrent>& results) {
+    player_results = results;
+    populate_table();
+}
+
+// Formatea segundos a "M:SS" (ej: 83 -> "1:23")
+static QString format_seconds(uint32_t seconds) {
+    uint32_t min = seconds / 60;
+    uint32_t sec = seconds % 60;
+    return QString("%1:%2").arg(min).arg(sec, 2, 10, QChar('0'));
+}
+
 void ResultFinishScreen::populate_table() {
+    table->clearContents();
 
-    QString nombres[10] = { "ALEX", "JAMIE", "MARÍA", "PEDRO", "SARA",
-                            "CARLA", "MIGUEL", "LAURA", "LUIS", "TOMÁS" };
+    // Ordenar por posición (por si acaso)
+    std::vector<PlayerResultCurrent> sorted = player_results;
+    std::sort(sorted.begin(), sorted.end(), [](const PlayerResultCurrent& a, const PlayerResultCurrent& b) {
+        return a.position < b.position;
+    });
 
-    QString tiempos[10] = { "1:20", "1:26", "1:33", "1:40", "1:45",
-                            "1:50", "2:00", "2:10", "2:22", "2:30" };
-
-    for (int i = 0; i < 10; i++) {
-
-        auto* pos  = new QTableWidgetItem(QString::number(i + 1) + "º");
-        auto* name = new QTableWidgetItem(nombres[i]);
-        auto* time = new QTableWidgetItem(tiempos[i]);
+    int row = 0;
+    for (const auto& player : sorted) {
+        auto* pos  = new QTableWidgetItem(QString::number(player.position) + "º");
+        auto* name = new QTableWidgetItem(QString::fromStdString(player.username));
+        auto* time = new QTableWidgetItem(format_seconds(player.race_time_seconds));
 
         pos->setTextAlignment(Qt::AlignCenter);
         name->setTextAlignment(Qt::AlignCenter);
         time->setTextAlignment(Qt::AlignCenter);
 
-        table->setItem(i, 0, pos);
-        table->setItem(i, 1, name);
-        table->setItem(i, 2, time);
+        table->setItem(row, 0, pos);
+        table->setItem(row, 1, name);
+        table->setItem(row, 2, time);
+        row++;
+    }
+
+    // Limpiar filas restantes si hay menos jugadores que filas
+    for (; row < table->rowCount(); ++row) {
+        table->setItem(row, 0, new QTableWidgetItem(""));
+        table->setItem(row, 1, new QTableWidgetItem(""));
+        table->setItem(row, 2, new QTableWidgetItem(""));
     }
 }

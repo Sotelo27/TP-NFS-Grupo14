@@ -6,7 +6,9 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPixmap>
-
+#include <vector>
+#include <string>
+#include "../../common/dto/results_info.h"
 #include "../connection/server_handler.h"
 
 class ResultFinishScreen : public QWidget {
@@ -14,6 +16,9 @@ class ResultFinishScreen : public QWidget {
 
 public:
     ResultFinishScreen(ServerHandler& server_handler, size_t& my_id, QWidget *parent = nullptr);
+
+    // Nuevo: setear resultados de jugadores
+    void set_results(const std::vector<PlayerResultCurrent>& results);
 
 signals:
     void send_id_car();
@@ -24,8 +29,9 @@ private:
 
     QLabel* title_label;
     QTableWidget* table;
-    
-    
+
+    std::vector<PlayerResultCurrent> player_results;
+
     void setup_ui();
     void setup_style();
     void populate_table();
