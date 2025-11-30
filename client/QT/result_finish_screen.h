@@ -24,7 +24,8 @@ private:
 
     QLabel* title_label;
     QTableWidget* table;
-
+    
+    
     void setup_ui();
     void setup_style();
     void populate_table();
