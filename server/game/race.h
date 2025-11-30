@@ -37,7 +37,6 @@ private:
      */
     void check_health_states();
 
-
     /*
      * Verifica si se ha excedido el tiempo maximo de la carrera 
      */
@@ -65,6 +64,9 @@ private:
      */
     static float resolve_rotation_input(const InputState& input);
 
+    // === NUEVO: Cheat para ganar la carrera ===
+    void cheat_win_race(size_t playerId);
+
 public:
     Race(uint32_t id, PhysicsWorld& external_world);
 
@@ -72,7 +74,7 @@ public:
      * Agrega un jugador a la carrera con su CarModel y posicioon inicial
      * Tambien crea su cuerpo fisico en el mundo de Box2D
      */
-    void add_player(size_t player_id, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px, Player* player_ptr);
+    void add_player(size_t player_id, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px);
     
     /*
      * Marca al jugador como desconectado y destruye su body fisico removiendolo de la carrera

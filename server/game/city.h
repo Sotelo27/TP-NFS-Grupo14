@@ -44,6 +44,11 @@ public:
      * Obtiene los checkpoints para una ruta especifica
     */
     const std::vector<Checkpoint>& get_checkpoints_for_route(const std::string& route_id) const;
+
+    /*
+     * Obtiene los ids de las rutas disponibles
+    */
+    std::vector<std::string> get_route_ids() const;
 };
 
 #endif

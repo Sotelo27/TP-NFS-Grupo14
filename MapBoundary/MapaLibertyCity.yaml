@@ -3,8 +3,7 @@ height: 146
 infinite: false
 layers:
 - id: 2
-  image: ../../../Documentos/TallerVeiga/TPGRUPAL/TP-NFS-Grupo14/assets/cities/Liberty
-    City.png
+  image: ../../../Documentos/TallerVeiga/TPGRUPAL/TP-NFS-Grupo14/assets/cities/LibertyCity.png
   imageheight: 4672
   imagewidth: 4640
   locked: true
@@ -17,6 +16,7 @@ layers:
 - color: '#ff0000'
   draworder: topdown
   id: 4
+  locked: true
   name: Colisiones
   objects:
   - height: 115.5
@@ -6329,6 +6329,34 @@ layers:
     width: 0
     x: 2492
     y: 2562
+  - height: 0
+    id: 833
+    name: ''
+    polyline:
+    - x: 0
+      y: 0
+    - x: 300
+      y: 0
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 234.666666666667
+    y: 2380
+  - height: 0
+    id: 834
+    name: ''
+    polyline:
+    - x: 0
+      y: 0
+    - x: 297
+      y: -0.333333333333485
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 236
+    y: 2467
   opacity: 1
   properties:
   - name: collision
@@ -6516,6 +6544,299 @@ layers:
     width: 122.611
     x: 2128.96
     y: 2654.18
+  opacity: 1
+  type: objectgroup
+  visible: true
+  x: 0
+  y: 0
+- color: '#ffff00'
+  draworder: topdown
+  id: 9
+  locked: true
+  name: Checkpoint_C
+  objects:
+  - height: 103
+    id: 825
+    name: Star
+    properties:
+    - name: index
+      type: int
+      value: 0
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: start
+    rotation: 0
+    type: ''
+    visible: true
+    width: 547.667
+    x: 109.043
+    y: 32.2433
+  - height: 45.0166
+    id: 826
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 1
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 0.335156
+    type: ''
+    visible: true
+    width: 79.0439
+    x: 1407.71
+    y: 146.093
+  - height: 45.0166
+    id: 827
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 2
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 0.0784545
+    type: ''
+    visible: true
+    width: 75.1592
+    x: 1411.1
+    y: 887.738
+  - height: 45.0166
+    id: 828
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 3
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 0.32097
+    type: ''
+    visible: true
+    width: 109.825
+    x: 1046.91
+    y: 1187.01
+  - height: 45.0166
+    id: 829
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 4
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 0.0263781
+    type: ''
+    visible: true
+    width: 69.825
+    x: 1065.14
+    y: 1947.22
+  - height: 45.0166
+    id: 830
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 5
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 90.0737
+    type: ''
+    visible: true
+    width: 73.4982
+    x: 590.244
+    y: 2389.87
+  - height: 45.0166
+    id: 831
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 6
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 270.271
+    type: ''
+    visible: true
+    width: 111.475
+    x: 435.234
+    y: 2769.63
+  - height: 45.0166
+    id: 832
+    name: Finish
+    properties:
+    - name: index
+      type: int
+      value: 7
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: finish
+    rotation: 270.271
+    type: ''
+    visible: true
+    width: 121.506
+    x: 1322.44
+    y: 2778.09
+  opacity: 1
+  type: objectgroup
+  visible: true
+  x: 0
+  y: 0
+- color: '#ffff00'
+  draworder: topdown
+  id: 10
+  locked: true
+  name: Spawns_C
+  objects:
+  - height: 0
+    id: 818
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 6
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 161.993
+    y: 112.453
+  - height: 0
+    id: 819
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 5
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 267.503
+    y: 73.9933
+  - height: 0
+    id: 820
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 4
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 308.663
+    y: 121.663
+  - height: 0
+    id: 821
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 3
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 379.503
+    y: 69.4933
+  - height: 0
+    id: 822
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 2
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 459.003
+    y: 119.833
+  - height: 0
+    id: 823
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 1
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 538.003
+    y: 69.9933
+  - height: 0
+    id: 824
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 0
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 597.333
+    y: 125.333
   opacity: 1
   type: objectgroup
   visible: true
@@ -6944,8 +7265,8 @@ layers:
   visible: true
   x: 0
   y: 0
-nextlayerid: 9
-nextobjectid: 818
+nextlayerid: 11
+nextobjectid: 835
 orientation: orthogonal
 renderorder: right-down
 tiledversion: 1.11.1-99-gec89c545

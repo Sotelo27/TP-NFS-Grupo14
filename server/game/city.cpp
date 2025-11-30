@@ -73,3 +73,15 @@ const std::vector<Checkpoint>& City::get_checkpoints_for_route(const std::string
     static const std::vector<Checkpoint> empty_checkpoints;
     return empty_checkpoints;
 }
+
+std::vector<std::string> City::get_route_ids() const {
+    std::vector<std::string> ids;
+    ids.reserve(checkpoints_by_route.size());
+
+    for (const auto& kv : checkpoints_by_route) {
+        ids.push_back(kv.first);
+    }
+
+    std::sort(ids.begin(), ids.end());
+    return ids;
+}

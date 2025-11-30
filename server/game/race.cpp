@@ -14,18 +14,14 @@
 Race::Race(uint32_t id, PhysicsWorld& external_world)
     : id(id), physics(external_world), track() {}
 
-void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px, Player* player_ptr) {
+void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px) {
     // Conversión directa de píxeles a metros (PPM=32)
     const float spawnX_m = spawnX_px / PPM;
     const float spawnY_m = spawnY_px / PPM;
     parts[playerId] = RaceParticipant{ParticipantState::Active, car_id};
     physics.create_car_body(playerId, spawnX_m, spawnY_m, spec);
     cars[playerId] = std::make_unique<Car>(playerId, spec, physics.get_body(playerId));
-    if (player_ptr) {
-        cars[playerId]->set_owner(player_ptr);
-    }
     cars_by_player[playerId] = cars[playerId].get();
-    players_by_id[playerId] = player_ptr;
 }
 
 void Race::remove_player(size_t playerId) {
@@ -350,6 +346,8 @@ void Race::apply_cheat(size_t playerId, uint8_t cheat_code) {
         std::cout << "[Race] Cheat de vida infinita activado para playerId=" << playerId << "\n";
     } else if (cheat_code == CHEAT_TELEPORT_NEXT_CHECKPOINT) {
         teleport_to_next_checkpoint(playerId);
+    } else if (cheat_code == CHEAT_WIN_RACE) {
+        cheat_win_race(playerId);
     }
 }
 
@@ -389,4 +387,20 @@ void Race::teleport_to_next_checkpoint(size_t playerId) {
 
     std::cout << "[Race] Cheat de teletransporte: playerId=" << playerId
               << " movido a checkpoint " << next_idx << " (" << x_m << ", " << y_m << ")\n";
+}
+
+void Race::cheat_win_race(size_t playerId) {
+    auto it_part = parts.find(playerId);
+    if (it_part == parts.end()) return;
+    RaceParticipant& participant = it_part->second;
+    if (participant.state != ParticipantState::Active) return;
+    if (track.checkpoints.empty()) return;
+
+    // Marca todos los checkpoints como recorridos
+    participant.current_checkpoint = (uint32_t)(track.checkpoints.size() - 1);
+    participant.next_checkpoint_idx = (uint32_t)(track.checkpoints.size());
+    participant.state = ParticipantState::Finished;
+    participant.finish_time_seconds = race_duration;
+
+    std::cout << "[Race] Cheat WIN_RACE: playerId=" << playerId << " ha ganado la carrera automáticamente.\n";
 }

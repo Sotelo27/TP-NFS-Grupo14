@@ -175,9 +175,8 @@ void Car::apply_damage_to(Car& other_car, const CollisionInfo& info) {
 void Car::apply_collision_damage(float base_damage, const CollisionInfo& info) {
     if (!body) return;
 
-    // Cheat: vida infinita
-    if (owner_ && owner_->has_infinite_life()) {
-        set_vida(spec_.life); // Siempre vida máxima
+    if (has_infinite_life()) {
+        set_vida(spec_.life);
         return;
     }
 

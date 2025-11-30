@@ -4,7 +4,7 @@
 Player::Player(size_t id, std::string name, CarModel car)
     : id(id), name(std::move(name)), car(std::move(car)) {}
 
-Player::Player(size_t id)  // TODO: tengo eliminar este constructor, porque no tiene sentido
+Player::Player(size_t id)
     : id(id),
       name("Player N° " + std::to_string(id)) {
     car.modelo = "Model " + std::to_string(id);
