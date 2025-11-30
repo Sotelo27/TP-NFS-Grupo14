@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <random>
 
 #include "../../common/player_aux.h"
 #include "../../common/dto/map_tick_info.h"
@@ -36,6 +37,9 @@ private:
 
     std::unordered_map<uint8_t, Npc> npcs; // <npc_id, Npc>
     std::vector<SpawnPoint> npc_spawns; 
+    // NUEVO: Autos físicos para NPCs
+    std::unordered_map<uint8_t, std::unique_ptr<Car>> npc_cars;
+    std::unordered_map<uint8_t, CarModel> npc_models;
 
     /*
      * Verifica los estados de vida de los jugadores y los descalifica si no tienen vida

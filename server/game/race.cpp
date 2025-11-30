@@ -431,25 +431,55 @@ void Race::cheat_win_race(size_t playerId) {
 }
 
 void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
+    // Elegir un modelo de auto para el NPC (puede ser aleatorio)
+    static std::vector<CarModel> modelos = {
+        car_factory::common_green_car(),
+        car_factory::red_car(),
+        car_factory::red_sport_car(),
+        car_factory::special_car(),
+        car_factory::four_by_four_convertible(),
+        car_factory::pickup_truck(),
+        car_factory::limousine()
+    };
+    static std::mt19937 rng{std::random_device{}()};
+    std::uniform_int_distribution<size_t> dist(0, modelos.size() - 1);
+    CarModel modelo = modelos[dist(rng)];
+    npc_models[npc_id] = modelo;
+
+    // Crear cuerpo físico y Car para el NPC
+    physics.create_car_body(10000 + npc_id, x_m, y_m, modelo); // id único para NPCs
+    b2Body* body = physics.get_body(10000 + npc_id);
+    npc_cars[npc_id] = std::make_unique<Car>(10000 + npc_id, modelo, body);
+
+    // Guardar NPC para compatibilidad (puedes eliminar npcs[npc_id] si no lo usas)
     npcs[npc_id] = Npc{npc_id, x_m, y_m, 0.f, 0.f};
 }
 
 void Race::update_npcs(float dt) {
-    for (auto& [id, npc] : npcs) {
-        // Ejemplo: movimiento simple en línea recta
-        npc.x_m += npc.vx * dt;
-        npc.y_m += npc.vy * dt;
-        // Se puede agregar logica de IA (ojito peluche)
+    (void)dt;
+    // Para que los NPCs se muevan, puedes aplicar input aquí.
+    // Por ahora, los NPCs quedan quietos (no se aplica input).
+    // Ejemplo: para que avancen recto,
+    /*
+    for (auto& [npc_id, car_ptr] : npc_cars) {
+        if (car_ptr) {
+            car_ptr->apply_input(1.0f, 0.0f); // acelerar recto
+        }
     }
+    */
 }
 
 std::vector<NpcTickInfo> Race::snapshot_npcs() const {
     std::vector<NpcTickInfo> out;
-    for (const auto& [id, npc] : npcs) {
+    for (const auto& [npc_id, car_ptr] : npc_cars) {
+        if (!car_ptr) continue;
+        b2Body* body = car_ptr->get_body();
+        if (!body) continue;
+        b2Vec2 pos = body->GetPosition();
         NpcTickInfo info;
-        info.npc_id = npc.npc_id;
-        info.x = static_cast<int32_t>(npc.x_m * PPM);
-        info.y = static_cast<int32_t>(npc.y_m * PPM);
+        info.npc_id = npc_id;
+        info.x = static_cast<int32_t>(pos.x * PPM);
+        info.y = static_cast<int32_t>(pos.y * PPM);
         out.push_back(info);
     }
     return out;
