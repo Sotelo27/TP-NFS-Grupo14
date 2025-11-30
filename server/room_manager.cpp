@@ -188,6 +188,18 @@ bool RoomManager::push_improvement_to_room(uint8_t room_id, size_t player_id, ui
     return true;
 }
 
+bool RoomManager::push_cheat_to_room(uint8_t room_id, size_t player_id, uint8_t cheat_code) {
+    std::lock_guard<std::mutex> lk(m);
+    auto it = rooms.find(room_id);
+    if (it == rooms.end()) return false;
+    ClientAction routed;
+    routed.type = ClientAction::Type::Cheat;
+    routed.id = player_id;
+    routed.cheat = cheat_code;
+    it->second.actions.push(routed);
+    return true;
+}
+
 void RoomManager::reap(BindingManager& bindings, PendingManager& pending) {
     (void)pending;
     std::lock_guard<std::mutex> lk(m);

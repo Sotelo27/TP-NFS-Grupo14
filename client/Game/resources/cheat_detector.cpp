@@ -20,6 +20,13 @@ bool CheatDetector::check_cheat(const std::string& code) {
 }
 
 bool CheatDetector::check_cheat_key(const char* key_name) {
-    // Detecta si la tecla presionada es '7'
-    return (std::string(key_name) == "7");
+    // Cheat de vida infinita: tecla '7'
+    if (std::string(key_name) == "7") {
+        return true;
+    }
+    // Cheat de teletransporte: tecla '8'
+    if (std::string(key_name) == "8") {
+        return true;
+    }
+    return false;
 }

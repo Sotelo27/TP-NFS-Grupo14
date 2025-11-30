@@ -85,6 +85,8 @@ public:
      * y la dirección del impacto.
      */
     void apply_collision_damage(float base_damage, const CollisionInfo& info);
+
+    b2Body* get_body() const noexcept { return body; }
 };
 
 #endif
