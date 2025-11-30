@@ -455,16 +455,13 @@ void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
 }
 
 void Race::update_npcs(float dt) {
-    // Parámetros IA para movimiento natural y lento, similar a usuario
-    const float SENSOR_DIST = 1.2f;      // metros delante del auto
-    const float SENSOR_WIDTH = 1.0f;     // ancho del sensor para evitar colisiones
-    const float TARGET_SPEED_KMH = 7.0f; // velocidad objetivo baja (~2 m/s)
-    const float MAX_THROTTLE = 0.10f;    // throttle máximo para NPCs (muy bajo)
-    const float STEER_TO_CP = 0.18f;     // giro suave hacia checkpoint
-    const float OBSTACLE_STEER = 0.35f;  // giro para evitar obstáculo
-    const float OBSTACLE_THROTTLE = 0.0f;// frenar si hay obstáculo
-    const float STUCK_SPEED_MPS = 0.05f; // umbral para considerar "quieto"
-    const float STUCK_TIME = 1.5f;       // tiempo mínimo quieto para desbloquear
+    // Parámetros IA para autos lentos y naturales en ciudad
+    const float SENSOR_WIDTH = 1.5f; // ancho del sensor para evitar colisiones
+    const float TARGET_SPEED_KMH = 8.0f; // velocidad objetivo baja (~2.2 m/s)
+    const float MAX_THROTTLE = 0.10f;  // throttle bajo, nunca aceleran fuerte
+    const float MAX_STEER = 0.18f;     // giro suave
+    const float OBSTACLE_STEER = 0.25f; // leve corrección para evitar obstáculos
+    const float STUCK_THRESHOLD = 0.08f; // umbral para detectar si un NPC está atascado
 
     static std::unordered_map<uint8_t, float> stuck_time_map;
 
@@ -473,12 +470,10 @@ void Race::update_npcs(float dt) {
         b2Body* body = car_ptr->get_body();
         if (!body) continue;
 
-        float angle = body->GetAngle();
         b2Vec2 pos = body->GetPosition();
-        b2Vec2 forward(std::cos(angle), std::sin(angle));
-        b2Vec2 sensor_center = pos + SENSOR_DIST * forward;
+        float angle = body->GetAngle();
 
-        // Buscar el checkpoint más cercano (camino virtual)
+        // Buscar el checkpoint más cercano
         float target_x = pos.x, target_y = pos.y;
         if (!track.checkpoints.empty()) {
             float min_dist = 1e9f;
@@ -499,26 +494,22 @@ void Race::update_npcs(float dt) {
             }
         }
 
-        // Calcular ángulo hacia el objetivo (checkpoint)
         float dx = target_x - pos.x;
         float dy = target_y - pos.y;
         float target_angle = std::atan2(dy, dx);
         float angle_diff = std::atan2(std::sin(target_angle - angle), std::cos(target_angle - angle));
 
-        // Revisar colisiones con edificios usando el PhysicsWorld
         bool obstacle_ahead = false;
         float steer = 0.0f;
-        PhysicsWorld& world = physics;
-        for (const auto& ent_ptr : world.static_entities) {
+        for (const auto& ent_ptr : physics.static_entities) {
             auto* building = dynamic_cast<BuildingEntity*>(ent_ptr.get());
             if (!building) continue;
             b2Body* b = building->get_body();
             if (!b) continue;
             b2Vec2 bpos = b->GetPosition();
-            float dist = (sensor_center - bpos).Length();
+            float dist = (pos - bpos).Length();
             if (dist < SENSOR_WIDTH) {
                 obstacle_ahead = true;
-                // Determinar si el obstáculo está a la izquierda o derecha
                 b2Vec2 to_obstacle = bpos - pos;
                 float rel_angle = std::atan2(to_obstacle.y, to_obstacle.x) - angle;
                 steer = (rel_angle > 0) ? -OBSTACLE_STEER : OBSTACLE_STEER;
@@ -526,44 +517,42 @@ void Race::update_npcs(float dt) {
             }
         }
 
-        // Control de velocidad objetivo (mantener velocidad baja y constante)
         float speed_mps = car_ptr->speed_mps();
         float speed_kmh = speed_mps * MS_TO_KMH;
         float throttle = 0.0f;
 
         if (obstacle_ahead) {
-            throttle = OBSTACLE_THROTTLE; // frenar si hay obstáculo
+            throttle = 0.0f; // frena si hay obstáculo
             // steer ya fue seteado arriba
         } else {
             // Mantener velocidad baja y constante
             if (speed_kmh < TARGET_SPEED_KMH - 0.5f) {
                 throttle = MAX_THROTTLE;
             } else if (speed_kmh > TARGET_SPEED_KMH + 0.5f) {
-                throttle = -MAX_THROTTLE; // frenar si va muy rápido
+                throttle = -MAX_THROTTLE; // frena si va muy rápido
             } else {
                 throttle = 0.0f; // mantener velocidad
             }
-            steer = std::clamp(angle_diff, -STEER_TO_CP, STEER_TO_CP);
+            steer = std::clamp(angle_diff, -MAX_STEER, MAX_STEER);
         }
 
-        // Manejo de "stuck": si el auto está quieto por mucho tiempo, aplicar impulso aleatorio
-        if (std::abs(speed_mps) < STUCK_SPEED_MPS && std::abs(throttle) < 0.01f) {
+        if (std::abs(speed_mps) < STUCK_THRESHOLD && std::abs(throttle) < 0.01f) {
             stuck_time_map[npc_id] += dt;
-            if (stuck_time_map[npc_id] > STUCK_TIME) {
+            if (stuck_time_map[npc_id] > 1.5f) {
                 static std::mt19937 rng{std::random_device{}()};
-                static std::uniform_real_distribution<float> random_steer(-0.12f, 0.12f);
+                static std::uniform_real_distribution<float> random_steer(-0.10f, 0.10f);
                 steer += random_steer(rng);
-                throttle = 0.08f;
+                throttle = 0.07f;
                 stuck_time_map[npc_id] = 0.0f;
             }
         } else {
             stuck_time_map[npc_id] = 0.0f;
         }
 
-        // Aplicar input igual que un usuario
         car_ptr->apply_input(throttle, steer);
     }
 }
+
 
 std::vector<NpcTickInfo> Race::snapshot_npcs() const {
     std::vector<NpcTickInfo> out;
