@@ -14,6 +14,9 @@ public:
     void add_key(const char* key_name);
 
     bool check_cheat(const std::string& code);
+
+    // Nuevo: para detectar cheats de teclas individuales
+    bool check_cheat_key(const char* key_name);
 };
 
 #endif

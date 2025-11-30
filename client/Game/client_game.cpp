@@ -67,6 +67,14 @@ void ClientGame::handle_cheat_detection(const char* keyName) {
 
         intermission_manager.run(player_infos, iteration);
     }
+    // Cheat de vida infinita: tecla '7'
+    if (cheat_detector.check_cheat_key(keyName)) {
+        // Enviar cheat al servidor
+        ClientMessage msg;
+        msg.cheat = CHEAT_INFINITE_LIFE;
+        server_handler.send_cheat(msg);
+        std::cout << "[ClientGame] Cheat de vida infinita enviado al servidor.\n";
+    }
 }
 
 void ClientGame::handle_sdl_events() {

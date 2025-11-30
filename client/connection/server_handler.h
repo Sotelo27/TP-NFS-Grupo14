@@ -60,6 +60,7 @@ public:
     void send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races);
     void send_start_game(const std::string& map, uint8_t route);
     void send_improvement_choice(CarImprovement improvement);
+    void send_cheat(const ClientMessage& msg);
     ServerMessage recv_response_from_server();
 
     ServerHandler(const ServerHandler&) = delete;
