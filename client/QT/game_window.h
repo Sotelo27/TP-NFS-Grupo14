@@ -28,7 +28,7 @@ private:
 
     ServerHandler& server_handler;
     size_t& my_id;
-    bool map_selected;
+    bool& map_selected;
     QStackedWidget* stack;
     QSound* sound;
     QLabel* background;

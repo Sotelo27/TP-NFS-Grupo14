@@ -29,8 +29,13 @@ void Client::start() {
     game_window_start->exec();
     close_QT_window(game_window_start);
 
-    if (my_id == SIZE_MAX || !map_selected) {
+    if (my_id == SIZE_MAX) {
         std::cout << "[Client] Exiting..." << std::endl;
+        return;
+    }
+
+    if (!map_selected) {
+        std::cout << "[Client] Mapa no seleccionado..." << std::endl;
         return;
     }
 

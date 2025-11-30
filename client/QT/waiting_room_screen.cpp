@@ -179,6 +179,7 @@ void WaitingRoomScreen::createBackButton() {
         server_handler.send_leave_room();
         stopPolling();
         map_selected = false;
+        selected_map.clear();
         emit go_back_to_lobby_screen();
     });
 
@@ -260,6 +261,7 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
         }
 
         case ServerMessage::Type::RaceStart:
+            stopPolling();
             emit go_to_game_start();
             break;
 
