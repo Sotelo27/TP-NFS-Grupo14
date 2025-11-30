@@ -14,7 +14,7 @@ private:
     CarModel car;
     float race_time_seconds = 0.f;
     float penalty_time_seconds = 0.f;
-    bool infinite_life_{false}; // NUEVO
+    bool infinite_life_{false};
 
 public:
     explicit Player(size_t id, std::string name, CarModel car);

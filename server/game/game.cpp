@@ -463,7 +463,7 @@ void Game::start_current_race() {
         Player& player = kv.second;
         SpawnPoint sp = city.get_spawn_for_index(spawn_index++, route);
         std::cout << "[DebugPlayer] player " << player_id << " car_model.life=" << player.get_car_model().life << "\n";
-        r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px, &player); // PASA EL PUNTERO
+        r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
     }
     state = GameState::Racing;
     std::cout << "[Game] Race " << current_race_index << " started (players=" << players.size() << ") state set=Racing\n";

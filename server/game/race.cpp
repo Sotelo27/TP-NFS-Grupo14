@@ -14,18 +14,14 @@
 Race::Race(uint32_t id, PhysicsWorld& external_world)
     : id(id), physics(external_world), track() {}
 
-void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px, Player* player_ptr) {
+void Race::add_player(size_t playerId, const CarModel& spec, uint8_t car_id, float spawnX_px, float spawnY_px) {
     // Conversión directa de píxeles a metros (PPM=32)
     const float spawnX_m = spawnX_px / PPM;
     const float spawnY_m = spawnY_px / PPM;
     parts[playerId] = RaceParticipant{ParticipantState::Active, car_id};
     physics.create_car_body(playerId, spawnX_m, spawnY_m, spec);
     cars[playerId] = std::make_unique<Car>(playerId, spec, physics.get_body(playerId));
-    if (player_ptr) {
-        cars[playerId]->set_owner(player_ptr);
-    }
     cars_by_player[playerId] = cars[playerId].get();
-    players_by_id[playerId] = player_ptr;
 }
 
 void Race::remove_player(size_t playerId) {
