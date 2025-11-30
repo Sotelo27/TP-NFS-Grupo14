@@ -317,6 +317,8 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         int32_t xbe = htonl(n.x), ybe = htonl(n.y);
         size_t off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &xbe, 4);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ybe, 4);
+        uint32_t ang_be = htonf32(n.angle);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ang_be, 4);
     }
     // events
     buf.push_back((uint8_t)events.size());
