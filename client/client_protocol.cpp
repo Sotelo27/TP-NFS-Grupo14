@@ -297,8 +297,8 @@ ServerMessage ClientProtocol::parse_map_info() {
         skt.recvall(&y_be, 4);
         uint32_t ang_be=0;
         skt.recvall(&ang_be, 4);
-        uint8_t health=0;
-        skt.recvall(&health, 1);
+        uint8_t health=0; skt.recvall(&health, 1);
+        uint8_t maxh=0; skt.recvall(&maxh, 1);
         uint32_t spd_be=0;
         skt.recvall(&spd_be, 4);
         uint16_t xcp_be=0, ycp_be=0; 
@@ -310,6 +310,8 @@ ServerMessage ClientProtocol::parse_map_info() {
         skt.recvall(&pos_be, 2);
         uint32_t dist_be=0;
         skt.recvall(&dist_be, 4);
+        uint16_t rem_be=0; skt.recvall(&rem_be, 2);
+        uint8_t nimp=0; skt.recvall(&nimp, 1);
         
         PlayerTickInfo pti;
         pti.username = std::move(user);
@@ -318,13 +320,19 @@ ServerMessage ClientProtocol::parse_map_info() {
         pti.x = (int32_t)ntohl(x_be);
         pti.y = (int32_t)ntohl(y_be);
         pti.angle = ntohf32(ang_be);
-        pti.health = health;
+        pti.health = health; pti.max_health = maxh;
         pti.speed_mps = ntohf32(spd_be);
         pti.x_checkpoint = ntohs(xcp_be);
         pti.y_checkpoint = ntohs(ycp_be);
         pti.hint_angle_deg = ntohf32(hint_be);
         pti.position_in_race = ntohs(pos_be);
         pti.distance_to_checkpoint = ntohf32(dist_be);
+        pti.checkpoints_remaining = ntohs(rem_be);
+        pti.improvements.clear();
+        for(uint8_t k=0; k<nimp; ++k){
+            uint8_t imp=0; skt.recvall(&imp,1);
+            pti.improvements.push_back(static_cast<CarImprovement>(imp));
+        }
         dto.players_tick.push_back(std::move(pti));
     }
     // tiempo de carrera

@@ -84,7 +84,15 @@ public:
      */
     void apply_collision_damage(float base_damage, const CollisionInfo& info);
 
+    /*
+     * Devuelve el body Box2D asociado al auto
+     */
     b2Body* get_body() const noexcept { return body; }
+
+    /*
+     * Devuelve el modelo (especificaciones) del auto
+     */
+    const CarModel& get_model() const { return spec_; }
 };
 
 #endif

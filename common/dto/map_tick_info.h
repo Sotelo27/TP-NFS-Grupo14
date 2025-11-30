@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+#include "../enum/car_improvement.h"
 
 struct PlayerTickInfo {
     std::string username;
@@ -20,6 +22,11 @@ struct PlayerTickInfo {
 
     uint16_t position_in_race;
     float distance_to_checkpoint;
+
+    uint8_t max_health;
+    uint16_t checkpoints_remaining;
+
+    std::vector<CarImprovement> improvements;
 };
 
 struct NpcTickInfo {

@@ -275,12 +275,11 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         b2Vec2 p = body->GetPosition();
         const int32_t car_x_px = (int32_t)std::lround(p.x * PPM);
         const int32_t car_y_px = (int32_t)std::lround(p.y * PPM);
-        uint8_t hp = 100;
+        uint8_t hp = 0;
         auto itc = cars.find(playerId);
-
-        if (itc != cars.end() && itc->second) {
-            float vida = itc->second->get_vida();
-            hp = (uint8_t)(vida);
+        Car* car_ptr = (itc != cars.end()) ? itc->second.get() : nullptr;
+        if (car_ptr) {
+            hp = (uint8_t)car_ptr->get_vida();
         }
 
         PlayerTickInfo player;
@@ -291,7 +290,16 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         player.y = car_y_px;
         player.angle = body->GetAngle() * 180.0f / PI;
         player.health = hp;
-        player.speed_mps = ((itc != cars.end() && itc->second) ? itc->second->speed_mps() : 0.f ) * MS_TO_KMH;
+        player.speed_mps = (car_ptr ? car_ptr->speed_mps() : 0.f) * MS_TO_KMH;
+
+        if (car_ptr) {
+            const CarModel& model = car_ptr->get_spec();
+            player.max_health = (uint8_t)std::lround(model.life);
+            player.improvements = model.improvements;
+        } else {
+            player.max_health = hp; // fallback al valor actual si no hay modelo
+            player.improvements.clear();
+        }
 
         // Siguiente checkpoint
         player.x_checkpoint = 0;
@@ -329,6 +337,8 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             player.y_checkpoint = 0;
             player.hint_angle_deg = 0.0f;
         }
+        // cantidad de checkpoints restantes
+        player.checkpoints_remaining = (uint16_t)(track.checkpoints.size() > next_idx ? (track.checkpoints.size() - next_idx) : 0);
         
         ranking.push_back(RankInfo{(uint32_t)(playerId), participant.next_checkpoint_idx, distance_px, participant.finish_time_seconds});
         out.push_back(player);
