@@ -30,7 +30,6 @@ EditorMapScreen::EditorMapScreen(ServerHandler& server_handler, QWidget* parent)
     setupStyles();
     setupConnections();
 
-    start_polling();
     load_maps_from_directory(directory);
 }
 
@@ -59,12 +58,9 @@ void EditorMapScreen::onPollTimer() {
             uint8_t room_id = static_cast<uint8_t>(msg.id);
             current_room_id = room_id;
             in_room = true;
-
-            qDebug() << "[EditorMapScreen] RoomCreated id =" << (int)room_id;
-
+            qDebug() << "[EditorMapScreen] RoomCreated id = " << (int)room_id;
+            qDebug() << "[EditorMapScreen] APAGANDO POLLING ENTRANDO A LA SALA";
             stop_polling();
-
-
             emit go_to_waiting_room(room_id);
             break;
         }
@@ -167,6 +163,7 @@ void EditorMapScreen::setupConnections() {
     connect(loadButton, &QPushButton::clicked, this, &EditorMapScreen::onLoadClicked);
 
     connect(backButton, &QPushButton::clicked, this, [this]() {
+        qDebug() << "[EditorMapScreen] APAGANDO POLLING VOLVIENDO AL LOBBY";
         stop_polling();
         emit go_back_to_menu();
     });

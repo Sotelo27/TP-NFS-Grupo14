@@ -16,7 +16,7 @@ class LobbyScreen : public QWidget {
 
 public:
     explicit LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
-    void startPolling() { pollTimer->start(50); }
+    void startPolling();
     void on_return_from_waiting_room();
 
 protected:

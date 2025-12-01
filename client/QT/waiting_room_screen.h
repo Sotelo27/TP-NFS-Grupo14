@@ -41,7 +41,7 @@ public:
     bool isAdmin() const { return is_admin; }
     void hideSelectMapButton();
 
-    void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
+    void startPolling();
     void stopPolling()  { if (pollTimer && pollTimer->isActive()) pollTimer->stop(); }
 
     signals:

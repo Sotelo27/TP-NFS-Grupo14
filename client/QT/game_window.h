@@ -20,10 +20,9 @@
 class GameWindow : public QDialog {
     Q_OBJECT
 public:
-    explicit GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map, bool login, QWidget *parent = nullptr);
+    explicit GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map_game, bool login, QWidget *parent = nullptr);
     ~GameWindow();
 
-    // NUEVO: Permite setear los resultados finales desde fuera
     void setFinalResults(const std::vector<PlayerResultTotal>& results);
 
 private:
@@ -35,7 +34,7 @@ private:
     ServerHandler& server_handler;
     size_t& my_id;
     bool& map_selected;
-    MapID& selected_map;
+    MapID& selected_map_game;
     QStackedWidget* stack;
     QSound* sound;
     QLabel* background;
@@ -50,7 +49,7 @@ private:
     MenuScreen* menu_screen;
     EditorMapScreen* editor_map_screen;
 
-    std::vector<PlayerResultTotal> final_results; // NUEVO
+    std::vector<PlayerResultTotal> final_results;
 
 private slots:
     void goToLobby();

@@ -27,14 +27,13 @@ void LobbyScreen::setupUi() {
 
     pollTimer = new QTimer(this);
     connect(pollTimer, &QTimer::timeout, this, &LobbyScreen::onPollTimer);
-    pollTimer->start(50);
 }
 
 void LobbyScreen::createBackground() {
     background = new QLabel(this);
     background->setPixmap(QPixmap("assets/images/fondo.png"));
-    background->setScaledContents(true); // se ajusta automáticamente al tamaño
-    background->lower(); // siempre detrás
+    background->setScaledContents(true);
+    background->lower();
 }
 
 void LobbyScreen::resizeEvent(QResizeEvent* event) {
@@ -115,9 +114,6 @@ void LobbyScreen::createButtons() {
     createButtonEditor->setGraphicsEffect(glowButtonEditor);
 
     connect(createButtonEditor, &QPushButton::clicked, this, [this]() {
-        if (this->pollTimer->isActive()) {
-            this->pollTimer->stop();
-        }
         emit go_to_editor_screen();
     });
     mainLayout->addWidget(createButtonEditor, 0, Qt::AlignHCenter);
@@ -158,21 +154,22 @@ void LobbyScreen::createScrollArea() {
 
 void LobbyScreen::setupConnections() {
     connect(this, &LobbyScreen::room_created, this, [this](uint8_t room_id){
+        qDebug() << "APAGANDO EL POLLING DE LOBBY --- ENTRANDO A MI SALA";
         open_waiting_room(room_id);
     });
 }
 
-// ------------------ POLLING Y FUNCIONES DE SERVIDOR ------------------
+
 void LobbyScreen::onPollTimer() {
+    if (in_room) return;
     for (int i = 0; i < 10; ++i) {
         ServerMessage msg = server_handler.recv_response_from_server();
-        if (msg.type == ServerMessage::Type::Unknown || msg.type == ServerMessage::Type::Empty)
+        if (msg.type == ServerMessage::Type::Unknown || msg.type == ServerMessage::Type::Empty) {
             break;
-        if (in_room) break;
+        }
+
         if (processServerMessage(msg)) {
-            if (pollTimer->isActive()) {
-                pollTimer->stop();
-            }
+            qDebug() << "ME DIO VERDADEROOOOO";
             break;
         }
     }
@@ -186,23 +183,20 @@ bool LobbyScreen::processServerMessage(const ServerMessage& msg) {
         case ServerMessage::Type::RoomCreated:
             current_room_id = static_cast<uint8_t>(msg.id);
             in_room = true;
+            qDebug() << "Sala recibida, entrando";
             emit room_created(current_room_id);
-            if (pollTimer->isActive()) {
-                pollTimer->stop();
-            }
             return true;
-        case ServerMessage::Type::YourId:
-        case ServerMessage::Type::PlayersList:
-        case ServerMessage::Type::RaceStart:
-            in_room = true;
-            return true;
+        // case ServerMessage::Type::YourId:
+        // case ServerMessage::Type::PlayersList:
+        // case ServerMessage::Type::RaceStart:
+        //     in_room = true;
+        //     return true;
         default:
             return false;
     }
 }
 
 void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
-    // limpiar layout
     QLayoutItem* child;
     while ((child = layout->takeAt(0)) != nullptr) {
         if (child->widget()) child->widget()->deleteLater();
@@ -265,10 +259,8 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
             );
             enterButton->setEnabled(room.current_players < room.max_players);
             connect(enterButton, &QPushButton::clicked, [this, room_id = room.id]() {
-                if (this->pollTimer->isActive()) {
-                    this->pollTimer->stop();
-                }
                 server_handler.send_join_room(room_id);
+                qDebug() << "APAGANDO EL POLLING DE LOBBY --- ENTRANDO A SALA DE OTRO";
                 open_waiting_room(room_id);
             });
 
@@ -281,6 +273,7 @@ void LobbyScreen::update_room_list(const std::vector<RoomInfo>& rooms) {
 }
 
 void LobbyScreen::create_new_room() const {
+    qDebug() << "Mandando a crear la sala de espera";
     server_handler.send_create_room();
 }
 
@@ -288,7 +281,6 @@ void LobbyScreen::open_waiting_room(uint8_t id_room) {
     if (this->pollTimer->isActive()) {
         this->pollTimer->stop();
     }
-
     in_room = true;
     std::cout << "[LobbyWindow] Entrando a sala " << (int)id_room << std::endl;
     emit go_to_waiting_room_screen();
@@ -297,4 +289,9 @@ void LobbyScreen::open_waiting_room(uint8_t id_room) {
 void LobbyScreen::on_return_from_waiting_room() {
     in_room = false;
     startPolling();
+}
+
+void LobbyScreen::startPolling() {
+    qDebug() << "PRENDIENDO EL POLLIING EN EL LOBBY";
+    pollTimer->start(50);
 }

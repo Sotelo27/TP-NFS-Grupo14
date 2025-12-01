@@ -8,8 +8,8 @@
 #include <QPixmap>
 #include <QSound>
 
-GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map, bool login, QWidget *parent)
-    : QDialog(parent), server_handler(server_handler), my_id(my_id), map_selected(map_selected), selected_map(selected_map), sound(nullptr)
+GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map_game, bool login, QWidget *parent)
+    : QDialog(parent), server_handler(server_handler), my_id(my_id), map_selected(map_selected), selected_map_game(selected_map_game), sound(nullptr)
 {
     setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
 
@@ -17,7 +17,6 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_s
     QSize screenSize = screen ? screen->availableGeometry().size() : QSize(800,600);
     setFixedSize(screenSize);
 
-    // Stack principal
     stack = new QStackedWidget(this);
     stack->setGeometry(0, 0, screenSize.width(), screenSize.height());
 
@@ -25,20 +24,19 @@ GameWindow::GameWindow(ServerHandler& server_handler, size_t& my_id, bool& map_s
     setupConnections();
     setupSound();
 
-    // Pantalla inicial
     if (login)
         stack->setCurrentWidget(start_screen);
     else
         stack->setCurrentWidget(result_finish_screen);
 
-    final_results.clear(); // NUEVO
+    final_results.clear();
 }
 
 void GameWindow::setupScreens() {
     start_screen = new StartScreen(this);
     login_screen = new LoginScreen(server_handler, my_id, this);
     lobby_screen = new LobbyScreen(server_handler, my_id, this);
-    waiting_room_screen = new WaitingRoomScreen(server_handler, my_id, map_selected, selected_map, this);
+    waiting_room_screen = new WaitingRoomScreen(server_handler, my_id, map_selected, selected_map_game, this);
     selection_car_screen = new SelectionCarScreen(server_handler, this);
     selection_map_screen = new SelectionMapScreen(map_selected, this);
     result_finish_screen = new ResultFinishScreen(server_handler, my_id, this);
@@ -80,6 +78,7 @@ void GameWindow::setupConnections() {
     connect(lobby_screen, &LobbyScreen::go_to_waiting_room_screen, this, &GameWindow::goToWaitingRoom);
     connect(lobby_screen, &LobbyScreen::go_to_selection_map_screen, this, &GameWindow::goToMapSelection);
     connect(lobby_screen, &LobbyScreen::go_to_editor_screen, this, [this]() {
+        editor_map_screen->start_polling();
         stack->setCurrentWidget(editor_map_screen);
     });
 
@@ -130,7 +129,6 @@ GameWindow::~GameWindow() {
     }
 }
 
-// NUEVO: Permite setear los resultados finales desde fuera
 void GameWindow::setFinalResults(const std::vector<PlayerResultTotal>& results) {
     final_results = results;
     if (result_finish_screen) {
@@ -138,9 +136,6 @@ void GameWindow::setFinalResults(const std::vector<PlayerResultTotal>& results) 
     }
 }
 
-// -----------------------------
-// Slots de navegación
-// -----------------------------
 void GameWindow::goToLobby() {
     waiting_room_screen->stopPolling();
     lobby_screen->startPolling();
@@ -161,7 +156,6 @@ void GameWindow::goToMapSelection() {
 }
 
 void GameWindow::goToResults() {
-    // NUEVO: Actualiza la tabla antes de mostrar la pantalla
     if (result_finish_screen) {
         result_finish_screen->setFinalResults(final_results);
     }

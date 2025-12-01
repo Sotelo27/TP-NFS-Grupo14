@@ -20,7 +20,7 @@ public:
 
     QString get_map_selected() const;
     QString get_file_selected() const;
-
+    void start_polling();
     signals:
     void go_back_to_menu();
     void go_to_waiting_room(uint8_t room_id);
@@ -52,7 +52,6 @@ private:
     uint8_t current_room_id;
     bool in_room;
 
-    void start_polling();
     void stop_polling();
     void onPollTimer();
 
