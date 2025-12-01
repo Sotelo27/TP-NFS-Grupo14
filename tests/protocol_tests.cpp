@@ -390,7 +390,7 @@ void test_send_and_receive_map_info() {
         {1, 300, 400}
     };
     std::vector<EventInfo> events_tick = {
-        {1, "Alice"}
+        {1, 10}
     };
     TimeTickInfo race_time{123};
 
@@ -408,7 +408,7 @@ void test_send_and_receive_map_info() {
     ASSERT_EQ(msg.npcs_tick.size(), 1);
     ASSERT_EQ(msg.npcs_tick[0].npc_id, 1);
     ASSERT_EQ(msg.events_tick.size(), 1);
-    ASSERT_EQ(msg.events_tick[0].username, "Alice");
+    ASSERT_EQ(msg.events_tick[0].player_id, 10u);
     ASSERT_EQ(msg.race_time.seconds, 123);
 
     server_thread.join();
