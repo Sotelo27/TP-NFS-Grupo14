@@ -11,7 +11,7 @@
 EditorMapScreen::EditorMapScreen(ServerHandler& server_handler, QWidget* parent)
     : QWidget(parent),
       server_handler(server_handler),
-      pollTimer(new QTimer(this)),        // << ORDEN CORRECTO
+      pollTimer(new QTimer(this)),
       background(nullptr),
       loadButton(nullptr),
       backButton(nullptr),
@@ -21,7 +21,6 @@ EditorMapScreen::EditorMapScreen(ServerHandler& server_handler, QWidget* parent)
       containerLayout(nullptr),
       mainLayout(nullptr),
       directory("editor/MapsEdited/"),
-      map_selected(""),
       file_selected(""),
       current_room_id(0),
       in_room(false)
@@ -196,10 +195,9 @@ void EditorMapScreen::onLoadClicked() {
         return;
     }
 
-    file_selected = item->text();
-    map_selected = file_selected + ".yaml";
+    file_selected = item->text() + QString(".yaml");
 
-    qDebug() << "Archivo seleccionado:" << map_selected;
+    qDebug() << "Archivo seleccionado:" << file_selected;
 
     qDebug() << "MANDANDO MENSAJE PARA CREAR LA SALA DE ESPERA DESDE EDITOR";
     server_handler.send_create_room();
@@ -216,10 +214,6 @@ void EditorMapScreen::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
     if (background)
         background->setGeometry(0, 0, width(), height());
-}
-
-QString EditorMapScreen::get_map_selected() const {
-    return map_selected;
 }
 
 QString EditorMapScreen::get_file_selected() const {

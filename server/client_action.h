@@ -41,6 +41,7 @@ struct ClientAction {
         : type(Type::Name), id(id_), movement(), username(std::move(name)), room_cmd(0), room_id(0),
           races(), car_id(0), improvement_id(0), cheat(0), infinite_life(false) {}
 
+    //Acá sigue llevando el nombre a cargar en el loader map configure
     ClientAction(size_t id_, std::vector<std::pair<std::string, uint8_t>> races_)
         : type(Type::StartGame), id(id_), movement(), username(), room_cmd(0), room_id(0),
           races(std::move(races_)), car_id(0), improvement_id(0), cheat(0), infinite_life(false) {}

@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "../../common/dto/input_state.h"
 #include "../map/map_config_loader.h"
+#include <yaml-cpp/yaml.h>
 
 #ifndef COLLISION_PATH
 #define COLLISION_PATH "."
@@ -54,7 +55,11 @@ void Game::throw_jugador_no_existe(size_t id) const {
 std::string Game::resolve_map_path(const std::string& map_id) const {
     auto it = map_table.find(map_id);
     if (it == map_table.end()) {
-        throw std::invalid_argument("[Game] Map ID '" + map_id + "' not found in map table.");
+        // Cómo no es mapa que tenemos, entonces es un editado
+        // throw std::invalid_argument("[Game] Map ID '" + map_id + "' not found in map table.");
+        std::string ruta_editor = "editor/MapsEdited/";
+        std::cout << "Busncado en: " + ruta_editor << std::endl;
+        return ruta_editor + map_id;
     }
     return maps_base_path + it->second;
 }
@@ -500,13 +505,24 @@ void Game::load_map(const MapConfig& cfg) {
     state = GameState::Lobby;
 }
 
+// Acá se lee el .yaml
 void Game::load_map_by_id(const std::string& map_id) {
+    std::string name_map;
     const std::string ruta = resolve_map_path(map_id);
-    MapConfig cfg = MapConfigLoader::load_tiled_file(ruta);
+    YAML::Node root = YAML::LoadFile(ruta);
+    if (!root) {
+        throw std::runtime_error("MapConfigLoader: cannot load " + ruta);
+    }
+    if (root["idMap"]) {
+        name_map = root["idMap"].as<std::string>();
+    } else {
+        name_map = map_id;
+    }
+    MapConfig cfg = MapConfigLoader::load_from_yaml(root);
     load_map(cfg);
-    if (map_id == "LibertyCity") current_map_id = 0;
-    else if (map_id == "SanAndreas") current_map_id = 1;
-    else if (map_id == "ViceCity") current_map_id = 2;
+    if (name_map == "LibertyCity") current_map_id = 0;
+    else if (name_map == "SanAndreas") current_map_id = 1;
+    else if (name_map == "ViceCity") current_map_id = 2;
     else current_map_id = 0;
 }
 

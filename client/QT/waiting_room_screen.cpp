@@ -122,6 +122,7 @@ void WaitingRoomScreen::createStartButton() {
             return;
         }
         map_selected = true;
+        qDebug() << "El mapa seleccioando fue: " << selected_map;
         server_handler.send_start_game({{selected_map.toStdString(), 0}});
     });
 

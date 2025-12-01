@@ -50,6 +50,7 @@ void ClientThreadRecv::run() {
                     std::cout << "[ClientThreadRecv] Pushed ROOM action from client " << id << " (cmd=" << (int)received.room_cmd << ")\n";
                     break;
                 }
+                    // Servidor recibe el StartGame del cliente
                 case ClientMessage::Type::StartGame: {
                     std::cout << "[ClientThreadRecv] START_GAME from conn_id=" << id
                               << " races=" << received.races.size() << "\n";
