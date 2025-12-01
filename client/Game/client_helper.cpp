@@ -109,7 +109,7 @@ void ClientHelper::render_npcs() {
 
         const CarData& npc_data = car_sprites.getCarData(CarSpriteID::RedCar);
 
-        car_sprites.render(npc_data.area, npc_info.dest_area, 0.0f);
+        car_sprites.render(npc_data.area, npc_info.dest_area, npc_info.info_npc.angle);
     }
 }
 
