@@ -103,14 +103,19 @@ void ClientHelper::render_cars() {
 }
 
 void ClientHelper::render_npcs() {
-    for (const auto& npc_info: npcs_info) {
+    for (auto& npc_info: npcs_info) {
         if (npc_info.dest_area.getWidth() == 0 || npc_info.dest_area.getHeight() == 0) {
             continue;
         }
 
-        const CarData& npc_data = car_sprites.getCarData(CarSpriteID::RedCar);
+        const CarData& npc_data = car_sprites.getCarData(CarSpriteID::PoliceCar);
 
-        car_sprites.render(npc_data.area, npc_info.dest_area, npc_info.info_npc.angle);
+        npc_info.dest_area =
+                Area(npc_info.dest_area.getX(), npc_info.dest_area.getY(), CAR_HEIGHT_MEDIUM,
+                     CAR_HEIGHT_MEDIUM * (static_cast<float>(npc_data.width_scale_screen) /
+                                          npc_data.height_scale_screen));
+
+        car_sprites.renderPolice(npc_data.area, npc_info.dest_area, npc_info.info_npc.angle);
     }
 }
 
