@@ -25,7 +25,6 @@ WaitingRoomScreen::WaitingRoomScreen(ServerHandler& server_handler, size_t& my_i
 
     pollTimer = new QTimer(this);
     connect(pollTimer, &QTimer::timeout, this, &WaitingRoomScreen::onPollTimer);
-    pollTimer->start(80);
 }
 
 // =============================================================
@@ -128,7 +127,7 @@ void WaitingRoomScreen::createStartButton() {
     mainLayout->addWidget(startButton, 0, Qt::AlignHCenter);
 
     // Botón para seleccionar mapa (otro botón distinto)
-    QPushButton* selectMapButton = new QPushButton("SELECCIONAR MAPA", this);
+    selectMapButton = new QPushButton("SELECCIONAR MAPA", this);
     selectMapButton->setFixedSize(350, 80);
     selectMapButton->setCursor(Qt::PointingHandCursor);
     selectMapButton->setVisible(true);
@@ -205,6 +204,7 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
     switch (msg.type) {
         case ServerMessage::Type::YourId:
             my_id = msg.id;
+            qDebug() << "My ID set to:" << my_id;
             break;
 
         case ServerMessage::Type::PlayersList: {
@@ -215,13 +215,22 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
             }
 
             is_admin = false;
-            for (const auto& p : msg.players)
-                if (p.player_id == my_id && p.is_admin)
+            for (const auto& p : msg.players) {
+                if (p.player_id == my_id && p.is_admin) {
                     is_admin = true;
+                    qDebug() << "Checking admin for my_id:" << my_id;
+                    break;
+                }
+            }
 
             startButton->setVisible(is_admin);
+            selectMapButton->setVisible(is_admin);
 
+            qDebug() << "PlayersList received, my_id:" << my_id;
             for (const auto& p : msg.players) {
+                qDebug() << "Player:" << QString::fromStdString(p.username)
+                 << "id:" << p.player_id
+                 << "is_admin:" << p.is_admin;
                 QWidget* card = new QWidget();
                 card->setFixedHeight(65);
                 card->setStyleSheet(
@@ -282,4 +291,15 @@ void WaitingRoomScreen::resizeEvent(QResizeEvent* event) {
     if (background)
         background->setGeometry(0, 0, width(), height());
     QWidget::resizeEvent(event);
+}
+
+void WaitingRoomScreen::hideSelectMapButton() {
+    if (selectMapButton)
+        selectMapButton->hide();
+}
+
+
+void WaitingRoomScreen::startPolling() {
+    qDebug() << "PRENDIENDO EL POLLIING EN EL WAITING ROOM";
+    pollTimer->start(50);
 }

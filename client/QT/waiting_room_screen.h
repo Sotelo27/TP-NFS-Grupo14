@@ -26,7 +26,7 @@ private:
     QVBoxLayout* layout = nullptr;
     QTimer* pollTimer = nullptr;
     QVBoxLayout* mainLayout = nullptr;
-
+    QPushButton* selectMapButton = nullptr;
     QPushButton* startButton = nullptr;
     QPushButton* backButton = nullptr;
 
@@ -39,8 +39,9 @@ public:
     void start_game();
     void set_selected_map(const QString& map) { selected_map = map; }
     bool isAdmin() const { return is_admin; }
+    void hideSelectMapButton();
 
-    void startPolling() { if (pollTimer && !pollTimer->isActive()) pollTimer->start(50); }
+    void startPolling();
     void stopPolling()  { if (pollTimer && pollTimer->isActive()) pollTimer->stop(); }
 
     signals:
@@ -48,6 +49,7 @@ public:
     void go_to_selection_car_screen();
     void go_to_selection_map_screen();
     void go_to_game_start();
+    void go_to_editor_screen();
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
