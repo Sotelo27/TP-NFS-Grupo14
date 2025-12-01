@@ -9,15 +9,15 @@
 
 #include <box2d/box2d.h>
 
-#include "../common/car_model.h"
-#include "../common/dto/pose.h"
-#include "../common/dto/map_config.h"
-#include "physics/building_entity.h"
-#include "physics/border_entity.h"
-#include "physics/checkpoint_entity.h"
-#include "physics/contact_listener.h"
-#include "physics/checkpoint_event.h"
-#include "physics/damage_event.h"
+#include "../../common/car_model.h"
+#include "../../common/dto/pose.h"
+#include "../../common/dto/map_config.h"
+#include "building_entity.h"
+#include "border_entity.h"
+#include "checkpoint_entity.h"
+#include "contact_listener.h"
+#include "checkpoint_event.h"
+#include "damage_event.h"
 
 class PhysicsWorld {
 private:
