@@ -348,10 +348,13 @@ ServerMessage ClientProtocol::parse_map_info() {
         uint32_t x_be=0, y_be=0;
         skt.recvall(&x_be, 4);
         skt.recvall(&y_be, 4);
+        uint32_t ang_be=0;
+        skt.recvall(&ang_be, 4);
         NpcTickInfo nti;
         nti.npc_id = npcid;
         nti.x = (int32_t)ntohl(x_be);
         nti.y = (int32_t)ntohl(y_be);
+        nti.angle = ntohf32(ang_be);
         dto.npcs_tick.push_back(nti);
     }
     
