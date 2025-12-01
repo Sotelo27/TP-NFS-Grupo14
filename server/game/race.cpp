@@ -151,7 +151,7 @@ void Race::check_health_states() {
         if (it_car->second->get_vida() <= 0.f) {
             participant.state = ParticipantState::Disqualified;
             participant.finish_time_seconds = race_duration;
-
+            it_car->second->set_vida(0.f);
             std::cout << "[Race] Player " << player_id
                       << " DISQUALIFIED (no health)\n";
         }
