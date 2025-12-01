@@ -300,6 +300,7 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
 
         uint16_t rem_be = htons(p.checkpoints_remaining);
         off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &rem_be, 2);
+        buf.push_back(p.meta ? 1 : 0);
 
         uint8_t nimp = (uint8_t)p.improvements.size();
         buf.push_back(nimp);

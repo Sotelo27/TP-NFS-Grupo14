@@ -355,6 +355,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         }
         // cantidad de checkpoints restantes
         player.checkpoints_remaining = (uint16_t)(track.checkpoints.size() > next_idx ? (track.checkpoints.size() - next_idx) : 0);
+        player.meta = (uint8_t)((track.checkpoints.size() > 0 && next_idx == track.checkpoints.size() - 1) ? 1 : 0);
         ranking.push_back(RankInfo{(uint32_t)(playerId), participant.next_checkpoint_idx, distance_px, participant.finish_time_seconds});
         out.push_back(player);
     }
