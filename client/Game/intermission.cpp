@@ -14,6 +14,8 @@
 
 #define SOUND_IMPROVEMENT_PATH std::string(ASSETS_PATH) + "/audio/game/compra.wav"
 #define ID_SOUND_IMPROVEMENT "SOUND_IMPROVEMENT"
+#define SOUND_INITIAL_EFFECTS_PATH std::string(ASSETS_PATH) + "/audio/game/inicio_mid.wav"
+#define ID_SOUND_INITIAL_EFFECTS "SOUND_INITIAL_EFFECTS"
 
 #define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_POSITION (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
@@ -156,6 +158,7 @@ void Intermission::initialize_selected_improvements() {
 
 void Intermission::initialize_sounds() {
     audio_manager.loadSound(ID_SOUND_IMPROVEMENT, SOUND_IMPROVEMENT_PATH);
+    audio_manager.loadSound(ID_SOUND_INITIAL_EFFECTS, SOUND_INITIAL_EFFECTS_PATH);
 }
 
 void Intermission::function() {
@@ -181,11 +184,13 @@ void Intermission::function() {
     }
 
     window.render();
+
+    sounds_efects();
 }
 
 void Intermission::show_background_game() {
     if (iteration <= AMOUNT_FRAMES_ANIMATION) {
-        client_helper.render_in_z_order(iteration_called);
+        client_helper.render_in_z_order(iteration_called, false);
     }
 
     if (ready_next_race) {
@@ -569,4 +574,10 @@ void Intermission::render_single_option(const ImprovementOption& option, int ind
     show_info_center(text_keys, option.description, x_limit_option,
                      WINDOW_WIDTH - static_cast<float>(SIZE_TEXT_HEAD), y_option_index + offset_y,
                      option.color, DARK_VIOLET);
+}
+
+void Intermission::sounds_efects() {
+    if (iteration == 0) {
+        audio_manager.playSound(ID_SOUND_INITIAL_EFFECTS);
+    }
 }

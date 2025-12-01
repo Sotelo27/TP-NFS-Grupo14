@@ -86,6 +86,8 @@ private:
     void initialize_selected_improvements();
     void initialize_sounds();
 
+    void sounds_efects();
+
     void show_results();
     void show_table_results();
     void show_info_center(SdlFont& font, const std::string& info, int x_start, int x_end,
