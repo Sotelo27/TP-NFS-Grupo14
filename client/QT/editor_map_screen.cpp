@@ -165,7 +165,7 @@ void EditorMapScreen::setupConnections() {
     connect(backButton, &QPushButton::clicked, this, [this]() {
         qDebug() << "[EditorMapScreen] APAGANDO POLLING VOLVIENDO AL LOBBY";
         stop_polling();
-        emit go_back_to_menu();
+        emit go_back_to_lobby();
     });
 }
 
