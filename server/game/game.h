@@ -18,6 +18,9 @@
 #include "city.h"
 #include "garage.h" 
 #include "market.h"
+#include "market_phase.h"
+
+class MarketPhase;
 #include "result.h"
 #include "../../common/enum/car_improvement.h"
 #include "../../common/dto/results_info.h"
@@ -45,16 +48,14 @@ private:
     size_t current_race_index;
     GameState state;
     bool is_finished;
-    float marketplace_time_remaining;
     bool pending_race_start{false};
     uint8_t current_map_id{0};
     
     City city;
     Garage garage;
-    Market market;
+    MarketPhase market_phase;
 
     Result results;
-    bool pending_market_init{false};
 
 
     void throw_jugador_no_existe(size_t id) const;

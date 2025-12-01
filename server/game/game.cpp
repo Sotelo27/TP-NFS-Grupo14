@@ -13,23 +13,22 @@
 #endif
 
 Game::Game(float nitro_duracion)
-    : nitro_tiempo(nitro_duracion),
-      id_indice(0),
-      m(),
-      players(),
-      pending_inputs(),
-      map_table(),
-      maps_base_path(COLLISION_PATH),
-      races(),
-      current_race_index(0),
-      state(GameState::Lobby),
-      is_finished(false),
-      marketplace_time_remaining(0.f),
-      pending_race_start(false),
-      current_map_id(0),
-      city(),
-      garage(),
-      market(150.0f)
+    : nitro_tiempo(nitro_duracion)
+    , id_indice(0)
+    , m()
+    , players()
+    , pending_inputs()
+    , map_table()
+    , maps_base_path(COLLISION_PATH)
+    , races()
+    , current_race_index(0)
+    , state(GameState::Lobby)
+    , is_finished(false)
+    , pending_race_start(false)
+    , current_map_id(0)
+    , city()
+    , garage()
+    , market_phase(MARKET_DURATION)
 {
     map_table.emplace("ViceCity", "/MapaViceCity.yaml");
     map_table.emplace("LibertyCity",    "/MapaLibertyCity.yaml");
@@ -148,8 +147,8 @@ void Game::update(float dt) {
     }
 
     if (state == GameState::Marketplace) {
-        marketplace_time_remaining -= dt;
-        if (marketplace_time_remaining <= 0.0f) {
+        market_phase.update(dt);
+        if (market_phase.get_time_remaining() <= 0.0f) {
             finish_market_phase();
         }
         return;
@@ -197,7 +196,7 @@ void Game::on_race_ended() {
 
     RaceResult results = get_current_race().build_race_results();
 
-    auto penalties_upgrades = market.consume_penalties_for_race();
+    auto penalties_upgrades = market_phase.consume_penalties_for_race();
 
     // 3) Aplicar resultados de la carrera a los jugadores y sumo las penalizaciones
     apply_race_results_to_players(results, penalties_upgrades);
@@ -219,54 +218,23 @@ void Game::on_race_ended() {
 
 void Game::start_market_phase() {
     std::cout << "[Game] Entering Marketplace for " << MARKET_DURATION << " seconds\n";
-    marketplace_time_remaining = MARKET_DURATION;
+    market_phase.begin(players, MARKET_DURATION);
     state = GameState::Marketplace;
-    for (auto& [player_id, player] : players) {
-        player.reset_current_to_base();
-    }
-    pending_market_init = true;
 }
 
 bool Game::consume_pending_market_init(std::vector<ImprovementResult>& market_init_msgs) {
-    if (!pending_market_init) return false;
-
-    pending_market_init = false;
-
-    market_init_msgs.clear();
-    market_init_msgs.reserve(players.size());
-
-    for (const auto& kv : players) {
-        size_t pid = kv.first;
-
-        PlayerMarketInfo m_info = market.get_total_player_info(pid);
-        ImprovementResult msg;
-
-        msg.player_id             = (uint32_t)(pid);
-        msg.improvement_id        = (uint8_t)(CarImprovement::Init);
-        msg.ok                    = true;
-        msg.total_penalty_seconds = 0;
-        msg.current_balance       = (uint32_t)(std::round(m_info.balance));
-
-        market_init_msgs.push_back(msg);
-    }
-
-    return true;
+    return market_phase.consume_pending_market_init(players, market_init_msgs);
 }
 
 float Game::get_improvement_penalty(CarImprovement imp) const {
-    return market.get_improvement_time_penalty(imp);
+    return market_phase.get_improvement_penalty(imp);
 }
 
 void Game::finish_market_phase() {
     std::cout << "[Game] Marketplace ended. Applying upgrades and starting next race.\n";
 
     // Aplicar mejoras compradas a cada jugador
-    for (auto& kv : players) {
-        size_t pid = kv.first;
-        Player& player = kv.second;
-        CarModel updated = market.apply_upgrades_to_model(pid, player.get_car_model());
-        player.set_car_model(updated);
-    }
+    market_phase.apply_upgrades_to_all(players);
 
     // avanzar al siguiente Race, si existe
     if (current_race_index + 1 < races.size()) {
@@ -317,7 +285,7 @@ bool Game::buy_upgrade(size_t player_id, CarImprovement improvement) {
     if (!jugador_existe_auxiliar(player_id)) {
         return false;
     }
-    return market.buy_upgrade(player_id, improvement);
+    return market_phase.buy_upgrade(player_id, improvement);
 }
 
 void Game::set_player_name(size_t id, std::string name) {
@@ -408,7 +376,7 @@ bool Game::consume_pending_total_results(std::vector<PlayerResultTotal>& total) 
 }
 
 PlayerMarketInfo Game::get_player_market_info(size_t player_id) const {
-    return market.get_total_player_info(player_id);
+    return market_phase.get_player_market_info(player_id);
 }
 
 void Game::start_current_race() {
@@ -475,7 +443,7 @@ TimeTickInfo Game::get_market_time() const {
     if (state != GameState::Marketplace) {
         return TimeTickInfo{0};
     }
-    float remaining = marketplace_time_remaining;
+    float remaining = market_phase.get_time_remaining();
     if (remaining < 0.f) remaining = 0.f;
     return TimeTickInfo{ (uint32_t)std::ceil(remaining) };
 }
