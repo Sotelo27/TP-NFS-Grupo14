@@ -102,448 +102,300 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
 
 void Race::init_npc_spawns(const City& city) {
     npc_spawns = city.get_npc_spawns();
+    available_routes = city.get_routes();
+    
+    std::cout << "[Race] Initializing NPCs:\n";
+    std::cout << "  - " << npc_spawns.size() << " NPC spawn points\n";
+    std::cout << "  - " << available_routes.size() << " routes available\n";
+    
+    if (available_routes.empty()) {
+        std::cout << "[Race] WARNING: No routes available! NPCs will move forward only.\n";
+    }
+    
     for (size_t i = 0; i < npc_spawns.size(); ++i) {
         const auto& sp = npc_spawns[i];
-        // Convertir a metros
         float x_m = sp.x_px / PPM;
         float y_m = sp.y_px / PPM;
-        add_npc((uint8_t)(i + 1), x_m, y_m);
-    }
-}
-
-void Race::set_track(const Track& new_track) {
-    track = new_track;
-    std::cout << "[Race] Track set: route='" << track.route_id
-              << "' checkpoints=" << track.checkpoint_count << "\n";
-}
-
-bool Race::is_finished() const noexcept {
-    return state_ == RaceState::Finished;
-}
-
-const std::string& Race::get_route_id() const {
-    return track.route_id;
-}
-
-void Race::advance_time(float dt) {
-    race_duration += dt;
-    update_npcs(dt);
-    check_health_states();
-    check_time_limit();
-    evaluate_finish();
-}
-
-void Race::check_health_states() {
-    for (auto& [player_id, participant] : parts) {
-        if (participant.state != ParticipantState::Active) {
-            continue;
-        }
-
-        auto it_car = cars.find(player_id);
-        if (it_car == cars.end() || !it_car->second) {
-            continue;
-        }
-
-        if (it_car->second->get_vida() <= 0.f) {
-            participant.state = ParticipantState::Disqualified;
-            participant.finish_time_seconds = race_duration;
-
-            std::cout << "[Race] Player " << player_id
-                      << " DISQUALIFIED (no health)\n";
+        uint8_t npc_id = (uint8_t)(i + 1);
+        add_npc(npc_id, x_m, y_m);
+        
+        if (!available_routes.empty()) {
+            init_npc_navigation(npc_id, x_m, y_m);
         }
     }
 }
 
-void Race::check_time_limit() {
-    if (state_ == RaceState::Finished || race_duration < MAX_DURATION_SECONDS) {
+void Race::init_npc_navigation(uint8_t npc_id, float x_m, float y_m) {
+    if (available_routes.empty()) {
+        std::cout << "[Race] ERROR: No routes available for NPC " << (int)npc_id << "\n";
         return;
     }
 
-    std::cout << "[TIME FINISH] Race duration exceeded maximum allowed time. Ending race.\n";
-
-    for (auto& [player_id, participant] : parts) {
-        if (participant.state == ParticipantState::Active) {
-            participant.state = ParticipantState::Disqualified;
-            participant.finish_time_seconds = race_duration;
-        }
-    }
-
-    state_ = RaceState::Finished;
-}
-
-void Race::evaluate_finish() {
-    if (state_ == RaceState::Finished) return;
-
-    bool any_active = false;
-    for (const auto& [pid, participant] : parts) {
-        if (participant.state == ParticipantState::Active) {
-            any_active = true;
-            break;
-        }
-    }
-
-    if (!any_active) {
-        state_ = RaceState::Finished;
-        std::cout << "[Race] All participants finished/disqualified/disconnected. Race finished." << std::endl;
-    }
-}
-
-uint32_t Race::get_race_time_seconds() const {
-    float remaining = MAX_DURATION_SECONDS - race_duration;
-    if (remaining < MIN_DURATION_SECONDS) remaining = MIN_DURATION_SECONDS;
-    return (uint32_t)(remaining);
-}
-
-RaceResult Race::build_race_results() const {
-    RaceResult r;
-    r.result.reserve(parts.size());
-    for (const auto& [id, participant] : parts) {
-        r.result.push_back(ParticipantResultEntry{
-            (uint32_t)(id),
-            participant.state,
-            participant.finish_time_seconds
-        });
-    }
-
-    std::sort(r.result.begin(), r.result.end(),
-              [](const ParticipantResultEntry& a,
-                 const ParticipantResultEntry& b) {
-                  return a.finish_time_seconds < b.finish_time_seconds;
-              });
-
-    uint32_t pos = 1;
-    for (auto& entry : r.result) {
-        entry.position = pos++;
-    }
-    return r;
-}
-
-void Race::clear_cars() {
-    std::cout << "[Race] Clearing cars for race id=" << id << " count=" << cars.size() << "\n";
-    // Destruir cuerpos en el mundo físico
-    for (const auto& kv : cars) {
-        size_t pid = kv.first;
-        physics.destroy_body(pid);
-    }
-    cars.clear();
-    parts.clear();
-    std::cout << "[Race] Clear complete for race id=" << id << "\n";
-}
-
-float Race::resolve_acceleration_input(const InputState& input) {
-    if (input.up) {
-        return 1.f;
-    }
-    if (input.down) {
-        return -1.f;
-    }
-    return 0.f;
-}
-
-float Race::resolve_rotation_input(const InputState& input) {
-    return (input.right ? 1.f : 0.f) - (input.left ? 1.f : 0.f);
-}
-
-bool Race::compare_rank(const RankInfo& a, const RankInfo& b) {
-    if (a.checkpoints_done != b.checkpoints_done)
-        // mientras mas checkpoints - mejor tendra su posicion
-        return a.checkpoints_done > b.checkpoints_done;
-    // Si empatan en checkpoints, gana el que este mas cerca al siguiente checkpoint
-    return a.distance_to_next_px < b.distance_to_next_px;
-}
-
-void Race::calculate_ranking_positions(std::vector<PlayerTickInfo>& player_tick_info,
-                                 std::vector<RankInfo>& ranking) const {
-
-    std::sort(ranking.begin(), ranking.end(),compare_rank);
-
-    for (std::size_t i = 0; i < ranking.size(); ++i) {
-        const uint32_t pid = ranking[i].player_id;
-        const uint16_t pos = (uint16_t)(i + 1);
-
-        for (auto& player : player_tick_info) {
-            if (player.player_id == pid) {
-                player.position_in_race = pos;
-                break;
+    float x_px = x_m * PPM;
+    float y_px = y_m * PPM;
+    
+    std::cout << "[Race] Initializing navigation for NPC " << (int)npc_id 
+              << " at (" << x_px << ", " << y_px << ") px\n";
+    
+    // Buscar EL WAYPOINT MÁS CERCANO de TODAS las rutas
+    const Route* best_route = nullptr;
+    uint32_t best_waypoint_index = 0;
+    float min_distance = 1e9f;
+    
+    for (const auto& route : available_routes) {
+        if (route.waypoints.empty()) continue;
+        
+        for (size_t i = 0; i < route.waypoints.size(); ++i) {
+            const auto& wp = route.waypoints[i];
+            float dx = wp.x_px - x_px;
+            float dy = wp.y_px - y_px;
+            float dist = std::sqrt(dx*dx + dy*dy);
+            
+            if (dist < min_distance) {
+                min_distance = dist;
+                best_route = &route;
+                best_waypoint_index = (uint32_t)i;
             }
         }
     }
-}
-
-std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
-    std::vector<PlayerTickInfo> out;
-    out.reserve(parts.size());
-
-    std::vector<RankInfo> ranking;
-    ranking.reserve(parts.size());
-
-    for (const auto& [playerId, participant] : parts) {
-        if (participant.state != ParticipantState::Active && participant.state != ParticipantState::Finished && participant.state != ParticipantState::Disqualified) {
-            continue;
-        }
-
-        b2Body* body = physics.get_body(playerId);
-        if (!body) continue;
-        b2Vec2 p = body->GetPosition();
-        const int32_t car_x_px = (int32_t)std::lround(p.x * PPM);
-        const int32_t car_y_px = (int32_t)std::lround(p.y * PPM);
-        uint8_t hp = 0;
-        auto itc = cars.find(playerId);
-        Car* car_ptr = (itc != cars.end()) ? itc->second.get() : nullptr;
-        if (car_ptr) {
-            hp = (uint8_t)car_ptr->get_vida();
-        }
-
-        PlayerTickInfo player;
-        player.username = "";
-        player.car_id = participant.car_id;
-        player.player_id = (uint32_t)(playerId);
-        player.x = car_x_px;
-        player.y = car_y_px;
-        player.angle = body->GetAngle() * 180.0f / PI;
-        player.health = hp;
-        player.speed_mps = (car_ptr ? car_ptr->speed_mps() : 0.f) * MS_TO_KMH;
-
-        if (car_ptr) {
-            const CarModel& model = car_ptr->get_spec();
-            player.max_health = (uint8_t)std::lround(model.life);
-            player.improvements = model.improvements;
-        } else {
-            player.max_health = hp; // fallback al valor actual si no hay modelo
-            player.improvements.clear();
-        }
-
-        // Siguiente checkpoint
-        player.x_checkpoint = 0;
-        player.y_checkpoint = 0;
-        player.hint_angle_deg = 0.0f;
-        player.position_in_race = 0;
-        player.distance_to_checkpoint = 0.0f;
+    
+    if (best_route) {
+        npc_nav_states[npc_id] = NpcNavigationState{
+            best_route->route_id,
+            best_waypoint_index,
+            false
+        };
         
-        const uint32_t next_idx = participant.next_checkpoint_idx;
-        float distance_px = 0.0f;
-        if (!track.checkpoints.empty() && next_idx < track.checkpoints.size()) {
-            const auto& cp = track.checkpoints[next_idx];
-            
-            const float a = cp.rotation_deg * PI / 180.0f;
-            const float halfW = cp.w_px * 0.5f;
-            const float halfH = cp.h_px * 0.5f;
-                                   //[Oringen] + [rotacion]
-            const float checkp_center_x_px = cp.x_px + std::cos(a) * halfW - std::sin(a) * halfH;
-            const float checkp_center_y_px = cp.y_px + std::sin(a) * halfW + std::cos(a) * halfH;
-
-            player.x_checkpoint = (uint16_t)(std::lround(checkp_center_x_px));
-            player.y_checkpoint = (uint16_t)(std::lround(checkp_center_y_px));
-            // Distancia en píxeles entre auto y checkpoint
-            const float dx_px = checkp_center_x_px - car_x_px;
-            const float dy_px = checkp_center_y_px - car_y_px;
-            distance_px = std::sqrt(dx_px * dx_px + dy_px * dy_px);
-            player.distance_to_checkpoint = distance_px;
-
-            // Angulo del hint hacia el checkpoint
-            const float angle_rad = std::atan2(dy_px, dx_px);
-            player.hint_angle_deg = angle_rad * 180.0f / PI;
-        } else{
-            // No hay mas checkpoints, dejamos los valores por defecto
-            player.x_checkpoint = 0;
-            player.y_checkpoint = 0;
-            player.hint_angle_deg = 0.0f;
-        }
-        // cantidad de checkpoints restantes
-        player.checkpoints_remaining = (uint16_t)(track.checkpoints.size() > next_idx ? (track.checkpoints.size() - next_idx) : 0);
-        
-        ranking.push_back(RankInfo{(uint32_t)(playerId), participant.next_checkpoint_idx, distance_px, participant.finish_time_seconds});
-        out.push_back(player);
+        std::cout << "[Race] ✓ NPC " << (int)npc_id << " ASSIGNED to route '" 
+                  << best_route->route_id << "' starting at waypoint " 
+                  << best_waypoint_index << "/" << best_route->waypoints.size() 
+                  << " (distance: " << min_distance << " px)\n";
+    } else {
+        std::cout << "[Race] ERROR: Could not assign route to NPC " << (int)npc_id << "\n";
     }
-
-    calculate_ranking_positions(out, ranking);
-
-    return out;
-}
-
-void Race::apply_cheat(size_t playerId, uint8_t cheat_code) {
-    auto it = cars.find(playerId);
-    if (it == cars.end()) return;
-    if (cheat_code == CHEAT_INFINITE_LIFE) {
-        it->second->set_infinite_life(true);
-        it->second->set_vida(it->second->get_spec().life); // Restaura vida máxima
-        std::cout << "[Race] Cheat de vida infinita activado para playerId=" << playerId << "\n";
-    } else if (cheat_code == CHEAT_TELEPORT_NEXT_CHECKPOINT) {
-        teleport_to_next_checkpoint(playerId);
-    } else if (cheat_code == CHEAT_WIN_RACE) {
-        cheat_win_race(playerId);
-    }
-}
-
-void Race::teleport_to_next_checkpoint(size_t playerId) {
-    auto it_part = parts.find(playerId);
-    if (it_part == parts.end()) return;
-    auto it_car = cars.find(playerId);
-    if (it_car == cars.end() || !it_car->second) return;
-    if (track.checkpoints.empty()) return;
-
-    RaceParticipant& participant = it_part->second;
-    uint32_t next_idx = participant.next_checkpoint_idx;
-    if (next_idx >= track.checkpoints.size()) {
-        std::cout << "[Race] Teleport: No hay más checkpoints para playerId=" << playerId << "\n";
-        return;
-    }
-    const auto& cp = track.checkpoints[next_idx];
-
-    // Calcular el centro del checkpoint
-    const float a = cp.rotation_deg * PI / 180.0f;
-    const float halfW = cp.w_px * 0.5f;
-    const float halfH = cp.h_px * 0.5f;
-    const float checkp_center_x_px = cp.x_px + std::cos(a) * halfW - std::sin(a) * halfH;
-    const float checkp_center_y_px = cp.y_px + std::sin(a) * halfW + std::cos(a) * halfH;
-
-    // Convertir a metros
-    const float x_m = checkp_center_x_px / PPM;
-    const float y_m = checkp_center_y_px / PPM;
-
-    b2Body* body = it_car->second->get_body();
-    if (!body) return;
-
-    // Teletransportar el auto
-    body->SetTransform(b2Vec2(x_m, y_m), a);
-    body->SetLinearVelocity(b2Vec2(0, 0));
-    body->SetAngularVelocity(0);
-
-    std::cout << "[Race] Cheat de teletransporte: playerId=" << playerId
-              << " movido a checkpoint " << next_idx << " (" << x_m << ", " << y_m << ")\n";
-}
-
-void Race::cheat_win_race(size_t playerId) {
-    auto it_part = parts.find(playerId);
-    if (it_part == parts.end()) return;
-    RaceParticipant& participant = it_part->second;
-    if (participant.state != ParticipantState::Active) return;
-    if (track.checkpoints.empty()) return;
-
-    // Marca todos los checkpoints como recorridos
-    participant.current_checkpoint = (uint32_t)(track.checkpoints.size() - 1);
-    participant.next_checkpoint_idx = (uint32_t)(track.checkpoints.size());
-    participant.state = ParticipantState::Finished;
-    participant.finish_time_seconds = race_duration;
-
-    std::cout << "[Race] Cheat WIN_RACE: playerId=" << playerId << " ha ganado la carrera automáticamente.\n";
-}
-
-void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
-    // Elegir un modelo de auto para el NPC (puede ser aleatorio)
-    static std::vector<CarModel> modelos = {
-        car_factory::common_green_car(),
-        car_factory::red_car(),
-        car_factory::red_sport_car(),
-        car_factory::special_car(),
-        car_factory::four_by_four_convertible(),
-        car_factory::pickup_truck(),
-        car_factory::limousine()
-    };
-    static std::mt19937 rng{std::random_device{}()};
-    std::uniform_int_distribution<size_t> dist(0, modelos.size() - 1);
-    CarModel modelo = modelos[dist(rng)];
-    npc_models[npc_id] = modelo;
-
-    // Crear cuerpo físico y Car para el NPC
-    physics.create_car_body(10000 + npc_id, x_m, y_m, modelo); // id único para NPCs
-    b2Body* body = physics.get_body(10000 + npc_id);
-    npc_cars[npc_id] = std::make_unique<Car>(10000 + npc_id, modelo, body);
-
-    // Guardar NPC para compatibilidad (puedes eliminar npcs[npc_id] si no lo usas)
-    npcs[npc_id] = Npc{npc_id, x_m, y_m, 0.f, 0.f};
 }
 
 void Race::update_npcs(float dt) {
-    // Parámetros IA para autos lentos y naturales en ciudad
-    const float SENSOR_WIDTH = 1.5f; // ancho del sensor para evitar colisiones
-    const float TARGET_SPEED_KMH = 8.0f; // velocidad objetivo baja (~2.2 m/s)
-    const float MAX_THROTTLE = 0.10f;  // throttle bajo, nunca aceleran fuerte
-    const float MAX_STEER = 0.18f;     // giro suave
-    const float OBSTACLE_STEER = 0.25f; // leve corrección para evitar obstáculos
-    const float STUCK_THRESHOLD = 0.08f; // umbral para detectar si un NPC está atascado
+    const float TARGET_SPEED_KMH = 28.0f;
+    const float BASE_THROTTLE = 0.35f;
+    const float MAX_THROTTLE = 0.7f;
+    const float MAX_STEER = 0.32f;
+    const float WAYPOINT_REACH_DISTANCE = 16.0f;
+    const float OBSTACLE_AVOID_DISTANCE = 7.5f;
+    const float NPC_SEPARATION_RADIUS = 5.5f;       // evitar chocarse entre NPCs
+    const float NPC_SEPARATION_STEER_GAIN = 0.8f;   // cuánto corrige el steering por separación
+    const float STUCK_THRESHOLD = 0.08f;
+    const float STUCK_TIME_LIMIT = 1.1f;
 
     static std::unordered_map<uint8_t, float> stuck_time_map;
+
+    auto align_body = [](b2Body* body, float x_m, float y_m, float target_angle) {
+        body->SetTransform(b2Vec2(x_m, y_m), target_angle);
+        body->SetLinearVelocity(b2Vec2(0.f, 0.f));
+        body->SetAngularVelocity(0.f);
+        body->SetAwake(true);
+    };
 
     for (auto& [npc_id, car_ptr] : npc_cars) {
         if (!car_ptr) continue;
         b2Body* body = car_ptr->get_body();
         if (!body) continue;
 
-        b2Vec2 pos = body->GetPosition();
-        float angle = body->GetAngle();
+        // Forzar awake cada frame
+        body->SetSleepingAllowed(false);
+        body->SetAwake(true);
 
-        // Buscar el checkpoint más cercano
-        float target_x = pos.x, target_y = pos.y;
-        if (!track.checkpoints.empty()) {
-            float min_dist = 1e9f;
-            for (const auto& cp : track.checkpoints) {
-                float a = cp.rotation_deg * PI / 180.0f;
-                float halfW = cp.w_px * 0.5f / PPM;
-                float halfH = cp.h_px * 0.5f / PPM;
-                float cx = (cp.x_px + std::cos(a) * halfW - std::sin(a) * halfH) / PPM;
-                float cy = (cp.y_px + std::sin(a) * halfW + std::cos(a) * halfH) / PPM;
-                float dx = cx - pos.x;
-                float dy = cy - pos.y;
-                float d = std::sqrt(dx*dx + dy*dy);
-                if (d < min_dist) {
-                    min_dist = d;
-                    target_x = cx;
-                    target_y = cy;
+        float throttle = BASE_THROTTLE;
+        float steer = 0.0f;
+
+        // SI NO HAY RUTAS: SOLO IR HACIA ADELANTE
+        if (available_routes.empty()) {
+            // Detección de obstáculos
+            bool obstacle_ahead = false;
+            b2Vec2 pos = body->GetPosition();
+            float angle = body->GetAngle();
+            
+            for (const auto& ent_ptr : physics.static_entities) {
+                auto* building = dynamic_cast<BuildingEntity*>(ent_ptr.get());
+                if (!building) continue;
+                
+                b2Body* b = building->get_body();
+                if (!b) continue;
+
+                b2Vec2 bpos = b->GetPosition();
+                float dist = (pos - bpos).Length();
+
+                if (dist < OBSTACLE_AVOID_DISTANCE) {
+                    obstacle_ahead = true;
+                    b2Vec2 to_obstacle = bpos - pos;
+                    float obstacle_angle = std::atan2(to_obstacle.y, to_obstacle.x);
+                    float relative_angle = obstacle_angle - angle;
+                    steer = (relative_angle > 0) ? -0.5f : 0.5f;
+                    break;
                 }
+            }
+            
+            if (obstacle_ahead) {
+                throttle = -0.3f;
+            } else {
+                float speed_kmh = car_ptr->speed_mps() * MS_TO_KMH;
+                if (speed_kmh < TARGET_SPEED_KMH) {
+                    throttle = MAX_THROTTLE;
+                } else {
+                    throttle = MAX_THROTTLE * 0.7f;
+                }
+            }
+            
+            car_ptr->apply_input(throttle, steer);
+            continue;
+        }
+
+        // NAVEGACIÓN CON RUTAS
+        auto nav_it = npc_nav_states.find(npc_id);
+        if (nav_it == npc_nav_states.end()) {
+            b2Vec2 pos = body->GetPosition();
+            init_npc_navigation(npc_id, pos.x, pos.y);
+            car_ptr->apply_input(BASE_THROTTLE, 0.0f);
+            continue;
+        }
+
+        NpcNavigationState& nav = nav_it->second;
+
+        // Si completó la ruta, buscar una nueva
+        if (nav.route_completed) {
+            b2Vec2 pos = body->GetPosition();
+            init_npc_navigation(npc_id, pos.x, pos.y);
+            car_ptr->apply_input(BASE_THROTTLE, 0.0f);
+            continue;
+        }
+
+        // Buscar la ruta actual
+        const Route* current_route = nullptr;
+        for (const auto& route : available_routes) {
+            if (route.route_id == nav.current_route_id) {
+                current_route = &route;
+                break;
             }
         }
 
-        float dx = target_x - pos.x;
-        float dy = target_y - pos.y;
+        if (!current_route || current_route->waypoints.empty()) {
+            nav.route_completed = true;
+            continue;
+        }
+
+        if (nav.current_waypoint_index >= current_route->waypoints.size()) {
+            nav.route_completed = true;
+            continue;
+        }
+
+        // OBTENER WAYPOINT ACTUAL
+        const Waypoint& target_wp = current_route->waypoints[nav.current_waypoint_index];
+        float target_x_m = target_wp.x_px / PPM;
+        float target_y_m = target_wp.y_px / PPM;
+
+        b2Vec2 pos = body->GetPosition();
+        float angle = body->GetAngle();
+
+        float dx = target_x_m - pos.x;
+        float dy = target_y_m - pos.y;
+        float dist_to_waypoint = std::sqrt(dx*dx + dy*dy);
+
+        // Si llegó al waypoint, avanzar
+        if (dist_to_waypoint < WAYPOINT_REACH_DISTANCE) {
+            nav.current_waypoint_index++;
+            if (nav.current_waypoint_index >= current_route->waypoints.size()) {
+                nav.route_completed = true;
+                std::cout << "[Race] NPC " << (int)npc_id << " completed route '"
+                          << nav.current_route_id << "'\n";
+            }
+            car_ptr->apply_input(BASE_THROTTLE, 0.0f);
+            continue;
+        }
+
+        // Dirección hacia el waypoint
         float target_angle = std::atan2(dy, dx);
         float angle_diff = std::atan2(std::sin(target_angle - angle), std::cos(target_angle - angle));
 
+        // 1) Separación entre NPCs para evitar choques
+        {
+            b2Vec2 pos = body->GetPosition();
+            float separation_steer = 0.0f;
+            for (const auto& [other_id, other_car] : npc_cars) {
+                if (other_id == npc_id || !other_car) continue;
+                b2Body* ob = other_car->get_body();
+                if (!ob) continue;
+                float dist = (pos - ob->GetPosition()).Length();
+                if (dist < NPC_SEPARATION_RADIUS && dist > 0.001f) {
+                    b2Vec2 away = pos - ob->GetPosition();
+                    float away_angle = std::atan2(away.y, away.x);
+                    float rel = std::atan2(std::sin(away_angle - angle), std::cos(away_angle - angle));
+                    separation_steer += std::clamp(rel * NPC_SEPARATION_STEER_GAIN, -MAX_STEER, MAX_STEER);
+                }
+            }
+            steer += separation_steer;
+        }
+
+        // 2) Detección simple de edificios por “sensor” frontal
         bool obstacle_ahead = false;
-        float steer = 0.0f;
-        for (const auto& ent_ptr : physics.static_entities) {
-            auto* building = dynamic_cast<BuildingEntity*>(ent_ptr.get());
-            if (!building) continue;
-            b2Body* b = building->get_body();
-            if (!b) continue;
-            b2Vec2 bpos = b->GetPosition();
-            float dist = (pos - bpos).Length();
-            if (dist < SENSOR_WIDTH) {
-                obstacle_ahead = true;
-                b2Vec2 to_obstacle = bpos - pos;
-                float rel_angle = std::atan2(to_obstacle.y, to_obstacle.x) - angle;
-                steer = (rel_angle > 0) ? -OBSTACLE_STEER : OBSTACLE_STEER;
-                break;
+        float obstacle_steer = 0.0f;
+        {
+            b2Vec2 pos = body->GetPosition();
+            // punto a ~OBSTACLE_AVOID_DISTANCE metros por delante
+            b2Vec2 forward(std::cos(angle), std::sin(angle));
+            b2Vec2 sensor = pos + OBSTACLE_AVOID_DISTANCE * forward;
+
+            for (const auto& ent_ptr : physics.static_entities) {
+                auto* building = dynamic_cast<BuildingEntity*>(ent_ptr.get());
+                if (!building) continue;
+                b2Body* b = building->get_body();
+                if (!b) continue;
+
+                float dist = (sensor - b->GetPosition()).Length();
+                if (dist < (OBSTACLE_AVOID_DISTANCE * 0.8f)) {
+                    obstacle_ahead = true;
+                    // desvío lateral según dónde está el obstáculo
+                    b2Vec2 to_ob = b->GetPosition() - pos;
+                    float ob_ang = std::atan2(to_ob.y, to_ob.x);
+                    float rel = std::atan2(std::sin(ob_ang - angle), std::cos(ob_ang - angle));
+                    obstacle_steer = (rel > 0.f) ? -MAX_STEER : MAX_STEER;
+                    break;
+                }
             }
         }
 
         float speed_mps = car_ptr->speed_mps();
         float speed_kmh = speed_mps * MS_TO_KMH;
-        float throttle = 0.0f;
 
+        // 3) Control de velocidad y steering
         if (obstacle_ahead) {
-            throttle = 0.0f; // frena si hay obstáculo
-            // steer ya fue seteado arriba
+            throttle = BASE_THROTTLE * 0.2f; // desacelerar pero no frenar del todo
+            steer = std::clamp(steer + obstacle_steer, -MAX_STEER, MAX_STEER);
         } else {
-            // Mantener velocidad baja y constante
-            if (speed_kmh < TARGET_SPEED_KMH - 0.5f) {
-                throttle = MAX_THROTTLE;
-            } else if (speed_kmh > TARGET_SPEED_KMH + 0.5f) {
-                throttle = -MAX_THROTTLE; // frena si va muy rápido
+            if (speed_kmh < TARGET_SPEED_KMH - 8.0f) {
+                throttle = std::max(throttle, MAX_THROTTLE * 0.85f);
+            } else if (speed_kmh > TARGET_SPEED_KMH + 8.0f) {
+                throttle = BASE_THROTTLE * 0.5f;
             } else {
-                throttle = 0.0f; // mantener velocidad
+                throttle = std::max(throttle, MAX_THROTTLE * 0.65f);
             }
-            steer = std::clamp(angle_diff, -MAX_STEER, MAX_STEER);
+            float steer_cmd = std::clamp(angle_diff * 1.15f, -MAX_STEER, MAX_STEER);
+            steer = std::clamp(steer + steer_cmd, -MAX_STEER, MAX_STEER);
         }
 
-        if (std::abs(speed_mps) < STUCK_THRESHOLD && std::abs(throttle) < 0.01f) {
+        // 4) Anti-stuck: reubicar y alinear hacia el siguiente waypoint si se traba
+        if (std::abs(speed_mps) < STUCK_THRESHOLD) {
             stuck_time_map[npc_id] += dt;
-            if (stuck_time_map[npc_id] > 1.5f) {
-                static std::mt19937 rng{std::random_device{}()};
-                static std::uniform_real_distribution<float> random_steer(-0.10f, 0.10f);
-                steer += random_steer(rng);
-                throttle = 0.07f;
+            if (stuck_time_map[npc_id] > STUCK_TIME_LIMIT) {
+                // empujar 2 metros hacia el objetivo y alinear ángulo
+                const float push_m = 2.0f;
+                float nx = pos.x + std::cos(target_angle) * push_m;
+                float ny = pos.y + std::sin(target_angle) * push_m;
+                align_body(body, nx, ny, target_angle);
                 stuck_time_map[npc_id] = 0.0f;
+                throttle = MAX_THROTTLE * 0.9f;
+                steer = 0.0f;
+                std::cout << "[Race] NPC " << (int)npc_id << " unstuck relocate\n";
+                // tras reubicar, seguir al mismo waypoint sin saltarlo
             }
         } else {
             stuck_time_map[npc_id] = 0.0f;
@@ -569,4 +421,268 @@ std::vector<NpcTickInfo> Race::snapshot_npcs() const {
         out.push_back(info);
     }
     return out;
+}
+
+void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
+    CarModel npc_model;
+    npc_model.masaKg = 400.0f;
+    npc_model.velocidadMaxMps = 7.5f;
+    npc_model.fuerzaAceleracionN = 380.0f;
+    npc_model.torqueGiro = 3.0f;
+    npc_model.dampingLineal = 0.6f;
+    npc_model.dampingAngular = 2.2f;
+    npc_model.life = 100.0f;
+
+    size_t npc_body_id = 1000000 + npc_id;
+    physics.create_car_body(npc_body_id, x_m, y_m, npc_model);
+    b2Body* body = physics.get_body(npc_body_id);
+    if (!body) {
+        std::cout << "[Race] ERROR: Failed to create body for NPC " << (int)npc_id << "\n";
+        return;
+    }
+    body->SetSleepingAllowed(false);
+    body->SetAwake(true);
+    // pequeña inclinación aleatoria para evitar superposición exacta
+    // (no crítico, pero ayuda a no “pegarse” todos con el mismo heading)
+    // Nota: si no desea aleatoriedad, comentar las dos líneas siguientes.
+    // float jitter = (npc_id % 5) * 0.03f;
+    // body->SetTransform(body->GetPosition(), body->GetAngle() + jitter);
+
+    npc_cars[npc_id] = std::make_unique<Car>(npc_body_id, npc_model, body);
+    npc_models[npc_id] = npc_model;
+    
+    std::cout << "[Race] Added NPC " << (int)npc_id 
+              << " at (" << x_m << ", " << y_m << ")\n";
+}
+
+void Race::set_track(const Track& new_track) {
+    track = new_track;
+}
+
+const std::string& Race::get_route_id() const {
+    return track.route_id;
+}
+
+void Race::advance_time(float dt) {
+    race_duration += dt;
+    check_health_states();
+    check_time_limit();
+    update_npcs(dt);
+    evaluate_finish();
+}
+
+uint32_t Race::get_race_time_seconds() const {
+    return static_cast<uint32_t>(race_duration);
+}
+
+bool Race::is_finished() const noexcept {
+    return state_ == RaceState::Finished;
+}
+
+void Race::check_health_states() {
+    for (auto& kv : parts) {
+        RaceParticipant& p = kv.second;
+        if (p.state != ParticipantState::Active) continue;
+        
+        auto car_it = cars.find(kv.first);
+        if (car_it != cars.end() && car_it->second) {
+            if (car_it->second->get_vida() <= 0.0f) {
+                p.state = ParticipantState::Crashed;
+                std::cout << "[Race] Player " << kv.first << " crashed (no health)\n";
+            }
+        }
+    }
+}
+
+void Race::check_time_limit() {
+    if (race_duration >= MAX_DURATION_SECONDS) {
+        for (auto& kv : parts) {
+            if (kv.second.state == ParticipantState::Active) {
+                kv.second.state = ParticipantState::TimeOut;
+            }
+        }
+    }
+}
+
+void Race::evaluate_finish() {
+    bool has_active = false;
+    for (const auto& kv : parts) {
+        if (kv.second.state == ParticipantState::Active) {
+            has_active = true;
+            break;
+        }
+    }
+    if (!has_active) {
+        state_ = RaceState::Finished;
+    }
+}
+
+float Race::resolve_acceleration_input(const InputState& input) {
+    if (input.up && !input.down) return 1.0f;
+    if (input.down && !input.up) return -1.0f;
+    return 0.0f;
+}
+
+float Race::resolve_rotation_input(const InputState& input) {
+    if (input.right && !input.left) return 1.0f;
+    if (input.left && !input.right) return -1.0f;
+    return 0.0f;
+}
+
+std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
+    std::vector<PlayerTickInfo> ticks;
+    std::vector<RankInfo> ranking;
+    
+    for (const auto& kv : parts) {
+        const size_t pid = kv.first;
+        const RaceParticipant& p = kv.second;
+        
+        auto car_it = cars.find(pid);
+        if (car_it == cars.end() || !car_it->second) continue;
+        
+        Car* car = car_it->second.get();
+        b2Body* body = car->get_body();
+        if (!body) continue;
+        
+        b2Vec2 pos = body->GetPosition();
+        float angle_rad = body->GetAngle();
+        
+        PlayerTickInfo info;
+        info.player_id = static_cast<uint32_t>(pid);
+        info.x = static_cast<int32_t>(pos.x * PPM);
+        info.y = static_cast<int32_t>(pos.y * PPM);
+        info.angle = angle_rad * 180.0f / PI;
+        info.health = static_cast<uint8_t>(car->get_vida());
+        info.max_health = static_cast<uint8_t>(car->get_spec().life);
+        info.speed_mps = car->speed_mps();
+        info.car_id = p.car_id;
+        
+        if (p.next_checkpoint_idx < track.checkpoints.size()) {
+            const auto& cp = track.checkpoints[p.next_checkpoint_idx];
+            info.x_checkpoint = static_cast<uint16_t>(cp.x_px);
+            info.y_checkpoint = static_cast<uint16_t>(cp.y_px);
+            
+            float dx = cp.x_px - info.x;
+            float dy = cp.y_px - info.y;
+            info.hint_angle_deg = std::atan2(dy, dx) * 180.0f / PI;
+            info.distance_to_checkpoint = std::sqrt(dx*dx + dy*dy);
+        }
+        
+        info.checkpoints_remaining = static_cast<uint16_t>(track.checkpoint_count - p.current_checkpoint);
+        
+        RankInfo rank;
+        rank.player_id = pid;
+        rank.current_checkpoint = p.current_checkpoint;
+        rank.distance_to_next = info.distance_to_checkpoint;
+        ranking.push_back(rank);
+        
+        ticks.push_back(info);
+    }
+    
+    calculate_ranking_positions(ticks, ranking);
+    return ticks;
+}
+
+bool Race::compare_rank(const RankInfo& a, const RankInfo& b) {
+    if (a.current_checkpoint != b.current_checkpoint) {
+        return a.current_checkpoint > b.current_checkpoint;
+    }
+    return a.distance_to_next < b.distance_to_next;
+}
+
+void Race::calculate_ranking_positions(std::vector<PlayerTickInfo>& ticks, std::vector<RankInfo>& ranking) const {
+    std::sort(ranking.begin(), ranking.end(), compare_rank);
+    
+    for (size_t i = 0; i < ranking.size(); ++i) {
+        for (auto& tick : ticks) {
+            if (tick.player_id == ranking[i].player_id) {
+                tick.position_in_race = static_cast<uint16_t>(i + 1);
+                break;
+            }
+        }
+    }
+}
+
+RaceResult Race::build_race_results() const {
+    RaceResult result;
+    std::vector<std::pair<size_t, float>> times;
+    
+    for (const auto& kv : parts) {
+        times.emplace_back(kv.first, kv.second.finish_time_seconds);
+    }
+    
+    std::sort(times.begin(), times.end(), [](const auto& a, const auto& b) {
+        return a.second < b.second;
+    });
+    
+    uint8_t position = 1;
+    for (const auto& t : times) {
+        PlayerRaceResult pr;
+        pr.player_id = t.first;
+        pr.finish_time_seconds = t.second;
+        pr.position = position++;
+        result.result.push_back(pr);
+    }
+    
+    return result;
+}
+
+void Race::clear_cars() {
+    for (auto& kv : cars) {
+        physics.destroy_body(kv.first);
+    }
+    cars.clear();
+    cars_by_player.clear();
+    parts.clear();
+}
+
+void Race::set_player_ptr(size_t player_id, Player* player_ptr) {
+    players_by_id[player_id] = player_ptr;
+}
+
+void Race::apply_cheat(size_t playerId, uint8_t cheat_code) {
+    if (cheat_code == CHEAT_INFINITE_LIFE) {
+        auto it = cars.find(playerId);
+        if (it != cars.end() && it->second) {
+            it->second->set_infinite_life(true);
+            std::cout << "[Race] Player " << playerId << " activated infinite life\n";
+        }
+    } else if (cheat_code == CHEAT_TELEPORT_NEXT_CHECKPOINT) {
+        teleport_to_next_checkpoint(playerId);
+    } else if (cheat_code == CHEAT_WIN_RACE) {
+        cheat_win_race(playerId);
+    }
+}
+
+void Race::teleport_to_next_checkpoint(size_t playerId) {
+    auto it = parts.find(playerId);
+    if (it == parts.end()) return;
+    
+    RaceParticipant& p = it->second;
+    if (p.next_checkpoint_idx >= track.checkpoints.size()) return;
+    
+    const auto& cp = track.checkpoints[p.next_checkpoint_idx];
+    auto car_it = cars.find(playerId);
+    if (car_it != cars.end() && car_it->second) {
+        b2Body* body = car_it->second->get_body();
+        if (body) {
+            body->SetTransform(b2Vec2(cp.x_px / PPM, cp.y_px / PPM), body->GetAngle());
+            body->SetLinearVelocity(b2Vec2(0, 0));
+            std::cout << "[Race] Player " << playerId << " teleported to checkpoint " 
+                      << p.next_checkpoint_idx << "\n";
+        }
+    }
+}
+
+void Race::cheat_win_race(size_t playerId) {
+    auto it = parts.find(playerId);
+    if (it == parts.end()) return;
+    
+    RaceParticipant& p = it->second;
+    p.current_checkpoint = track.checkpoint_count - 1;
+    p.next_checkpoint_idx = track.checkpoint_count;
+    p.state = ParticipantState::Finished;
+    p.finish_time_seconds = race_duration;
+    
+    std::cout << "[Race] Player " << playerId << " used WIN_RACE cheat\n";
 }
