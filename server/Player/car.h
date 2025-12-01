@@ -93,6 +93,11 @@ public:
      * Devuelve el modelo (especificaciones) del auto
      */
     const CarModel& get_model() const { return spec_; }
+
+    /*
+     * Devuelve el id del jugador que controla este auto
+    */
+    size_t player_id() const noexcept { return get_id(); }
 };
 
 #endif

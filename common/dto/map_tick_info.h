@@ -38,7 +38,7 @@ struct NpcTickInfo {
 
 struct EventInfo {
     uint8_t event_type;
-    std::string username;
+    uint32_t player_id;
 };
 
 // Información de tiempo de carrera para enviar en ticks

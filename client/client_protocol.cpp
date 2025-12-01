@@ -361,16 +361,9 @@ ServerMessage ClientProtocol::parse_map_info() {
     uint8_t ne=0;
     skt.recvall(&ne, 1);
     for(uint8_t i=0; i<ne; ++i) {
-        uint8_t et=0;
-        skt.recvall(&et, 1);
-        uint16_t lbe=0;
-        skt.recvall(&lbe, 2);
-        uint16_t l = ntohs(lbe);
-        std::string user(l, '\0');
-        if(l) skt.recvall(&user[0], l);
-        EventInfo ei;
-        ei.event_type = et;
-        ei.username = std::move(user);
+        uint8_t et=0; skt.recvall(&et, 1);
+        uint32_t pid_be=0; skt.recvall(&pid_be, 4);
+        EventInfo ei; ei.event_type = et; ei.player_id = ntohl(pid_be);
         dto.events_tick.push_back(std::move(ei));
     }
     return dto;

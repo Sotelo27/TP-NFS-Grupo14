@@ -320,19 +320,13 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         uint32_t ang_be = htonf32(n.angle);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ang_be, 4);
     }
-    // events
+    // events (event_type + player_id)
     buf.push_back((uint8_t)events.size());
     for (const auto& e : events) {
         buf.push_back(e.event_type);
-        uint16_t l = (uint16_t)e.username.size();
-        uint16_t lbe = htons(l);
+        uint32_t pid_be = htonl(e.player_id);
         size_t off = buf.size();
-        buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
-        if (l) {
-            off = buf.size();
-            buf.resize(off + e.username.size());
-            std::memcpy(buf.data()+off, e.username.data(), e.username.size());
-        }
+        buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
     }
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
