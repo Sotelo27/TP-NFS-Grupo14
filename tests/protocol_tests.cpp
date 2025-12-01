@@ -383,6 +383,7 @@ void test_send_and_receive_map_info() {
             1,            // position_in_race (uint16_t)
             5,            // distance_to_checkpoint (CAMBIADO de 5.0f a 5, si es uint16_t)
             2,            // checkpoints_remaining (uint16_t)
+            0,            // meta (uint8_t) agregado: false
             {}            // improvements
         }
     };
