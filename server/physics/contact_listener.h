@@ -6,12 +6,14 @@
 #include <unordered_set>
 #include "Entidad.h"
 #include "checkpoint_event.h"
+#include "damage_event.h"
 
 #define MIN_DAMAGE_IMPULSE 0.75f
 
 class ContactListener: public b2ContactListener {
 private:
     std::vector<CheckpointEvent> events_;
+    std::vector<DamageEvent> damage_events_;
     std::unordered_set<const b2Contact*> damaged_contacts_;
 
 public:
@@ -45,6 +47,9 @@ public:
      * Consume y limpia los eventos de cruce de checkpoint registrados
      */
     std::vector<CheckpointEvent> consume_checkpoint_events();
+
+    // Consume y limpia eventos de daño registrados
+    std::vector<DamageEvent> consume_damage_events();
 };
 
 #endif

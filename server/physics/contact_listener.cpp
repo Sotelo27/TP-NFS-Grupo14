@@ -1,6 +1,8 @@
 #include "contact_listener.h"
 #include "checkpoint_entity.h"
 #include "checkpoint_event.h"
+#include "damage_event.h"
+#include "../Player/car.h"
 
 #include <algorithm>
 
@@ -20,9 +22,6 @@ void ContactListener::BeginContact(b2Contact* contact) {
     Entidad* a = entidadFromFixture(contact->GetFixtureA());
     Entidad* b = entidadFromFixture(contact->GetFixtureB());
     if (!a || !b) return;
-
-    //a->onCollision(b);
-    //b->onCollision(a);
 
     handle_checkpoint_contact(a, b);
 }
@@ -63,9 +62,18 @@ void ContactListener::PostSolve(b2Contact* contact, const b2ContactImpulse* impu
     CollisionInfo info_calculate_collision_A{ -normalAB, normalImpulse };
     CollisionInfo info_calculate_collision_B{  normalAB, normalImpulse };
 
-    // Double dispatch de juego
     a->on_collision_with(*b, info_calculate_collision_A);
     b->on_collision_with(*a, info_calculate_collision_B);
+
+    // Registrar evento de daño
+    if (a->type() == Entidad::Type::Car) {
+        auto* car = static_cast<Car*>(a);
+        damage_events_.emplace_back(car->player_id(), normalImpulse);
+    }
+    if (b->type() == Entidad::Type::Car) {
+        auto* car = static_cast<Car*>(b);
+        damage_events_.emplace_back(car->player_id(), normalImpulse);
+    }
 
     // Marcar el contacto como ya dañado hasta que se libere (EndContact)
     damaged_contacts_.insert(contact);
@@ -92,6 +100,12 @@ void ContactListener::handle_checkpoint_contact(Entidad* a, Entidad* b) {
 std::vector<CheckpointEvent> ContactListener::consume_checkpoint_events() {
     std::vector<CheckpointEvent> out;
     out.swap(events_);
+    return out;
+}
+
+std::vector<DamageEvent> ContactListener::consume_damage_events() {
+    std::vector<DamageEvent> out;
+    out.swap(damage_events_);
     return out;
 }
 

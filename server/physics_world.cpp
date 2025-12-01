@@ -72,6 +72,10 @@ std::vector<CheckpointEvent> PhysicsWorld::consume_checkpoint_events() {
     return contact_listener.consume_checkpoint_events();
 }
 
+std::vector<DamageEvent> PhysicsWorld::consume_damage_events() {
+    return contact_listener.consume_damage_events();
+}
+
 void PhysicsWorld::clear_static_geometry() {
     for (b2Body* b : static_bodies) {
         if (b) world.DestroyBody(b);
