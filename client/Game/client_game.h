@@ -11,6 +11,7 @@
 #include "../connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
 #include "resources/cheat_detector.h"
+#include "resources/event_resolver.h"
 #include "resources/maps_textures.h"
 #include "sdl_wrappers/SdlAudioManager.h"
 #include "sdl_wrappers/SdlWindow.h"
@@ -34,6 +35,8 @@ private:
     ClientHelper client_helper;
     SdlAudioManager audio_manager;
     Intermission intermission_manager;
+    std::vector<EventInfo> events_current;
+    EventResolver event_resolver;
 
     void update_state_from_position();
     void handle_sdl_events();

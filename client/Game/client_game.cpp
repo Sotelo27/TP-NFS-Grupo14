@@ -30,8 +30,9 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler,
                       time_info),
         audio_manager(),
         intermission_manager(client_id, window, server_handler, map_manager, this->running,
-                             icon_improvement_manager, client_helper, final_results,
-                             audio_manager) {
+                             icon_improvement_manager, client_helper, final_results, audio_manager),
+        events_current(),
+        event_resolver(audio_manager, info_players, client_id) {
     audio_manager.loadMusic(ID_MUSIC_BACKGROUND, MUSIC_BACKGROUND_FILE);
 }
 
@@ -44,6 +45,8 @@ void ClientGame::function() {
     client_helper.update_animation_frames();
 
     client_helper.render_in_z_order(iteration);
+
+    event_resolver.resolve_events(events_current);
 }
 
 void ClientGame::start(MapID selected_map) {
@@ -147,6 +150,7 @@ void ClientGame::process_server_messages(ServerMessage::Type expected_type, int 
 
         if (action.type == ServerMessage::Type::MapInfo) {
             client_helper.update_map_info(action.players_tick, action.npcs_tick, action.race_time);
+            events_current = std::move(action.events_tick);
         } else if (action.type == ServerMessage::Type::RaceStart) {
             map_manager.loadMap(static_cast<MapID>(action.map_id));
         } else if (action.type == ServerMessage::Type::Results) {
