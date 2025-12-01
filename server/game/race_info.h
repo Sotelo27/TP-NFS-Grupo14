@@ -3,14 +3,16 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
 // Estado del participante dentro de una carrera
-// Ya no guarda la pose. la pose vive en ahora en PhysicsWorld
 enum class ParticipantState : uint8_t {
     Active,
     Disconnected,
     Disqualified,
-    Finished
+    Finished,
+    Crashed,
+    TimeOut
 };
 
 struct RaceParticipant {
@@ -22,15 +24,21 @@ struct RaceParticipant {
 };
 
 struct RankInfo {
-    uint32_t player_id;
-    uint32_t checkpoints_done;
-    float distance_to_next_px;
-    float finish_time_seconds;
+    size_t player_id;
+    uint32_t current_checkpoint;
+    float distance_to_next;
+    float finish_time_seconds{0.f};
 };
 
 enum class RaceState {
     Running,
     Finished
+};
+
+struct PlayerRaceResult {
+    size_t player_id;
+    float finish_time_seconds;
+    uint8_t position;
 };
 
 struct ParticipantResultEntry {
@@ -41,7 +49,7 @@ struct ParticipantResultEntry {
 };
 
 struct RaceResult {
-    std::vector<ParticipantResultEntry> result;
+    std::vector<PlayerRaceResult> result;
 };
 
 #endif

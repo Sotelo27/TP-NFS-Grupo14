@@ -464,7 +464,6 @@ PlayerMarketInfo Game::get_player_market_info(size_t player_id) const {
 }
 
 void Game::start_current_race() {
-    //std::lock_guard<std::mutex> lock(m);
     if (state == GameState::Racing) {
         std::cout << "[Game] start_current_race() early exit: already Racing (index=" << current_race_index << ")\n";
         return;
@@ -481,7 +480,9 @@ void Game::start_current_race() {
         std::cout << "[DebugPlayer] player " << player_id << " car_model.life=" << player.get_car_model().life << "\n";
         r.add_player(player_id, player.get_car_model(), player.get_car_id(), sp.x_px, sp.y_px);
     }
-    // --- Inicializar NPCs proceduralmente ---
+    
+    // Set City pointer and initialize NPCs
+    r.set_city_ptr(&city);
     r.init_npc_spawns(city);
 
     state = GameState::Racing;

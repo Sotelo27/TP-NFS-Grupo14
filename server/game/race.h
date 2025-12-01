@@ -21,6 +21,12 @@
 #include "npc.h"
 #include "city.h" 
 
+struct NpcNavigationState {
+    std::string current_route_id;
+    uint32_t current_waypoint_index;
+    bool route_completed;
+};
+
 class Race {
 private:
     uint32_t id;
@@ -40,6 +46,23 @@ private:
     // NUEVO: Autos físicos para NPCs
     std::unordered_map<uint8_t, std::unique_ptr<Car>> npc_cars;
     std::unordered_map<uint8_t, CarModel> npc_models;
+
+    // NUEVO: City pointer for NPC routing
+    const City* city_ptr_{nullptr};
+
+    // NUEVO: NPC routing state
+    struct NpcPathState {
+        std::string route_id;
+        size_t wp_index = 0;
+        bool has_route = false;
+    };
+    std::unordered_map<uint8_t, NpcPathState> npc_paths_;
+
+    std::vector<Route> available_routes;
+    std::unordered_map<uint8_t, NpcNavigationState> npc_nav_states;
+    
+    void init_npc_navigation(uint8_t npc_id, float x_m, float y_m);
+    void update_npc_navigation(uint8_t npc_id, Car* car_ptr);
 
     /*
      * Verifica los estados de vida de los jugadores y los descalifica si no tienen vida
@@ -172,9 +195,9 @@ public:
     void update_npcs(float dt);
     std::vector<NpcTickInfo> snapshot_npcs() const;
 
-    // Hacer público para que Game pueda inicializar NPCs
     // Initialize NPCs from City-provided MapConfig npc_spawns
     void init_npc_spawns(const City& city);
+    void set_city_ptr(const City* city) { city_ptr_ = city; }
 };
 
 #endif
