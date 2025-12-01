@@ -3,7 +3,7 @@
 #include "../constants.h"
 
 #define SOUND_DAMAGED_FILE std::string(ASSETS_PATH) + "/audio/game/boom3.wav"
-#define SOUND_CHECKPOINT_PASSED_FILE std::string(ASSETS_PATH) + "/audio/game/boom3.wav"
+#define SOUND_CHECKPOINT_PASSED_FILE std::string(ASSETS_PATH) + "/audio/game/sound4.wav"
 
 #define MAX_VOLUME 128
 #define LIMIT_DISTANCE_SOUND 720
