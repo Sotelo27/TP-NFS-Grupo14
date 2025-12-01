@@ -24,6 +24,7 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
     const std::string spawns_prefix     = "Spawns_";
     const std::string checkpoints_prefix = "Checkpoint_";
     const std::string npc_layer_name     = "Npc";
+    const std::string route_prefix = "RUTA_"; // NUEVO: detectar rutas
 
     for (const auto& layer : root["layers"]) {
         const std::string ltype = layer["type"] ? layer["type"].as<std::string>() : std::string();
@@ -33,9 +34,10 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
         const bool is_collision_layer   = (lname == collisions_name);
         const bool is_spawns_layer      = (lname.rfind(spawns_prefix, 0) == 0);
         const bool is_checkpoints_layer = (lname.rfind(checkpoints_prefix, 0) == 0);
-        const bool is_npc_layer         = (lname == npc_layer_name); 
+        const bool is_npc_layer         = (lname == npc_layer_name);
+        const bool is_route_layer       = (lname.rfind(route_prefix, 0) == 0); // NUEVO
 
-        // Deducir race_id a partir del nombre de la capa (Spawns_A → "A", Checkpoint_B → "B")
+        // Deducir race_id a partir del nombre de la capa
         std::string spawns_race_id;
         std::string checkpoints_race_id;
 
@@ -48,6 +50,42 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
             if (checkpoints_race_id.empty()) checkpoints_race_id = "A";
         }
 
+        // ============ NUEVO: PROCESAR RUTAS (WAYPOINTS) ============
+        if (is_route_layer) {
+            Route route;
+            route.route_id = lname; // "RUTA_A", "RUTA_B", etc.
+            
+            for (const auto& obj : layer["objects"]) {
+                // Solo considerar puntos (waypoints)
+                bool is_point = obj["point"] ? obj["point"].as<bool>() : false;
+                if (!is_point && (obj["width"] || obj["height"])) {
+                    continue; // No es un punto, skip
+                }
+                
+                Waypoint wp;
+                wp.route_id = route.route_id;
+                wp.x_px = obj["x"] ? obj["x"].as<float>() : 0.f;
+                wp.y_px = obj["y"] ? obj["y"].as<float>() : 0.f;
+                wp.index = obj["id"] ? obj["id"].as<uint32_t>() : (uint32_t)route.waypoints.size();
+                
+                route.waypoints.push_back(wp);
+            }
+            
+            // Ordenar waypoints por índice
+            std::sort(route.waypoints.begin(), route.waypoints.end(),
+                     [](const Waypoint& a, const Waypoint& b) {
+                         return a.index < b.index;
+                     });
+            
+            if (!route.waypoints.empty()) {
+                cfg.routes.push_back(route);
+                std::cout << "[MapLoader] Loaded route '" << route.route_id 
+                          << "' with " << route.waypoints.size() << " waypoints\n";
+            }
+            continue; // Ya procesamos esta capa
+        }
+
+        // ============ RESTO DEL CÓDIGO EXISTENTE ============
         for (const auto& obj : layer["objects"]) {
             const float ox = obj["x"].as<float>();
             const float oy = obj["y"].as<float>();
@@ -63,7 +101,7 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
                     s.id = obj["id"] ? obj["id"].as<int>() : -1;
 
                     s.car_id  = -1;
-                    s.race_id = spawns_race_id; // default por capa
+                    s.race_id = spawns_race_id;
 
                     if (obj["properties"]) {
                         for (const auto& p : obj["properties"]) {
@@ -80,6 +118,7 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
                 }
                 continue;
             }
+            
             // ---------------- NPC SPAWNS ----------------
             if (is_npc_layer) {
                 bool is_point = obj["point"] ? obj["point"].as<bool>() : false;
@@ -102,7 +141,7 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
                 cp.h_px = obj["height"] ? obj["height"].as<float>() : 0.f;
                 cp.rotation_deg = obj["rotation"] ? obj["rotation"].as<float>() : 0.f;
 
-                cp.race_id = checkpoints_race_id; // default por capa
+                cp.race_id = checkpoints_race_id;
 
                 if (obj["properties"]) {
                     for (const auto& p : obj["properties"]) {
@@ -156,7 +195,6 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
                 r.h_px = h;
                 r.rotation_deg = obj["rotation"] ? obj["rotation"].as<float>() : 0.f;
 
-                // Opcional: leer props de colisión
                 if (obj["properties"]) {
                     for (const auto& p : obj["properties"]) {
                         const std::string pname = p["name"].as<std::string>();
@@ -175,7 +213,7 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
         }
     }
 
-    // Ordenar checkpoints por índice en cada carrera
+    // Ordenar checkpoints por índice
     for (auto& kv : cfg.checkpoints) {
         auto& vec = kv.second;
         std::sort(vec.begin(), vec.end(),
@@ -186,18 +224,25 @@ MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
                   << "' total checkpoints=" << vec.size() << "\n";
     }
 
-    // === LOG RESUMEN FINAL ===
+    // LOG RESUMEN
     std::cout << "[MapLoader] =====================\n";
-    std::cout << "[MapLoader] Carga completa del mapa\n";
+    std::cout << "[MapLoader] Map loading complete\n";
     std::cout << "[MapLoader] RectCollider : " << cfg.rects.size() << "\n";
     std::cout << "[MapLoader] Polyline     : " << cfg.polylines.size() << "\n";
     std::cout << "[MapLoader] Spawns       : " << cfg.spawns.size() << "\n";
+    std::cout << "[MapLoader] NPC Spawns   : " << cfg.npc_spawns.size() << "\n";
+    std::cout << "[MapLoader] Routes       : " << cfg.routes.size() << "\n";
     
     std::size_t total_checkpoints = 0;
     for (const auto& kv : cfg.checkpoints) {
         total_checkpoints += kv.second.size();
     }
     std::cout << "[MapLoader] Checkpoints  : " << total_checkpoints << "\n";
+    
+    for (const auto& route : cfg.routes) {
+        std::cout << "[MapLoader]   - Route '" << route.route_id 
+                  << "': " << route.waypoints.size() << " waypoints\n";
+    }
     std::cout << "[MapLoader] =====================\n";
 
     return cfg;

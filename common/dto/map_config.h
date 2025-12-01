@@ -61,6 +61,18 @@ struct Track {
     uint32_t checkpoint_count;
 };
 
+struct Waypoint {
+    std::string route_id;
+    uint32_t index;
+    float x_px;
+    float y_px;
+};
+
+struct Route {
+    std::string route_id;
+    std::vector<Waypoint> waypoints;
+};
+
 struct MapConfig {
     std::vector<RectCollider> rects;
     std::vector<PolylineCollider> polylines;
@@ -68,6 +80,7 @@ struct MapConfig {
     std::unordered_map<std::string, std::vector<Checkpoint>> checkpoints;
     std::vector<NpcSpawn> npc_spawns; 
     float pixels_per_meter{32.f};
+    std::vector<Route> routes;
 };
 
 #endif
