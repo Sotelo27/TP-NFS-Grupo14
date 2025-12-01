@@ -39,4 +39,7 @@ constexpr int CAR_HEIGHT_LARGE = 120;
 
 #define RGB_BACKGROUND Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)
 
+#define ID_MUSIC_BACKGROUND "background"
+#define ID_MUSIC_INTERMISSION "intermission"
+
 #endif  // CONSTANTS_H

@@ -5,17 +5,20 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "../../common/constant_rate_loop.h"
 #include "../connection/server_handler.h"
 #include "resources/car_sprite_sheet.h"
 #include "resources/cheat_detector.h"
+#include "resources/event_resolver.h"
 #include "resources/maps_textures.h"
+#include "sdl_wrappers/SdlAudioManager.h"
 #include "sdl_wrappers/SdlWindow.h"
 
-#include "info_game.h"
 #include "client_helper.h"
 #include "game_hud.h"
+#include "info_game.h"
 #include "intermission.h"
 
 class ClientGame: public ConstantRateLoop {
@@ -30,7 +33,10 @@ private:
     TimeTickInfo time_info;
     CheatDetector cheat_detector;
     ClientHelper client_helper;
+    SdlAudioManager audio_manager;
     Intermission intermission_manager;
+    std::vector<EventInfo> events_current;
+    EventResolver event_resolver;
 
     void update_state_from_position();
     void handle_sdl_events();
@@ -42,7 +48,8 @@ protected:
     void function() final;
 
 public:
-    explicit ClientGame(size_t client_id, ServerHandler& server_handler, std::vector<PlayerResultTotal>& final_results);
+    explicit ClientGame(size_t client_id, ServerHandler& server_handler,
+                        std::vector<PlayerResultTotal>& final_results);
 
     void start(MapID selected_map);
 

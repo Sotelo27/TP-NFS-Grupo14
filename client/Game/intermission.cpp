@@ -76,7 +76,8 @@ const char KEY_IMPROVEMENT_CONTROLLABILITY = 'C';
 Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& server_handler,
                            MapsTextures& map_manager, bool& main_running,
                            IconImprovementManager& icon_manager, ClientHelper& client_helper,
-                        std::vector<PlayerResultTotal>& final_results):
+                           std::vector<PlayerResultTotal>& final_results,
+                           SdlAudioManager& audio_manager):
         ConstantRateLoop(FRAME_RATE),
         client_id(client_id),
         window(window),
@@ -103,7 +104,8 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
         ready_next_race(false),
         current_balance(0),
         time_market(0),
-        final_results(final_results) {
+        final_results(final_results),
+        audio_manager(audio_manager) {
     initialize_improvement_options();
 
     initialize_selected_improvements();
@@ -302,12 +304,10 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
             action = server_handler.recv_response_from_server();
             while (action.type != ServerMessage::Type::MapInfo) {
                 action = server_handler.recv_response_from_server();
-                if (action.type == ServerMessage::Type::MarketTime) {
-                    time_market = action.race_time.seconds;
-                }
             }
             client_helper.update_map_info(action.players_tick, action.npcs_tick, action.race_time);
             client_helper.update_animation_frames();
+            time_market = 0;
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
@@ -332,7 +332,7 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
         } else if (action.type == ServerMessage::Type::ResultsFinal) {
             std::cout << "[ClientGame] Received FINAL RESULTS from server (n="
                       << action.results_total.size() << ")" << std::endl;
-                      
+
             final_results = std::move(action.results_total);
             this->running = false;
             main_running = false;

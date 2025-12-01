@@ -1,9 +1,10 @@
 #include "client_helper.h"
 
-#include "constants.h"
-
 #include <unordered_map>
+
 #include <SDL2/SDL.h>
+
+#include "constants.h"
 
 ClientHelper::ClientHelper(size_t client_id, SdlWindow& window,
                            std::unordered_map<size_t, CarInfoGame>& info_players,
@@ -72,7 +73,7 @@ void ClientHelper::update_animation_frames() {
                              car_data.width_scale_screen, car_data.height_scale_screen);
     }
 
-    for (auto& npc_info : npcs_info) {
+    for (auto& npc_info: npcs_info) {
         if (npc_info.info_npc.x < extend_area_map.getX() ||
             npc_info.info_npc.x > extend_area_map.getX() + extend_area_map.getWidth() ||
             npc_info.info_npc.y < extend_area_map.getY() ||
@@ -83,8 +84,8 @@ void ClientHelper::update_animation_frames() {
         int x_npc_screen = (npc_info.info_npc.x - src_area_map.getX()) * MAP_TO_VIEWPORT_SCALE_X;
         int y_npc_screen = (npc_info.info_npc.y - src_area_map.getY()) * MAP_TO_VIEWPORT_SCALE_Y;
         npc_info.dest_area.update(x_npc_screen - CAR_WIDTH_MEDIUM / 2,
-                                  y_npc_screen - CAR_HEIGHT_MEDIUM / 2,
-                                  CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM);
+                                  y_npc_screen - CAR_HEIGHT_MEDIUM / 2, CAR_WIDTH_MEDIUM,
+                                  CAR_HEIGHT_MEDIUM);
     }
 }
 
@@ -102,21 +103,21 @@ void ClientHelper::render_cars() {
 }
 
 void ClientHelper::render_npcs() {
-    for (const auto& npc_info : npcs_info) {
+    for (const auto& npc_info: npcs_info) {
         if (npc_info.dest_area.getWidth() == 0 || npc_info.dest_area.getHeight() == 0) {
             continue;
         }
 
         const CarData& npc_data = car_sprites.getCarData(CarSpriteID::RedCar);
 
-        car_sprites.render(npc_data.area, npc_info.dest_area, 0.0f);
+        car_sprites.render(npc_data.area, npc_info.dest_area, npc_info.info_npc.angle);
     }
 }
 
 void ClientHelper::render_in_z_order(int iteration, bool render_hud) {
     map_manager.render(src_area_map, dest_area_map);
 
-    render_npcs(); // <-- Renderiza NPCs antes o después , lo vemos dsp o como quieras peluche
+    render_npcs();
 
     render_cars();
 
@@ -137,7 +138,7 @@ void ClientHelper::update_map_info(const std::vector<PlayerTickInfo>& players_in
     this->time_info = time_info;
 
     npcs_info.clear();
-    for (const auto& npc : npcs_info_vec) {
+    for (const auto& npc: npcs_info_vec) {
         npcs_info.push_back(NpcInfoGame{npc, Area()});
     }
 }
