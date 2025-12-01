@@ -13,7 +13,6 @@
 #include "constants.h"
 
 #define MUSIC_BACKGROUND_FILE std::string(ASSETS_PATH) + "/audio/game/super_mario_galaxy.mp3"
-#define MUSIC_INTERMISSION_FILE std::string(ASSETS_PATH) + "/audio/game/legend_zelda_ocarina.mp3"
 
 ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler,
                        std::vector<PlayerResultTotal>& final_results):
@@ -33,9 +32,7 @@ ClientGame::ClientGame(size_t client_id, ServerHandler& server_handler,
         intermission_manager(client_id, window, server_handler, map_manager, this->running,
                              icon_improvement_manager, client_helper, final_results,
                              audio_manager) {
-    audio_manager.loadMusic(ID_MUSIC_INTERMISSION, MUSIC_INTERMISSION_FILE);
     audio_manager.loadMusic(ID_MUSIC_BACKGROUND, MUSIC_BACKGROUND_FILE);
-    audio_manager.playMusic(ID_MUSIC_BACKGROUND, -1, 2000);
 }
 
 void ClientGame::function() {
@@ -51,6 +48,8 @@ void ClientGame::function() {
 
 void ClientGame::start(MapID selected_map) {
     map_manager.loadMap(selected_map);
+
+    audio_manager.playMusic(ID_MUSIC_BACKGROUND, -1, 2000);
 
     std::cout << "[ClientGame] Juego iniciado" << std::endl;
 
