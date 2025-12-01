@@ -12,6 +12,9 @@
 #define BACKGROUND_IMPROVEMENT_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/garaje.png"
 #define BUTTON_UPGRADE_IMAGE_PATH std::string(ASSETS_PATH) + "/mid/boton_u.png"
 
+#define SOUND_IMPROVEMENT_PATH std::string(ASSETS_PATH) + "/audio/game/compra.wav"
+#define ID_SOUND_IMPROVEMENT "SOUND_IMPROVEMENT"
+
 #define SIZE_TEXT_HEAD (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_POSITION (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
 #define SIZE_TEXT_REST_INFO (static_cast<float>(WINDOW_HEIGHT) + WINDOW_WIDTH) / 37.5
@@ -109,6 +112,8 @@ Intermission::Intermission(size_t client_id, SdlWindow& window, ServerHandler& s
     initialize_improvement_options();
 
     initialize_selected_improvements();
+
+    initialize_sounds();
 }
 
 void Intermission::initialize_improvement_options() {
@@ -149,6 +154,10 @@ void Intermission::initialize_selected_improvements() {
             DataImprovementOption{false, icon_manager.get_icon(CarImprovement::Controllability)});
 }
 
+void Intermission::initialize_sounds() {
+    audio_manager.loadSound(ID_SOUND_IMPROVEMENT, SOUND_IMPROVEMENT_PATH);
+}
+
 void Intermission::function() {
     handle_sdl_events();
 
@@ -162,6 +171,9 @@ void Intermission::function() {
         show_results();
     } else {
         this->running = iteration_breakpoint > iteration ? true : false;
+        if (!this->running) {
+            audio_manager.resumeMusic();
+        }
     }
 
     if (improvement_phase) {
@@ -191,6 +203,8 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos, int iterat
     this->iteration_called = iteration_called;
 
     clear_resources();
+
+    audio_manager.pauseMusic();
 
     ConstantRateLoop::start_loop();
 }
@@ -324,6 +338,7 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
                     it->second.is_selected = true;
                     improvements_purchased.push_back({static_cast<int>(r.total_penalty_seconds),
                                                       it->second.icon, iteration});
+                    audio_manager.playSound(ID_SOUND_IMPROVEMENT);
                 }
                 current_balance = r.current_balance;
             }

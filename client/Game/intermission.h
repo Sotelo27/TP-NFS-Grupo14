@@ -84,6 +84,7 @@ private:
 
     void initialize_improvement_options();
     void initialize_selected_improvements();
+    void initialize_sounds();
 
     void show_results();
     void show_table_results();
