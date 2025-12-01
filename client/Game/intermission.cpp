@@ -304,12 +304,10 @@ void Intermission::process_server_messages(ServerMessage::Type expected_type, in
             action = server_handler.recv_response_from_server();
             while (action.type != ServerMessage::Type::MapInfo) {
                 action = server_handler.recv_response_from_server();
-                if (action.type == ServerMessage::Type::MarketTime) {
-                    time_market = action.race_time.seconds;
-                }
             }
             client_helper.update_map_info(action.players_tick, action.npcs_tick, action.race_time);
             client_helper.update_animation_frames();
+            time_market = 0;
         } else if (action.type == ServerMessage::Type::Unknown) {
             keep_loop = false;
             this->running = false;
