@@ -10,7 +10,7 @@
 class SelectionMapScreen : public QWidget {
     Q_OBJECT
 public:
-    explicit SelectionMapScreen(bool& map_selected, QWidget* parent = nullptr);
+    explicit SelectionMapScreen(QWidget* parent = nullptr);
 
     QString get_selected_map() const { return selected_map; }
 
@@ -29,7 +29,6 @@ private:
     QWidget* createMapCard(const QString& imgPath, const QString& mapLabel, const QString& internalName);
 
     QString selected_map;
-    bool& map_selected;
 
     QVBoxLayout* mainLayout;
     QLabel* background;   // ya está declarado correctamente

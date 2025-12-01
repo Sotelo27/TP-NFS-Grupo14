@@ -1,16 +1,10 @@
 #include "map_config_loader.h"
 
-#include <yaml-cpp/yaml.h>
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
 
-MapConfig MapConfigLoader::load_tiled_file(const std::string& path) {
-    YAML::Node root = YAML::LoadFile(path);
-    if (!root) {
-        throw std::runtime_error("MapConfigLoader: cannot load " + path);
-    }
-
+MapConfig MapConfigLoader::load_from_yaml(const YAML::Node& root) {
     MapConfig cfg;
 
     // pixels_per_meter con fallback

@@ -121,6 +121,8 @@ void WaitingRoomScreen::createStartButton() {
             QMessageBox::warning(this, "Mapa no seleccionado", "No elegiste mapa.");
             return;
         }
+        map_selected = true;
+        qDebug() << "El mapa seleccioando fue: " << selected_map;
         server_handler.send_start_game({{selected_map.toStdString(), 0}});
     });
 
@@ -224,7 +226,10 @@ void WaitingRoomScreen::processServerMessage(const ServerMessage& msg) {
             }
 
             startButton->setVisible(is_admin);
-            selectMapButton->setVisible(is_admin);
+
+            if (!fron_editor_selection) {
+                selectMapButton->setVisible(is_admin);
+            }
 
             qDebug() << "PlayersList received, my_id:" << my_id;
             for (const auto& p : msg.players) {
@@ -294,10 +299,9 @@ void WaitingRoomScreen::resizeEvent(QResizeEvent* event) {
 }
 
 void WaitingRoomScreen::hideSelectMapButton() {
-    if (selectMapButton)
-        selectMapButton->hide();
+    fron_editor_selection = true;
+    if (selectMapButton) selectMapButton->hide();
 }
-
 
 void WaitingRoomScreen::startPolling() {
     qDebug() << "PRENDIENDO EL POLLIING EN EL WAITING ROOM";

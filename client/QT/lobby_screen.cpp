@@ -114,6 +114,10 @@ void LobbyScreen::createButtons() {
     createButtonEditor->setGraphicsEffect(glowButtonEditor);
 
     connect(createButtonEditor, &QPushButton::clicked, this, [this]() {
+        if (this->pollTimer->isActive()) {
+            qDebug() << "APAGANDO POLLIN, YENDO A PANRALLA DE EDITOR MAP SCREEN";
+            this->pollTimer->stop();
+        }
         emit go_to_editor_screen();
     });
     mainLayout->addWidget(createButtonEditor, 0, Qt::AlignHCenter);

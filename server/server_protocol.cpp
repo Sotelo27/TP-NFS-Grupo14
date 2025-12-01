@@ -445,6 +445,7 @@ ClientMessage ServerProtocol::parse_room() {
     return dto;
 }
 
+// Acá traduce al nombre que le mandamos
 ClientMessage ServerProtocol::parse_start_game() {
     ClientMessage dto; dto.type = ClientMessage::Type::StartGame;
     uint8_t qty=0; skt.recvall(&qty,1);
