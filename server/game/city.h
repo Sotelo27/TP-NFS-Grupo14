@@ -11,6 +11,7 @@ private:
     std::unordered_map<std::string, std::vector<Checkpoint>> checkpoints_by_route; 
     std::unordered_map<std::string, std::vector<SpawnPoint>> spawns_by_route;
     MapConfig map_cfg; 
+    std::vector<Route> routes;
 
 public:
     City();
@@ -55,6 +56,10 @@ public:
      * Obtiene los puntos de spawn de NPCs
     */
     const std::vector<NpcSpawn>& get_npc_spawns() const;
+
+    const std::vector<Route>& get_routes() const;
+    const Route* find_closest_route(float x_px, float y_px) const;
+    const Waypoint* find_closest_waypoint_in_route(const std::string& route_id, float x_px, float y_px) const;
 };
 
 #endif

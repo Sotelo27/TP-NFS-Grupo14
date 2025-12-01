@@ -48,7 +48,17 @@ void City::load_map(const MapConfig& cfg) {
         });
     }
     checkpoints_by_route = cfg.checkpoints;
-    map_cfg = cfg; // Guardar configuración completa, incluidos npc_spawns
+    map_cfg = cfg;
+    routes = cfg.routes; // ASEGURAR QUE SE ASIGNAN LAS RUTAS
+    
+    std::cout << "[City] Loaded map with:\n";
+    std::cout << "  - " << routes.size() << " routes\n";
+    std::cout << "  - " << map_cfg.npc_spawns.size() << " NPC spawns\n";
+    
+    for (const auto& route : routes) {
+        std::cout << "  - Route '" << route.route_id << "': " 
+                  << route.waypoints.size() << " waypoints\n";
+    }
 }
 
 Track City::build_track(const std::string& route_id) const {
@@ -110,4 +120,57 @@ std::vector<std::string> City::get_route_ids() const {
 
 const std::vector<NpcSpawn>& City::get_npc_spawns() const {
     return map_cfg.npc_spawns;
+}
+
+const std::vector<Route>& City::get_routes() const {
+    return routes;
+}
+
+const Route* City::find_closest_route(float x_px, float y_px) const {
+    if (routes.empty()) return nullptr;
+    
+    const Route* closest = nullptr;
+    float min_dist = 1e9f;
+    
+    for (const auto& route : routes) {
+        if (route.waypoints.empty()) continue;
+        
+        // Distancia al primer waypoint de la ruta
+        const auto& wp = route.waypoints[0];
+        float dx = wp.x_px - x_px;
+        float dy = wp.y_px - y_px;
+        float dist = std::sqrt(dx*dx + dy*dy);
+        
+        if (dist < min_dist) {
+            min_dist = dist;
+            closest = &route;
+        }
+    }
+    
+    return closest;
+}
+
+const Waypoint* City::find_closest_waypoint_in_route(const std::string& route_id, float x_px, float y_px) const {
+    for (const auto& route : routes) {
+        if (route.route_id != route_id) continue;
+        if (route.waypoints.empty()) return nullptr;
+        
+        const Waypoint* closest = nullptr;
+        float min_dist = 1e9f;
+        
+        for (const auto& wp : route.waypoints) {
+            float dx = wp.x_px - x_px;
+            float dy = wp.y_px - y_px;
+            float dist = std::sqrt(dx*dx + dy*dy);
+            
+            if (dist < min_dist) {
+                min_dist = dist;
+                closest = &wp;
+            }
+        }
+        
+        return closest;
+    }
+    
+    return nullptr;
 }
