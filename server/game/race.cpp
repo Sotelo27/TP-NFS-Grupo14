@@ -313,7 +313,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             player.max_health = (uint8_t)std::lround(model.life);
             player.improvements = model.improvements;
         } else {
-            player.max_health = hp; // fallback al valor actual si no hay modelo
+            player.max_health = hp;
             player.improvements.clear();
         }
 
@@ -321,7 +321,11 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         player.x_checkpoint = 0;
         player.y_checkpoint = 0;
         player.hint_angle_deg = 0.0f;
-        player.position_in_race = 0;
+        if (participant.state == ParticipantState::Disqualified) {
+            player.position_in_race = static_cast<uint16_t>(-1);
+        } else {
+            player.position_in_race = 0;
+        }
         player.distance_to_checkpoint = 0.0f;
         
         const uint32_t next_idx = participant.next_checkpoint_idx;
