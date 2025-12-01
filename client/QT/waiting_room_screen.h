@@ -32,6 +32,7 @@ private:
 
     bool is_admin = false;
     QString selected_map;
+    bool fron_editor_selection = false;
 
 public:
     explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map_game, QWidget* parent = nullptr);

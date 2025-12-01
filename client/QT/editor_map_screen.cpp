@@ -35,6 +35,7 @@ EditorMapScreen::EditorMapScreen(ServerHandler& server_handler, QWidget* parent)
 
 void EditorMapScreen::start_polling() {
     connect(pollTimer, &QTimer::timeout, this, &EditorMapScreen::onPollTimer);
+    qDebug() << "PRENDIENDO POLLING EN EDITOR MAP SCREEN";
     pollTimer->start(50);
 }
 
@@ -195,14 +196,12 @@ void EditorMapScreen::onLoadClicked() {
         return;
     }
 
-    file_selected = item->text() + ".yaml";
+    file_selected = item->text();
+    map_selected = file_selected + ".yaml";
 
-    YAML::Node config = YAML::LoadFile((directory + file_selected).toStdString());
-    map_selected = QString::fromStdString(config["idMap"].as<std::string>());
+    qDebug() << "Archivo seleccionado:" << map_selected;
 
-    qDebug() << "Archivo seleccionado:" << file_selected;
-    qDebug() << "Mapa seleccionado:" << map_selected;
-
+    qDebug() << "MANDANDO MENSAJE PARA CREAR LA SALA DE ESPERA DESDE EDITOR";
     server_handler.send_create_room();
 }
 

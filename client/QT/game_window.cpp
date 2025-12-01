@@ -38,7 +38,7 @@ void GameWindow::setupScreens() {
     lobby_screen = new LobbyScreen(server_handler, my_id, this);
     waiting_room_screen = new WaitingRoomScreen(server_handler, my_id, map_selected, selected_map_game, this);
     selection_car_screen = new SelectionCarScreen(server_handler, this);
-    selection_map_screen = new SelectionMapScreen(map_selected, this);
+    selection_map_screen = new SelectionMapScreen(this);
     result_finish_screen = new ResultFinishScreen(server_handler, my_id, this);
     menu_screen = new MenuScreen(server_handler, this);
     editor_map_screen = new EditorMapScreen(server_handler, this);
@@ -107,6 +107,7 @@ void GameWindow::setupConnections() {
 
     connect(editor_map_screen, &EditorMapScreen::go_to_waiting_room, this,
             [this]() {
+        waiting_room_screen->set_selected_map(editor_map_screen->get_file_selected());
         waiting_room_screen->hideSelectMapButton();
         waiting_room_screen->startPolling();
         stack->setCurrentWidget(waiting_room_screen);
