@@ -142,6 +142,11 @@ public:
      * Devuelve el snapshot de los NPCs para el tick del mapa
      */
     std::vector<NpcTickInfo> npcs_tick_info();
+    
+    /*
+     * Devuelve los eventos de la carrera para el tick del mapa
+     */
+    std::vector<EventInfo> consume_race_events();
 
     /*
      * Setea el nombre del jugador
