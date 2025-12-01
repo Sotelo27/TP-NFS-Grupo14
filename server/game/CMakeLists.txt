@@ -7,6 +7,7 @@ target_sources(taller_server
     race.cpp
     garage.cpp
     market.cpp
+    result.cpp
     PUBLIC
     # .h files
     city.h
@@ -16,4 +17,5 @@ target_sources(taller_server
     race_info.h
     garage.h
     market.h
+    result.h
     )

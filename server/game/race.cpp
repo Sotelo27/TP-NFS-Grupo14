@@ -434,7 +434,7 @@ void Race::cheat_win_race(size_t playerId) {
 }
 
 void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
-    // Elegir un modelo de auto para el NPC (puede ser aleatorio)
+    // Elegir un modelo de auto para el NPC
     static std::vector<CarModel> modelos = {
         car_factory::common_green_car(),
         car_factory::red_car(),
@@ -471,8 +471,8 @@ std::vector<NpcTickInfo> Race::snapshot_npcs() const {
         b2Vec2 pos = body->GetPosition();
         NpcTickInfo info;
         info.npc_id = npc_id;
-        info.x = static_cast<int32_t>(pos.x * PPM);
-        info.y = static_cast<int32_t>(pos.y * PPM);
+        info.x = (int32_t)(pos.x * PPM);
+        info.y = (int32_t)(pos.y * PPM);
         info.angle = body->GetAngle() * 180.0f / PI;
         out.push_back(info);
     }
@@ -487,7 +487,7 @@ std::vector<EventInfo> Race::snapshot_events() {
 
 void Race::register_damage_event(size_t player_id) {
     EventInfo ev;
-    ev.event_type = static_cast<uint8_t>(EventRaceType::DAMAGED);
+    ev.event_type = (uint8_t)(EventRaceType::DAMAGED);
     ev.player_id = (uint32_t)player_id;
     pending_events.push_back(std::move(ev));
 }

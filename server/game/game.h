@@ -18,6 +18,7 @@
 #include "city.h"
 #include "garage.h" 
 #include "market.h"
+#include "result.h"
 #include "../../common/enum/car_improvement.h"
 #include "../../common/dto/results_info.h"
 
@@ -52,12 +53,7 @@ private:
     Garage garage;
     Market market;
 
-    std::vector<PlayerResultCurrent> last_results_current;
-    bool pending_results{false};
-
-    // Resultados totales (acumulados al finalizar el juego)
-    std::vector<PlayerResultTotal> last_results_total;
-    bool pending_total_results{false};
+    Result results;
     bool pending_market_init{false};
 
 
@@ -288,4 +284,4 @@ public:
     ~Game();
 };
 
-#endif  // GAME_H
+#endif
