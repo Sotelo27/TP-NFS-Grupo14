@@ -127,6 +127,14 @@ std::vector<NpcTickInfo> Game::npcs_tick_info() {
     return races[current_race_index].snapshot_npcs();
 }
 
+std::vector<EventInfo> Game::consume_race_events() {
+    std::lock_guard<std::mutex> lock(m);
+    if (!has_active_race()) {
+        return {};
+    }
+    return races[current_race_index].snapshot_events();
+}
+
 void Game::update(float dt) {
     std::lock_guard<std::mutex> lock(m);
     if (state == GameState::Lobby) {
@@ -149,8 +157,13 @@ void Game::update(float dt) {
 
     city.step(dt);
 
-    // 2) drenar SIEMPRE la cola de eventos de checkpoints del mundo físico
+    // 2) drenar SIEMPRE la cola de eventos de checkpoints y daños
     auto events = city.get_world().consume_checkpoint_events();
+    auto damage_events = city.get_world().consume_damage_events();
+    for (const auto& de : damage_events) {
+        // Registrar evento de daño usando player_id directamente
+        const_cast<Race&>(get_current_race()).register_damage_event(de.player_id);
+    }
 
     // Si todavía no hay carrera activa
     if (!has_active_race()) {
@@ -196,14 +209,11 @@ void Game::on_race_ended() {
     if (current_race_index + 1 >= races.size()) {
         std::cout << "[Game] All races finished.\n";
         state = GameState::Finished;
-        // Construir resultados totales y marcarlos como pendientes para broadcast final
         auto total_results = build_total_results();
         set_pending_total_results(std::move(total_results));
         return;
     }
 
-    // LOGICA DE MARKET:
-    // Iniciar fase de Marketplace para que los jugadores elijan mejoras
     start_market_phase();
 }
 

@@ -81,9 +81,15 @@ void Race::on_car_checkpoint(const std::string& race_id, size_t player_id, uint3
         p.current_checkpoint = checkpoint_id;
         ++p.next_checkpoint_idx;
 
+        {
+            EventInfo ev;
+            ev.event_type = static_cast<uint8_t>(EventRaceType::CHECKPOINT_PASSED);
+            ev.player_id = (uint32_t)player_id;
+            pending_events.push_back(std::move(ev));
+        }
+
         if (p.next_checkpoint_idx == track.checkpoint_count) {
             p.state = ParticipantState::Finished;
-            // Registrar tiempo de llegada del jugador
             p.finish_time_seconds = race_duration;
             std::cout << "[Race] Player " << player_id << " FINISHED route='"
                       << track.route_id << "' total_cp=" << track.checkpoint_count << "\n";
@@ -103,7 +109,6 @@ void Race::init_npc_spawns(const City& city) {
     npc_spawns = city.get_npc_spawns();
     for (size_t i = 0; i < npc_spawns.size(); ++i) {
         const auto& sp = npc_spawns[i];
-        // Convertir a metros
         float x_m = sp.x_px / PPM;
         float y_m = sp.y_px / PPM;
         add_npc((uint8_t)(i + 1), x_m, y_m);
@@ -350,7 +355,6 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         }
         // cantidad de checkpoints restantes
         player.checkpoints_remaining = (uint16_t)(track.checkpoints.size() > next_idx ? (track.checkpoints.size() - next_idx) : 0);
-        
         ranking.push_back(RankInfo{(uint32_t)(playerId), participant.next_checkpoint_idx, distance_px, participant.finish_time_seconds});
         out.push_back(player);
     }
@@ -455,16 +459,6 @@ void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
 
 void Race::update_npcs(float dt) {
     (void)dt;
-    // Para que los NPCs se muevan, puedes aplicar input aquí.
-    // Por ahora, los NPCs quedan quietos (no se aplica input).
-    // Ejemplo: para que avancen recto,
-    /*
-    for (auto& [npc_id, car_ptr] : npc_cars) {
-        if (car_ptr) {
-            car_ptr->apply_input(1.0f, 0.0f); // acelerar recto
-        }
-    }
-    */
 }
 
 std::vector<NpcTickInfo> Race::snapshot_npcs() const {
@@ -482,4 +476,17 @@ std::vector<NpcTickInfo> Race::snapshot_npcs() const {
         out.push_back(info);
     }
     return out;
+}
+
+std::vector<EventInfo> Race::snapshot_events() {
+    std::vector<EventInfo> out;
+    out.swap(pending_events);
+    return out;
+}
+
+void Race::register_damage_event(size_t player_id) {
+    EventInfo ev;
+    ev.event_type = static_cast<uint8_t>(EventRaceType::DAMAGED);
+    ev.player_id = (uint32_t)player_id;
+    pending_events.push_back(std::move(ev));
 }

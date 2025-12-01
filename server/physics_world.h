@@ -17,6 +17,7 @@
 #include "physics/checkpoint_entity.h"
 #include "physics/contact_listener.h"
 #include "physics/checkpoint_event.h"
+#include "physics/damage_event.h"
 
 class PhysicsWorld {
 private:
@@ -96,6 +97,11 @@ public:
      * Obtiene todos los eventos de cruce de checkpoint registrados
      */
     std::vector<CheckpointEvent> consume_checkpoint_events();
+
+    /*
+     *  Obtiene todos los eventos de daño registrados
+     */
+    std::vector<DamageEvent> consume_damage_events();
 
     /*
      * Limpia toda la geometria estatica previamente cargada

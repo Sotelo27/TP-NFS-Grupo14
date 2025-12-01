@@ -20,6 +20,7 @@
 #include "../../common/constants.h"
 #include "npc.h"
 #include "city.h" 
+#include "../../common/enum/event.h"
 
 class Race {
 private:
@@ -40,6 +41,8 @@ private:
     // NUEVO: Autos físicos para NPCs
     std::unordered_map<uint8_t, std::unique_ptr<Car>> npc_cars;
     std::unordered_map<uint8_t, CarModel> npc_models;
+
+    std::vector<EventInfo> pending_events;
 
     /*
      * Verifica los estados de vida de los jugadores y los descalifica si no tienen vida
@@ -167,14 +170,35 @@ public:
      */
     void set_player_ptr(size_t player_id, Player* player_ptr); // NUEVO
 
-    // NPCs
+    /*
+     * Agrega un NPC a la carrera en la posicion (x_m, y_m) en metros
+     */
     void add_npc(uint8_t npc_id, float x_m, float y_m);
+    
+    /* 
+     *  Avanza el tiempo de los NPCs en dt segundos
+     */
     void update_npcs(float dt);
+
+    /*
+     * Construye el snapshot con la informacion de tick de todos los NPCs
+     */
     std::vector<NpcTickInfo> snapshot_npcs() const;
 
-    // Hacer público para que Game pueda inicializar NPCs
-    // Initialize NPCs from City-provided MapConfig npc_spawns
+    /*
+     * Inicializa los spawns de NPCs en la ciudad
+     */
     void init_npc_spawns(const City& city);
+
+    /*
+     * Consume y vacía eventos de l carerra
+     */
+    std::vector<EventInfo> snapshot_events();
+
+    /*
+     * Registra un evento de daño para el jugador con el ID dado
+     */
+    void register_damage_event(size_t player_id);
 };
 
 #endif

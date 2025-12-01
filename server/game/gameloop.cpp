@@ -88,12 +88,10 @@ void Gameloop::func_tick(int iteration) {
     }
 
     if (iteration % ticks_per_broadcast == 0) {
-        std::vector<NpcTickInfo> npcs;
-        std::vector<EventInfo> events;
-
         if (game.has_active_race()) {
             auto tick_players = game.players_tick_info();
             auto tick_npcs = game.npcs_tick_info();
+            auto events = game.consume_race_events();
             TimeTickInfo time_race = game.get_race_time();
             clients.broadcast_map_info(tick_players, tick_npcs, events, time_race);
         } else if (game.has_active_market_place()) {
