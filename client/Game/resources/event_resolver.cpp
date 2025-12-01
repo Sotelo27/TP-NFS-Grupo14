@@ -6,7 +6,7 @@
 #define SOUND_CHECKPOINT_PASSED_FILE std::string(ASSETS_PATH) + "/audio/game/boom3.wav"
 
 #define MAX_VOLUME 128
-#define LIMIT_DISTANCE_SOUND 800
+#define LIMIT_DISTANCE_SOUND 720
 
 EventResolver::EventResolver(SdlAudioManager& audio_manager,
                              std::unordered_map<size_t, CarInfoGame>& info_players,
