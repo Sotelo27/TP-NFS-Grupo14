@@ -1,12 +1,11 @@
 #include "clickable_image.h"
 #include <QPainter>
-#include <QDebug>
 
 ClickableImage::ClickableImage(QWidget *parent)
     : QLabel(parent)
 {
     setMouseTracking(true);
-    setScaledContents(false); // no hacer zoom automático
+    setScaledContents(false);
 }
 
 void ClickableImage::setImage(const QPixmap &pix)
@@ -21,7 +20,6 @@ void ClickableImage::setImage(const QPixmap &pix)
     update();
 }
 
-// NUEVOS MÉTODOS PÚBLICOS
 QPixmap ClickableImage::getOriginalPixmap() const {
     return original;
 }
@@ -40,25 +38,15 @@ QVector<QPoint> ClickableImage::getPoints() const {
     return puntos;
 }
 
-void ClickableImage::resizeEvent(QResizeEvent *event)
-{
-    QLabel::resizeEvent(event);
-
-    if (!original.isNull()) {
-        setPixmap(original.scaled(this->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    }
-}
-
 QPoint ClickableImage::mapToImageCoords(const QPoint &p)
 {
     if (original.isNull())
         return QPoint(-1, -1);
 
     QSize labelSize = this->size();
-    QSize imgScaled = original.size();
-    imgScaled.scale(labelSize, Qt::KeepAspectRatio);
+    QSize imgScaled = pixmap()->size();
 
-    int offsetX = (labelSize.width()  - imgScaled.width())  / 2;
+    int offsetX = (labelSize.width()  - imgScaled.width()) / 2;
     int offsetY = (labelSize.height() - imgScaled.height()) / 2;
 
     if (p.x() < offsetX || p.x() > offsetX + imgScaled.width()) return QPoint(-1, -1);
@@ -75,21 +63,18 @@ QPoint ClickableImage::mapToImageCoords(const QPoint &p)
 
 void ClickableImage::mousePressEvent(QMouseEvent *event)
 {
-    if (original.isNull())
-        return;
+    if (original.isNull()) return;
 
     QPoint posLabel = event->pos();
     QPoint posImg = mapToImageCoords(posLabel);
 
-    if (posImg.x() < 0)  // clic fuera de la imagen
-        return;
+    if (posImg.x() < 0) return; // clic fuera de la imagen
 
     if (event->button() == Qt::LeftButton) {
-        puntos.push_back(posLabel); // dibujo en el label
+        puntos.push_back(posLabel);
         emit leftClick(posImg.x(), posImg.y());
         update();
-    }
-    else if (event->button() == Qt::RightButton) {
+    } else if (event->button() == Qt::RightButton) {
         if (!puntos.isEmpty()) {
             puntos.removeLast();
             emit rightClick();

@@ -1,38 +1,34 @@
 #include "editor_choose_map.h"
-
-#include <iostream>
-
-#include "QVBoxLayout"
-#include "QLabel"
-#include "QGraphicsDropShadowEffect"
-#include "QPushButton"
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QLabel>
+#include <QGraphicsDropShadowEffect>
+#include <QPixmap>
+#include <QDebug>
 
 EditorChooseMap::EditorChooseMap(QWidget *parent)
     : QWidget(parent)
 {
     setWindowTitle("Seleccionar Mapa - Need For Speed");
-    setFixedSize(1100, 750);
+    setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
 
-    QPalette pal;
-    pal.setBrush(QPalette::Window, QPixmap("assets/images/fondo.png"));
-    setAutoFillBackground(true);
-    setPalette(pal);
+    // Fondo general de la ventana
+    background = new QLabel(this);
+    background->setPixmap(QPixmap("assets/images/fondo.png"));
+    background->setScaledContents(true);
+    background->setGeometry(0, 0, width(), height());
+    background->lower(); // queda detrás de todos los widgets
 
-    setStyleSheet(
-    "SelectionMapScreen { background-image: url('assets/images/fondo.png');"
-    " background-repeat: no-repeat; background-position: center; background-size: cover; }"
-    );
+    showMaximized(); // ahora que el fondo está creado
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(20, 20, 20, 20);
     mainLayout->setSpacing(18);
     mainLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 
-    // ----------------------------
-    // Cartel título (neón)
-    // ----------------------------
     QLabel* title = new QLabel("SELECCIONAR MAPA", this);
-    title->setFixedSize(980, 100);
+    title->setFixedHeight(100);
     title->setAlignment(Qt::AlignCenter);
     title->setStyleSheet(
         "background-color: rgba(255, 0, 180, 0.20);"
@@ -42,7 +38,6 @@ EditorChooseMap::EditorChooseMap(QWidget *parent)
         "font-weight: 900;"
         "color: #ffccff;"
     );
-
     auto* titleGlow = new QGraphicsDropShadowEffect(this);
     titleGlow->setBlurRadius(55);
     titleGlow->setOffset(0, 0);
@@ -51,13 +46,12 @@ EditorChooseMap::EditorChooseMap(QWidget *parent)
     mainLayout->addWidget(title, 0, Qt::AlignHCenter);
 
     QWidget* panel = new QWidget(this);
-    panel->setFixedSize(1020, 560);
     panel->setStyleSheet(
-        "background: rgba(15, 5, 25, 0.85);"    // panel oscuro semi-opa
+        "background: rgba(15, 5, 25, 0.85);"
         "border-radius: 20px;"
         "border: 3px solid rgba(255, 0, 180, 0.18);"
     );
-    auto* panelGlow = new QGraphicsDropShadowEffect(this);
+    auto* panelGlow = new QGraphicsDropShadowEffect(panel);
     panelGlow->setBlurRadius(60);
     panelGlow->setOffset(0, 0);
     panelGlow->setColor(QColor(255, 0, 180, 120));
@@ -77,9 +71,8 @@ EditorChooseMap::EditorChooseMap(QWidget *parent)
                              const QString& mapLabel,
                              const QString& internalName)
     {
-        // caja externa para card (con borde y sombra)
         QWidget* cardWidget = new QWidget(panel);
-        cardWidget->setFixedSize(300, 360);
+        cardWidget->setFixedSize(350, 410);
         cardWidget->setStyleSheet(
             "background: rgba(255,255,255,0.04);"
             "border-radius: 16px;"
@@ -96,9 +89,8 @@ EditorChooseMap::EditorChooseMap(QWidget *parent)
         cardLayout->setSpacing(10);
         cardLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 
-        // caja para la imagen (con fondo oscuro para aislar del ladrillo)
         QWidget* imgBox = new QWidget(cardWidget);
-        imgBox->setFixedSize(276, 190);
+        imgBox->setFixedSize(300, 240);
         imgBox->setStyleSheet(
             "background: rgba(10,0,20,0.55);"
             "border-radius: 12px;"
@@ -109,11 +101,10 @@ EditorChooseMap::EditorChooseMap(QWidget *parent)
 
         QLabel* imgLabel = new QLabel(imgBox);
         QPixmap pm(imgPath);
-        imgLabel->setPixmap(pm.scaled(220, 150, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        imgLabel->setPixmap(pm.scaled(imgBox->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
         imgLabel->setAlignment(Qt::AlignCenter);
         imgBoxLayout->addWidget(imgLabel, 0, Qt::AlignCenter);
 
-        // nombre del mapa (barra)
         QLabel* nameLabel = new QLabel(mapLabel, cardWidget);
         nameLabel->setAlignment(Qt::AlignCenter);
         nameLabel->setFixedHeight(34);
@@ -126,20 +117,19 @@ EditorChooseMap::EditorChooseMap(QWidget *parent)
             "border: 1px solid rgba(150,100,255,0.35);"
         );
 
-        // botón elegir
         QPushButton* chooseBtn = new QPushButton("Elegir", cardWidget);
         chooseBtn->setCursor(Qt::PointingHandCursor);
         chooseBtn->setFixedSize(120, 40);
         chooseBtn->setStyleSheet(
             "QPushButton {"
-            "  font-size: 16px; font-weight: 800;"
-            "  color: #1A1A22;"
-            "  background: linear-gradient(135deg, #FF9FD9, #B27CE8);"
-            "  border-radius: 10px;"
-            "  border: 2px solid rgba(178,124,232,0.85);"
+            "font-size: 16px; font-weight: 800;"
+            "color: #1A1A22;"
+            "background: linear-gradient(135deg, #FF9FD9, #B27CE8);"
+            "border-radius: 10px;"
+            "border: 2px solid rgba(178,124,232,0.85);"
             "}"
             "QPushButton:hover {"
-            "  background: linear-gradient(135deg, #FFB3E4, #8AF5F0);"
+            "background: linear-gradient(135deg, #FFB3E4, #8AF5F0);"
             "}"
             "QPushButton:pressed { background: rgba(178,124,232,0.6); }"
         );
@@ -149,7 +139,6 @@ EditorChooseMap::EditorChooseMap(QWidget *parent)
             on_map_selected(internalName, imgPath);
         });
 
-        // armar card
         cardLayout->addWidget(imgBox, 0, Qt::AlignCenter);
         cardLayout->addSpacing(6);
         cardLayout->addWidget(nameLabel);
@@ -158,29 +147,24 @@ EditorChooseMap::EditorChooseMap(QWidget *parent)
 
         return cardWidget;
     };
-    QWidget* card1 = createMapCard("assets/cities/LibertyCity.png",  "Liberty City",  "LibertyCity");
-    QWidget* card2 = createMapCard("assets/cities/SanAndreas.png",  "San Andreas",  "SanAndreas");
-    QWidget* card3 = createMapCard("assets/cities/ViceCity.png",    "Vice City",    "ViceCity");
 
-    mapsLayout->addWidget(card1);
-    mapsLayout->addWidget(card2);
-    mapsLayout->addWidget(card3);
+    mapsLayout->addWidget(createMapCard("assets/cities/LibertyCity.png",  "Liberty City",  "LibertyCity"));
+    mapsLayout->addWidget(createMapCard("assets/cities/SanAndreas.png",  "San Andreas",  "SanAndreas"));
+    mapsLayout->addWidget(createMapCard("assets/cities/ViceCity.png",    "Vice City",    "ViceCity"));
 
     panelLayout->addLayout(mapsLayout);
-
-    // agregar panel al mainLayout
     mainLayout->addWidget(panel, 0, Qt::AlignHCenter);
-
-    // espacio abajo
     mainLayout->addStretch();
 }
 
 void EditorChooseMap::on_map_selected(const QString& map_name, const QString& img_path) {
     selected_map = map_name;
     selected_map_image = img_path;
-
-    std::cout << selected_map.toStdString() << std::endl;
-    std::cout << selected_map_image.toStdString() << std::endl;
-
     emit go_to_editor_screen();
+}
+
+void EditorChooseMap::resizeEvent(QResizeEvent* event) {
+    QWidget::resizeEvent(event);
+    if (background)
+        background->setGeometry(0, 0, width(), height());
 }
