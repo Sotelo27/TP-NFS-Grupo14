@@ -18,7 +18,6 @@ class EditorMapScreen : public QWidget {
 public:
     explicit EditorMapScreen(ServerHandler& server_handler, QWidget* parent = nullptr);
 
-    QString get_map_selected() const;
     QString get_file_selected() const;
     void start_polling();
     signals:
@@ -46,7 +45,6 @@ private:
     QVBoxLayout* mainLayout;
 
     QString directory;
-    QString map_selected;
     QString file_selected;
 
     uint8_t current_room_id;
