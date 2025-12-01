@@ -16,7 +16,7 @@ class LobbyScreen : public QWidget {
 
 public:
     explicit LobbyScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent = nullptr);
-    void startPolling() { pollTimer->start(50); }
+    void startPolling();
     void on_return_from_waiting_room();
 
 protected:
@@ -30,9 +30,10 @@ private slots:
     void update_room_list(const std::vector<RoomInfo>& rooms);
 
     signals:
-        void room_created(uint8_t room_id);
+    void room_created(uint8_t room_id);
     void go_to_waiting_room_screen();
     void go_to_selection_map_screen();
+    void go_to_editor_screen();
 
 private:
     ServerHandler& server_handler;

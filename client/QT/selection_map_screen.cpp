@@ -7,8 +7,8 @@
 #include <QPixmap>
 #include <QDebug>
 
-SelectionMapScreen::SelectionMapScreen(bool& map_selected, QWidget* parent)
-    : QWidget(parent), map_selected(map_selected)
+SelectionMapScreen::SelectionMapScreen(QWidget* parent)
+    : QWidget(parent)
 {
     setWindowTitle("Seleccionar Mapa - Need For Speed");
     setupUi();
@@ -140,7 +140,6 @@ QWidget* SelectionMapScreen::createMapCard(const QString& imgPath, const QString
 
 void SelectionMapScreen::on_map_selected(const QString& map_name) {
     selected_map = map_name;
-    map_selected = true;
     qDebug() << "Mapa seleccionado: " + map_name;
     emit go_to_waiting_room_screen();
 }
