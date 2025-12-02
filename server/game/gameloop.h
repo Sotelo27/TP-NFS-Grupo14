@@ -8,6 +8,7 @@
 
 #include "../../common/queue.h"
 #include "../../common/thread.h"
+#include "../../common/constant_rate_loop_server.h"
 
 #include "../client_handler.h"
 #include "../client_list.h"
@@ -19,9 +20,13 @@ private:
     Game& game;
     ClientListProtected& clients;
     Queue<ClientAction>& actiones_clients;
+    ConstantRateLoopServer loop;
     void procesar_actiones();
     void iteracion_game();
 
+
+    int ticks_per_broadcast;
+    void func_tick(int iteration);
 public:
     /*
      * Constructor de Gameloop que recibe un Socket ya conectado al

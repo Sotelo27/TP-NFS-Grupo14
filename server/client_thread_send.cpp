@@ -24,8 +24,7 @@ void ClientThreadSend::run() {
 
             switch (msg.type) {
                 case ServerOutType::Pos: {
-                    float angle_deg = msg.angle * 180.0f / PI;
-                    protocol.send_pos(msg.id, msg.x, msg.y, angle_deg);
+                    protocol.send_pos(msg);
                 } break;
                 case ServerOutType::Rooms:
                     std::cout << "[ClientThreadSend] Sending ROOMS to conn_id=" << id << "\n";
@@ -37,15 +36,15 @@ void ClientThreadSend::run() {
                     break;
                 case ServerOutType::YourId:
                     std::cout << "[ClientThreadSend] Sending YOUR_ID(" << msg.your_id << ") to conn_id=" << id << "\n";
-                    protocol.send_your_id(msg.your_id);
+                    protocol.send_your_id(msg);
                     break;
                 case ServerOutType::PlayerName:
                     std::cout << "[ClientThreadSend] Sending PLAYER_NAME to conn_id=" << id << "\n";
-                    protocol.send_player_name(msg.id, msg.username);
+                    protocol.send_player_name(msg);
                     break;
                 case ServerOutType::RoomCreated:
                     std::cout << "[ClientThreadSend] Sending ROOM_CREATED(" << (int)msg.room_id << ") to conn_id=" << id << "\n";
-                    protocol.send_room_created(msg.room_id);
+                    protocol.send_room_created(msg);
                     break;
                 case ServerOutType::PlayersList:
                     std::cout << "[ClientThreadSend] Sending PLAYERS_LIST to conn_id=" << id 
@@ -56,13 +55,22 @@ void ClientThreadSend::run() {
                     protocol.send_cars_list(msg.cars);
                     break;
                 case ServerOutType::RaceStart:
-                    protocol.send_race_start(msg.map_name, (uint8_t)msg.checkpoints.size(), msg.checkpoints);
+                    protocol.send_race_start(msg.map_id, (uint8_t)msg.checkpoints.size(), msg.checkpoints);
                     break;
                 case ServerOutType::Results:
-                    protocol.send_results(msg.results_current, msg.results_total);
+                    protocol.send_result_race_current(msg.results_current);
+                    break;
+                case ServerOutType::ResultsTotal:
+                    protocol.send_results(msg.results_total);
                     break;
                 case ServerOutType::MapInfo:
-                    protocol.send_map_info(msg.players_tick, msg.npcs_tick, msg.events_tick);
+                    protocol.send_map_info(msg.players_tick, msg.npcs_tick, msg.events_tick, msg.race_time);
+                    break;
+                case ServerOutType::ImprovementOk:
+                    protocol.send_improvement_ok(msg.improvement_result);
+                    break;
+                case ServerOutType::MarketTime:
+                    protocol.send_market_time(msg.market_time);
                     break;
                 default:
                     std::cout << "[ClientThreadSend] Unknown message type\n";

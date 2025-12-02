@@ -19,13 +19,13 @@ static inline uint32_t htonf32(float f) {
     return htonl(u);
 }
 
-void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y, float angle) {
+void ServerProtocol::send_pos(const ServerOutMsg& msg) {
     uint8_t code = CODE_S2C_POS;
 
-    uint32_t id_be = htonl(id);
-    uint16_t x_be = htons((uint16_t)x);
-    uint16_t y_be = htons((uint16_t)y);
-    uint32_t ang_be = htonf32(angle);
+    uint32_t id_be = htonl(msg.id);
+    uint16_t x_be = htons((uint16_t)msg.x);
+    uint16_t y_be = htons((uint16_t)msg.y);
+    uint32_t ang_be = htonf32(msg.angle);
 
     std::vector<uint8_t> buf;
     buf.reserve(1 + 4 + 2 + 2 + 4);
@@ -50,9 +50,9 @@ void ServerProtocol::send_pos(uint32_t id, int16_t x, int16_t y, float angle) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_your_id(uint32_t id) {
+void ServerProtocol::send_your_id(const ServerOutMsg& msg) {
     uint8_t code = CODE_S2C_YOUR_ID;
-    uint32_t id_be = htonl(id);
+    uint32_t id_be = htonl(msg.your_id);
 
     uint8_t buf[1 + 4];
     buf[0] = code;
@@ -60,14 +60,14 @@ void ServerProtocol::send_your_id(uint32_t id) {
     skt.sendall(buf, sizeof(buf));
 }
 
-void ServerProtocol::send_player_name(uint32_t id, const std::string& username) {
+void ServerProtocol::send_player_name(const ServerOutMsg& msg) {
     uint8_t code = CODE_S2C_PLAYER_NAME;
-    uint32_t id_be = htonl(id);
-    uint16_t len = (uint16_t)username.size();
+    uint32_t id_be = htonl(msg.id);
+    uint16_t len = (uint16_t)msg.username.size();
     uint16_t len_be = htons(len);
 
     std::vector<uint8_t> buf;
-    buf.reserve(1 + 4 + 2 + username.size());
+    buf.reserve(1 + 4 + 2 + len);
     buf.push_back(code);
 
     size_t off = buf.size();
@@ -76,8 +76,8 @@ void ServerProtocol::send_player_name(uint32_t id, const std::string& username) 
     buf.resize(off + 2); std::memcpy(buf.data() + off, &len_be, 2);
     if (len > 0) {
         off = buf.size();
-        buf.resize(off + username.size());
-        std::memcpy(buf.data() + off, username.data(), username.size());
+        buf.resize(off + len);
+        std::memcpy(buf.data() + off, msg.username.data(), len);
     }
 
     skt.sendall(buf.data(), (unsigned int)buf.size());
@@ -99,9 +99,9 @@ void ServerProtocol::send_rooms(const std::vector<RoomInfo>& rooms) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_room_created(uint8_t room_id) {
+void ServerProtocol::send_room_created(const ServerOutMsg& msg) {
     uint8_t code = CODE_S2C_ROOM_CREATED;
-    uint8_t buf[2] = {code, room_id};
+    uint8_t buf[2] = {code, msg.room_id};
     skt.sendall(buf, sizeof(buf));
 }
 
@@ -110,18 +110,18 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
     uint8_t count = (uint8_t)players.size();
     
     std::vector<uint8_t> buf;
-    buf.reserve(2 + players.size() * 30); // Estimación aumentada por campos extra
+    buf.reserve(2 + players.size() * 30);
     buf.push_back(code);
     buf.push_back(count);
     
     for (const auto& p : players) {
-        // Player ID (4 bytes big endian)
+        // Player ID 
         uint32_t id_be = htonl(p.player_id);
         size_t off = buf.size();
         buf.resize(off + 4);
         std::memcpy(buf.data() + off, &id_be, 4);
         
-        // Username length (2 bytes big endian)
+        // Username length (
         uint16_t len = (uint16_t)p.username.size();
         uint16_t len_be = htons(len);
         off = buf.size();
@@ -138,10 +138,13 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
         // Ready flag (1 byte)
         buf.push_back(p.is_ready ? 1 : 0);
         
+        //Admin flag (1 byte)
+        buf.push_back(p.is_admin ? 1 : 0);
+        
         // Health (1 byte)
         buf.push_back(p.health);
         
-        // Race time (4 bytes big endian)
+        // Race time (4 bytes)
         uint32_t time_be = htonl(p.race_time_ms);
         off = buf.size();
         buf.resize(off + 4);
@@ -152,34 +155,34 @@ void ServerProtocol::send_players_list(const std::vector<PlayerInfo>& players) {
     std::cout << "[ServerProtocol] Sent PLAYERS_LIST with " << (int)count << " players\n";
 }
 
-void ServerProtocol::enviar_mensaje(uint16_t cantidad_nitros_activos, uint8_t mensaje) {
-    uint8_t codigo = CODE_SERVER_MSG;
+void ServerProtocol::send_nitro(const ServerOutMsg& msg) {
+    uint8_t code = CODE_SERVER_MSG;
+    uint16_t cant = htons(msg.active_nitros); 
+    uint8_t msg_type = msg.nitro_msg;                  
 
-    uint16_t cantidad_be = htons(cantidad_nitros_activos);
-
-    std::vector<uint8_t> paquete(sizeof(codigo) + sizeof(cantidad_be) + sizeof(mensaje));
+    std::vector<uint8_t> paquete(sizeof(code) + sizeof(cant) + sizeof(msg_type));
     size_t offset = 0;
-    std::memcpy(paquete.data() + offset, &codigo, sizeof(codigo));
-    offset += sizeof(codigo);
-    std::memcpy(paquete.data() + offset, &cantidad_be, sizeof(cantidad_be));
-    offset += sizeof(cantidad_be);
-    std::memcpy(paquete.data() + offset, &mensaje, sizeof(mensaje));
+    std::memcpy(paquete.data() + offset, &code, sizeof(code));
+    offset += sizeof(code);
+    std::memcpy(paquete.data() + offset, &cant, sizeof(cant));
+    offset += sizeof(cant);
+    std::memcpy(paquete.data() + offset, &msg_type, sizeof(msg_type));
 
     skt.sendall(paquete.data(), (unsigned int)paquete.size());
 }
 
-void ServerProtocol::enviar_rooms_default() {
-    uint8_t codigo = CODE_SERVER_MSG;
-    uint16_t cantidad_be = htons((uint16_t)0);
-    uint8_t mensaje = (uint8_t)ERROR_MESSAGE;
+void ServerProtocol::send_rooms_default() {
+    uint8_t code = CODE_SERVER_MSG;
+    uint16_t cant = htons((uint16_t)0);
+    uint8_t msg_type = (uint8_t)ERROR_MESSAGE;
 
-    std::vector<uint8_t> paquete(sizeof(codigo) + sizeof(cantidad_be) + sizeof(mensaje));
+    std::vector<uint8_t> paquete(sizeof(code) + sizeof(cant) + sizeof(msg_type));
     size_t offset = 0;
-    std::memcpy(paquete.data() + offset, &codigo, sizeof(codigo));
-    offset += sizeof(codigo);
-    std::memcpy(paquete.data() + offset, &cantidad_be, sizeof(cantidad_be));
-    offset += sizeof(cantidad_be);
-    std::memcpy(paquete.data() + offset, &mensaje, sizeof(mensaje));
+    std::memcpy(paquete.data() + offset, &code, sizeof(code));
+    offset += sizeof(code);
+    std::memcpy(paquete.data() + offset, &cant, sizeof(cant));
+    offset += sizeof(cant);
+    std::memcpy(paquete.data() + offset, &msg_type, sizeof(msg_type));
 
     skt.sendall(paquete.data(), (unsigned int)paquete.size());
 }
@@ -202,27 +205,18 @@ void ServerProtocol::send_cars_list(const std::vector<CarInfo>& cars) {
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_race_start(const std::string& map, uint8_t amount_checkpoints,
+void ServerProtocol::send_race_start(uint8_t map_id, uint8_t amount_checkpoints,
                                      const std::vector<std::pair<int32_t,int32_t>>& checkpoints) {
     uint8_t code = CODE_S2C_RACE_START;
-    uint16_t len = (uint16_t)map.size();
-    uint16_t len_be = htons(len);
-
     std::vector<uint8_t> buf;
-    buf.reserve(1 + 2 + map.size() + 1 + checkpoints.size()*8);
+    buf.reserve(1 + 1 + 1 + checkpoints.size()*8);
     buf.push_back(code);
-
-    size_t off = buf.size();
-    buf.resize(off + 2); std::memcpy(buf.data()+off, &len_be, 2);
-    if (len) {
-        off = buf.size();
-        buf.resize(off + map.size()); std::memcpy(buf.data()+off, map.data(), map.size());
-    }
+    buf.push_back(map_id); 
     buf.push_back(amount_checkpoints);
     for (const auto& cp : checkpoints) {
         int32_t x_be = htonl(cp.first);
         int32_t y_be = htonl(cp.second);
-        off = buf.size();
+        size_t off = buf.size();
         buf.resize(off + 4); std::memcpy(buf.data()+off, &x_be, 4);
         off = buf.size();
         buf.resize(off + 4); std::memcpy(buf.data()+off, &y_be, 4);
@@ -230,30 +224,14 @@ void ServerProtocol::send_race_start(const std::string& map, uint8_t amount_chec
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& current,
-                                  const std::vector<PlayerResultTotal>& total) {
+void ServerProtocol::send_results(const std::vector<PlayerResultTotal>& total) {
     uint8_t code = CODE_S2C_RESULTS;
-    uint8_t nplayers = (uint8_t)current.size(); // se asume mismo tamaño en ambas
+    uint8_t nplayers = (uint8_t)total.size();
     std::vector<uint8_t> buf;
     buf.reserve(2);
     buf.push_back(code);
     buf.push_back(nplayers);
-    // CURRENT
-    for (const auto& p : current) {
-        uint16_t l = (uint16_t)p.username.size();
-        uint16_t lbe = htons(l);
-        size_t off = buf.size();
-        buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
-        if (l) {
-            off = buf.size();
-            buf.resize(off + p.username.size());
-            std::memcpy(buf.data()+off, p.username.data(), p.username.size());
-        }
-        uint16_t time_be = htons(p.time_seconds);
-        off = buf.size();
-        buf.resize(off + 2); std::memcpy(buf.data()+off, &time_be, 2);
-    }
-    // TOTAL
+
     for (const auto& p : total) {
         uint16_t l = (uint16_t)p.username.size();
         uint16_t lbe = htons(l);
@@ -267,13 +245,15 @@ void ServerProtocol::send_results(const std::vector<PlayerResultCurrent>& curren
         uint32_t tbe = htonl(p.total_time_seconds);
         off = buf.size();
         buf.resize(off + 4); std::memcpy(buf.data()+off, &tbe, 4);
+        buf.push_back(p.position);
     }
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
 void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
                                    const std::vector<NpcTickInfo>& npcs,
-                                   const std::vector<EventInfo>& events) {
+                                   const std::vector<EventInfo>& events,
+                                   TimeTickInfo time_info) {
     uint8_t code = CODE_S2C_MAP_INFO;
     std::vector<uint8_t> buf;
     buf.reserve(1);
@@ -300,7 +280,37 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         uint32_t ang_be = htonf32(p.angle);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ang_be, 4);
         buf.push_back(p.health);
+        buf.push_back(p.max_health);
+        uint32_t spd_be = htonf32(p.speed_mps);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &spd_be, 4);
+
+        uint16_t xcp_be = htons(p.x_checkpoint);
+        uint16_t ycp_be = htons(p.y_checkpoint);
+        off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &xcp_be, 2);
+        off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &ycp_be, 2);
+
+        uint32_t hint_be = htonf32(p.hint_angle_deg);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &hint_be, 4);
+
+        uint16_t pos_be = htons(p.position_in_race);
+        off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &pos_be, 2);
+
+        uint32_t dist_be = htonf32(p.distance_to_checkpoint);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &dist_be, 4);
+
+        uint16_t rem_be = htons(p.checkpoints_remaining);
+        off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &rem_be, 2);
+        buf.push_back(p.meta ? 1 : 0);
+
+        uint8_t nimp = (uint8_t)p.improvements.size();
+        buf.push_back(nimp);
+        for (uint8_t k = 0; k < nimp; ++k) {
+            buf.push_back((uint8_t)p.improvements[k]);
+        }
     }
+    
+    uint32_t time_be = htonl(time_info.seconds);
+    size_t off_time = buf.size(); buf.resize(off_time + 4); std::memcpy(buf.data()+off_time, &time_be, 4);
     // npcs
     buf.push_back((uint8_t)npcs.size());
     for (const auto& n : npcs) {
@@ -308,29 +318,87 @@ void ServerProtocol::send_map_info(const std::vector<PlayerTickInfo>& players,
         int32_t xbe = htonl(n.x), ybe = htonl(n.y);
         size_t off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &xbe, 4);
         off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ybe, 4);
+        uint32_t ang_be = htonf32(n.angle);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &ang_be, 4);
     }
-    // events
+    // events (event_type + player_id)
     buf.push_back((uint8_t)events.size());
     for (const auto& e : events) {
         buf.push_back(e.event_type);
-        uint16_t l = (uint16_t)e.username.size();
-        uint16_t lbe = htons(l);
+        uint32_t pid_be = htonl(e.player_id);
         size_t off = buf.size();
-        buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
-        if (l) {
-            off = buf.size();
-            buf.resize(off + e.username.size());
-            std::memcpy(buf.data()+off, e.username.data(), e.username.size());
-        }
+        buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
     }
     skt.sendall(buf.data(), (unsigned int)buf.size());
+}
+
+void ServerProtocol::send_market_time(TimeTickInfo time_info) {
+    uint8_t code = CODE_S2C_MARKET_TIME;
+    std::vector<uint8_t> buf;
+    buf.reserve(1 + 4);
+    buf.push_back(code);
+    uint32_t time_be = htonl(time_info.seconds);
+    size_t off = buf.size();
+    buf.resize(off + 4);
+    std::memcpy(buf.data() + off, &time_be, 4);
+    skt.sendall(buf.data(), (unsigned int)buf.size());
+}
+
+void ServerProtocol::send_result_race_current(const std::vector<PlayerResultCurrent>& current) {
+    uint8_t code = CODE_S2C_RACE_RESULTS_CURRENT;
+    uint8_t nplayers = (uint8_t)current.size();
+    std::vector<uint8_t> buf;
+    size_t usernames_total_len = 0;
+    for (const auto& p : current) usernames_total_len += p.username.size();
+    buf.reserve(2 + nplayers * (4 + 2 + 4 + 4 + 1) + usernames_total_len);
+    buf.push_back(code);
+    buf.push_back(nplayers);
+    // Formato: [player_id:4][username_len:2][username][race_time_seconds:4][total_time_seconds:4][position:1]
+    for (const auto& p : current) {
+        uint32_t pid_be = htonl(p.player_id);
+        size_t off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
+        uint16_t l = (uint16_t)p.username.size();
+        uint16_t lbe = htons(l);
+        off = buf.size(); buf.resize(off + 2); std::memcpy(buf.data()+off, &lbe, 2);
+        if (l) {
+            off = buf.size(); buf.resize(off + p.username.size()); std::memcpy(buf.data()+off, p.username.data(), p.username.size());
+        }
+        uint32_t race_be = htonl(p.race_time_seconds);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &race_be, 4);
+        uint32_t total_be = htonl(p.total_time_seconds);
+        off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &total_be, 4);
+        buf.push_back(p.position);
+    }
+    skt.sendall(buf.data(), (unsigned int)buf.size());
+}
+
+void ServerProtocol::send_improvement_ok(const ImprovementResult& result) {
+    uint8_t code = CODE_S2C_IMPROVEMENT;
+    uint32_t pid_be     = htonl(result.player_id);
+    uint32_t penalty_be = htonl(result.total_penalty_seconds);
+    uint32_t balance_be = htonl(result.current_balance);
+    uint8_t success     = result.ok ? 1 : 0;
+    std::vector<uint8_t> buf;
+    // code(1)+player_id(4)+improvement_id(1)+success(1)+penalty(4)+balance(4)
+    buf.reserve(1 + 4 + 1 + 1 + 4 + 4);
+    buf.push_back(code);
+    size_t off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &pid_be, 4);
+    buf.push_back(result.improvement_id);
+    buf.push_back(success);
+    off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &penalty_be, 4);
+    off = buf.size(); buf.resize(off + 4); std::memcpy(buf.data()+off, &balance_be, 4);
+    skt.sendall(buf.data(), (unsigned int)buf.size());
+}
+
+void ServerProtocol::send_game_over() {
+    uint8_t code = CODE_S2C_GAME_OVER;
+    skt.sendall(&code, 1);
 }
 
 ServerProtocol::ServerProtocol(Socket&& skt): skt(std::move(skt)) {
     init_recv_dispatch();
 }
 
-// ------------------ NUEVO: Dispatch init ------------------
 void ServerProtocol::init_recv_dispatch() {
     recv_dispatch = {
         {CODE_C2S_NAME,        [this](){ return parse_name(); }},
@@ -344,7 +412,6 @@ void ServerProtocol::init_recv_dispatch() {
     };
 }
 
-//NUEVO: Handlers 
 ClientMessage ServerProtocol::parse_name() {
     ClientMessage dto; dto.type = ClientMessage::Type::Name;
     uint16_t len_be=0; skt.recvall(&len_be,2);
@@ -373,6 +440,7 @@ ClientMessage ServerProtocol::parse_room() {
     return dto;
 }
 
+// Acá traduce al nombre que le mandamos
 ClientMessage ServerProtocol::parse_start_game() {
     ClientMessage dto; dto.type = ClientMessage::Type::StartGame;
     uint8_t qty=0; skt.recvall(&qty,1);
@@ -425,5 +493,5 @@ ClientMessage ServerProtocol::receive() {
     if (it != recv_dispatch.end()) {
         return it->second();
     }
-    return dto; // Unknown
+    return dto; 
 }

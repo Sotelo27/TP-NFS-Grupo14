@@ -105,6 +105,7 @@ endif()
 if(TALLER_CLIENT)
     find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets)
     find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Multimedia)
+    find_package(yaml-cpp REQUIRED)
     include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
     file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
     set(CMAKE_AUTOMOC ON)
@@ -122,6 +123,7 @@ if(TALLER_CLIENT)
     add_subdirectory(client/Game/sdl_wrappers)
     add_subdirectory(client/Game/utils)
     add_subdirectory(client/Game/resources)
+    add_subdirectory(client/Game/resources/hud)
     add_subdirectory(client/connection)
     add_subdirectory(client/QT)
 
@@ -133,20 +135,23 @@ if(TALLER_CLIENT)
     target_include_directories(taller_client PRIVATE sdl_wrappers)
     target_include_directories(taller_client PRIVATE utils)
     target_include_directories(taller_client PRIVATE resources)
+    target_include_directories(taller_client PRIVATE resources/hud)
     target_include_directories(taller_client PRIVATE connection)
     target_include_directories(taller_client PRIVATE QT)
 
     # define ASSETS_PATH assets path
     target_compile_definitions(taller_client PRIVATE
-        ASSETS_PATH="${CMAKE_SOURCE_DIR}/assets"
+            ASSETS_PATH="assets"
     )
 
     # Link the taller_common lib target
     target_link_libraries(taller_client
+            yaml-cpp
             taller_common
             SDL2pp::SDL2pp
             SDL2_image::SDL2_image
             SDL2_ttf::SDL2_ttf
+            SDL2_mixer::SDL2_mixer
             taller_common
             Qt5::Core
             Qt5::Gui
@@ -157,6 +162,7 @@ endif()
 
 if(TALLER_SERVER)
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
+    find_package(yaml-cpp REQUIRED)
     add_executable(taller_server)
 
     # Make them depend on taller_common lib
@@ -174,7 +180,7 @@ if(TALLER_SERVER)
 
     # define PATH collision assets path
     target_compile_definitions(taller_server PRIVATE
-        COLLISION_PATH="${CMAKE_SOURCE_DIR}/MapBoundary"
+        COLLISION_PATH="MapBoundary"
     )
 
     # Link the taller_common lib target
@@ -182,14 +188,14 @@ if(TALLER_SERVER)
 
     # YAML-CPP (for server track loading)
     include(FetchContent)
-    FetchContent_Declare(
-        yaml_cpp
-        GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-        GIT_TAG 0.8.0 
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
-    )
-    FetchContent_MakeAvailable(yaml_cpp)
+#    FetchContent_Declare(
+#        yaml_cpp
+#        GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+#        GIT_TAG 0.8.0
+#        GIT_SHALLOW TRUE
+#        GIT_PROGRESS TRUE
+#    )
+#    FetchContent_MakeAvailable(yaml_cpp)
 
     # Box2D vía pkg-config (garantiza headers+lib 2.4.1 del sistema)
     find_package(PkgConfig REQUIRED)
@@ -204,25 +210,45 @@ if(TALLER_SERVER)
 endif()
 
 if(TALLER_EDITOR)
+    # Dependencias necesarias
+    find_package(yaml-cpp REQUIRED)
+    find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 
-    # HEY!! TODO XXX: Change the name of the executable to the one you like!
+    # Ejecutable del editor
     add_executable(taller_editor)
 
-    # Make them depend on taller_common lib
-    add_dependencies(taller_editor taller_common SDL2pp::SDL2pp)
-
-    # Add source files and enable warnings
-    # HEY!! TODO XXX: add more subfolders here
+    # Código fuente del editor
     add_subdirectory(editor)
 
-    set_project_warnings(taller_editor ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
+    # Dependencias del ejecutable
+    add_dependencies(taller_editor taller_common SDL2pp::SDL2pp)
 
-    # add libSDL2pp's headers
-    target_include_directories(taller_editor PRIVATE ${libSDL2pp_SOURCE_DIR})
+    # Copiar carpeta BaseMap al directorio build/editor
+    file(COPY ${CMAKE_SOURCE_DIR}/editor/BaseMap
+            DESTINATION ${CMAKE_BINARY_DIR}/editor)
 
-    # Link the taller_common lib target
-    target_link_libraries(taller_editor taller_common SDL2pp::SDL2pp)
-    target_link_libraries(taller_editor Qt5::Core Qt5::Gui Qt5::Widgets)
+    # Definir la ruta para cargar YAML dentro del código
+    # Esto hace que el programa busque: build/editor/BaseMap
+    target_compile_definitions(taller_editor PRIVATE
+            BASE_PATH="editor/BaseMap",
+            EDITS_PATH="editor/MapsEdited"
+    )
+
+    # Includes necesarios
+    target_include_directories(taller_editor PRIVATE
+            ${libSDL2pp_SOURCE_DIR}
+    )
+
+    # Linkeo final
+    target_link_libraries(taller_editor
+            PRIVATE
+            yaml-cpp
+            taller_common
+            SDL2pp::SDL2pp
+            Qt5::Core
+            Qt5::Gui
+            Qt5::Widgets
+    )
 endif()
 
 
@@ -230,49 +256,41 @@ endif()
 # ---------------
 
 if(TALLER_TESTS)
-    # Let's use google test
     include(FetchContent)
     FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+            googletest
+            URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
     )
-
-    # For Windows: Prevent overriding the parent project's compiler/linker settings
-    # (borrowed from https://google.github.io/googletest/quickstart-cmake.html)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
     include(GoogleTest)
 
     # target for testing
-    # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_tests)
 
-    # HEY!! TODO XXX: I'm assuming that the code under testing is in taller_common
-    # Change this if you have to.
     add_dependencies(taller_tests taller_common)
 
-    # Say where to find the xoz headers
-    # HEY!! TODO XXX: add more subfolders here
     target_include_directories(taller_tests PUBLIC .)
 
-    # Add the source files to the taller_tests target
-    # HEY!! TODO XXX: add more subfolders here
     add_subdirectory(tests/)
 
-    # Set the compiler warnings to the tests target (but be a little lesser strict)
-    set_project_warnings(taller_tests ${TALLER_MAKE_WARNINGS_AS_ERRORS} TRUE)
+    set_project_warnings(taller_tests FALSE TRUE)
 
-    # Say where googletest headers can be found
     target_include_directories(taller_tests
-        PUBLIC
-        ${gtest_SOURCE_DIR}/include
-        ${gmock_SOURCE_DIR}/include
-        )
+            PUBLIC
+            ${gtest_SOURCE_DIR}/include
+            ${gmock_SOURCE_DIR}/include
+    )
 
-    # HEY!! TODO XXX: I'm assuming that the code under testing is in taller_common
-    # Change this if you have to.
+    # --- NUEVO: Activar Qt y -fPIC ---
+    find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets)
+    set_target_properties(taller_tests PROPERTIES POSITION_INDEPENDENT_CODE ON)
     target_link_libraries(taller_tests
-        taller_common
-        GTest::gtest_main
+            taller_common
+            GTest::gtest_main
+            Qt5::Core
+            Qt5::Gui
+            Qt5::Widgets
     )
 endif()
+

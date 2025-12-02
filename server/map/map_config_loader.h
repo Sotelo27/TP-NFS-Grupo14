@@ -3,13 +3,11 @@
 
 #include <string>
 #include "../../common/dto/map_config.h"
+#include <yaml-cpp/yaml.h>
 
 class MapConfigLoader {
 public:
-    static MapConfig load_tiled_file(const std::string& path,
-                                     const std::string& collisions_layer = "Colisiones",
-                                     const std::string& spawns_layer = "Spawns",
-                                     const std::string& checkpoints_layer = "Checkpoint_A");
+    static MapConfig load_from_yaml(const YAML::Node& root);
 };
 
 #endif

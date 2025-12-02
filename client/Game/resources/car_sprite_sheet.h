@@ -18,6 +18,7 @@ struct CarData {
 class CarSpriteSheet {
 private:
     SdlObjTexture texture_cars;
+    SdlObjTexture texture_police;
     std::unordered_map<CarSpriteID, CarData> sprites;
 
 public:
@@ -25,6 +26,7 @@ public:
 
     const CarData& getCarData(CarSpriteID id) const;
     void render(const Area& src, const Area& dest, float angle) const;
+    void renderPolice(const Area& src, const Area& dest, float angle) const;
 };
 
 #endif  // CAR_SPRITE_SHEET_H

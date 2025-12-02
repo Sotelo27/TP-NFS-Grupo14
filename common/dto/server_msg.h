@@ -10,6 +10,7 @@
 #include "car_info.h"
 #include "results_info.h"
 #include "map_tick_info.h"
+#include "../enum/car_improvement.h" 
 
 struct ServerMessage {
     enum class Type {
@@ -23,7 +24,12 @@ struct ServerMessage {
         PlayersList,
         GameOver,
         MapInfo,
-        RaceStart // NUEVO: para indicar inicio de carrera
+        RaceStart, // para indicar inicio de carrera
+        Empty,
+        Results, // resultados de carrera
+        ResultsFinal,
+        ImprovementOK,
+        MarketTime
     };
 
     Type type;
@@ -32,6 +38,7 @@ struct ServerMessage {
     int16_t y;
     float angle;
     std::string username;
+    uint8_t map_id; // id del mapa recibido en RACE_START
     std::vector<RoomInfo> rooms;
     std::vector<PlayerInfo> players;
     uint8_t room_id;
@@ -39,6 +46,13 @@ struct ServerMessage {
     std::vector<PlayerTickInfo> players_tick;
     std::vector<NpcTickInfo> npcs_tick;
     std::vector<EventInfo> events_tick;
+    TimeTickInfo race_time;
+
+    // resultados de carrera
+    std::vector<PlayerResultCurrent> results_current;
+    std::vector<PlayerResultTotal> results_total;
+    // Improvement ACK payload (mercado / upgrades)
+    ImprovementResult result_market_player{};
 
     ServerMessage();
 };
@@ -54,7 +68,10 @@ enum class ServerOutType : uint8_t {
     CarList,
     RaceStart,
     Results,
-    MapInfo
+    ResultsTotal,
+    MapInfo,
+    ImprovementOk,
+    MarketTime
 };
 
 struct ServerOutMsg {
@@ -75,7 +92,7 @@ struct ServerOutMsg {
     std::vector<CarInfo> cars;
 
     // RaceStart
-    std::string map_name;
+    uint8_t map_id{0}; // id del mapa para RaceStart
     std::vector<std::pair<int32_t, int32_t>> checkpoints;
 
     // Results
@@ -86,6 +103,16 @@ struct ServerOutMsg {
     std::vector<PlayerTickInfo> players_tick;
     std::vector<NpcTickInfo> npcs_tick;
     std::vector<EventInfo> events_tick;
+    TimeTickInfo race_time;
+
+    uint16_t active_nitros{0};
+    uint8_t nitro_msg{0};
+
+    // ImprovementOK
+    ImprovementResult improvement_result{};
+
+    // MarketTime
+    TimeTickInfo market_time;
 
     ServerOutMsg();
 };

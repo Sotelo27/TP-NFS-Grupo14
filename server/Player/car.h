@@ -3,11 +3,13 @@
 
 #include "../physics/Entidad.h"
 #include "../../common/car_model.h"
+#include "player.h" // <--- INCLUYE EL HEADER COMPLETO
 
 class Car : public Entidad {
 private:
     CarModel spec_;
     float vida_{100.f};
+    bool infinite_life_{false};
 
     /*
      * Empuja al auto aplicando una fuerza en su centro
@@ -22,11 +24,6 @@ private:
     void apply_lateral_grip() noexcept;
     
     b2Vec2 lateral_velocity() const noexcept;
-
-    /*
-     * Devuelve la velocidad del auto en metros por segundo
-     */
-    float speed_mps() const noexcept;
 
     /*
      * Pone un tope a la velocidad lineal (m/s).
@@ -52,6 +49,15 @@ public:
      */
     void set_vida(float v) noexcept;
 
+    void set_infinite_life(bool v) noexcept { infinite_life_ = v; }
+    
+    bool has_infinite_life() const noexcept { return infinite_life_; }
+
+    /*
+     * Devuelve la velocidad del auto en metros por segundo
+     */
+    float speed_mps() const noexcept;
+
     /*
      * Aplica el movimiento del jugador: acelera, gira segun CarModel
      * y limita la velocidad maxima cuando corresponde
@@ -61,12 +67,37 @@ public:
     Type type() const override;
 
     /*
-     * Manejara la colision por entidad
-     * -> Si es con otro auto, se podra descontar vida a ambos
-     * -> Si es con un borde, no se decuenta la vida
-     * -> Si es con un edificio, se podra descontar vida al auto
+     * Notifica que este auto chocó con otra Entidad.
+     * Delega el manejo del daño en la otra entidad.
+     */
+    void on_collision_with(Entidad& other, const CollisionInfo& info) override;
+
+    /*
+     * Maneja el daño que este auto debe causar a otro auto.
+     * Para choques auto-auto se aplica daño a ambos.
+     */
+    void apply_damage_to(Car& car, const CollisionInfo& info) override;
+
+    /*
+     * Calcula y descuenta el daño real según la intensidad
+     * y la dirección del impacto.
+     */
+    void apply_collision_damage(float base_damage, const CollisionInfo& info);
+
+    /*
+     * Devuelve el body Box2D asociado al auto
+     */
+    b2Body* get_body() const noexcept { return body; }
+
+    /*
+     * Devuelve el modelo (especificaciones) del auto
+     */
+    const CarModel& get_model() const { return spec_; }
+
+    /*
+     * Devuelve el id del jugador que controla este auto
     */
-    void onCollision(Entidad* other) override;
+    size_t player_id() const noexcept { return get_id(); }
 };
 
 #endif

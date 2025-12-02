@@ -5,10 +5,11 @@
 #include "../constants.h"
 
 #define CAR_SPRITE_SHEET_FILE std::string(ASSETS_PATH) + "/cars/Cars.png"
+#define CAR_POLICE_FILE std::string(ASSETS_PATH) + "/cars/auto_policia.png"
 
 CarSpriteSheet::CarSpriteSheet(const SdlWindow& window):
-        texture_cars(CAR_SPRITE_SHEET_FILE, window,
-                     Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)) {
+        texture_cars(CAR_SPRITE_SHEET_FILE, window, RGB_BACKGROUND),
+        texture_police(CAR_POLICE_FILE, window, RGB_BACKGROUND) {
     sprites.emplace(CarSpriteID::CommonGreenCar,
                     CarData{Area(0, 0, 32, 32), CAR_WIDTH_SMALL, CAR_HEIGHT_SMALL});
     sprites.emplace(CarSpriteID::RedCar,
@@ -23,10 +24,17 @@ CarSpriteSheet::CarSpriteSheet(const SdlWindow& window):
                     CarData{Area(0, 384, 40, 40), CAR_WIDTH_MEDIUM, CAR_HEIGHT_MEDIUM});
     sprites.emplace(CarSpriteID::Limousine,
                     CarData{Area(0, 464, 48, 48), CAR_WIDTH_LARGE, CAR_HEIGHT_LARGE});
+    sprites.emplace(CarSpriteID::PoliceCar,
+                    CarData{Area(0, 0, texture_cars.getWidth(), texture_cars.getHeight()),
+                            texture_cars.getWidth(), texture_cars.getHeight()});
 }
 
 const CarData& CarSpriteSheet::getCarData(CarSpriteID id) const { return this->sprites.at(id); }
 
 void CarSpriteSheet::render(const Area& src, const Area& dest, float angle) const {
     this->texture_cars.renderEntity(src, dest, angle);
+}
+
+void CarSpriteSheet::renderPolice(const Area& src, const Area& dest, float angle) const {
+    this->texture_police.renderEntity(src, dest, angle);
 }

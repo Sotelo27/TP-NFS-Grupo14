@@ -12,6 +12,7 @@
 #include "../common/dto/movement.h"
 #include "../common/dto/server_msg.h"
 #include "../common/dto/player_info.h" 
+#include "../common/dto/client_msg.h" 
 
 class ClientProtocol {
 private:
@@ -26,35 +27,39 @@ private:
     ServerMessage parse_room_created();
     ServerMessage parse_players_list();
     ServerMessage parse_game_over();
-    ServerMessage parse_car_list();     // no setea type (igual que antes)
-    ServerMessage parse_race_start();   // no setea type (igual que antes)
-    ServerMessage parse_results();      // no setea type (igual que antes)
+    ServerMessage parse_car_list();     
+    ServerMessage parse_race_start();   
+    ServerMessage parse_results();      
+    ServerMessage parse_result_race_current();
+    ServerMessage parse_improvement();
     ServerMessage parse_map_info();
+    ServerMessage parse_market_time();
 
 public:
     explicit ClientProtocol(Socket&& skt);
 
     // Send username (string)
-    void send_name(const std::string& username);
+    void send_name(const ClientMessage& msg);
 
     // Send movement (enum Movement)
     void send_move(Movement mov);
 
-    // Rooms: crear / unirse
+    // Rooms: crear / unirse / salir
     void send_create_room();
-    void send_join_room(uint8_t room_id);
+    void send_join_room(const ClientMessage& msg); 
+    void send_leave_room();  
 
     // Start game: cantidad de carreras y (map, route) por carrera
-    void send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races);
+    void send_start_game(const ClientMessage& msg);
 
     // Elegir auto
-    void send_choose_car(uint8_t car_id);
+    void send_choose_car(const ClientMessage& msg);
 
     // Mejoras de auto
-    void send_improvement(uint8_t improvement);
+    void send_improvement(const ClientMessage& msg);
 
     // Cheats
-    void send_cheat(uint8_t cheat_code);
+    void send_cheat(const ClientMessage& msg);
 
     // Exit match
     void send_exit();

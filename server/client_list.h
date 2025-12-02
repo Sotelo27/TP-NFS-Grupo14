@@ -54,12 +54,46 @@ public:
     std::shared_ptr<ClientHandler> get_handler_by_conn(size_t conn_id);
 
     /*
+     * Remueve un cliente de la lista por su conn_id y devuelve su handler.
+     * Retorna nullptr si no se encuentra.
+     */
+    std::shared_ptr<ClientHandler> remover_por_conn_id(size_t conn_id);
+
+    /*
      * Envia la información del mapa (jugadores, NPCs, eventos) a todos los clientes
      * (por ahora la informacion de jugadores es la posicion y la vida)
      */
     void broadcast_map_info(const std::vector<PlayerTickInfo>& players,
                             const std::vector<NpcTickInfo>& npcs,
-                            const std::vector<EventInfo>& events);
+                            const std::vector<EventInfo>& events,
+                            TimeTickInfo time_info);
+
+    /*
+     * Envia el tiempo de mercado a todos los clientes
+     */
+    void broadcast_market_time_info(TimeTickInfo time_info);
+
+    /*
+     * Envia los resultados de la carrera
+     */
+    void broadcast_results(const std::vector<PlayerResultCurrent>& current);
+
+    /*
+     * Envia los resultados totales de la partida (acumulados) a todos los clientes
+     */
+    void broadcast_results_total(const std::vector<PlayerResultTotal>& total);
+
+    /*
+     * Broadcast de improvement ok (compra en marketplace)
+     * incluyento player_id y datos de la penalización
+     */
+    // Broadcast de improvement ok utilizando ImprovementResult
+    void broadcast_improvement_ok(const ImprovementResult& result);
+
+    /*
+     * Envia el inicio de la carrera a todos los clientes
+     */
+    void broadcast_race_start(uint8_t map_id);
 
     ClientListProtected(const ClientListProtected&) = delete;
     ClientListProtected& operator=(const ClientListProtected&) = delete;

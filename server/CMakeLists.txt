@@ -7,10 +7,14 @@ target_sources(taller_server
     client_thread_recv.cpp
     client_thread_send.cpp
     client_list.cpp
-    physics_world.cpp
     server.cpp
     server_protocol.cpp
     monitor_lobby.cpp
+
+    room_manager.cpp       
+    pending_manager.cpp    
+    binding_manager.cpp    
+
     PUBLIC
     # .h files
     acceptor.h
@@ -19,8 +23,11 @@ target_sources(taller_server
     client_thread_recv.h
     client_thread_send.h
     client_list.h
-    physics_world.h
     server.h
     server_protocol.h
     monitor_lobby.h
-    )
+
+    room_manager.h         
+    pending_manager.h      
+    binding_manager.h      
+)

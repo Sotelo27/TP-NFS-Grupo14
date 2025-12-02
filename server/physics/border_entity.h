@@ -18,10 +18,10 @@ public:
     Type type() const override;
 
     /*
-     * Logica de colisión para bordes, por el momento solo va a imprimir que lo colisiono un auto
-     * esto para avisarle al usuario en la consola del servidor (debug)
+     * Maneja el daño que este borde debe causar a un auto que lo haya chocado
+     * Auto aplica el daño segun el borde que lo haya chocado
      */
-    void onCollision(Entidad* other) override;
+    void apply_damage_to(Car& car, const CollisionInfo& info) override;
 };
 
 #endif

@@ -14,6 +14,9 @@ run-server: compile-debug
 run-client: compile-debug
 	./build/taller_client 127.0.0.1 8080
 
+run-editor: compile-debug
+	./build/taller_editor
+
 all: clean run-tests
 
 clean:

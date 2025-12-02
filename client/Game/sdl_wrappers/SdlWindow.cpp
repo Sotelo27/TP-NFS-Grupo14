@@ -14,11 +14,20 @@ SdlWindow::SdlWindow(int width, int height): width(width), height(height) {
     if (errCode) {
         throw SdlException("Initialization error", SDL_GetError());
     }
-    errCode = SDL_CreateWindowAndRenderer(width, height, SDL_RENDERER_ACCELERATED, &this->window,
+    errCode = SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_RESIZABLE, &this->window,
                                           &this->renderer);
     if (errCode) {
         throw SdlException("Error creating window", SDL_GetError());
     }
+
+    SDL_DestroyRenderer(renderer);
+    renderer = SDL_CreateRenderer(
+        window,
+        -1,
+        SDL_RENDERER_ACCELERATED
+    );
+
+    SDL_RenderSetLogicalSize(renderer, width, height);
 }
 
 

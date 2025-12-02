@@ -91,7 +91,8 @@ public:
      */
     void send_map_info_to_client(const std::vector<PlayerTickInfo>& players,
                                  const std::vector<NpcTickInfo>& npcs,
-                                 const std::vector<EventInfo>& events);
+                                 const std::vector<EventInfo>& events,
+                                 TimeTickInfo time_info);
 
     /*
      * Encola el envío de una posición (id,x,y,angle) al cliente
@@ -102,7 +103,27 @@ public:
      * Envia las posiciones de todos los jugadores al cliente.
      */
     void send_positions_to_all(const std::vector<PlayerPos>& positions);
-    void send_race_start(const std::string& map, const std::vector<std::pair<int32_t, int32_t>>& checkpoints);
+    void send_race_start(uint8_t map_id, const std::vector<std::pair<int32_t, int32_t>>& checkpoints);
+
+    /*
+     * Envia resultados de carrera (vector current) a este cliente
+     */ 
+    void send_results_to_client(const std::vector<PlayerResultCurrent>& current);
+
+    /*
+     * Envia los resultados totales (acumulados) de la partida a este cliente
+     */
+    void send_results_total_to_client(const std::vector<PlayerResultTotal>& total);
+
+    /*
+     * Envia el ok de compra de mejora al cliente
+     */
+    void send_improvement_ok_to_client(const ImprovementResult& result);
+
+    /*
+     * Envia el tiempo de mercado al cliente
+     */
+    void send_market_time_to_client(TimeTickInfo time_info);
 
     ClientHandler(const ClientHandler&) = delete;
     ClientHandler& operator=(const ClientHandler&) = delete;

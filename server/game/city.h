@@ -2,13 +2,15 @@
 #define CITY_H
 
 #include <vector>
-#include "../physics_world.h"
+#include "../physics/physics_world.h"
 #include "../../common/dto/map_config.h"
 
 class City {
 private:
     PhysicsWorld physics_world;
-    std::vector<SpawnPoint> spawns;
+    std::unordered_map<std::string, std::vector<Checkpoint>> checkpoints_by_route; 
+    std::unordered_map<std::string, std::vector<SpawnPoint>> spawns_by_route;
+    MapConfig map_cfg; 
 
 public:
     City();
@@ -32,12 +34,27 @@ public:
      * Obtiene un spawn point según el índice
      * Si no hay spawns, retorna una posición por defecto
      */
-    SpawnPoint get_spawn_for_index(size_t index) const;
+    SpawnPoint get_spawn_for_index(size_t index,const std::string& route_id) const;
 
     /*
-     * Configura los puntos de spawn
+     * Construye el track de la ciudad para una ruta específica
      */
-    void set_spawns(const std::vector<SpawnPoint>& new_spawns);
+    Track build_track(const std::string& route_id) const;
+
+    /*
+     * Obtiene los checkpoints para una ruta especifica
+    */
+    const std::vector<Checkpoint>& get_checkpoints_for_route(const std::string& route_id) const;
+
+    /*
+     * Obtiene los ids de las rutas disponibles
+    */
+    std::vector<std::string> get_route_ids() const;
+
+    /*
+     * Obtiene los puntos de spawn de NPCs
+    */
+    const std::vector<NpcSpawn>& get_npc_spawns() const;
 };
 
 #endif

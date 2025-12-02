@@ -15,9 +15,9 @@ constexpr int MAP_WIDTH_SIZE = 720;
 constexpr int MAP_HEIGHT_SIZE = 405;
 
 constexpr float MAP_TO_VIEWPORT_SCALE_X =
-            static_cast<float>(WINDOW_WIDTH) / MAP_WIDTH_SIZE;  // 2.6667
+        static_cast<float>(WINDOW_WIDTH) / MAP_WIDTH_SIZE;  // 2.6667
 constexpr float MAP_TO_VIEWPORT_SCALE_Y =
-            static_cast<float>(WINDOW_HEIGHT) / MAP_HEIGHT_SIZE;  // 2.6667
+        static_cast<float>(WINDOW_HEIGHT) / MAP_HEIGHT_SIZE;  // 2.6667
 
 // Car size in relation to the screen
 constexpr int CAR_WIDTH_SMALL = 80;
@@ -34,5 +34,12 @@ constexpr int CAR_HEIGHT_LARGE = 120;
 #define FONT_STYLE_CC std::string(ASSETS_PATH) + "/font/C&C Red Alert [INET].ttf"
 #define FONT_STYLE_VS1 std::string(ASSETS_PATH) + "/font/visitor1.ttf"
 #define FONT_STYLE_VS2 std::string(ASSETS_PATH) + "/font/visitor2.ttf"
+
+#define FRAME_RATE 60.0
+
+#define RGB_BACKGROUND Rgb(BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B)
+
+#define ID_MUSIC_BACKGROUND "background"
+#define ID_MUSIC_INTERMISSION "intermission"
 
 #endif  // CONSTANTS_H

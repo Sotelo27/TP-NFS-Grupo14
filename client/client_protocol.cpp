@@ -40,7 +40,10 @@ void ClientProtocol::init_recv_dispatch() {
         {CODE_S2C_CAR_LIST,     [this](){ return parse_car_list(); }},
         {CODE_S2C_RACE_START,   [this](){ return parse_race_start(); }},
         {CODE_S2C_RESULTS,      [this](){ return parse_results(); }},
+        {CODE_S2C_RACE_RESULTS_CURRENT, [this](){ return parse_result_race_current(); }},
+        {CODE_S2C_IMPROVEMENT,  [this](){ return parse_improvement(); }},
         {CODE_S2C_MAP_INFO,     [this](){ return parse_map_info(); }}
+        ,{CODE_S2C_MARKET_TIME, [this](){ return parse_market_time(); }}
     };
 }
 
@@ -141,6 +144,11 @@ ServerMessage ClientProtocol::parse_players_list() {
         skt.recvall(&ready, 1);
         p.is_ready = (ready != 0);
         
+        // NUEVO: leer is_admin
+        uint8_t admin=0;
+        skt.recvall(&admin, 1);
+        p.is_admin = (admin != 0);
+        
         uint8_t health=0;
         skt.recvall(&health, 1);
         p.health = health;
@@ -177,46 +185,29 @@ ServerMessage ClientProtocol::parse_car_list() {
 ServerMessage ClientProtocol::parse_race_start() {
     ServerMessage dto;
     dto.type = ServerMessage::Type::RaceStart;
-    
-    uint16_t len_be=0;
-    skt.recvall(&len_be, 2);
-    uint16_t len = ntohs(len_be);
-    std::string map_name(len, '\0');
-    if(len > 0) {
-        skt.recvall(&map_name[0], len);
-    }
-    
+    uint8_t map_id = 0;
+    skt.recvall(&map_id, 1);
+    dto.map_id = map_id; // guardar id del mapa
     uint8_t amount=0;
     skt.recvall(&amount, 1);
-    
     for(uint8_t i=0; i<amount; ++i) {
         int32_t x_be=0, y_be=0;
         skt.recvall(&x_be, 4);
         skt.recvall(&y_be, 4);
     }
-    
-    std::cout << "[ClientProtocol] RaceStart recibido: mapa=" << map_name 
+    std::cout << "[ClientProtocol] RaceStart recibido: map_id=" << (int)map_id 
               << ", checkpoints=" << (int)amount << std::endl;
-    
     return dto;
 }
 
 ServerMessage ClientProtocol::parse_results() {
     ServerMessage dto;
-    dto.type = ServerMessage::Type::Unknown;
+    dto.type = ServerMessage::Type::ResultsFinal;
     uint8_t n=0;
     skt.recvall(&n, 1);
-    
-    for(uint8_t i=0; i<n; ++i) {
-        uint16_t lbe=0;
-        skt.recvall(&lbe, 2);
-        uint16_t l = ntohs(lbe);
-        std::string name(l, '\0');
-        if(l) skt.recvall(&name[0], l);
-        uint16_t time_be=0;
-        skt.recvall(&time_be, 2);
-    }
-    
+
+    dto.results_total.clear();
+
     for(uint8_t i=0; i<n; ++i) {
         uint16_t lbe=0;
         skt.recvall(&lbe, 2);
@@ -225,7 +216,59 @@ ServerMessage ClientProtocol::parse_results() {
         if(l) skt.recvall(&name[0], l);
         uint32_t tbe=0;
         skt.recvall(&tbe, 4);
+        uint8_t pos=0;
+        skt.recvall(&pos, 1);
+        PlayerResultTotal prt;
+        prt.username = std::move(name);
+        prt.total_time_seconds = ntohl(tbe);
+        prt.position = pos;
+        dto.results_total.push_back(std::move(prt));
     }
+
+    return dto;
+}
+
+ServerMessage ClientProtocol::parse_result_race_current() {
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::Results;
+    uint8_t n=0; skt.recvall(&n, 1);
+    dto.results_current.clear();
+    dto.results_total.clear();
+    for(uint8_t i=0; i<n; ++i) {
+        uint32_t pid_be=0; skt.recvall(&pid_be, 4);
+        uint16_t lbe=0; skt.recvall(&lbe, 2);
+        uint16_t l = ntohs(lbe);
+        std::string name(l,'\0'); if(l) skt.recvall(&name[0], l);
+        uint32_t race_be=0; skt.recvall(&race_be, 4);
+        uint32_t total_be=0; skt.recvall(&total_be, 4);
+        uint8_t pos=0; skt.recvall(&pos,1);
+        PlayerResultCurrent prc; prc.player_id = ntohl(pid_be); prc.username = std::move(name);
+        prc.race_time_seconds = ntohl(race_be); prc.total_time_seconds = ntohl(total_be); prc.position = pos;
+        dto.results_current.push_back(std::move(prc));
+    }
+    return dto;
+}
+
+ServerMessage ClientProtocol::parse_improvement() {
+    ServerMessage dto; dto.type = ServerMessage::Type::ImprovementOK;
+    uint32_t pid_be=0; skt.recvall(&pid_be,4);
+    uint8_t imp=0; skt.recvall(&imp,1);
+    uint8_t success=0; skt.recvall(&success,1);
+    uint32_t pen_be=0; skt.recvall(&pen_be,4);
+    uint32_t bal_be=0; skt.recvall(&bal_be,4);
+    ImprovementResult r{};
+    r.player_id = ntohl(pid_be);
+    r.improvement_id = imp;
+    r.ok = (success != 0);
+    r.total_penalty_seconds = ntohl(pen_be);
+    r.current_balance = ntohl(bal_be);
+    dto.id = r.player_id;
+    dto.result_market_player = r;
+    std::cout << "[ClientProtocol] Improvement ACK player_id=" << r.player_id
+              << " improvement=" << (int)r.improvement_id
+              << " success=" << (r.ok?1:0)
+              << " total_penalty_seconds=" << r.total_penalty_seconds
+              << " current_balance=" << r.current_balance << "\n";
     return dto;
 }
 
@@ -254,8 +297,22 @@ ServerMessage ClientProtocol::parse_map_info() {
         skt.recvall(&y_be, 4);
         uint32_t ang_be=0;
         skt.recvall(&ang_be, 4);
-        uint8_t health=0;
-        skt.recvall(&health, 1);
+        uint8_t health=0; skt.recvall(&health, 1);
+        uint8_t maxh=0; skt.recvall(&maxh, 1);
+        uint32_t spd_be=0;
+        skt.recvall(&spd_be, 4);
+        uint16_t xcp_be=0, ycp_be=0; 
+        skt.recvall(&xcp_be, 2);
+        skt.recvall(&ycp_be, 2);
+        uint32_t hint_be=0;
+        skt.recvall(&hint_be, 4);
+        uint16_t pos_be=0;
+        skt.recvall(&pos_be, 2);
+        uint32_t dist_be=0;
+        skt.recvall(&dist_be, 4);
+        uint16_t rem_be=0; skt.recvall(&rem_be, 2);
+        uint8_t meta=0; skt.recvall(&meta, 1);
+        uint8_t nimp=0; skt.recvall(&nimp, 1);
         
         PlayerTickInfo pti;
         pti.username = std::move(user);
@@ -264,9 +321,26 @@ ServerMessage ClientProtocol::parse_map_info() {
         pti.x = (int32_t)ntohl(x_be);
         pti.y = (int32_t)ntohl(y_be);
         pti.angle = ntohf32(ang_be);
-        pti.health = health;
+        pti.health = health; pti.max_health = maxh;
+        pti.speed_mps = ntohf32(spd_be);
+        pti.x_checkpoint = ntohs(xcp_be);
+        pti.y_checkpoint = ntohs(ycp_be);
+        pti.hint_angle_deg = ntohf32(hint_be);
+        pti.position_in_race = ntohs(pos_be);
+        pti.distance_to_checkpoint = ntohf32(dist_be);
+        pti.checkpoints_remaining = ntohs(rem_be);
+        pti.meta = (meta != 0) ? 1 : 0;
+        pti.improvements.clear();
+        for(uint8_t k=0; k<nimp; ++k){
+            uint8_t imp=0; skt.recvall(&imp,1);
+            pti.improvements.push_back(static_cast<CarImprovement>(imp));
+        }
         dto.players_tick.push_back(std::move(pti));
     }
+    // tiempo de carrera
+    uint32_t time_be=0;
+    skt.recvall(&time_be, 4);
+    dto.race_time.seconds = ntohl(time_be);
     
     uint8_t nn=0;
     skt.recvall(&nn, 1);
@@ -276,28 +350,34 @@ ServerMessage ClientProtocol::parse_map_info() {
         uint32_t x_be=0, y_be=0;
         skt.recvall(&x_be, 4);
         skt.recvall(&y_be, 4);
+        uint32_t ang_be=0;
+        skt.recvall(&ang_be, 4);
         NpcTickInfo nti;
         nti.npc_id = npcid;
         nti.x = (int32_t)ntohl(x_be);
         nti.y = (int32_t)ntohl(y_be);
+        nti.angle = ntohf32(ang_be);
         dto.npcs_tick.push_back(nti);
     }
     
     uint8_t ne=0;
     skt.recvall(&ne, 1);
     for(uint8_t i=0; i<ne; ++i) {
-        uint8_t et=0;
-        skt.recvall(&et, 1);
-        uint16_t lbe=0;
-        skt.recvall(&lbe, 2);
-        uint16_t l = ntohs(lbe);
-        std::string user(l, '\0');
-        if(l) skt.recvall(&user[0], l);
-        EventInfo ei;
-        ei.event_type = et;
-        ei.username = std::move(user);
+        uint8_t et=0; skt.recvall(&et, 1);
+        uint32_t pid_be=0; skt.recvall(&pid_be, 4);
+        EventInfo ei; ei.event_type = et; ei.player_id = ntohl(pid_be);
         dto.events_tick.push_back(std::move(ei));
     }
+    return dto;
+}
+
+ServerMessage ClientProtocol::parse_market_time() {
+    ServerMessage dto;
+    dto.type = ServerMessage::Type::MarketTime;
+    uint32_t time_be = 0;
+    skt.recvall(&time_be, 4);
+    dto.race_time.seconds = ntohl(time_be);
+    std::cout << "[ClientProtocol] MARKET_TIME remaining=" << dto.race_time.seconds << "s\n";
     return dto;
 }
 
@@ -315,23 +395,23 @@ ServerMessage ClientProtocol::receive() {
     return dto;
 }
 
-void ClientProtocol::send_name(const std::string& username) {
+void ClientProtocol::send_name(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_NAME;
-    uint16_t len = (uint16_t)username.size();
+    uint16_t len = (uint16_t)msg.username.size();
     uint16_t len_be = htons(len);
-    
+
     std::vector<uint8_t> buf;
-    buf.reserve(1 + 2 + username.size());
+    buf.reserve(1 + 2 + len);
     buf.push_back(code);
-    
+
     size_t off = buf.size();
     buf.resize(off + 2);
     std::memcpy(buf.data() + off, &len_be, 2);
-    
+
     if(len > 0) {
-        buf.insert(buf.end(), username.begin(), username.end());
+        buf.insert(buf.end(), msg.username.begin(), msg.username.end());
     }
-    
+
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
@@ -349,61 +429,69 @@ void ClientProtocol::send_create_room() {
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_join_room(uint8_t room_id) {
+void ClientProtocol::send_join_room(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_ROOM;
     uint8_t sub = ROOM_JOIN;
-    uint8_t buf[3] = {code, sub, room_id};
+    uint8_t buf[3] = {code, sub, msg.room_id};
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_start_game(const std::vector<std::pair<std::string, uint8_t>>& races) {
+void ClientProtocol::send_start_game(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_START_GAME;
-    uint8_t qty = (uint8_t)races.size();
-    
+    uint8_t qty = (uint8_t)msg.races.size();
+
     std::vector<uint8_t> buf;
-    buf.reserve(2 + races.size() * 50);
+    buf.reserve(2 + msg.races.size() * 50);
     buf.push_back(code);
     buf.push_back(qty);
-    
-    for(const auto& race : races) {
+
+    for(const auto& race : msg.races) {
         uint16_t len = (uint16_t)race.first.size();
         uint16_t len_be = htons(len);
-        
+
         size_t off = buf.size();
         buf.resize(off + 2);
         std::memcpy(buf.data() + off, &len_be, 2);
-        
+
         if(len > 0) {
             off = buf.size();
             buf.resize(off + race.first.size());
             std::memcpy(buf.data() + off, race.first.data(), race.first.size());
         }
-        
+
         buf.push_back(race.second);
     }
-    
+
     skt.sendall(buf.data(), (unsigned int)buf.size());
 }
 
-void ClientProtocol::send_choose_car(uint8_t car_id) {
+void ClientProtocol::send_choose_car(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_CHOOSE_CAR;
-    uint8_t buf[2] = {code, car_id};
+    uint8_t buf[2] = {code, msg.car_id};
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_improvement(uint8_t improvement) {
+void ClientProtocol::send_improvement(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_IMPROVEMENT;
-    uint8_t buf[2] = {code, improvement};
+    uint8_t buf[2] = {code, msg.improvement};
     skt.sendall(buf, sizeof(buf));
 }
 
-void ClientProtocol::send_cheat(uint8_t cheat_code) {
+void ClientProtocol::send_cheat(const ClientMessage& msg) {
     uint8_t code = CODE_C2S_CHEAT;
-    uint8_t buf[2] = {code, cheat_code};
+    uint8_t buf[2] = {code, msg.cheat};
     skt.sendall(buf, sizeof(buf));
 }
 
 void ClientProtocol::send_exit() {
     uint8_t code = CODE_C2S_EXIT;
     skt.sendall(&code, sizeof(code));
+}
+
+void ClientProtocol::send_leave_room() {
+    uint8_t code = CODE_C2S_ROOM;
+    uint8_t sub = 0x04;  // ROOM_LEAVE
+    uint8_t room_id = 0; // ignorado
+    uint8_t buf[3] = {code, sub, room_id};
+    skt.sendall(buf, sizeof(buf));
 }

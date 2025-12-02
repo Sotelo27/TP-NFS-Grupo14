@@ -18,6 +18,7 @@ Car::Car(size_t id, const CarModel& spec, b2Body* body)
     b->GetUserData().pointer = reinterpret_cast<uintptr_t>(this); // aqui unimos las dos referencias, entonces Car ya se asocia su BODY y en BOdy asociamos el Car
                               // entonces en colisiones podemos recuperar el Car desde el Body, asi evitamos buscar en mapas
     }
+    set_vida(spec_.life);
 }
 
 Entidad::Type Car::type() const {
@@ -33,7 +34,7 @@ float Car::get_vida() const noexcept {
 }
 
 void Car::set_vida(float v) noexcept {
-    vida_ = std::max(0.f, v);
+    vida_ = v;
 }
 
 void Car::apply_input(float throttle, float steer) noexcept {
@@ -85,73 +86,59 @@ void Car::apply_lateral_grip() noexcept {
     body->ApplyLinearImpulseToCenter(J, true);
 }
 
-
 void Car::apply_force_center(float throttle) noexcept {
     if (!body) return;
 
     float t = std::clamp(throttle, -1.f, 1.f);
     if (t == 0.f) return;
 
-    const float v     = speed_mps();
-    const float vmax  = std::max(0.1f, spec_.velocidadMaxMps);
-    const float m     = body->GetMass();
-    const float ang   = body->GetAngle();
+    const float v    = speed_mps();
+    const float vmax = std::max(0.1f, spec_.velocidadMaxMps);
 
-    float accel_target = spec_.fuerzaAceleracionN * 0.013f;
-    accel_target = std::clamp(accel_target, 3.0f, 18.0f);
+    float accel_target = spec_.fuerzaAceleracionN;
 
+    // escala de fuerza  segun si esta cerca de la velocidad maxima
     const float x = std::clamp(v / vmax, 0.0f, 1.0f);
-    const float scale = std::clamp(1.0f - (x * x * 0.85f), 0.20f, 1.0f);
-    const float F = t * m * accel_target * scale * 32.0f;
+    const float scale = 1.0f - x;
 
-    const b2Vec2 forward(std::cos(ang), std::sin(ang));
+    // fuerza
+    float F = t * accel_target * scale;
+
+    const float ang = body->GetAngle();
+    b2Vec2 forward(std::cos(ang), std::sin(ang));
+
     body->ApplyForceToCenter(F * forward, true);
 }
 
 void Car::apply_steer(float steer) noexcept {
-    if (!body || steer == 0.f) return;
+    if (!body) return;
+
+    steer = std::clamp(steer, -1.f, 1.f);
+    if (std::fabs(steer) < STEER_DEADZONE) return;
 
     const float v   = speed_mps();
     const float ang = body->GetAngle();
 
-    // invertir sentido si vas en reversa
+    // --- invertir sentido si esta marcha atras---
     const b2Vec2 forward(std::cos(ang), std::sin(ang));
     const float vlong = b2Dot(body->GetLinearVelocity(), forward);
     float steerEff = (vlong < -0.2f) ? -steer : steer;
 
-    // agresividad desde el modelo
-    const float steerFactor = std::clamp(spec_.torqueGiro / 10.0f, 0.6f, 1.6f);
+    // potencia base de giro
+    float turn_power = spec_.torqueGiro / 5.0f;
 
-    // ω base: alta a baja velocidad, menor a alta
-    const float k = std::clamp(v / std::max(0.1f, spec_.velocidadMaxMps), 0.0f, 1.0f);
-    const float omega_lo_base = 3.6f;
-    const float omega_hi_base = 1.6f;
-    float omega_max = (omega_lo_base + (omega_hi_base - omega_lo_base) * k) * steerFactor;
+    // a mayor velocidad, menor giro (curva suavizada)
+    float speed_factor = std::clamp(v / spec_.velocidadMaxMps, 0.0f, 1.0f);
 
-    if (v < 0.20f) {
-        const float pivot_min = 4.8f * steerFactor;
-        omega_max = std::max(omega_max, pivot_min);
+    // minimo giro incluso a alta velocidad
+    float omega_min = 0.8f;
 
-        // reducir traslación para que no “empuje” contra el muro
-        b2Vec2 lv = body->GetLinearVelocity();
-        body->SetLinearVelocity(0.85f * lv);
-        if (lv.Length() < 0.03f) {
-            const float m = body->GetMass();
-            const b2Vec2 impulse = (0.25f * m) * -forward;
-            body->ApplyLinearImpulseToCenter(impulse, true);
-        }
-    }
+    // giro interpolado
+    float omega = turn_power * (1.0f - 0.5f * speed_factor) + omega_min;
 
-    const float omega_des = steerEff * omega_max;
-    const float omega_cur = body->GetAngularVelocity();
-    const float I = body->GetInertia();
-
-    // impulso angular para alcanzar ω deseada
-    const float J = I * (omega_des - omega_cur);
-    body->ApplyAngularImpulse(J, true);
+    // aplicar giro final
+    body->SetAngularVelocity(steerEff * omega);
 }
-
-
 
 float Car::speed_mps() const noexcept {
     const b2Body* b = this->body;
@@ -174,25 +161,36 @@ void Car::cap_speed(float vmax_mps) noexcept {
     }
 }
 
-void Car::onCollision(Entidad* other) {
-    if (!other){
+void Car::on_collision_with(Entidad& other, const CollisionInfo& info) {
+    other.apply_damage_to(*this, info);
+}
+
+void Car::apply_damage_to(Car& other_car, const CollisionInfo& info) {
+    // choque auto-auto: ambos se dañan
+    float base_damage = 5.f;
+    other_car.apply_collision_damage(base_damage, info);
+    this->apply_collision_damage(base_damage, info);
+}
+
+void Car::apply_collision_damage(float base_damage, const CollisionInfo& info) {
+    if (!body) return;
+
+    if (has_infinite_life()) {
+        set_vida(spec_.life);
         return;
     }
-    const float oldVida = vida_;
-    if (other->type() == Entidad::Type::Building || other->type() == Entidad::Type::Border) {
-        const float damage = 10.f;
-        set_vida(vida_ - damage);
-        std::cout << "[Collision] Car " << id
-                  << " vs " << (other->type() == Entidad::Type::Building ? "Building" : "Border")
-                  << " | vida: " << oldVida << " -> " << vida_ << " (-" << (oldVida - vida_) << ")\n";
-        return;
-    }
-    if (other->type() == Entidad::Type::Car) {
-        const float damage = 5.f;
-        set_vida(vida_ - damage);
-        std::cout << "[Collision] Car " << id
-                  << " vs Car " << other->get_id()
-                  << " | vida: " << oldVida << " -> " << vida_ << " (-" << (oldVida - vida_) << ")\n";
-        return;
-    }
+
+    // Dirección del auto
+    b2Vec2 forward = body->GetWorldVector(b2Vec2(0.f, 1.f)); 
+    float alignment = std::fabs(b2Dot(forward, -info.normal_world));
+    alignment = std::clamp(alignment, 0.f, 1.f);
+
+    float impact_factor = info.impact_intensity / 10.0f;
+    impact_factor = std::clamp(impact_factor, 0.2f, 2.0f);
+
+    float direction_factor = 0.3f + 0.7f * alignment;
+
+    float damage = base_damage * direction_factor * impact_factor;
+
+    set_vida(vida_ - damage);
 }

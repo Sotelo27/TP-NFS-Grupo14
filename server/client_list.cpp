@@ -74,11 +74,67 @@ void ClientListProtected::broadcast_players_list(const std::vector<PlayerInfo>& 
 
 void ClientListProtected::broadcast_map_info(const std::vector<PlayerTickInfo>& players,
                                              const std::vector<NpcTickInfo>& npcs,
-                                             const std::vector<EventInfo>& events) {
+                                             const std::vector<EventInfo>& events,
+                                             TimeTickInfo time_info) {
     std::lock_guard<std::mutex> lock(m);
     for (auto& client: clients) {
         if (client && client->is_alive()) {
-            client->send_map_info_to_client(players, npcs, events);
+            client->send_map_info_to_client(players, npcs, events, time_info);
+        }
+    }
+}
+
+void ClientListProtected::broadcast_results(const std::vector<PlayerResultCurrent>& current) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting RESULTS to " << clients.size() << " clients (n=" << current.size() << ")\n";
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_results_to_client(current);
+        }
+    }
+}
+
+void ClientListProtected::broadcast_results_total(const std::vector<PlayerResultTotal>& total) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting RESULTS_TOTAL to " << clients.size() << " clients (n=" << total.size() << ")\n";
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_results_total_to_client(total);
+        }
+    }
+}
+
+void ClientListProtected::broadcast_race_start(uint8_t map_id) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting RACE_START to " << clients.size() << " clients (map_id=" << (int)map_id << ")\n";
+    std::vector<std::pair<int32_t,int32_t>> empty_checkpoints; // 0 porque esto se tiene que cambiar en un futuro
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_race_start(map_id, empty_checkpoints);
+        }
+    }
+}
+
+void ClientListProtected::broadcast_market_time_info(TimeTickInfo time_info) {
+    std::lock_guard<std::mutex> lock(m);
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_market_time_to_client(time_info);
+        }
+    }
+}
+
+void ClientListProtected::broadcast_improvement_ok(const ImprovementResult& result) {
+    std::lock_guard<std::mutex> lock(m);
+    std::cout << "[ClientList] Broadcasting IMPROVEMENT_OK to " << clients.size()
+              << " clients (player_id=" << result.player_id
+              << ", improvement=" << (int)result.improvement_id
+              << ", success=" << (result.ok?1:0)
+              << ", total_penalty_seconds=" << result.total_penalty_seconds
+              << ", current_balance=" << result.current_balance << ")\n";
+    for (auto& client : clients) {
+        if (client && client->is_alive()) {
+            client->send_improvement_ok_to_client(result);
         }
     }
 }
@@ -98,5 +154,21 @@ std::shared_ptr<ClientHandler> ClientListProtected::get_handler_by_conn(size_t c
             return ch;
         }
     }
+    return nullptr;
+}
+
+std::shared_ptr<ClientHandler> ClientListProtected::remover_por_conn_id(size_t conn_id) {
+    std::lock_guard<std::mutex> lock(m);
+    
+    for (auto it = clients.begin(); it != clients.end(); ++it) {
+        if (*it && (*it)->get_id() == conn_id) {
+            std::shared_ptr<ClientHandler> handler = *it;
+            clients.erase(it);
+            std::cout << "[ClientList] Removed client conn_id=" << conn_id << " from list\n";
+            return handler;
+        }
+    }
+    
+    std::cout << "[ClientList] Client conn_id=" << conn_id << " not found in list\n";
     return nullptr;
 }

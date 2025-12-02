@@ -8,7 +8,8 @@ enum class CarSpriteID {
     SpecialCar,
     FourByFourConvertible,
     PickupTruck,
-    Limousine
+    Limousine,
+    PoliceCar
 };
 
 #endif  // CAR_ENUM_H

@@ -50,11 +50,34 @@ void ClientThreadRecv::run() {
                     std::cout << "[ClientThreadRecv] Pushed ROOM action from client " << id << " (cmd=" << (int)received.room_cmd << ")\n";
                     break;
                 }
+                    // Servidor recibe el StartGame del cliente
                 case ClientMessage::Type::StartGame: {
-                    std::cout << "[ClientThreadRecv] START_GAME from conn_id=" << id 
+                    std::cout << "[ClientThreadRecv] START_GAME from conn_id=" << id
                               << " races=" << received.races.size() << "\n";
                     action = ClientAction(id, received.races);
                     actiones_clients.push(action);
+                    break;
+                }
+                case ClientMessage::Type::ChooseCar: {
+                    action.type = ClientAction::Type::ChooseCar;
+                    action.id = id;
+                    action.car_id = received.car_id;
+                    std::cout << "[ClientThreadRecv] Pushed CHOOSE_CAR action from client " << id << " (car_id=" << (int)received.car_id << ")\n";
+                    break;
+                }
+                case ClientMessage::Type::Improvement: {
+                    action.type = ClientAction::Type::Improvement;
+                    action.id = id;
+                    action.improvement_id = received.improvement;
+                    std::cout << "[ClientThreadRecv] Pushed IMPROVEMENT action from client " << id << " (improvement=" << (int)received.improvement << ")\n";
+                    break;
+                }
+                case ClientMessage::Type::Cheat: {
+                    action.type = ClientAction::Type::Cheat;
+                    action.id = id;
+                    action.cheat = received.cheat;
+                    action.infinite_life = (received.cheat == 7); // NUEVO: marcar cheat de vida infinita
+                    std::cout << "[ClientThreadRecv] Pushed CHEAT action from client " << id << " (cheat=" << (int)received.cheat << ")\n";
                     break;
                 }
                 default:

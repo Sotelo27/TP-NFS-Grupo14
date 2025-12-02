@@ -3,14 +3,1087 @@ height: 146
 infinite: false
 layers:
 - id: 2
-  image: ../../../Documentos/TallerVeiga/TPGRUPAL/TP-NFS-Grupo14/assets/cities/San
-    Andreas.png
+  image: ../../../Documentos/TallerVeiga/TPGRUPAL/TP-NFS-Grupo14/assets/cities/SanAndreas.png
   imageheight: 4672
   imagewidth: 4640
   locked: true
   name: Capa de Imagen 1
   opacity: 1
   type: imagelayer
+  visible: true
+  x: 0
+  y: 0
+- color: '#ffffff'
+  draworder: topdown
+  id: 10
+  locked: true
+  name: Npc
+  objects:
+  - height: 0
+    id: 576
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1058
+    y: 54
+  - height: 0
+    id: 577
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1382
+    y: 184
+  - height: 0
+    id: 578
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1752
+    y: 300
+  - height: 0
+    id: 579
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 292
+    y: 310
+  - height: 0
+    id: 580
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 632
+    y: 314
+  - height: 0
+    id: 581
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 518
+    y: 522
+  - height: 0
+    id: 582
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 888
+    y: 532
+  - height: 0
+    id: 583
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 522
+    y: 760
+  - height: 0
+    id: 584
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1012
+    y: 764
+  - height: 0
+    id: 585
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1422
+    y: 754
+  - height: 0
+    id: 586
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2511
+    y: 501
+  - height: 0
+    id: 587
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1576
+    y: 506
+  - height: 0
+    id: 588
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1951
+    y: 763
+  - height: 0
+    id: 589
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2812
+    y: 488
+  - height: 0
+    id: 590
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3200
+    y: 550
+  - height: 0
+    id: 591
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 236
+    y: 682
+  - height: 0
+    id: 592
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 166
+    y: 1500
+  - height: 0
+    id: 593
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 666
+    y: 1462
+  - height: 0
+    id: 594
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 224
+    y: 1710
+  - height: 0
+    id: 595
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 456
+    y: 1710
+  - height: 0
+    id: 596
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 738
+    y: 1712
+  - height: 0
+    id: 597
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 348
+    y: 2356
+  - height: 0
+    id: 598
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 576
+    y: 2348
+  - height: 0
+    id: 599
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1444
+    y: 1702
+  - height: 0
+    id: 600
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1798
+    y: 1728
+  - height: 0
+    id: 601
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2130
+    y: 1696
+  - height: 0
+    id: 602
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3462
+    y: 1820
+  - height: 0
+    id: 603
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3567
+    y: 1725
+  - height: 0
+    id: 604
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3669
+    y: 1820
+  - height: 0
+    id: 605
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3404
+    y: 274
+  - height: 0
+    id: 606
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3980
+    y: 278
+  - height: 0
+    id: 607
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3896
+    y: 760
+  - height: 0
+    id: 608
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 372
+    y: 2930
+  - height: 0
+    id: 609
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 848
+    y: 2934
+  - height: 0
+    id: 610
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1426
+    y: 2932
+  - height: 0
+    id: 611
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1116
+    y: 2405.33333333333
+  - height: 0
+    id: 612
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1484
+    y: 2353.33333333333
+  - height: 0
+    id: 613
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 917.333333333333
+    y: 2202.66666666667
+  - height: 0
+    id: 614
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1457.33333333333
+    y: 2204
+  - height: 0
+    id: 615
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 589.333333333333
+    y: 1957.33333333333
+  - height: 0
+    id: 616
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1636
+    y: 1962.66666666667
+  - height: 0
+    id: 617
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2136.36363636364
+    y: 2927.27272727273
+  - height: 0
+    id: 618
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2636.36363636364
+    y: 2898.06060606061
+  - height: 0
+    id: 619
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1233.33333333333
+    y: 4290.90909090909
+  - height: 0
+    id: 620
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1575.75757575758
+    y: 4412.12121212121
+  - height: 0
+    id: 621
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1969.69696969697
+    y: 4293.93939393939
+  - height: 0
+    id: 622
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2812.12121212121
+    y: 4400
+  - height: 0
+    id: 623
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3393.93939393939
+    y: 4221.21212121212
+  - height: 0
+    id: 624
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2796
+    y: 3928
+  - height: 0
+    id: 625
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3084
+    y: 3652
+  - height: 0
+    id: 626
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3633.33333333333
+    y: 3521.21212121212
+  - height: 0
+    id: 627
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4442.42424242424
+    y: 4009.09090909091
+  - height: 0
+    id: 628
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3342.42424242424
+    y: 1984.84848484848
+  - height: 0
+    id: 629
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3339.39393939394
+    y: 1245.45454545455
+  - height: 0
+    id: 630
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2842.42424242424
+    y: 1830.30303030303
+  - height: 0
+    id: 631
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2384.84848484848
+    y: 1478.78787878788
+  - height: 0
+    id: 632
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2866.66666666667
+    y: 1500
+  - height: 0
+    id: 633
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2309.09090909091
+    y: 1006.06060606061
+  - height: 0
+    id: 634
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2851.51515151515
+    y: 1006.06060606061
+  - height: 0
+    id: 635
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3545.45454545455
+    y: 4384.84848484848
+  - height: 0
+    id: 636
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4078.78787878788
+    y: 4384.84848484848
+  - height: 0
+    id: 637
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3836.36363636364
+    y: 4293.93939393939
+  - height: 0
+    id: 638
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3684.84848484848
+    y: 3981.81818181818
+  - height: 0
+    id: 639
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4039.39393939394
+    y: 3987.87878787879
+  - height: 0
+    id: 640
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3309.09090909091
+    y: 2184.84848484848
+  - height: 0
+    id: 641
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3818.18181818182
+    y: 2169.69696969697
+  - height: 0
+    id: 642
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4048.48484848485
+    y: 2196.9696969697
+  - height: 0
+    id: 643
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3609.09090909091
+    y: 1248.48484848485
+  - height: 0
+    id: 644
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4057.57575757576
+    y: 1260.60606060606
+  - height: 0
+    id: 645
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1239.39393939394
+    y: 1009.09090909091
+  - height: 0
+    id: 646
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1784.84848484848
+    y: 987.878787878788
+  - height: 0
+    id: 647
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 4216
+    y: 1721.33333333333
+  - height: 0
+    id: 648
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 3946.66666666667
+    y: 1814.66666666667
+  - height: 0
+    id: 649
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1800
+    y: 2114.66666666667
+  - height: 0
+    id: 650
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2198.66666666667
+    y: 757.333333333333
+  - height: 0
+    id: 651
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2269.69696969697
+    y: 2381.81818181818
+  - height: 0
+    id: 652
+    name: ''
+    point: true
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2793.93939393939
+    y: 2375.75757575758
+  opacity: 1
+  type: objectgroup
+  visible: true
+  x: 0
+  y: 0
+- color: '#ffff00'
+  draworder: topdown
+  id: 11
+  locked: true
+  name: Spawns_C
+  objects:
+  - height: 0
+    id: 653
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 6
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1735.66
+    y: 538.12
+  - height: 0
+    id: 654
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 5
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1841.17
+    y: 499.6603
+  - height: 0
+    id: 655
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 4
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1882.33
+    y: 547.33
+  - height: 0
+    id: 656
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 3
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 1953.17
+    y: 495.1603
+  - height: 0
+    id: 657
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 2
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2032.67
+    y: 545.5
+  - height: 0
+    id: 658
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 1
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2111.67
+    y: 495.6603
+  - height: 0
+    id: 659
+    name: ''
+    point: true
+    properties:
+    - name: id_car
+      type: int
+      value: 0
+    - name: race_id
+      type: string
+      value: C
+    rotation: 0
+    type: ''
+    visible: true
+    width: 0
+    x: 2171
+    y: 551
+  opacity: 1
+  type: objectgroup
+  visible: true
+  x: 0
+  y: 0
+- color: '#ffff00'
+  draworder: topdown
+  id: 12
+  locked: true
+  name: Checkpoint_C
+  objects:
+  - height: 94
+    id: 660
+    name: Star
+    properties:
+    - name: index
+      type: int
+      value: 0
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: start
+    rotation: 0
+    type: ''
+    visible: true
+    width: 547.667
+    x: 1700.47788333333
+    y: 461.56835
+  - height: 45.0166
+    id: 661
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 1
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 0.335156
+    type: ''
+    visible: true
+    width: 79.0439
+    x: 2969.81155
+    y: 591.084716666667
+  - height: 45.0166
+    id: 662
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 2
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 0.0784545
+    type: ''
+    visible: true
+    width: 75.1592
+    x: 2966.53488333333
+    y: 1228.06305
+  - height: 45.0166
+    id: 663
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 3
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 0.32097
+    type: ''
+    visible: true
+    width: 109.825
+    x: 2599.67821666667
+    y: 1580.66838333333
+  - height: 45.0166
+    id: 664
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 4
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 0.0263781
+    type: ''
+    visible: true
+    width: 69.825
+    x: 2618.57488333333
+    y: 2066.54505
+  - height: 45.0166
+    id: 665
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 5
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 90.0737
+    type: ''
+    visible: true
+    width: 73.4982
+    x: 2560
+    y: 2336
+  - height: 45.0166
+    id: 666
+    name: Normal
+    properties:
+    - name: index
+      type: int
+      value: 6
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: normal
+    rotation: 270.271
+    type: ''
+    visible: true
+    width: 111.475
+    x: 2366.66888333333
+    y: 2967.95505
+  - height: 45.0166
+    id: 667
+    name: Finish
+    properties:
+    - name: index
+      type: int
+      value: 7
+    - name: race_id
+      type: string
+      value: C
+    - name: type
+      type: string
+      value: finish
+    rotation: 270.271
+    type: ''
+    visible: true
+    width: 121.506
+    x: 1109.87488333333
+    y: 2974.41505
+  opacity: 1
+  type: objectgroup
   visible: true
   x: 0
   y: 0
@@ -69,58 +1142,58 @@ layers:
     id: 11
     name: ''
     polyline:
-    - x: -15.6119678366977
-      y: -59.9281033520774
-    - x: 4619.50607872353
-      y: -81.5047969744783
-    rotation: 0.266235384336483
+    - x: -15.612
+      y: -59.9281
+    - x: 4619.51
+      y: -81.5048
+    rotation: 0.266235
     type: ''
     visible: true
     width: 0
-    x: 16.0117812860676
-    y: 4675.3684391825
+    x: 16.0118
+    y: 4675.37
   - height: 0
     id: 12
     name: ''
     polyline:
-    - x: 268.297688712184
-      y: -64.8029513361462
-    - x: 260.421769312218
-      y: -4671.78095037922
-    rotation: 0.0972229124489717
+    - x: 268.298
+      y: -64.803
+    - x: 260.422
+      y: -4671.78
+    rotation: 0.0972229
     type: ''
     visible: true
     width: 0
-    x: 4364.22723954334
-    y: 4679.49866985272
+    x: 4364.23
+    y: 4679.5
   - height: 0
     id: 13
     name: ''
     polyline:
-    - x: 274.992098789776
-      y: -57.3565468117522
+    - x: 274.992
+      y: -57.3565
     - x: 260.422
-      y: -4661.82032845107
-    rotation: 0.214695026744172
+      y: -4661.82
+    rotation: 0.214695
     type: ''
     visible: true
     width: 0
-    x: -270.853637918715
-    y: 4668.30662304209
+    x: -270.854
+    y: 4668.31
   - height: 0
     id: 14
     name: ''
     polyline:
     - x: 0
       y: 0
-    - x: 4620.66666666667
-      y: 2.66666666666667
+    - x: 4620.67
+      y: 2.66667
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 7.33333333333333
-    y: 4.66666666666667
+    x: 7.33333
+    y: 4.66667
   - height: 139
     id: 15
     name: ''
@@ -310,42 +1383,42 @@ layers:
     width: 109
     x: 1422
     y: 393
-  - height: 131.666666666667
+  - height: 131.667
     id: 38
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 108
-    x: 1233.33333333333
-    y: 8.66666666666667
+    x: 1233.33
+    y: 8.66667
   - height: 67
     id: 40
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 324.333333333333
+    width: 324.333
     x: 1426
-    y: 74.6666666666667
-  - height: 107.666666666667
+    y: 74.6667
+  - height: 107.667
     id: 41
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 114.666666666667
-    x: 1746.33333333333
-    y: 146.333333333333
+    width: 114.667
+    x: 1746.33
+    y: 146.333
   - height: 39
     id: 42
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 1522.66666666667
-    x: 1754.66666666667
-    y: 75.3333333333333
+    width: 1522.67
+    x: 1754.67
+    y: 75.3333
   - height: 341
     id: 43
     name: ''
@@ -418,78 +1491,78 @@ layers:
     width: 314
     x: 1745
     y: 335
-  - height: 138.666666666667
+  - height: 138.667
     id: 51
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 122.666666666667
-    x: 2009.33333333333
+    width: 122.667
+    x: 2009.33
     y: 576
-  - height: 157.333333333333
+  - height: 157.333
     id: 52
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 69.9999999999999
-    x: 465.333333333333
+    width: 70
+    x: 465.333
     y: 560
-  - height: 29.3333333333334
+  - height: 29.3333
     id: 53
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 240
-    x: 541.333333333333
-    y: 561.333333333333
-  - height: 123.333333333333
+    x: 541.333
+    y: 561.333
+  - height: 123.333
     id: 54
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 70.6666666666666
-    x: 710.666666666667
-    y: 594.666666666667
-  - height: 156.666666666667
+    width: 70.6667
+    x: 710.667
+    y: 594.667
+  - height: 156.667
     id: 55
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 143.333333333333
+    width: 143.333
     x: 836
     y: 562
-  - height: 91.3333333333333
+  - height: 91.3333
     id: 56
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 148.666666666667
+    width: 148.667
     x: 982
     y: 578
-  - height: 44.6666666666667
+  - height: 44.6667
     id: 57
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 9.33333333333326
-    x: 1125.33333333333
-    y: 673.333333333333
+    width: 9.33333
+    x: 1125.33
+    y: 673.333
   - height: 110
     id: 58
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 110.666666666667
-    x: 1272.66666666667
-    y: 609.333333333333
+    width: 110.667
+    x: 1272.67
+    y: 609.333
   - height: 76
     id: 59
     name: ''
@@ -507,16 +1580,16 @@ layers:
     visible: true
     width: 122
     x: 1596
-    y: 624.666666666667
-  - height: 107.333333333333
+    y: 624.667
+  - height: 107.333
     id: 61
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 140
-    x: 1738.66666666667
-    y: 611.333333333333
+    x: 1738.67
+    y: 611.333
   - height: 115
     id: 62
     name: ''
@@ -763,25 +1836,25 @@ layers:
     width: 140
     x: 3051
     y: 577
-  - height: 52.3333333333334
+  - height: 52.3333
     id: 89
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 101
-    x: 2721.33333333333
-    y: 585.666666666667
-  - height: 75.6666666666667
+    x: 2721.33
+    y: 585.667
+  - height: 75.6667
     id: 90
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 84
-    x: 2722.33333333333
-    y: 642.333333333333
-  - height: 30.6666666666666
+    x: 2722.33
+    y: 642.333
+  - height: 30.6667
     id: 91
     name: ''
     rotation: 0
@@ -796,18 +1869,18 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 116.666666666667
+    width: 116.667
     x: 2841
-    y: 616.333333333333
-  - height: 50.6666666666666
+    y: 616.333
+  - height: 50.6667
     id: 93
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 84.6666666666665
-    x: 2872.66666666667
-    y: 665.666666666667
+    width: 84.6667
+    x: 2872.67
+    y: 665.667
   - height: 0
     id: 94
     name: ''
@@ -826,14 +1899,14 @@ layers:
     width: 0
     x: 2700
     y: 723
-  - height: 314.666666666667
+  - height: 314.667
     id: 95
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 169.333333333333
-    x: 3106.66666666667
+    width: 169.333
+    x: 3106.67
     y: 146
   - height: 0
     id: 96
@@ -841,42 +1914,42 @@ layers:
     polyline:
     - x: 0
       y: 0
-    - x: -636.666666666667
-      y: 2.66666666666669
+    - x: -636.667
+      y: 2.66667
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 3101.33333333333
-    y: 147.333333333333
-  - height: 137.333333333333
+    x: 3101.33
+    y: 147.333
+  - height: 137.333
     id: 97
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 50
-    x: 3286.66666666667
-    y: 324.666666666667
+    x: 3286.67
+    y: 324.667
   - height: 0
     id: 98
     name: ''
     polyline:
     - x: 0
       y: 0
-    - x: 0.666666666666515
+    - x: 0.666667
       y: 158
-    - x: 48.6666666666665
-      y: 158.666666666667
-    - x: 46.6666666666665
+    - x: 48.6667
+      y: 158.667
+    - x: 46.6667
       y: -2
     rotation: 0
     type: ''
     visible: true
     width: 0
     x: 3300
-    y: 531.333333333333
-  - height: 88.6666666666666
+    y: 531.333
+  - height: 88.6667
     id: 99
     name: ''
     rotation: 0
@@ -892,8 +1965,8 @@ layers:
     type: ''
     visible: true
     width: 52
-    x: 3466.66666666667
-    y: 393.333333333333
+    x: 3466.67
+    y: 393.333
   - height: 66
     id: 102
     name: ''
@@ -972,27 +2045,27 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 46.6666666666661
+    width: 46.6667
     x: 4522
     y: 160
-  - height: 92.6666666666667
+  - height: 92.6667
     id: 116
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 173.333333333333
-    x: 4345.33333333333
-    y: 281.333333333333
+    width: 173.333
+    x: 4345.33
+    y: 281.333
   - height: 124
     id: 117
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 196.333333333333
-    x: 4065.66666666667
-    y: 321.666666666667
+    width: 196.333
+    x: 4065.67
+    y: 321.667
   - height: 349
     id: 118
     name: ''
@@ -1047,7 +2120,7 @@ layers:
     width: 62
     x: 3921
     y: 408
-  - height: 256.666666666667
+  - height: 256.667
     id: 126
     name: ''
     rotation: 0
@@ -1055,32 +2128,32 @@ layers:
     visible: true
     width: 50
     x: 3786
-    y: 320.666666666667
-  - height: 113.333333333333
+    y: 320.667
+  - height: 113.333
     id: 127
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 63.3333333333335
-    x: 3839.33333333333
-    y: 400.666666666667
+    width: 63.3333
+    x: 3839.33
+    y: 400.667
   - height: 0
     id: 128
     name: ''
     polyline:
     - x: 0
       y: 0
-    - x: 13.3333333333335
+    - x: 13.3333
       y: 0
-    - x: 13.3333333333335
+    - x: 13.3333
       y: -64
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 3842.66666666667
-    y: 581.333333333333
+    x: 3842.67
+    y: 581.333
   - height: 62
     id: 129
     name: ''
@@ -1088,17 +2161,17 @@ layers:
     type: ''
     visible: true
     width: 62
-    x: 3856.66666666667
-    y: 320.666666666667
-  - height: 60.6666666666667
+    x: 3856.67
+    y: 320.667
+  - height: 60.6667
     id: 130
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 40
-    x: 3943.33333333333
-    y: 320.666666666667
+    x: 3943.33
+    y: 320.667
   - height: 156
     id: 131
     name: ''
@@ -1158,8 +2231,8 @@ layers:
     type: ''
     visible: true
     width: 40
-    x: 3294.66666666667
-    y: 745.333333333333
+    x: 3294.67
+    y: 745.333
   - height: 163
     id: 136
     name: ''
@@ -1241,15 +2314,15 @@ layers:
     width: 90
     x: 1497
     y: 1155
-  - height: 127.333333333333
+  - height: 127.333
     id: 145
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 84
-    x: 1291.33333333333
-    y: 1534.66666666667
+    x: 1291.33
+    y: 1534.67
   - height: 126
     id: 146
     name: ''
@@ -1257,7 +2330,7 @@ layers:
     type: ''
     visible: true
     width: 92
-    x: 1474.66666666667
+    x: 1474.67
     y: 1536
   - height: 112
     id: 147
@@ -1274,27 +2347,27 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 84.6666666666667
+    width: 84.6667
     x: 82
-    y: 1545.33333333333
+    y: 1545.33
   - height: 226
     id: 149
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 105.333333333333
-    x: 4345.33333333333
-    y: 460.666666666667
-  - height: 227.333333333333
+    width: 105.333
+    x: 4345.33
+    y: 460.667
+  - height: 227.333
     id: 150
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 58
-    x: 4507.33333333333
-    y: 456.666666666667
+    x: 4507.33
+    y: 456.667
   - height: 69.5
     id: 151
     name: ''
@@ -1441,8 +2514,8 @@ layers:
     polyline:
     - x: 0
       y: 0
-    - x: 3.33333333333303
-      y: 167.333333333333
+    - x: 3.33333
+      y: 167.333
     rotation: 0
     type: ''
     visible: true
@@ -1455,10 +2528,10 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 119.333333333334
-    x: 4508.66666666667
-    y: 1066.66666666667
-  - height: 123.333333333333
+    width: 119.333
+    x: 4508.67
+    y: 1066.67
+  - height: 123.333
     id: 166
     name: ''
     rotation: 0
@@ -1467,69 +2540,69 @@ layers:
     width: 106
     x: 3822
     y: 1082
-  - height: 51.3333333333335
+  - height: 51.3333
     id: 167
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 84
-    x: 3969.33333333333
-    y: 1082.66666666667
+    x: 3969.33
+    y: 1082.67
   - height: 44
     id: 168
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 38.6666666666665
-    x: 4016.66666666667
-    y: 1145.33333333333
-  - height: 52.6666666666665
+    width: 38.6667
+    x: 4016.67
+    y: 1145.33
+  - height: 52.6667
     id: 169
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 100.666666666667
-    x: 4074.66666666667
+    width: 100.667
+    x: 4074.67
     y: 1080
-  - height: 56.6666666666665
+  - height: 56.6667
     id: 170
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 42
-    x: 4134.66666666667
+    x: 4134.67
     y: 1146
-  - height: 27.3333333333335
+  - height: 27.3333
     id: 171
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 59.333333333333
+    width: 59.3333
     x: 4186
-    y: 1176.66666666667
-  - height: 71.3333333333335
+    y: 1176.67
+  - height: 71.3333
     id: 172
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 53.3333333333339
-    x: 4208.66666666667
-    y: 1098.66666666667
+    width: 53.3333
+    x: 4208.67
+    y: 1098.67
   - height: 60
     id: 173
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 98.6666666666661
+    width: 98.6667
     x: 4276
-    y: 1097.33333333333
+    y: 1097.33
   - height: 80
     id: 174
     name: ''
@@ -1537,42 +2610,42 @@ layers:
     type: ''
     visible: true
     width: 78
-    x: 4105.33333333333
-    y: 1496.66666666667
-  - height: 78.6666666666667
+    x: 4105.33
+    y: 1496.67
+  - height: 78.6667
     id: 175
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 78
-    x: 4258.66666666667
-    y: 1496.66666666667
+    x: 4258.67
+    y: 1496.67
   - height: 78
     id: 176
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 30.6666666666661
+    width: 30.6667
     x: 4088
-    y: 1401.33333333333
+    y: 1401.33
   - height: 90
     id: 177
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 48.6666666666661
+    width: 48.6667
     x: 4310
-    y: 1291.33333333333
-  - height: 116.666666666667
+    y: 1291.33
+  - height: 116.667
     id: 178
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 59.333333333333
+    width: 59.3333
     x: 4522
     y: 1458
   - height: 30
@@ -1583,26 +2656,26 @@ layers:
     visible: true
     width: 60
     x: 4506
-    y: 1288.66666666667
-  - height: 85.3333333333333
+    y: 1288.67
+  - height: 85.3333
     id: 180
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 28.666666666667
-    x: 4537.33333333333
-    y: 1321.33333333333
-  - height: 76.6666666666667
+    width: 28.6667
+    x: 4537.33
+    y: 1321.33
+  - height: 76.6667
     id: 181
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 44
-    x: 4314.66666666667
-    y: 1401.33333333333
-  - height: 76.6666666666667
+    x: 4314.67
+    y: 1401.33
+  - height: 76.6667
     id: 182
     name: ''
     rotation: 0
@@ -1610,15 +2683,15 @@ layers:
     visible: true
     width: 28
     x: 4354
-    y: 1497.33333333333
+    y: 1497.33
   - height: 52
     id: 183
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 32.666666666667
-    x: 4352.66666666667
+    width: 32.6667
+    x: 4352.67
     y: 1590
   - height: 20
     id: 184
@@ -1628,24 +2701,24 @@ layers:
     visible: true
     width: 52
     x: 4022
-    y: 1285.33333333333
-  - height: 42.6666666666665
+    y: 1285.33
+  - height: 42.6667
     id: 185
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 91.3333333333339
-    x: 4100.66666666667
+    width: 91.3333
+    x: 4100.67
     y: 1292
-  - height: 43.3333333333333
+  - height: 43.3333
     id: 186
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 38.666666666667
-    x: 4099.33333333333
+    width: 38.6667
+    x: 4099.33
     y: 1342
   - height: 0
     id: 187
@@ -1762,9 +2835,9 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 700.666666666667
-    x: 418.666666666667
-    y: 1864.66666666667
+    width: 700.667
+    x: 418.667
+    y: 1864.67
   - height: 0
     id: 198
     name: ''
@@ -1801,23 +2874,23 @@ layers:
     width: 125
     x: 697.5
     y: 2008
-  - height: 158.333333333333
+  - height: 158.333
     id: 201
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 61.3333333333333
+    width: 61.3333
     x: 905
-    y: 2008.66666666667
-  - height: 159.333333333333
+    y: 2008.67
+  - height: 159.333
     id: 202
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 70
-    x: 1049.33333333333
+    x: 1049.33
     y: 2010
   - height: 156.5
     id: 203
@@ -1835,8 +2908,8 @@ layers:
     type: ''
     visible: true
     width: 254
-    x: 496.666666666667
-    y: 2136.66666666667
+    x: 496.667
+    y: 2136.67
   - height: 54
     id: 205
     name: ''
@@ -1863,24 +2936,24 @@ layers:
     visible: true
     width: 54
     x: 90
-    y: 1840.66666666667
-  - height: 68.6666666666665
+    y: 1840.67
+  - height: 68.6667
     id: 208
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 84.6666666666667
-    x: 72.6666666666667
-    y: 2120.66666666667
-  - height: 68.6666666666665
+    width: 84.6667
+    x: 72.6667
+    y: 2120.67
+  - height: 68.6667
     id: 209
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 38.6666666666667
-    x: 88.3333333333333
+    width: 38.6667
+    x: 88.3333
     y: 2034
   - height: 99
     id: 210
@@ -1891,14 +2964,14 @@ layers:
     width: 52
     x: 90.25
     y: 1930
-  - height: 109.333333333333
+  - height: 109.333
     id: 211
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 121.666666666667
-    x: 2232.66666666667
+    width: 121.667
+    x: 2232.67
     y: 594
   - height: 0
     id: 212
@@ -1906,24 +2979,24 @@ layers:
     polyline:
     - x: 0
       y: 0
-    - x: -0.333333333333485
+    - x: -0.333333
       y: -140
     - x: 205
-      y: -139.666666666667
+      y: -139.667
     rotation: 0
     type: ''
     visible: true
     width: 0
     x: 2186
-    y: 716.333333333333
+    y: 716.333
   - height: 0
     id: 213
     name: ''
     polyline:
     - x: 0
       y: 0
-    - x: -0.66666666666697
-      y: -139.333333333333
+    - x: -0.666667
+      y: -139.333
     - x: 93
       y: -138
     rotation: 0
@@ -1931,16 +3004,16 @@ layers:
     visible: true
     width: 0
     x: 2473
-    y: 715.666666666667
+    y: 715.667
   - height: 94
     id: 214
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 69.666666666667
-    x: 2497.33333333333
-    y: 600.666666666667
+    width: 69.6667
+    x: 2497.33
+    y: 600.667
   - height: 111.5
     id: 215
     name: ''
@@ -1977,50 +3050,50 @@ layers:
     width: 46
     x: 2202.5
     y: 1586.5
-  - height: 108.666666666667
+  - height: 108.667
     id: 219
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 104
-    x: 2376.66666666667
-    y: 1536.66666666667
+    x: 2376.67
+    y: 1536.67
   - height: 0
     id: 220
     name: ''
     polyline:
     - x: 0
       y: 0
-    - x: -35.3333333333335
-      y: -0.666666666666515
+    - x: -35.3333
+      y: -0.666667
     - x: -36
-      y: 142.666666666667
-    - x: 583.333333333333
+      y: 142.667
+    - x: 583.333
       y: 146
-    - x: 583.333333333333
-      y: 7.33333333333348
+    - x: 583.333
+      y: 7.33333
     rotation: 0
     type: ''
     visible: true
     width: 0
     x: 2030
-    y: 1522.66666666667
+    y: 1522.67
   - height: 0
     id: 221
     name: ''
     polyline:
     - x: 0
       y: 0
-    - x: -1.33333333333303
-      y: 138.666666666667
+    - x: -1.33333
+      y: 138.667
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 2699.33333333333
+    x: 2699.33
     y: 1530
-  - height: 99.3333333333333
+  - height: 99.3333
     id: 222
     name: ''
     rotation: 0
@@ -2028,34 +3101,34 @@ layers:
     visible: true
     width: 106
     x: 2720
-    y: 1537.33333333333
-  - height: 73.3333333333335
+    y: 1537.33
+  - height: 73.3333
     id: 223
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 81.3333333333335
-    x: 2871.33333333333
-    y: 1552.66666666667
-  - height: 91.3333333333333
+    width: 81.3333
+    x: 2871.33
+    y: 1552.67
+  - height: 91.3333
     id: 224
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 59.3333333333335
-    x: 3132.66666666667
-    y: 1539.33333333333
-  - height: 141.333333333333
+    width: 59.3333
+    x: 3132.67
+    y: 1539.33
+  - height: 141.333
     id: 225
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 52.6666666666661
+    width: 52.6667
     x: 4360
-    y: 1698.66666666667
+    y: 1698.67
   - height: 68
     id: 226
     name: ''
@@ -2063,24 +3136,24 @@ layers:
     type: ''
     visible: true
     width: 56
-    x: 4359.33333333333
-    y: 1857.33333333333
-  - height: 76.6666666666665
+    x: 4359.33
+    y: 1857.33
+  - height: 76.6667
     id: 227
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 68
-    x: 4491.33333333333
+    x: 4491.33
     y: 1874
-  - height: 74.6666666666665
+  - height: 74.6667
     id: 228
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 50.6666666666661
+    width: 50.6667
     x: 4576
     y: 1876
   - height: 66
@@ -2089,9 +3162,9 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 56.666666666667
-    x: 4488.66666666667
-    y: 1717.33333333333
+    width: 56.6667
+    x: 4488.67
+    y: 1717.33
   - height: 34
     id: 231
     name: ''
@@ -2099,132 +3172,132 @@ layers:
     type: ''
     visible: true
     width: 28
-    x: 4474.66666666667
-    y: 1814.66666666667
+    x: 4474.67
+    y: 1814.67
   - height: 68
     id: 232
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 99.3333333333339
-    x: 4522.66666666667
-    y: 1786.66666666667
+    width: 99.3333
+    x: 4522.67
+    y: 1786.67
   - height: 54
     id: 233
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 133.333333333333
+    width: 133.333
     x: 1242
-    y: 1869.33333333333
-  - height: 59.3333333333333
+    y: 1869.33
+  - height: 59.3333
     id: 234
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 47.3333333333333
-    x: 1391.33333333333
-    y: 1867.33333333333
-  - height: 61.3333333333333
+    width: 47.3333
+    x: 1391.33
+    y: 1867.33
+  - height: 61.3333
     id: 235
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 50.6666666666667
-    x: 1458.66666666667
-    y: 1865.33333333333
+    width: 50.6667
+    x: 1458.67
+    y: 1865.33
   - height: 28
     id: 236
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 63.3333333333333
+    width: 63.3333
     x: 1518
-    y: 1865.33333333333
-  - height: 54.6666666666667
+    y: 1865.33
+  - height: 54.6667
     id: 237
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 48.6666666666667
-    x: 1588.66666666667
-    y: 1868.66666666667
-  - height: 56.6666666666667
+    width: 48.6667
+    x: 1588.67
+    y: 1868.67
+  - height: 56.6667
     id: 238
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 225.333333333333
+    width: 225.333
     x: 1672
-    y: 1868.66666666667
+    y: 1868.67
   - height: 62
     id: 239
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 93.333333333333
+    width: 93.3333
     x: 2010
     y: 1864
-  - height: 59.3333333333333
+  - height: 59.3333
     id: 240
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 93.333333333333
+    width: 93.3333
     x: 2120
     y: 1866
-  - height: 60.6666666666667
+  - height: 60.6667
     id: 241
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 106.666666666667
+    width: 106.667
     x: 2236
-    y: 1865.33333333333
+    y: 1865.33
   - height: 62
     id: 242
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 206.666666666667
+    width: 206.667
     x: 2392
-    y: 1866.66666666667
-  - height: 34.6666666666665
+    y: 1866.67
+  - height: 34.6667
     id: 243
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 118
-    x: 2713.33333333333
+    x: 2713.33
     y: 1878
-  - height: 46.6666666666665
+  - height: 46.6667
     id: 244
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 128
-    x: 2943.33333333333
+    x: 2943.33
     y: 1888
-  - height: 116.666666666667
+  - height: 116.667
     id: 245
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 56.6666666666665
+    width: 56.6667
     x: 3134
     y: 1866
   - height: 106
@@ -2234,44 +3307,44 @@ layers:
     type: ''
     visible: true
     width: 54
-    x: 3137.33333333333
-    y: 1998.66666666667
+    x: 3137.33
+    y: 1998.67
   - height: 70
     id: 247
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 190.666666666667
-    x: 2929.33333333333
-    y: 2033.66666666667
-  - height: 93.3333333333333
+    width: 190.667
+    x: 2929.33
+    y: 2033.67
+  - height: 93.3333
     id: 248
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 726.666666666667
-    x: 3310.66666666667
-    y: 1869.33333333333
-  - height: 76.3333333333333
+    width: 726.667
+    x: 3310.67
+    y: 1869.33
+  - height: 76.3333
     id: 249
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 117
-    x: 4057.33333333333
-    y: 1881.33333333333
-  - height: 13.3333333333333
+    x: 4057.33
+    y: 1881.33
+  - height: 13.3333
     id: 250
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 29.333333333333
-    x: 4145.33333333333
-    y: 1961.33333333333
+    width: 29.3333
+    x: 4145.33
+    y: 1961.33
   - height: 142
     id: 251
     name: ''
@@ -2281,42 +3354,42 @@ layers:
     width: 68.5
     x: 4106
     y: 1993
-  - height: 308.666666666667
+  - height: 308.667
     id: 252
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 51.333333333333
+    width: 51.3333
     x: 4362
-    y: 2025.33333333333
+    y: 2025.33
   - height: 128
     id: 253
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 147.333333333333
+    width: 147.333
     x: 4420
-    y: 2244.66666666667
-  - height: 96.666666666667
+    y: 2244.67
+  - height: 96.6667
     id: 254
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 30
-    x: 4383.33333333333
-    y: 2339.33333333333
-  - height: 187.333333333333
+    x: 4383.33
+    y: 2339.33
+  - height: 187.333
     id: 255
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 77.3333333333339
-    x: 4490.66666666667
-    y: 2034.66666666667
+    width: 77.3333
+    x: 4490.67
+    y: 2034.67
   - height: 47.5
     id: 256
     name: ''
@@ -2353,15 +3426,15 @@ layers:
     width: 130
     x: 4435.5
     y: 2522
-  - height: 159.333333333333
+  - height: 159.333
     id: 262
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 86.833333333333
-    x: 4361.83333333333
-    y: 2574.66666666667
+    width: 86.8333
+    x: 4361.83
+    y: 2574.67
   - height: 155.5
     id: 263
     name: ''
@@ -2416,7 +3489,7 @@ layers:
     width: 172.5
     x: 1720.5
     y: 2009.5
-  - height: 61.3333333333335
+  - height: 61.3333
     id: 269
     name: ''
     rotation: 0
@@ -2424,41 +3497,41 @@ layers:
     visible: true
     width: 120
     x: 2012
-    y: 2010.66666666667
-  - height: 91.9999999999998
+    y: 2010.67
+  - height: 92
     id: 270
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 66.6666666666665
-    x: 2218.66666666667
-    y: 2009.33333333333
-  - height: 77.3333333333333
+    width: 66.6667
+    x: 2218.67
+    y: 2009.33
+  - height: 77.3333
     id: 271
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 49.3333333333335
-    x: 2307.33333333333
-    y: 2025.33333333333
-  - height: 36.6666666666667
+    width: 49.3333
+    x: 2307.33
+    y: 2025.33
+  - height: 36.6667
     id: 272
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 66
-    x: 2376.66666666667
-    y: 2009.33333333333
-  - height: 49.3333333333333
+    x: 2376.67
+    y: 2009.33
+  - height: 49.3333
     id: 273
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 134.666666666667
+    width: 134.667
     x: 2464
     y: 2010
   - height: 34
@@ -2467,26 +3540,26 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 98.666666666667
-    x: 2465.33333333333
-    y: 2065.33333333333
+    width: 98.6667
+    x: 2465.33
+    y: 2065.33
   - height: 36
     id: 275
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 120.666666666667
-    x: 2727.33333333333
-    y: 2057.66666666667
+    width: 120.667
+    x: 2727.33
+    y: 2057.67
   - height: 46
     id: 276
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 117.333333333333
-    x: 832.666666666667
+    width: 117.333
+    x: 832.667
     y: 2250
   - height: 70
     id: 277
@@ -2495,7 +3568,7 @@ layers:
     type: ''
     visible: true
     width: 70
-    x: 1048.66666666667
+    x: 1048.67
     y: 2250
   - height: 70
     id: 278
@@ -2503,36 +3576,36 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 405.666666666667
+    width: 405.667
     x: 1232
     y: 2250
-  - height: 109.333333333333
+  - height: 109.333
     id: 281
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 60.6666666666667
-    x: 1730.66666666667
-    y: 2153.33333333333
-  - height: 131.333333333333
+    width: 60.6667
+    x: 1730.67
+    y: 2153.33
+  - height: 131.333
     id: 282
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 99.3333333333333
-    x: 1795.33333333333
-    y: 2185.33333333333
+    width: 99.3333
+    x: 1795.33
+    y: 2185.33
   - height: 52
     id: 283
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 23.3333333333333
-    x: 1767.33333333333
-    y: 2266.66666666667
+    width: 23.3333
+    x: 1767.33
+    y: 2266.67
   - height: 117
     id: 284
     name: ''
@@ -2693,17 +3766,17 @@ layers:
     type: ''
     visible: true
     width: 84
-    x: 3825.33333333333
-    y: 2231.33333333333
-  - height: 71.3333333333335
+    x: 3825.33
+    y: 2231.33
+  - height: 71.3333
     id: 302
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 147.333333333333
+    width: 147.333
     x: 3930
-    y: 2233.33333333333
+    y: 2233.33
   - height: 66
     id: 303
     name: ''
@@ -2711,7 +3784,7 @@ layers:
     type: ''
     visible: true
     width: 80
-    x: 4095.33333333333
+    x: 4095.33
     y: 2234
   - height: 77
     id: 304
@@ -2758,7 +3831,7 @@ layers:
     width: 84
     x: 3954.5
     y: 2047.5
-  - height: 143.333333333333
+  - height: 143.333
     id: 309
     name: ''
     rotation: 0
@@ -2766,7 +3839,7 @@ layers:
     visible: true
     width: 142
     x: 1994
-    y: 1288.66666666667
+    y: 1288.67
   - height: 83
     id: 310
     name: ''
@@ -2821,40 +3894,40 @@ layers:
     width: 176
     x: 1720
     y: 2437
-  - height: 86.6666666666665
+  - height: 86.6667
     id: 316
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 201.333333333333
-    x: 2222.66666666667
+    width: 201.333
+    x: 2222.67
     y: 2432
-  - height: 90.666666666667
+  - height: 90.6667
     id: 317
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 245.333333333333
+    width: 245.333
     x: 2508
-    y: 2437.33333333333
+    y: 2437.33
   - height: 156
     id: 318
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 66.6666666666665
-    x: 2506.66666666667
-    y: 2529.33333333333
-  - height: 77.333333333333
+    width: 66.6667
+    x: 2506.67
+    y: 2529.33
+  - height: 77.3333
     id: 319
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 145.333333333333
+    width: 145.333
     x: 2656
     y: 2612
   - height: 84
@@ -2893,24 +3966,24 @@ layers:
     width: 54.5
     x: 2009.5
     y: 2433
-  - height: 158.333333333333
+  - height: 158.333
     id: 324
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 46
-    x: 73.6666666666667
-    y: 2240.66666666667
+    x: 73.6667
+    y: 2240.67
   - height: 54
     id: 325
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 253.333333333333
-    x: 3825.33333333333
-    y: 2385.33333333333
+    width: 253.333
+    x: 3825.33
+    y: 2385.33
   - height: 68
     id: 326
     name: ''
@@ -2918,61 +3991,61 @@ layers:
     type: ''
     visible: true
     width: 256
-    x: 3823.33333333333
+    x: 3823.33
     y: 2458
-  - height: 46.6666666666665
+  - height: 46.6667
     id: 327
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 198.666666666667
-    x: 3544.66666666667
+    width: 198.667
+    x: 3544.67
     y: 2386
-  - height: 22.6666666666665
+  - height: 22.6667
     id: 328
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 166.666666666667
+    width: 166.667
     x: 3576
     y: 2436
-  - height: 60.666666666667
+  - height: 60.6667
     id: 329
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 150
-    x: 3576.66666666667
-    y: 2465.33333333333
-  - height: 27.333333333333
+    x: 3576.67
+    y: 2465.33
+  - height: 27.3333
     id: 330
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 29.3333333333335
-    x: 3543.33333333333
+    width: 29.3333
+    x: 3543.33
     y: 2496
-  - height: 70.666666666667
+  - height: 70.6667
     id: 331
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 229.333333333333
+    width: 229.333
     x: 3826
-    y: 2607.33333333333
-  - height: 60.6666666666665
+    y: 2607.33
+  - height: 60.6667
     id: 332
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 70.6666666666665
-    x: 3392.66666666667
+    width: 70.6667
+    x: 3392.67
     y: 2386
   - height: 62
     id: 333
@@ -2980,18 +4053,18 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 46.6666666666665
+    width: 46.6667
     x: 3306
-    y: 2462.66666666667
+    y: 2462.67
   - height: 94
     id: 334
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 307.333333333333
+    width: 307.333
     x: 2882
-    y: 2432.66666666667
+    y: 2432.67
   - height: 81
     id: 335
     name: ''
@@ -3433,15 +4506,15 @@ layers:
     width: 135
     x: 3487
     y: 2840
-  - height: 69.3333333333335
+  - height: 69.3333
     id: 384
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 188
-    x: 3066.66666666667
-    y: 2969.33333333333
+    x: 3066.67
+    y: 2969.33
   - height: 75
     id: 385
     name: ''
@@ -3451,16 +4524,16 @@ layers:
     width: 480
     x: 2505
     y: 2969
-  - height: 62.6666666666665
+  - height: 62.6667
     id: 386
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 152
-    x: 429.333333333333
+    x: 429.333
     y: 3160
-  - height: 94.666666666667
+  - height: 94.6667
     id: 387
     name: ''
     rotation: 0
@@ -3468,16 +4541,16 @@ layers:
     visible: true
     width: 24
     x: 588
-    y: 3129.33333333333
-  - height: 26.666666666667
+    y: 3129.33
+  - height: 26.6667
     id: 388
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 96
-    x: 625.333333333333
-    y: 3125.33333333333
+    x: 625.333
+    y: 3125.33
   - height: 31
     id: 389
     name: ''
@@ -3520,8 +4593,8 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 273.333333333333
-    x: 1036.66666666667
+    width: 273.333
+    x: 1036.67
     y: 3100
   - height: 26
     id: 395
@@ -3530,17 +4603,17 @@ layers:
     type: ''
     visible: true
     width: 140
-    x: 890.666666666667
-    y: 3160.66666666667
-  - height: 29.3333333333335
+    x: 890.667
+    y: 3160.67
+  - height: 29.3333
     id: 396
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 166
-    x: 865.333333333333
-    y: 3210.66666666667
+    x: 865.333
+    y: 3210.67
   - height: 0
     id: 397
     name: ''
@@ -3742,18 +4815,18 @@ layers:
     polyline:
     - x: 0
       y: 0
-    - x: -0.33333333333303
-      y: -28.6666666666665
-    - x: 61.666666666667
-      y: -28.3333333333335
-    - x: 61.3333333333335
+    - x: -0.333333
+      y: -28.6667
+    - x: 61.6667
+      y: -28.3333
+    - x: 61.3333
       y: 1
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 2441.33333333333
-    y: 3148.66666666667
+    x: 2441.33
+    y: 3148.67
   - height: 0
     id: 418
     name: ''
@@ -3761,17 +4834,17 @@ layers:
     - x: 0
       y: 0
     - x: 0
-      y: 27.666666666667
-    - x: 61.6666666666665
-      y: 28.3333333333335
+      y: 27.6667
+    - x: 61.6667
+      y: 28.3333
     - x: 62
       y: 1
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 2440.66666666667
-    y: 3185.33333333333
+    x: 2440.67
+    y: 3185.33
   - height: 31
     id: 419
     name: ''
@@ -3779,17 +4852,17 @@ layers:
     type: ''
     visible: true
     width: 102
-    x: 2537.33333333333
+    x: 2537.33
     y: 3112
-  - height: 39.666666666667
+  - height: 39.6667
     id: 420
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 101.333333333333
-    x: 2537.33333333333
-    y: 3192.33333333333
+    width: 101.333
+    x: 2537.33
+    y: 3192.33
   - height: 25
     id: 421
     name: ''
@@ -3816,14 +4889,14 @@ layers:
     visible: true
     width: 44
     x: 968
-    y: 3297.33333333333
-  - height: 46.6666666666665
+    y: 3297.33
+  - height: 46.6667
     id: 424
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 106.666666666667
+    width: 106.667
     x: 1020
     y: 3300
   - height: 0
@@ -3832,19 +4905,19 @@ layers:
     polyline:
     - x: 0
       y: 0
-    - x: -101.333333333333
+    - x: -101.333
       y: 0
-    - x: -101.333333333333
-      y: -237.333333333333
+    - x: -101.333
+      y: -237.333
     - x: 128
-      y: -237.333333333333
+      y: -237.333
     - x: 128
       y: -144
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 1061.33333333333
+    x: 1061.33
     y: 3524
   - height: 0
     id: 427
@@ -3917,15 +4990,15 @@ layers:
       y: 0
     - x: -316
       y: -560
-    - x: 45.3333333333334
-      y: -557.333333333333
+    - x: 45.3333
+      y: -557.333
     - x: 52
-      y: -173.333333333333
+      y: -173.333
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 830.666666666667
+    x: 830.667
     y: 3880
   - height: 340
     id: 434
@@ -3961,98 +5034,98 @@ layers:
     type: ''
     visible: true
     width: 68
-    x: 350.666666666667
-    y: 3625.33333333333
-  - height: 97.3333333333335
+    x: 350.667
+    y: 3625.33
+  - height: 97.3333
     id: 438
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 69.3333333333334
-    x: 350.666666666667
-    y: 3946.66666666667
-  - height: 73.333333333333
+    width: 69.3333
+    x: 350.667
+    y: 3946.67
+  - height: 73.3333
     id: 439
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 224
-    x: 450.666666666667
+    x: 450.667
     y: 3976
-  - height: 73.3333333333335
+  - height: 73.3333
     id: 440
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 46.6666666666667
-    x: 737.333333333333
-    y: 3977.33333333333
-  - height: 67.9999999999995
+    width: 46.6667
+    x: 737.333
+    y: 3977.33
+  - height: 68
     id: 441
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 53.3333333333334
-    x: 733.333333333333
-    y: 4078.66666666667
-  - height: 78.666666666667
+    width: 53.3333
+    x: 733.333
+    y: 4078.67
+  - height: 78.6667
     id: 442
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 69.3333333333334
-    x: 350.666666666667
-    y: 4065.33333333333
+    width: 69.3333
+    x: 350.667
+    y: 4065.33
   - height: 176
     id: 443
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 83.3333333333333
-    x: 76.6666666666667
+    width: 83.3333
+    x: 76.6667
     y: 3522
-  - height: 121.333333333333
+  - height: 121.333
     id: 444
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 70.6666666666667
-    x: 73.3333333333333
-    y: 3827.33333333333
-  - height: 101.333333333333
+    width: 70.6667
+    x: 73.3333
+    y: 3827.33
+  - height: 101.333
     id: 445
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 350.666666666667
-    x: 457.333333333333
-    y: 4493.33333333333
-  - height: 34.666666666667
+    width: 350.667
+    x: 457.333
+    y: 4493.33
+  - height: 34.6667
     id: 446
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 96
-    x: 306.666666666667
-    y: 4554.66666666667
+    x: 306.667
+    y: 4554.67
   - height: 148
     id: 447
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 561.333333333333
-    x: 861.333333333333
-    y: 4454.66666666667
+    width: 561.333
+    x: 861.333
+    y: 4454.67
   - height: 61
     id: 448
     name: ''
@@ -4197,14 +5270,14 @@ layers:
     width: 92.5
     x: 3971
     y: 3691
-  - height: 116.666666666667
+  - height: 116.667
     id: 467
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 69.3333333333335
-    x: 3410.66666666667
+    width: 69.3333
+    x: 3410.67
     y: 3610
   - height: 169
     id: 468
@@ -4215,7 +5288,7 @@ layers:
     width: 44
     x: 3027
     y: 3703
-  - height: 37.666666666667
+  - height: 37.6667
     id: 469
     name: ''
     rotation: 0
@@ -4223,14 +5296,14 @@ layers:
     visible: true
     width: 94
     x: 3185
-    y: 3705.33333333333
-  - height: 125.333333333333
+    y: 3705.33
+  - height: 125.333
     id: 470
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 38.6666666666665
+    width: 38.6667
     x: 3240
     y: 3745
   - height: 164
@@ -4347,17 +5420,17 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 59.333333333333
-    x: 4491.33333333333
-    y: 3760.66666666667
-  - height: 47.333333333333
+    width: 59.3333
+    x: 4491.33
+    y: 3760.67
+  - height: 47.3333
     id: 484
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 46.666666666667
-    x: 4503.33333333333
+    width: 46.6667
+    x: 4503.33
     y: 3848
   - height: 31
     id: 485
@@ -4404,23 +5477,23 @@ layers:
     width: 70
     x: 4494
     y: 4317
-  - height: 90.666666666667
+  - height: 90.6667
     id: 492
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 56
-    x: 4183.33333333333
-    y: 4440.66666666667
-  - height: 94.6666666666661
+    x: 4183.33
+    y: 4440.67
+  - height: 94.6667
     id: 493
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 56.666666666667
-    x: 4252.66666666667
+    width: 56.6667
+    x: 4252.67
     y: 4440
   - height: 100
     id: 494
@@ -4428,9 +5501,9 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 52.6666666666661
+    width: 52.6667
     x: 4330
-    y: 4437.33333333333
+    y: 4437.33
   - height: 66
     id: 495
     name: ''
@@ -4439,17 +5512,17 @@ layers:
     visible: true
     width: 62
     x: 4114
-    y: 4055.33333333333
+    y: 4055.33
   - height: 96
     id: 496
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 63.333333333333
+    width: 63.3333
     x: 4112
-    y: 4151.33333333333
-  - height: 124.666666666667
+    y: 4151.33
+  - height: 124.667
     id: 497
     name: ''
     rotation: 0
@@ -4457,8 +5530,8 @@ layers:
     visible: true
     width: 30
     x: 4042
-    y: 4040.66666666667
-  - height: 26.6666666666665
+    y: 4040.67
+  - height: 26.6667
     id: 498
     name: ''
     rotation: 0
@@ -4466,7 +5539,7 @@ layers:
     visible: true
     width: 30
     x: 4088
-    y: 3930.66666666667
+    y: 3930.67
   - height: 30
     id: 499
     name: ''
@@ -4474,8 +5547,8 @@ layers:
     type: ''
     visible: true
     width: 28
-    x: 4147.33333333333
-    y: 3897.33333333333
+    x: 4147.33
+    y: 3897.33
   - height: 42
     id: 500
     name: ''
@@ -4547,33 +5620,33 @@ layers:
     width: 0
     x: 1409.5
     y: 4234
-  - height: 110.666666666667
+  - height: 110.667
     id: 507
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 221.333333333333
-    x: 3649.33333333333
-    y: 3833.33333333333
-  - height: 121.333333333333
+    width: 221.333
+    x: 3649.33
+    y: 3833.33
+  - height: 121.333
     id: 508
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 52.6666666666665
-    x: 3650.66666666667
+    width: 52.6667
+    x: 3650.67
     y: 3596
-  - height: 127.333333333333
+  - height: 127.333
     id: 509
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 52.6666666666665
-    x: 3817.33333333333
-    y: 3590.66666666667
+    width: 52.6667
+    x: 3817.33
+    y: 3590.67
   - height: 72
     id: 510
     name: ''
@@ -4608,8 +5681,8 @@ layers:
     type: ''
     visible: true
     width: 50
-    x: 3500.66666666667
-    y: 3875.33333333333
+    x: 3500.67
+    y: 3875.33
   - height: 196
     id: 514
     name: ''
@@ -4646,24 +5719,24 @@ layers:
     width: 81.25
     x: 3341.25
     y: 3968.25
-  - height: 87.6666666666665
+  - height: 87.6667
     id: 518
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 44.3333333333335
-    x: 3378.66666666667
-    y: 3875.66666666667
-  - height: 43.333333333333
+    width: 44.3333
+    x: 3378.67
+    y: 3875.67
+  - height: 43.3333
     id: 519
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 244
-    x: 1761.33333333333
-    y: 4443.33333333333
+    x: 1761.33
+    y: 4443.33
   - height: 64
     id: 520
     name: ''
@@ -4691,43 +5764,43 @@ layers:
     width: 125
     x: 2567
     y: 4440
-  - height: 30.666666666667
+  - height: 30.6667
     id: 523
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 136
-    x: 1440.66666666667
-    y: 4456.66666666667
+    x: 1440.67
+    y: 4456.67
   - height: 44
     id: 524
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 132.666666666667
+    width: 132.667
     x: 1602
-    y: 4457.33333333333
-  - height: 60.666666666667
+    y: 4457.33
+  - height: 60.6667
     id: 525
     name: ''
     rotation: 0
     type: ''
     visible: true
-    width: 109.333333333333
+    width: 109.333
     x: 2148
-    y: 4443.33333333333
-  - height: 49.333333333333
+    y: 4443.33
+  - height: 49.3333
     id: 526
     name: ''
     rotation: 0
     type: ''
     visible: true
     width: 196
-    x: 2786.66666666667
+    x: 2786.67
     y: 4516
-  - height: 47.3333333333339
+  - height: 47.3333
     id: 527
     name: ''
     rotation: 0
@@ -4735,7 +5808,7 @@ layers:
     visible: true
     width: 132
     x: 3066
-    y: 4472.66666666667
+    y: 4472.67
   - height: 1420
     id: 528
     name: ''
@@ -4751,13 +5824,13 @@ layers:
     polyline:
     - x: 0
       y: 0
-    - x: -1.33333333333303
+    - x: -1.33333
       y: 396
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 4180.33333333333
+    x: 4180.33
     y: 3481
   - height: 0
     id: 530
@@ -4779,18 +5852,18 @@ layers:
     polyline:
     - x: 0
       y: 0
-    - x: 159.333333333334
+    - x: 159.333
       y: 0
     - x: 160
-      y: -136.666666666667
+      y: -136.667
     - x: 256
-      y: -136.666666666667
+      y: -136.667
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 4370.66666666667
-    y: 2897.33333333333
+    x: 4370.67
+    y: 2897.33
   - height: 0
     id: 557
     name: ''
@@ -4811,14 +5884,14 @@ layers:
     polyline:
     - x: 0
       y: 0
-    - x: 0.66666666666697
-      y: 435.333333333333
+    - x: 0.666667
+      y: 435.333
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 4179.33333333333
-    y: 2458.66666666667
+    x: 4179.33
+    y: 2458.67
   - height: 0
     id: 575
     name: ''
@@ -4826,13 +5899,13 @@ layers:
     - x: 0
       y: 0
     - x: 0
-      y: 148.666666666667
+      y: 148.667
     rotation: 0
     type: ''
     visible: true
     width: 0
-    x: 4363.33333333333
-    y: 2742.66666666667
+    x: 4363.33
+    y: 2742.67
   opacity: 1
   tintcolor: '#55ff00'
   type: objectgroup
@@ -4862,8 +5935,8 @@ layers:
     type: ''
     visible: true
     width: 572.667
-    x: 112.589666666666
-    y: 22.8190000000003
+    x: 112.59
+    y: 22.819
   - height: 31.6212
     id: 535
     name: Normal
@@ -4877,12 +5950,12 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 0.55266023729456
+    rotation: 0.55266
     type: ''
     visible: true
-    width: 118.38252644913
-    x: 1121.98554398559
-    y: 142.280161988485
+    width: 118.383
+    x: 1121.99
+    y: 142.28
   - height: 31.5
     id: 536
     name: Normal
@@ -4896,12 +5969,12 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 270.01309314265
+    rotation: 270.013
     type: ''
     visible: true
-    width: 138.490027667285
-    x: 1453.90277723513
-    y: 606.734603396413
+    width: 138.49
+    x: 1453.9
+    y: 606.735
   - height: 31.5
     id: 537
     name: Normal
@@ -4918,9 +5991,9 @@ layers:
     rotation: 0.25397
     type: ''
     visible: true
-    width: 125.508713650683
-    x: 2573.38666470386
-    y: 692.588383316024
+    width: 125.509
+    x: 2573.39
+    y: 692.588
   - height: 31.5
     id: 538
     name: Normal
@@ -4937,10 +6010,10 @@ layers:
     rotation: 270.299
     type: ''
     visible: true
-    width: 190.855183008795
-    x: 2556.02176529617
-    y: 1863.84003815706
-  - height: 194.058201039885
+    width: 190.855
+    x: 2556.02
+    y: 1863.84
+  - height: 194.058
     id: 539
     name: Normal
     properties:
@@ -4953,13 +6026,13 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 0.741882051980156
+    rotation: 0.741882
     type: ''
     visible: true
     width: 46.6667
-    x: 1001.83228709213
-    y: 1667.86867840945
-  - height: 206.365343388236
+    x: 1001.83
+    y: 1667.87
+  - height: 206.365
     id: 540
     name: Normal
     properties:
@@ -4976,8 +6049,8 @@ layers:
     type: ''
     visible: true
     width: 46.6667
-    x: 338.148419107803
-    y: 2070.160297236
+    x: 338.148
+    y: 2070.16
   - height: 31.5
     id: 541
     name: Normal
@@ -4991,12 +6064,12 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 90.1123193243609
+    rotation: 90.1123
     type: ''
     visible: true
-    width: 105.499953884725
-    x: 726.374459683758
-    y: 2321.17589306093
+    width: 105.5
+    x: 726.374
+    y: 2321.18
   - height: 31.5
     id: 542
     name: Finish
@@ -5013,9 +6086,9 @@ layers:
     rotation: 89.1338
     type: ''
     visible: true
-    width: 117.104069781759
-    x: 1888.18906100074
-    y: 2316.50470114701
+    width: 117.104
+    x: 1888.19
+    y: 2316.5
   opacity: 1
   type: objectgroup
   visible: true
@@ -5043,7 +6116,7 @@ layers:
     visible: true
     width: 0
     x: 166.664
-    y: 100.332121212121
+    y: 100.332
   - height: 0
     id: 551
     name: ''
@@ -5060,7 +6133,7 @@ layers:
     visible: true
     width: 0
     x: 272.167
-    y: 61.8821212121214
+    y: 61.8821
   - height: 0
     id: 552
     name: ''
@@ -5077,7 +6150,7 @@ layers:
     visible: true
     width: 0
     x: 313.333
-    y: 109.542121212121
+    y: 109.542
   - height: 0
     id: 553
     name: ''
@@ -5094,7 +6167,7 @@ layers:
     visible: true
     width: 0
     x: 384.17
-    y: 57.3821212121214
+    y: 57.3821
   - height: 0
     id: 554
     name: ''
@@ -5111,7 +6184,7 @@ layers:
     visible: true
     width: 0
     x: 463.67
-    y: 107.712121212121
+    y: 107.712
   - height: 0
     id: 555
     name: ''
@@ -5128,7 +6201,7 @@ layers:
     visible: true
     width: 0
     x: 542.67
-    y: 57.8821212121214
+    y: 57.8821
   - height: 0
     id: 556
     name: ''
@@ -5145,7 +6218,7 @@ layers:
     visible: true
     width: 0
     x: 602
-    y: 113.212121212121
+    y: 113.212
   opacity: 1
   type: objectgroup
   visible: true
@@ -5157,7 +6230,7 @@ layers:
   locked: true
   name: Checkpoint_B
   objects:
-  - height: 151.357885357343
+  - height: 151.358
     id: 558
     name: Star
     properties:
@@ -5173,9 +6246,9 @@ layers:
     rotation: 0
     type: ''
     visible: true
-    width: 560.204242718447
-    x: 391.774878640776
-    y: 4267.73105732133
+    width: 560.204
+    x: 391.775
+    y: 4267.73
   - height: 45.0166
     id: 559
     name: Normal
@@ -5189,12 +6262,12 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 90.555147520874
+    rotation: 90.5551
     type: ''
     visible: true
-    width: 151.591760536735
-    x: 2150.80463184046
-    y: 4266.15444935109
+    width: 151.592
+    x: 2150.8
+    y: 4266.15
   - height: 45.0166
     id: 560
     name: Normal
@@ -5208,12 +6281,12 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 0.621358446539617
+    rotation: 0.621358
     type: ''
     visible: true
-    width: 105.684151749884
-    x: 2946.18371133479
-    y: 4033.67915726083
+    width: 105.684
+    x: 2946.18
+    y: 4033.68
   - height: 45.0166
     id: 561
     name: Normal
@@ -5227,12 +6300,12 @@ layers:
     - name: type
       type: string
       value: normal
-    rotation: 90.5691364833278
+    rotation: 90.5691
     type: ''
     visible: true
     width: 109.825
-    x: 3874.26017597702
-    y: 3717.98450288015
+    x: 3874.26
+    y: 3717.98
   - height: 45.0166
     id: 562
     name: Normal
@@ -5249,8 +6322,8 @@ layers:
     rotation: 0.0263781
     type: ''
     visible: true
-    width: 175.824988766435
-    x: 4187.1735
+    width: 175.825
+    x: 4187.17
     y: 3626.07
   - height: 45.0166
     id: 563
@@ -5269,8 +6342,8 @@ layers:
     type: ''
     visible: true
     width: 184.493
-    x: 4183.73622727273
-    y: 2531.88333333333
+    x: 4183.74
+    y: 2531.88
   - height: 45.0166
     id: 564
     name: Normal
@@ -5287,9 +6360,9 @@ layers:
     rotation: 270.271
     type: ''
     visible: true
-    width: 120.51753623009
-    x: 3619.91523695376
-    y: 2228.0546003641
+    width: 120.518
+    x: 3619.92
+    y: 2228.05
   - height: 45.0166
     id: 565
     name: Finish
@@ -5303,12 +6376,12 @@ layers:
     - name: type
       type: string
       value: finish
-    rotation: 89.330909884565
+    rotation: 89.3309
     type: ''
     visible: true
-    width: 108.784747280844
-    x: 3113.14564848184
-    y: 2857.64875194881
+    width: 108.785
+    x: 3113.15
+    y: 2857.65
   opacity: 1
   type: objectgroup
   visible: true
@@ -5335,8 +6408,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 456.030830064992
-    y: 4402.68566356485
+    x: 456.031
+    y: 4402.69
   - height: 0
     id: 567
     name: ''
@@ -5352,8 +6425,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 537.956174570363
-    y: 4298.34523375084
+    x: 537.956
+    y: 4298.35
   - height: 0
     id: 568
     name: ''
@@ -5369,8 +6442,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 615.058413029667
-    y: 4401.10649972156
+    x: 615.058
+    y: 4401.11
   - height: 0
     id: 569
     name: ''
@@ -5386,8 +6459,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 683.520088745338
-    y: 4296.74221934202
+    x: 683.52
+    y: 4296.74
   - height: 0
     id: 570
     name: ''
@@ -5403,8 +6476,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 768.840009967754
-    y: 4399.23460719531
+    x: 768.84
+    y: 4399.23
   - height: 0
     id: 571
     name: ''
@@ -5420,8 +6493,8 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 850.648485144745
-    y: 4297.25366538745
+    x: 850.648
+    y: 4297.25
   - height: 0
     id: 572
     name: ''
@@ -5437,15 +6510,15 @@ layers:
     type: ''
     visible: true
     width: 0
-    x: 910.336672894756
-    y: 4404.86051369498
+    x: 910.337
+    y: 4404.86
   opacity: 1
   type: objectgroup
   visible: true
   x: 0
   y: 0
-nextlayerid: 10
-nextobjectid: 576
+nextlayerid: 13
+nextobjectid: 668
 orientation: orthogonal
 renderorder: right-down
 tiledversion: 1.11.1-99-gec89c545

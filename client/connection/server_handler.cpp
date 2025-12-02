@@ -106,6 +106,27 @@ ServerMessage ServerHandler::recv_response_from_server() {
         std::cout << "[ServerHandler] Received message type: " << (int)msg.type << std::endl;
         return msg;
     }
-    msg.type = ServerMessage::Type::Unknown;
+    msg.type = ServerMessage::Type::Empty;
     return msg;
+}
+
+void ServerHandler::send_leave_room() {
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::Room;
+    msg.room_cmd = 0x04;  // ROOM_LEAVE
+    msg.room_id = 0;      // ignorado
+    std::cout << "[ServerHandler] Sending ROOM_LEAVE" << std::endl;
+    messages_send.try_push(msg);
+}
+
+void ServerHandler::send_improvement_choice(CarImprovement improvement) {
+    ClientMessage msg;
+    msg.type = ClientMessage::Type::Improvement;
+    msg.improvement = static_cast<uint8_t>(improvement);
+    std::cout << "[ServerHandler] Sending Improvement choice: " << static_cast<int>(improvement) << std::endl;
+    messages_send.try_push(msg);
+}
+
+void ServerHandler::send_cheat(const ClientMessage& msg) {
+    protocol.send_cheat(msg);
 }

@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include "../../common/dto/server_msg.h"
+#include "../../common/enum/map_enum.h"
 #include "../connection/server_handler.h"
 
 class WaitingRoomScreen : public QWidget {
@@ -16,31 +17,53 @@ class WaitingRoomScreen : public QWidget {
 private:
     ServerHandler& server_handler;
     size_t& my_id;
+    bool& map_selected;
+    MapID& selected_map_game;
 
-    QVBoxLayout* playerListLayout;
-    QScrollArea* scrollArea;
-    QWidget* container;
-    QVBoxLayout* layout;
-    QTimer* pollTimer;
-
-    // control de admin y botón de inicio
+    QLabel* background = nullptr;
+    QScrollArea* scrollArea = nullptr;
+    QWidget* container = nullptr;
+    QVBoxLayout* layout = nullptr;
+    QTimer* pollTimer = nullptr;
+    QVBoxLayout* mainLayout = nullptr;
+    QPushButton* selectMapButton = nullptr;
     QPushButton* startButton = nullptr;
+    QPushButton* backButton = nullptr;
+
     bool is_admin = false;
+    QString selected_map;
+    bool fron_editor_selection = false;
 
 public:
-    explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, QWidget* parent);
-    void update_player_list(const std::vector<std::string>& players);
+    explicit WaitingRoomScreen(ServerHandler& server_handler, size_t& my_id, bool& map_selected, MapID& selected_map_game, QWidget* parent = nullptr);
+
     void start_game();
+    void set_selected_map(const QString& map) { selected_map = map; }
+    bool isAdmin() const { return is_admin; }
+    void hideSelectMapButton();
+
+    void startPolling();
+    void stopPolling()  { if (pollTimer && pollTimer->isActive()) pollTimer->stop(); }
 
     signals:
-        void go_back_to_lobby_screen();
-        void go_to_selection_car_screen();
-        void go_to_selection_map_screen();
-        void go_to_game_start();
+    void go_back_to_lobby_screen();
+    void go_to_selection_car_screen();
+    void go_to_selection_map_screen();
+    void go_to_game_start();
+    void go_to_editor_screen();
 
-private slots:
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+
+private:
     void onPollTimer();
     void processServerMessage(const ServerMessage& msg);
+
+    void createBackground();
+    void createTitle();
+    void createScrollArea();
+    void createStartButton();
+    void createBackButton();
 };
 
-#endif
+#endif // WAITING_ROOM_WINDOW_H

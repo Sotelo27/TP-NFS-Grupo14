@@ -7,9 +7,9 @@
 
 MapsTextures::MapsTextures(const SdlWindow& window): window(window) {
     // Inicializar los nombres de archivo de los mapas
-    mapFilenames[MapID::LibertyCity] = std::string(ASSETS_PATH) + "/cities/Liberty City.png";
-    mapFilenames[MapID::SanAndreas] = std::string(ASSETS_PATH) + "/cities/San Andreas.png";
-    mapFilenames[MapID::ViceCity] = std::string(ASSETS_PATH) + "/cities/Vice City.png";
+    mapFilenames[MapID::LibertyCity] = std::string(ASSETS_PATH) + "/cities/LibertyCity.png";
+    mapFilenames[MapID::SanAndreas] = std::string(ASSETS_PATH) + "/cities/SanAndreas.png";
+    mapFilenames[MapID::ViceCity] = std::string(ASSETS_PATH) + "/cities/ViceCity.png";
 }
 
 void MapsTextures::loadMap(MapID mapID) {
