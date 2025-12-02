@@ -87,7 +87,7 @@ void GameHud::render(int iteration, int time_seconds, const Area& src_area_map) 
     const CarInfoGame& client_car = info_players[client_id];
 
     checkpoint.render(client_car.info_car.x_checkpoint, client_car.info_car.y_checkpoint,
-                      src_area_map, iteration);
+                      src_area_map, iteration, client_car.info_car.meta != 0);
 
     renderLifeBarHud();
 
