@@ -209,8 +209,6 @@ void Intermission::run(std::vector<PlayerResultCurrent> player_infos, int iterat
 
     clear_resources();
 
-    audio_manager.pauseMusic();
-
     ConstantRateLoop::start_loop();
 }
 
