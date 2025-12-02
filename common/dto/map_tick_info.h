@@ -25,6 +25,7 @@ struct PlayerTickInfo {
 
     uint8_t max_health;
     uint16_t checkpoints_remaining;
+    uint8_t meta;
 
     std::vector<CarImprovement> improvements;
 };

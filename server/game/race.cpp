@@ -151,7 +151,7 @@ void Race::check_health_states() {
         if (it_car->second->get_vida() <= 0.f) {
             participant.state = ParticipantState::Disqualified;
             participant.finish_time_seconds = race_duration;
-
+            it_car->second->set_vida(0.f);
             std::cout << "[Race] Player " << player_id
                       << " DISQUALIFIED (no health)\n";
         }
@@ -313,7 +313,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
             player.max_health = (uint8_t)std::lround(model.life);
             player.improvements = model.improvements;
         } else {
-            player.max_health = hp; // fallback al valor actual si no hay modelo
+            player.max_health = hp;
             player.improvements.clear();
         }
 
@@ -321,7 +321,11 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         player.x_checkpoint = 0;
         player.y_checkpoint = 0;
         player.hint_angle_deg = 0.0f;
-        player.position_in_race = 0;
+        if (participant.state == ParticipantState::Disqualified) {
+            player.position_in_race = static_cast<uint16_t>(-1);
+        } else {
+            player.position_in_race = 0;
+        }
         player.distance_to_checkpoint = 0.0f;
         
         const uint32_t next_idx = participant.next_checkpoint_idx;
@@ -355,6 +359,7 @@ std::vector<PlayerTickInfo> Race::snapshot_ticks() const {
         }
         // cantidad de checkpoints restantes
         player.checkpoints_remaining = (uint16_t)(track.checkpoints.size() > next_idx ? (track.checkpoints.size() - next_idx) : 0);
+        player.meta = (uint8_t)((track.checkpoints.size() > 0 && next_idx == track.checkpoints.size() - 1) ? 1 : 0);
         ranking.push_back(RankInfo{(uint32_t)(playerId), participant.next_checkpoint_idx, distance_px, participant.finish_time_seconds});
         out.push_back(player);
     }
@@ -433,7 +438,7 @@ void Race::cheat_win_race(size_t playerId) {
 }
 
 void Race::add_npc(uint8_t npc_id, float x_m, float y_m) {
-    // Elegir un modelo de auto para el NPC (puede ser aleatorio)
+    // Elegir un modelo de auto para el NPC
     static std::vector<CarModel> modelos = {
         car_factory::common_green_car(),
         car_factory::red_car(),
@@ -470,8 +475,8 @@ std::vector<NpcTickInfo> Race::snapshot_npcs() const {
         b2Vec2 pos = body->GetPosition();
         NpcTickInfo info;
         info.npc_id = npc_id;
-        info.x = static_cast<int32_t>(pos.x * PPM);
-        info.y = static_cast<int32_t>(pos.y * PPM);
+        info.x = (int32_t)(pos.x * PPM);
+        info.y = (int32_t)(pos.y * PPM);
         info.angle = body->GetAngle() * 180.0f / PI;
         out.push_back(info);
     }
@@ -486,7 +491,7 @@ std::vector<EventInfo> Race::snapshot_events() {
 
 void Race::register_damage_event(size_t player_id) {
     EventInfo ev;
-    ev.event_type = static_cast<uint8_t>(EventRaceType::DAMAGED);
+    ev.event_type = (uint8_t)(EventRaceType::DAMAGED);
     ev.player_id = (uint32_t)player_id;
     pending_events.push_back(std::move(ev));
 }

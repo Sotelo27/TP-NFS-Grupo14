@@ -311,6 +311,7 @@ ServerMessage ClientProtocol::parse_map_info() {
         uint32_t dist_be=0;
         skt.recvall(&dist_be, 4);
         uint16_t rem_be=0; skt.recvall(&rem_be, 2);
+        uint8_t meta=0; skt.recvall(&meta, 1);
         uint8_t nimp=0; skt.recvall(&nimp, 1);
         
         PlayerTickInfo pti;
@@ -328,6 +329,7 @@ ServerMessage ClientProtocol::parse_map_info() {
         pti.position_in_race = ntohs(pos_be);
         pti.distance_to_checkpoint = ntohf32(dist_be);
         pti.checkpoints_remaining = ntohs(rem_be);
+        pti.meta = (meta != 0) ? 1 : 0;
         pti.improvements.clear();
         for(uint8_t k=0; k<nimp; ++k){
             uint8_t imp=0; skt.recvall(&imp,1);

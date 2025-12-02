@@ -81,6 +81,28 @@ EditorMenu::EditorMenu(QWidget *parent)
         "background: white; border-radius:6px; padding:5px; font-size:15px;"
     );
     lateralLayout->addWidget(nombreArchivoInput);
+
+    // ----------------- Botón de ayuda -----------------
+    QPushButton* helpBtn = new QPushButton("?", panelLateral);
+    helpBtn->setStyleSheet(
+        "QPushButton { background-color: rgba(255,255,255,0.15); color:white; font-size:16px; padding:8px; border-radius:8px; }"
+        "QPushButton:hover { background-color: rgba(255,255,255,0.3); }"
+    );
+    helpBtn->setFixedSize(40,40);
+    lateralLayout->addWidget(helpBtn, 0, Qt::AlignCenter);
+
+    connect(helpBtn, &QPushButton::clicked, [this]() {
+        QMessageBox::information(this, "Guía de uso",
+            "Hola, esta es la guía de cómo crear tu mapa:\n"
+            "1) Con la barra vertical izquierda podrás elegir la cantidad de recorridos que quieras hacer\n"
+            "2) Como mínimo 1 recorrido y máximo 6\n"
+            "3) Elije un recorrido y con click izquierdo agrega checkpoint donde quieras\n"
+            "4) Para quitar el último checkpoint, hacé click derecho\n"
+            "5) Agrega los checkpoints donde quieras, eso sí, si lo agregas en el agua es responsabilidad tuya.\n"
+            "6) Guarda tu mapa editado agregándole un nombre"
+        );
+    });
+
     // ---------------------------------------------------------------
 
     mainLayout->addWidget(panelLateral);

@@ -99,9 +99,9 @@ void GameWindow::setupConnections() {
         goToWaitingRoomFromMap();
     });
 
-    connect(editor_map_screen, &EditorMapScreen::go_back_to_menu, this, [this]() {
-        waiting_room_screen->startPolling();
-        stack->setCurrentWidget(waiting_room_screen);
+    connect(editor_map_screen, &EditorMapScreen::go_back_to_lobby, this, [this]() {
+        lobby_screen->startPolling();
+        stack->setCurrentWidget(lobby_screen);
     });
 
     connect(editor_map_screen, &EditorMapScreen::go_to_waiting_room, this,
