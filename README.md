@@ -2,13 +2,13 @@
 
 ## Integrantes del grupo:
 
-@Dayrustz7u7
-
-@maycolml
-
-@Sotelo27
-
-@JuanJL217
+- Mario Rafael Janampa Salazar [@Dayrustz7u7](https://github.com/Dayrustz7u7)
+  
+- Maycol Mei Li [@maycolml](https://github.com/maycolml)
+  
+- Lautaro Martín Sotelo [@Sotelo27](https://github.com/Sotelo27)
+  
+- Juan Ernesto Juarez Lezama [@JuanJL217](https://github.com/JuanJL217)
 
 ## Trailer:
 
