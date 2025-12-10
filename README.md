@@ -1,45 +1,19 @@
-# Ejemplo de CMAKE para el TP Final
+## Juego de carreras multijugador 2D desarrollado como trabajo práctico para Taller de Programación (TA045), cátedra Veiga, en la Facultad de Ingeniería de la Universidad de Buenos Aires. 🏎️🏁
 
-**Importante:** el primer commit de este repositorio tiene el setup
-básico para el TP Final que incluye la instalación de la lib de Google
-Tests, `SDL2` y `SDL2pp` (el wrapper de C++).
+## Integrantes del grupo:
 
-El resto de los commits son a modo de ejemplo de como se pueden
-agregar mas código fuente al proyecto.
+@Dayrustz7u7
 
-Este ejemplo **no** incluye instalarse otras libs que son dependencias
-tanto de `SDL2` como de `SDL2pp` (pero si estan documentadas en el
-`CMakeFile` para Xubuntu 24.04).
+@maycolml
 
-Este repo **no** incluye tampoco un instalador.
+@Sotelo27
 
-**Se deben agregar las librerias necesarias y el instalador.**
+@JuanJL217
 
-También el ejemplo usa una estructura de carpetas muy simple:
+## Trailer:
 
-```
-client/
-server/
-editor/
-common/
-```
+https://www.youtube.com/watch?v=t8zl6WrCiXM
 
-Bien se puede mejorar (cambiando el cmakefile) agregando mas
-sub-carpetas.
+## Link a los manuales junto al instalador:
 
-Asi tambien **deben** ser cambiados los *targets* del cmake (`taller_client`,
-`taller_server`, ...) por nombres mas acordes al TP que se este
-haciendo.
-
-Tambien, por default solo se compila una version *debug* sin
-optimizar. Si se quiere compilar binarios optimizados
-(lo que cmake llama *release*) se puede, solo hay modificar
-cmake.
-
-Aprender del ejemplo para saber como extenderlo!
-
-**Importante:** este repositorio **no** incluye pre-commits hooks,
-ni scripts adicionales (como correr valgrind).
-
-**Eso esta a cargo de los estudiantes,** tal como fue mostrado
-en los tps individuales, recaps y hands-on.
+https://drive.google.com/drive/folders/1DxYH4WdBrWlI07nUNzgCtQhbH45LzuOG
